@@ -11,7 +11,7 @@ import AppData
     public func send(_ action: AppShellAction) { viewModel.send(action) }
     private func handle(_ event: AppShellEvent) {
         switch event {
-        case .navigate(let route): path.append(route)
+        case .navigate(let route): sheet = nil; path.append(route)
         case .showAccounts: sheet = .accounts
         case .accountSelected, .dismissPrivateNavigation: path = []; sheet = nil
         }

@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>account.add</key>
+	<string>Add account</string>
 	<key>copy.28f2d4300544</key>
 	<string>Ramflux</string>
 	<key>copy.446531641e6a</key>

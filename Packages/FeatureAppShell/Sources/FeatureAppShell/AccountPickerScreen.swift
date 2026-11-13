@@ -15,9 +15,12 @@ public struct AccountPickerScreen: View {
             if state.session.accounts.isEmpty {
                 RFUnavailableView(title: FeatureAppShellStrings.text("copy.79b40467bd3e", locale: locale), message: FeatureAppShellStrings.text("copy.555b840fbf7c", locale: locale))
             } else {
+                VStack {
+                Button(FeatureAppShellStrings.text("account.add", locale: locale)) { onAction(.open(.onboarding)) }.disabled(state.busy)
                 List(state.session.accounts) { account in
                     Button(account.displayName) { onAction(.selectAccount(account.id)) }.disabled(state.busy)
                 }.scrollContentBackground(.hidden)
+                }
             }
         }.navigationTitle(FeatureAppShellStrings.text("copy.8a7c8b67fe8b", locale: locale))
     }

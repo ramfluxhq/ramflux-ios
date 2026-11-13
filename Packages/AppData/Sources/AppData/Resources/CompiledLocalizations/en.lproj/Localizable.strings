@@ -118,6 +118,28 @@
 	<string>Group threads and forum posts are not available in this phone build.</string>
 	<key>groups.unavailable.transfer</key>
 	<string>Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet.</string>
+	<key>onboarding.nodeKeyMismatch</key>
+	<string>The operator key must match the discovered node key. Check it with the operator before confirming.</string>
+	<key>onboarding.nodeRequired</key>
+	<string>Select a confirmed node before preparing your account.</string>
+	<key>onboarding.protocol</key>
+	<string>The account setup response did not match the supported SDK contract. Update the app before retrying.</string>
+	<key>onboarding.refusal.title</key>
+	<string>Account setup needs attention</string>
+	<key>onboarding.sdkRefusal</key>
+	<string>The SDK refused account setup (code %@). Keep the current account state and check the node or app configuration.</string>
+	<key>onboarding.vaultBusy</key>
+	<string>The private Keychain is busy. Finish the current account operation and try again.</string>
+	<key>onboarding.vaultCorrupt</key>
+	<string>The private Keychain credentials could not be verified. Recover the account before continuing.</string>
+	<key>onboarding.vaultLocked</key>
+	<string>The private Keychain is locked. Unlock this device and try again.</string>
+	<key>onboarding.vaultMissing</key>
+	<string>Required account credentials are missing from the private Keychain. Recover the account before continuing.</string>
+	<key>onboarding.vaultPermission</key>
+	<string>This app cannot access its private Keychain. Install a correctly signed build with the app’s Keychain entitlement.</string>
+	<key>onboarding.vaultUnavailable</key>
+	<string>The private Keychain provider is unavailable on this device.</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@: %2$@</string>
 	<key>settings.mobileBackup</key>

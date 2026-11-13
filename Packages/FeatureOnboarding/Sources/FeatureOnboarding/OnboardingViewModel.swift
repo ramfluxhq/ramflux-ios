@@ -26,9 +26,10 @@ import AppData
         switch action {
         case .appeared: run { [nodes] in .nodes(await nodes.list()) }
         case .nameChanged(let value): state.name = String(value.prefix(256))
+        case .expectedNodeKeyChanged(let value): state.expectedNodeKey = String(value.prefix(128))
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil
         case .recoveryAccountChanged(let value): state.recoveryAccount = String(value.prefix(256))
-        case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.enabled }) { state.selectedNodeID = id }
+        case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.canCreateAccount }) { state.selectedNodeID = id }
         case .unlockExisting: state.unlockingSavedAccount = true; state.stage = .localUnlock
         case .create: state.unlockingSavedAccount = false; state.stage = .create
         case .recover: state.stage = .recover
@@ -45,15 +46,18 @@ import AppData
             run { [nodes] in .node(await nodes.inspect(normalized.origin)) }
         case .saveNode:
             guard let candidate = state.candidate, candidate.fingerprint != nil else { return }
+            guard !state.expectedNodeKey.isEmpty, state.expectedNodeKey == candidate.publicKey else { state.failure = .nodeKeyMismatch; return }
+            let expectedKey = state.expectedNodeKey
             state.stage = .saving
-            run { [nodes] in .saved(await nodes.save(candidate, operationID: UUID().uuidString)) }
+            run { [nodes] in .saved(await nodes.save(candidate, expectedPublicKey: expectedKey, operationID: UUID().uuidString)) }
         case .setDefault:
             guard let candidate = state.candidate else { return }
             run { [nodes] in .defaultSet(await nodes.setDefault(candidate, operationID: UUID().uuidString)) }
         case .beginCreation:
             guard !unresolvedConfirmation else { state.failure = .outcomeUnknown; return }
             guard !state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { state.failure = .invalidInput; return }
-            let name = state.name, node = state.selectedNodeID
+            guard let node = state.selectedNodeID, state.nodes.contains(where: { $0.id == node && $0.canCreateAccount }) else { state.failure = .nodeRequired; return }
+            let name = state.name
             run { [repository] in .began(await repository.begin(name: name, nodeID: node)) }
         case .showPhrase: run { [repository] in .display(await repository.showPhrase()) }
         case .hidePhrase:
@@ -103,9 +107,17 @@ import AppData
     private func apply(_ completion: Completion) {
         if case .confirmed(.failure(.outcomeUnknown)) = completion { unresolvedConfirmation = true }
         switch completion {
-        case .nodes(.success(let nodes)): state.nodes = nodes; state.selectedNodeID = nodes.first(where: \.isDefault)?.id
-        case .node(.success(let node)): state.candidate = node; state.stage = .identity
-        case .saved(.success): state.stage = .saved
+        case .nodes(.success(let nodes)): state.nodes = nodes; state.selectedNodeID = nodes.first(where: { $0.isDefault && $0.canCreateAccount })?.id
+        case .node(.success(let node)): state.expectedNodeKey = ""; state.candidate = node; state.stage = .identity
+        case .saved(.success):
+            if let candidate = state.candidate {
+                let confirmed = NodeRecord(id: candidate.id, origin: candidate.origin, fingerprint: candidate.fingerprint,
+                    publicKey: candidate.publicKey, isDefault: candidate.isDefault, enabled: candidate.enabled,
+                    isConfirmed: true, pinSource: "operator")
+                state.candidate = confirmed; state.nodes.removeAll { $0.id == confirmed.id }; state.nodes.append(confirmed)
+                state.selectedNodeID = confirmed.id
+            }
+            state.stage = .saved
         case .defaultSet(.success): state.selectedNodeID = state.candidate?.id; state.stage = .saved
         case .began(.success(let metadata)):
             state.metadata = metadata; state.stage = .savePhrase; scheduleExpiry(metadata)
@@ -115,7 +127,7 @@ import AppData
         case .recovery(.success(let metadata)): state.metadata = metadata; scheduleExpiry(metadata)
         case .confirmed(.success(let account)): expiry?.cancel(); state.completedAccount = account; state.stage = .complete
         case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error)), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
-            state.failure = error
+            state.failure = (error == .failed || error == .invalidData) ? .onboardingProtocol : error
             if state.stage == .verifying { state.stage = .connectionFailed }
             if state.stage == .saving { state.stage = .saveFailed }
         }

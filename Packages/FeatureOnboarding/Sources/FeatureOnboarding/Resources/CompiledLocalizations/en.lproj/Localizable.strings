@@ -115,7 +115,7 @@
 	<key>copy.cdfc37ac7863</key>
 	<string>I checked this account fingerprint</string>
 	<key>copy.cf339d96c54f</key>
-	<string>No saved node is available. You can prepare local keys and configure a node separately.</string>
+	<string>No confirmed node is available. Add and confirm a node before preparing your account.</string>
 	<key>copy.d59626702d22</key>
 	<string>Setup expired. Start a new account ceremony.</string>
 	<key>copy.dac665b06b4d</key>
@@ -140,6 +140,12 @@
 	<string>Node saved</string>
 	<key>copy.f23cb9253e3e</key>
 	<string>Show recovery phrase once</string>
+	<key>node.confirmOperator</key>
+	<string>Confirm operator key and save node</string>
+	<key>node.operatorInstructions</key>
+	<string>Discovery is untrusted until you compare this fingerprint and enter the public key supplied by the node operator. HTTP is used only for signed discovery and public records; it does not establish the node’s identity.</string>
+	<key>node.operatorKey</key>
+	<string>Operator public key</string>
 	<key>recovery.word.position</key>
 	<string>Word %@</string>
 </dict>

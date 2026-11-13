@@ -6,6 +6,7 @@ import AppData
 @Observable @MainActor public final class ContactsViewModel {
     public private(set) var state: ContactsState
     private let repository: any ContactsRepository
+    private let entryMode: ContactsMode
     private let account: String
     private let emit: (ContactsEvent) -> Void
     @ObservationIgnored private var read: Task<Void, Never>?
@@ -15,10 +16,11 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
-    public init(repository: any ContactsRepository, account: String, state: ContactsState = ContactsState(), emit: @escaping (ContactsEvent) -> Void) { self.repository = repository; self.account = account; self.state = state; self.emit = emit }
+    public init(repository: any ContactsRepository, account: String, state: ContactsState = ContactsState(), emit: @escaping (ContactsEvent) -> Void) { self.repository = repository; self.entryMode = state.mode; self.account = account; self.state = state; self.emit = emit }
     public func send(_ action: ContactsAction) {
         switch action {
-        case .appeared, .refresh: refresh(); observe()
+        case .appeared: state.mode = entryMode; refresh(); observe()
+        case .refresh: refresh(); observe()
         case .filter(let value): state.query = String(value.prefix(256)); projectVisibleRows()
         case .principal(let value): state.principal = String(value.prefix(2048))
         case .mode(let mode):

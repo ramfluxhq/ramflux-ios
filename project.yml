@@ -9,7 +9,8 @@ settings:
   base:
     SWIFT_VERSION: '6.0'
     SWIFT_STRICT_CONCURRENCY: complete
-    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGNING_ALLOWED: YES
+    "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
 packages:
   FeatureCards:
     path: Packages/FeatureCards
@@ -44,6 +45,11 @@ targets:
     type: application
     platform: iOS
     sources: [App]
+    entitlements:
+      path: App/Ramflux.entitlements
+      properties:
+        application-identifier: $(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)
+        keychain-access-groups: [$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)]
     dependencies:
       - package: FeatureCards
       - package: FeatureTasks

@@ -13,7 +13,7 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     private(set) var cancellations = 0
     func list() -> RepositoryResult<[NodeRecord]> { .success([]) }
     func inspect(_ origin: String) -> RepositoryResult<NodeRecord> { origins.append(origin); return .success(NodeRecord(id: "node", origin: origin, fingerprint: "fingerprint", publicKey: "observed-key")) }
-    func save(_ node: NodeRecord, operationID: String) -> RepositoryResult<Void> { saved.append(node); return .success(()) }
+    func save(_ node: NodeRecord, expectedPublicKey: String, operationID: String) -> RepositoryResult<Void> { saved.append(node); return .success(()) }
     func setDefault(_ node: NodeRecord, operationID: String) -> RepositoryResult<Void> { .success(()) }
     func begin(name: String, nodeID: String?) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "ceremony", expiresInMilliseconds: 60_000)) }
     func showPhrase() -> RepositoryResult<RecoveryDisplay> { .failure(.unsupported) }
@@ -44,9 +44,24 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(model.state.stage == .normalizedAddress); #expect(await fake.origins.isEmpty)
         model.send(.inspectOrigin); await model.settle()
         #expect(await fake.origins == ["https://example.org"])
-        model.send(.saveNode); await model.settle()
+        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.saveNode); await model.settle()
         #expect(await fake.saved.first?.publicKey == "observed-key")
         #expect(model.state.stage == .saved)
+    }
+    @Test func plainDiscoveryRequiresMatchingOperatorKeyBeforeSavingOrCreation() async {
+        let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
+        model.send(.create); model.send(.nameChanged("Account")); model.send(.beginCreation); await model.settle()
+        #expect(model.state.failure == .nodeRequired)
+        model.send(.customNode); model.send(.addressChanged("http://example.org:80/path?query=1")); model.send(.checkAddress)
+        #expect(model.state.normalized?.origin == "http://example.org")
+        model.send(.inspectOrigin); await model.settle()
+        model.send(.expectedNodeKeyChanged("different")); model.send(.saveNode); await model.settle()
+        #expect(model.state.failure == .nodeKeyMismatch); #expect(await fake.saved.isEmpty)
+        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.saveNode); await model.settle()
+        #expect(await fake.saved.count == 1); #expect(model.state.nodes.first?.pinSource == "operator")
+        #expect(model.state.nodes.first?.canCreateAccount == true)
+        model.send(.create); model.send(.beginCreation); await model.settle()
+        #expect(model.state.stage == .savePhrase)
     }
     @Test func confirmationIsOneAttemptAndUnknownOutcomeDoesNotRetry() async {
         let fake = FlowFake(); var state = OnboardingState(stage: .localUnlock); state.positions = [3,7,11]
@@ -68,7 +83,9 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(await fake.cancellations == 1)
     }
     @Test func explicitExpiryCancelsBackendAndConcealsAllSecretState() async {
-        let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
+        let fake = FlowFake(); var state = OnboardingState()
+        state.nodes = [NodeRecord(id: "node", origin: "https://example.org", isConfirmed: true, pinSource: "operator")]; state.selectedNodeID = "node"
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
         model.send(.create); model.send(.nameChanged("Account")); model.send(.beginCreation); await model.settle()
         #expect(model.state.stage == .savePhrase)
         model.send(.expired); await model.settle()
@@ -78,7 +95,7 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     @Test func unavailableRepositoryNeverCompletesCreation() async {
         let model = OnboardingViewModel(repository: UnavailableOnboardingRepository(), nodes: UnavailableNodeRepository(), emit: { _ in })
         model.send(.create); model.send(.nameChanged("Account")); model.send(.beginCreation); await model.settle()
-        #expect(model.state.failure == .sdkUnavailable); #expect(model.state.completedAccount == nil)
+        #expect(model.state.failure == .nodeRequired); #expect(model.state.completedAccount == nil)
     }
     @Test func everyScreenHasStableIdentityAndSecretActionsAreRedacted() {
         #expect(OnboardingPreviews.states.count == 25)

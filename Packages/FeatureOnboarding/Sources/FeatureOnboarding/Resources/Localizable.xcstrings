@@ -903,13 +903,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No saved node is available. You can prepare local keys and configure a node separately."
+            "value": "No confirmed node is available. Add and confirm a node before preparing your account."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有已保存的可用节点。你可以先生成本地密钥，稍后配置节点。"
+            "value": "没有可用的已确认节点。请先添加并确认节点，再准备账户。"
           }
         }
       }
@@ -1118,6 +1118,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "第 %@ 个词"
+          }
+        }
+      }
+    },
+    "node.operatorInstructions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discovery is untrusted until you compare this fingerprint and enter the public key supplied by the node operator. HTTP is used only for signed discovery and public records; it does not establish the node’s identity."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在核对指纹并输入节点运营方提供的公钥之前，发现结果不可信。HTTP 仅用于带签名的发现和公开记录，不代表节点身份已验证。"
+          }
+        }
+      }
+    },
+    "node.operatorKey": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operator public key"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运营方公钥"
+          }
+        }
+      }
+    },
+    "node.confirmOperator": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm operator key and save node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认运营方公钥并保存节点"
           }
         }
       }

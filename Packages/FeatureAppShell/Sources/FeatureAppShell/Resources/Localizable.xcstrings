@@ -225,6 +225,22 @@
           }
         }
       }
+    },
+    "account.add": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加账户"
+          }
+        }
+      }
     }
   }
 }

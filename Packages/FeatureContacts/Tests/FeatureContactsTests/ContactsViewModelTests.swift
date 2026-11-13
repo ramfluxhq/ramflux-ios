@@ -64,6 +64,13 @@ private actor ContactsFake: ContactsRepository {
         model.send(.requestDecision("incoming", .accept)); #expect(model.state.pending == nil)
         model.send(.disappeared)
     }
+    @Test func reopeningContactsRestoresItsEntryRouteAfterRequestDetails() async {
+        let model = ContactsViewModel(repository: ContactsFake(), account: "a", emit: { _ in })
+        model.send(.mode(.strangers)); model.send(.mode(.request("incoming")))
+        model.send(.disappeared); model.send(.appeared); await model.settle()
+        #expect(model.state.mode == .contacts)
+        model.send(.disappeared)
+    }
     @Test func unavailableRepositoryDoesNotFabricateContactOrVerification() async {
         let model = ContactsViewModel(repository: UnavailableContactsRepository(), account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()

@@ -118,6 +118,28 @@
 	<string>此手机版本暂不支持群组线程和论坛帖子。</string>
 	<key>groups.unavailable.transfer</key>
 	<string>转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。</string>
+	<key>onboarding.nodeKeyMismatch</key>
+	<string>运营方公钥必须与发现的节点公钥一致。请先向运营方核对，再确认。</string>
+	<key>onboarding.nodeRequired</key>
+	<string>请先选择已确认的节点，再准备账户。</string>
+	<key>onboarding.protocol</key>
+	<string>账户设置响应与支持的 SDK 合约不一致。请更新应用后重试。</string>
+	<key>onboarding.refusal.title</key>
+	<string>请检查账户设置</string>
+	<key>onboarding.sdkRefusal</key>
+	<string>SDK 拒绝了账户设置（代码 %@）。请保留当前账户状态，并检查节点或应用配置。</string>
+	<key>onboarding.vaultBusy</key>
+	<string>私有钥匙串正忙。请完成当前账户操作后重试。</string>
+	<key>onboarding.vaultCorrupt</key>
+	<string>无法验证私有钥匙串中的凭据。请先恢复账户。</string>
+	<key>onboarding.vaultLocked</key>
+	<string>私有钥匙串已锁定。请解锁此设备后重试。</string>
+	<key>onboarding.vaultMissing</key>
+	<string>私有钥匙串中缺少所需账户凭据。请先恢复账户。</string>
+	<key>onboarding.vaultPermission</key>
+	<string>此应用无法访问其私有钥匙串。请安装包含应用钥匙串权限且正确签名的版本。</string>
+	<key>onboarding.vaultUnavailable</key>
+	<string>此设备上的私有钥匙串提供程序不可用。</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@：%2$@</string>
 	<key>settings.mobileBackup</key>

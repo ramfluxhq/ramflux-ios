@@ -15,6 +15,17 @@ struct ChatRepositoryTests {
         guard case .success(let messages) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Mapping failed"); return }
         #expect(messages.first?.kind == .text("Authenticated display text")); #expect(messages.dropFirst().first?.kind == .deleted); #expect(messages.dropFirst().first?.sender == ""); #expect(messages.last?.kind == .callHistory); #expect(messages.last?.isOwn == nil)
     }
+    @Test func realLiveRowWithoutOwnershipRemainsDisplayableAndUnknown() async {
+        let transport = ProxyTransport { _ in .object(["messages": .array([
+            .object(["message_id": .string("peer"), "conversation_id": .string("c"), "sender_id": .string("device"), "body_utf8": .string("Real SDK row"), "direction": .null]),
+            .object(["message_id": .string("own"), "conversation_id": .string("c"), "body_utf8": .string("Own copy"), "direction": .string("outgoing")])
+        ])]) }
+        let client = RamfluxClient(transport: transport)
+        let repo = NativeChatRepository(client: client, updates: NativeUpdateSource(client: client))
+        guard case .success(let rows) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Real live SDK shape must load"); return }
+        #expect(rows.first?.kind == .text("Real SDK row")); #expect(rows.first?.isOwn == nil)
+        #expect(rows.last?.isOwn == true)
+    }
     @Test func malformedCommittedSendProjectionKeepsOriginalAttemptUnknown() async {
         let transport = ProxyTransport { _ in .object(["conversation_id": .string("c"), "delivery_state": .string("submitted")]) }
         let client = RamfluxClient(transport: transport), repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: client))

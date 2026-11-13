@@ -97,7 +97,10 @@ public final class NativeCore: CoreTransport {
         }
         let value = buffer.pointee
         let secret = try SecretBytes(copying: UnsafeRawBufferPointer(start: value.ptr, count: value.len), maximumBytes: CoreLimits.frameBytes)
-        guard code == 0 else { throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, sealedResponse: secret) }
+        guard code == 0 else {
+            let reason = rf_completion_refusal_reason(buffer).map { String(cString: $0) }
+            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, sealedResponse: secret)
+        }
         return secret
     }
     private func jsonCompletion(_ buffer: UnsafeMutablePointer<RamfluxBuffer>, request: CoreRequest) throws -> JSONValue {

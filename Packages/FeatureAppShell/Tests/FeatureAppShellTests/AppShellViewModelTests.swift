@@ -89,6 +89,14 @@ private actor SessionFake: SessionRepository {
         #expect(coordinator.path.isEmpty); #expect(coordinator.sheet == nil)
         coordinator.send(.disappeared); await coordinator.viewModel.settle()
     }
+    @Test func addAccountDismissesPickerBeforeOpeningOnboarding() async {
+        let coordinator = AppShellCoordinator(repository: SessionFake())
+        coordinator.send(.appeared); await coordinator.viewModel.settle()
+        coordinator.send(.openAccounts); #expect(coordinator.sheet == .accounts)
+        coordinator.send(.open(.onboarding)); #expect(coordinator.sheet == nil)
+        #expect(coordinator.path == [.onboarding])
+        coordinator.send(.disappeared); await coordinator.viewModel.settle()
+    }
     @Test func immutableStateAndAllPreviewStatesAreDistinct() {
         #expect(Set(AppShellPreviews.cases.map(\.id)).count == 6)
         let before = AppShellState()

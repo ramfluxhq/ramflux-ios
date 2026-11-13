@@ -48,7 +48,11 @@ public struct OnboardingScreen: View {
                 Text(candidate.origin).textSelection(.enabled)
                 Text(candidate.fingerprint ?? FeatureOnboardingStrings.text("copy.a915dea73c38", locale: locale)).font(theme.captionFont).textSelection(.enabled)
                 Text(FeatureOnboardingStrings.text("copy.afb56637754e", locale: locale))
-                action(FeatureOnboardingStrings.text("copy.df79088cb69a", locale: locale), .saveNode)
+                if let key = candidate.publicKey { Text(key).font(theme.captionFont).textSelection(.enabled) }
+                Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))
+                TextField(FeatureOnboardingStrings.text("node.operatorKey", locale: locale), text: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }))
+                    .textFieldStyle(.roundedBorder).rfAddressInput()
+                action(FeatureOnboardingStrings.text("node.confirmOperator", locale: locale), .saveNode)
             }
         case .saved:
             Text(FeatureOnboardingStrings.text("copy.2ba256d7a297", locale: locale))
@@ -106,7 +110,7 @@ public struct OnboardingScreen: View {
         if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("copy.cf339d96c54f", locale: locale)) }
         ForEach(state.nodes) { node in
             Button { onAction(.nodeSelected(node.id)) } label: { Label(node.origin, systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
-                .disabled(!node.enabled || state.busy)
+                .disabled(!node.canCreateAccount || state.busy)
         }
         action(FeatureOnboardingStrings.text("copy.2afe8ba12d97", locale: locale), .customNode)
     }

@@ -38,14 +38,14 @@ public actor NativeOnboardingRepository: OnboardingRepository {
             if let nodeID { body["node_id"] = .string(nodeID) }
             let result = try await ceremony.begin(context: gateway.context(.accountCreateBegin), body: .object(body))
             return .success(try Self.metadata(ProxyGateway.body(result)))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { return .failure(Self.failure(error)) }
     }
     public func showPhrase() async -> RepositoryResult<RecoveryDisplay> {
         guard let ceremony, !recovery else { return .failure(.invalidInput) }
         do {
             let value = try RecoveryDisplay(await ceremony.showPhraseOnce(context: gateway.context(.accountCreateShowOnce)))
             display = value; return .success(value)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { return .failure(Self.failure(error)) }
     }
     public func hideAndChallenge() async -> RepositoryResult<[Int]> {
         guard let ceremony, !recovery else { return .failure(.invalidInput) }
@@ -58,7 +58,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
             }
             guard positions.count == 3, Set(positions).count == 3 else { throw AppFailure.invalidData }
             return .success(positions)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { return .failure(Self.failure(error)) }
     }
     public func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
@@ -71,7 +71,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         guard ceremony == nil else { return .failure(.busy) }
         let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true
         do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin), body: .object(["account_id": .string(accountID)]))))) }
-        catch { return .failure(AppFailure.map(error)) }
+        catch { return .failure(Self.failure(error)) }
     }
     public func confirmRecovery(anchor: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
@@ -98,14 +98,18 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         defer { submission.erase() }
         guard let fields = submission.take(), fields["passphrase"] != nil else { return .failure(.invalidInput) }
         do { return .success(try Self.account(await gateway.call(.accountUnlock, account: accountID, secrets: fields))) }
-        catch { return .failure(AppFailure.map(error)) }
+        catch { return .failure(Self.failure(error)) }
     }
     public func cancel() async -> RepositoryResult<Void> {
         display?.erase(); display = nil
         if let confirmation { _ = await confirmation.value }
         guard let ceremony else { return .success(()) }
         do { try await ceremony.cancel(context: gateway.context(recovery ? .accountRecoverCancel : .accountCreateCancel)); self.ceremony = nil; return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
+        catch { return .failure(Self.failure(error)) }
+    }
+    private static func failure(_ error: any Error) -> AppFailure {
+        let failure = AppFailure.map(error)
+        return failure == .failed || failure == .invalidData ? .onboardingProtocol : failure
     }
     private static func metadata(_ body: JSONValue) throws -> CeremonyMetadata {
         guard let expiry = ProxyGateway.integer(body["expires_in_ms"]), expiry > 0 else { throw AppFailure.invalidData }

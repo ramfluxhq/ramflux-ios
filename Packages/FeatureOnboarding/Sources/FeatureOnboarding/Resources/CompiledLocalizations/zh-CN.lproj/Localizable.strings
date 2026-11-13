@@ -115,7 +115,7 @@
 	<key>copy.cdfc37ac7863</key>
 	<string>我已核对此账户指纹</string>
 	<key>copy.cf339d96c54f</key>
-	<string>没有已保存的可用节点。你可以先生成本地密钥，稍后配置节点。</string>
+	<string>没有可用的已确认节点。请先添加并确认节点，再准备账户。</string>
 	<key>copy.d59626702d22</key>
 	<string>设置已过期。请重新开始账户设置。</string>
 	<key>copy.dac665b06b4d</key>
@@ -140,6 +140,12 @@
 	<string>节点已保存</string>
 	<key>copy.f23cb9253e3e</key>
 	<string>显示恢复助记词（仅一次）</string>
+	<key>node.confirmOperator</key>
+	<string>确认运营方公钥并保存节点</string>
+	<key>node.operatorInstructions</key>
+	<string>在核对指纹并输入节点运营方提供的公钥之前，发现结果不可信。HTTP 仅用于带签名的发现和公开记录，不代表节点身份已验证。</string>
+	<key>node.operatorKey</key>
+	<string>运营方公钥</string>
 	<key>recovery.word.position</key>
 	<string>第 %@ 个词</string>
 </dict>

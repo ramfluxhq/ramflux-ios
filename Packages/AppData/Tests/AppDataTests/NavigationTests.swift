@@ -12,6 +12,6 @@ struct NavigationTests {
     @Test func nodeAddressDropsPathsAndRejectsCredentials() throws {
         #expect(try NodeAddress("example.org/team?invite=1#join").origin == "https://example.org")
         #expect(throws: AppFailure.invalidInput) { try NodeAddress("https://name:password@example.org") }
-        #expect(throws: AppFailure.invalidInput) { try NodeAddress("http://example.org") }
+        #expect(try NodeAddress("http://example.org").origin == "http://example.org")
     }
 }

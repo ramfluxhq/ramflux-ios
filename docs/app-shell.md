@@ -32,7 +32,7 @@ with their strong test-only fixture definitions. `CABIFixture` is not an app
 dependency. The bridge product uses automatic linkage so app/test consumers share
 its framework when Xcode requires it.
 
-With `RAMFLUX_CORE_XCFRAMEWORK` set to the matching artifact's absolute path,
+With `RAMFLUX_CORE_XCFRAMEWORK` set to the matching artifact's package-relative path,
 AppData compiles its native factory and the bridge depends on that artifact;
 the unavailable C provider is excluded from its dependency graph. Prepare the
 matching artifact using [the bridge instructions](bridge.md), then regenerate the
@@ -110,3 +110,31 @@ file and its localized label requires no renderer changes. The per-device Settin
 selection applies immediately and survives relaunch. Follow-system respects the
 system scheme; Increase Contrast remaps weaker semantic roles to strong token
 roles. Contrast tests cover shipped foreground/background and control pairs.
+
+## Native simulator account verification
+
+Native account ceremonies use the app's private Keychain. Generate the Xcode
+project and build with signing enabled (the simulator uses ad-hoc signing):
+
+```sh
+RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework xcodegen generate
+RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework xcodebuild \
+  -project Ramflux.xcodeproj -scheme Ramflux \
+  -destination 'generic/platform=iOS Simulator' \
+  build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES
+```
+
+`App/Ramflux.entitlements` supplies the app identifier and its own Keychain group;
+no extension or shared group is granted. Xcode embeds simulator entitlements in
+the executable. `CODE_SIGNING_ALLOWED=NO` source builds do not prove Keychain
+access. Device signing still requires the caller's normal development team and
+provisioning profile.
+
+Node discovery accepts the same HTTP(S) origins as the SDK CLI. Discovery is an
+untrusted candidate: the host shows the fingerprint, requires the independently
+supplied operator key, and sends `node.confirm` with `pin_source=operator` and that
+exact key. HTTP TOFU profiles cannot authorize new accounts. SDK signature/key
+verification remains authoritative. No ATS relaxation is needed: this discovery
+path uses the SDK's reqwest/Tokio sockets, not URLSession. Native simulator HTTP
+discovery is verified with ATS defaults; adding a global arbitrary-load exception
+would weaken unrelated Foundation requests without affecting this path.

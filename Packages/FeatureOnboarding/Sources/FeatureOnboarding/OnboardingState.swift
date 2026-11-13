@@ -10,6 +10,7 @@ public struct OnboardingState: Equatable, Sendable {
     public var normalized: NodeAddress?
     public var nodes: [NodeRecord] = []
     public var selectedNodeID: String?
+    public var expectedNodeKey = ""
     public var candidate: NodeRecord?
     public var busy = false
     public var failure: AppFailure?

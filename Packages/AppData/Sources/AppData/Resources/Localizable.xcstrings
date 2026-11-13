@@ -1345,6 +1345,182 @@
           }
         }
       }
+    },
+    "onboarding.refusal.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account setup needs attention"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查账户设置"
+          }
+        }
+      }
+    },
+    "onboarding.nodeRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a confirmed node before preparing your account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先选择已确认的节点，再准备账户。"
+          }
+        }
+      }
+    },
+    "onboarding.nodeKeyMismatch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operator key must match the discovered node key. Check it with the operator before confirming."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运营方公钥必须与发现的节点公钥一致。请先向运营方核对，再确认。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultPermission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app cannot access its private Keychain. Install a correctly signed build with the app’s Keychain entitlement."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用无法访问其私有钥匙串。请安装包含应用钥匙串权限且正确签名的版本。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultLocked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private Keychain is locked. Unlock this device and try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私有钥匙串已锁定。请解锁此设备后重试。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultMissing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required account credentials are missing from the private Keychain. Recover the account before continuing."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私有钥匙串中缺少所需账户凭据。请先恢复账户。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultCorrupt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private Keychain credentials could not be verified. Recover the account before continuing."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法验证私有钥匙串中的凭据。请先恢复账户。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultBusy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private Keychain is busy. Finish the current account operation and try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私有钥匙串正忙。请完成当前账户操作后重试。"
+          }
+        }
+      }
+    },
+    "onboarding.vaultUnavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private Keychain provider is unavailable on this device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备上的私有钥匙串提供程序不可用。"
+          }
+        }
+      }
+    },
+    "onboarding.sdkRefusal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SDK refused account setup (code %@). Keep the current account state and check the node or app configuration."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SDK 拒绝了账户设置（代码 %@）。请保留当前账户状态，并检查节点或应用配置。"
+          }
+        }
+      }
+    },
+    "onboarding.protocol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account setup response did not match the supported SDK contract. Update the app before retrying."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户设置响应与支持的 SDK 合约不一致。请更新应用后重试。"
+          }
+        }
+      }
     }
   }
 }

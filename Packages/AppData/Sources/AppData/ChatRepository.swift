@@ -39,7 +39,9 @@ public struct NativeChatRepository: ChatRepository {
                 if row["kind"] == .string("call") {
                     return MessageRecord(id: id, sender: "", kind: .callHistory, isOwn: nil, timestamp: ProxyGateway.integer(row["created_at"]))
                 }
-                guard let own = row["is_own"]?.bool else { throw AppFailure.invalidData }
+                // The pinned live-row serializer omits is_own; its absence is unknown,
+                // not evidence that the sender is the peer. Reader provenance can prove outgoing.
+                let own = row["is_own"]?.bool ?? (row["direction"] == .string("outgoing") ? true : nil)
                 if row["deleted"] == .bool(true) { return MessageRecord(id: id, sender: "", kind: .deleted, isOwn: own, timestamp: ProxyGateway.integer(row["created_at"])) }
                 let kind: MessageRecord.Kind
                 // Reader's message_page supplies body_utf8 from authenticated message_content.
@@ -47,7 +49,7 @@ public struct NativeChatRepository: ChatRepository {
                 if let text = row["body_utf8"]?.string, text.utf8.count <= 65_536 { kind = .text(text) }
                 else { kind = .unsupported(AppDataStrings.text("copy.25c796d9c8f8")) }
                 var receipt: String?
-                if own, case .array(let values) = row["receipts"] {
+                if own == true, case .array(let values) = row["receipts"] {
                     receipt = values.compactMap { entry -> String? in
                         guard let device = entry["device_id"]?.string, let status = entry["state"]?.string, ["sent","delivered","read"].contains(status) else { return nil }
                         return AppDataStrings.format("receipt.deviceState", device, AppDataStrings.status(status))
