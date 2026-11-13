@@ -7,7 +7,7 @@ import Darwin
 
 /// A C ABI v2 supervisor. Construct/start through RamfluxClient to keep filesystem work off UI.
 public final class NativeCore: CoreTransport {
-    private struct State { var handle: UInt64 = 0; var closing = false; var opening = false; var lifecycleBusy = false; var streamOpened = false }
+    private struct State { var handle: UInt64 = 0; var closing = false; var opening = false; var lifecycleBusy = false; var streamOpened = false; var generation: UInt64 = 0 }
     private let state = Mutex(State())
     private let configuration: Data
     private let dataRoot: URL
@@ -172,7 +172,7 @@ public final class NativeCore: CoreTransport {
         }
         let interrupted = state.withLock { state in
             state.opening = false; state.lifecycleBusy = false
-            state.handle = handle; state.streamOpened = false
+            state.handle = handle; state.streamOpened = false; state.generation = 0
             if code != 0, handle != 0 { state.closing = true }
             return state.closing
         }
@@ -239,8 +239,12 @@ public final class NativeCore: CoreTransport {
             try requestResult($0, request: request, cancellation: NativeCancellation(), keepOperation: true) { try self.jsonCompletion($0, request: request) }
         }
         guard let operation = result.operation else { throw BridgeError.invalidResponse }
+        let identity: EventIdentity
+        do { identity = try EventIdentity(snapshot: result.response, accountID: filter.accountID) }
+        catch { operation.finish(); throw error }
+        state.withLock { $0.generation = identity.generation }
         transferred = true
-        return NativeEventQueue(core: self, operation: operation, snapshot: result.response)
+        return NativeEventQueue(core: self, operation: operation, snapshot: result.response, identity: identity)
     }
     func subscriptionEnded(client: UInt64) {
         state.withLock { if $0.handle == client { $0.streamOpened = false } }
@@ -248,7 +252,7 @@ public final class NativeCore: CoreTransport {
     public func resetEvents() throws {
         try state.withLock { state in
             guard !state.closing, state.handle != 0, !state.streamOpened else { throw BridgeError.invalidInput }
-            let code = ramflux_v2_event_reset(state.handle)
+            let code = ramflux_v2_event_reset(state.handle, state.generation)
             guard code == 0 else { throw CoreFailure(code: code, effect: .none) }
         }
     }

@@ -55,10 +55,13 @@ also gets at most three retries with 20 ms backoff for code 15 before the ack re
 whole-client shutdown. Failed opens use the same acknowledgement cleanup. The pump
 performs no further polls after acknowledgement; `stop()` joins that pump. Direct
 CoreTransport consumers must call `EventQueue.finish()` after their last poll.
-The pinned SDK does not yet publish a subscription-generation field. Generation-based
-stale-frame rejection waits for that published contract; no field is guessed here. A copied stream or iterator
-retains its subscription when the EventSubscription handle is dropped. Requested
-stop terminates cleanly; an event gap remains a terminal resync error.
+The pinned SDK publishes an exact decimal-string `subscription_generation` on
+successful open responses and every event frame. NativeCore adopts it only after
+a successful open; NativeEventQueue drops frames with a different generation or
+account, including stale lag notifications. Reset passes the last successful
+generation to the C ABI, so it cannot clear a replacement stream. Invalid/missing
+open generations fail closed. The fixture exercises close/reopen and stale frames. A copied stream or iterator
+retains the subscription; requested stop ends cleanly and event gaps require resync.
 
 `PhoneLifecycle` serializes transitions across actor suspension. Background return
 means the C supervisor shutdown completed and its writer was released. The app

@@ -8,8 +8,9 @@ import Foundation
 // binary artifact; tests without it link only the isolated ABI fixture target.
 let artifact = ProcessInfo.processInfo.environment["RAMFLUX_CORE_XCFRAMEWORK"]
 var targets: [Target] = [
+    .target(name: "CUnavailableCore", publicHeadersPath: "include"),
     .target(name: "CRamflux", publicHeadersPath: "include"),
-    .target(name: "RamfluxCore", dependencies: ["CRamflux"] + (artifact == nil ? [] : ["RamfluxSDKBinary"]),
+    .target(name: "RamfluxCore", dependencies: ["CRamflux"] + (artifact == nil ? ["CUnavailableCore"] : ["RamfluxSDKBinary"]),
             linkerSettings: [.linkedFramework("Security"), .linkedFramework("SystemConfiguration"),
                              .linkedFramework("CoreFoundation"), .linkedLibrary("resolv"), .linkedLibrary("z"), .linkedLibrary("iconv"), .linkedLibrary("c++")]),
 ]
@@ -20,5 +21,5 @@ if let artifact {
     targets.append(.testTarget(name: "RamfluxCoreTests", dependencies: ["RamfluxCore", "CABIFixture"]))
 }
 let package = Package(name: "RamfluxCore", platforms: [.macOS(.v15), .iOS(.v18)],
-                      products: [.library(name: "RamfluxCore", type: .static, targets: ["RamfluxCore"])],
+                      products: [.library(name: "RamfluxCore", targets: ["RamfluxCore"])],
                       targets: targets, swiftLanguageModes: [.v6])

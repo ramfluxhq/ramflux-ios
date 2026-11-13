@@ -3,7 +3,9 @@
 import SwiftUI
 
 public extension RFTheme {
-    static func adaptive(_ scheme: ColorScheme) -> Self { scheme == .dark ? .dark : .light }
+    static var light: Self { RFDesign.light }
+    static var dark: Self { RFDesign.dark }
+    static func adaptive(_ scheme: ColorScheme) -> Self { scheme == .dark ? RFDesign.dark : RFDesign.light }
     var bodyFont: Font { .custom(font, size: size_mobile_body, relativeTo: .body) }
     var captionFont: Font { .custom(font, size: size_mobile_caption, relativeTo: .caption) }
     var pageFont: Font { .custom(font, size: size_page, relativeTo: .title) }
@@ -30,4 +32,18 @@ public struct RFUnavailableView: View {
                 .frame(maxWidth: theme.column_max)
         }
     }
+}
+
+public extension View {
+    @ViewBuilder func rfAddressInput() -> some View {
+        #if os(iOS)
+        self.textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+        #else
+        self.autocorrectionDisabled()
+        #endif
+    }
+}
+
+public extension EnvironmentValues {
+    @Entry var rfLoadsOnAppear = true
 }

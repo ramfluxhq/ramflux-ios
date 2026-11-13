@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdio.h>
 
 #define CAP 1048576
 #define MAX_OPS 256
@@ -25,7 +26,7 @@ static void wait_io(int *blocked) {
     io_waiting=0;
 }
 void rf_fixture_unblock_io(void) { pthread_mutex_lock(&lock);block_open=block_close=0;pthread_cond_broadcast(&io_changed);pthread_mutex_unlock(&lock); }
-static uint64_t client_serial, live_client, subscription;
+static uint64_t client_serial, live_client, subscription, generation;
 struct operation { int cancelled, released, is_subscription, is_close; };
 static struct operation operations[MAX_OPS];
 static void test_zero(void *p,size_t n) { volatile unsigned char *b=p;while(n--)*b++=0; }
@@ -47,7 +48,7 @@ void rf_fixture_reset(void) {
     pending=close_code=open_code=event_status=submitted=cancellations=releases=0;
     opens=closes=resets=subscription_cancels=subscription_releases=secret_terminal=0;
     release_busy=ack_pending=ack_polls=client_releases=block_open=block_close=io_entered=io_waiting=0;
-    live_client=subscription=0;
+    live_client=subscription=generation=0;
     pthread_mutex_unlock(&lock);
 }
 #define SETTER(name,field) void name(int v) { pthread_mutex_lock(&lock);field=v;pthread_mutex_unlock(&lock); }
@@ -117,7 +118,7 @@ int32_t ramflux_v2_execute(uint64_t h,const uint8_t *input,size_t len,uint64_t *
     int is_sub=strstr(request,"\"method\":\"subscription.open\"")!=NULL || strstr(request,"\"method\":\"bus.subscribe\"")!=NULL;
     if(is_sub && subscription) { pthread_mutex_unlock(&lock);return 15; }
     submitted++;operations[submitted]=(struct operation){0,0,is_sub,strstr(request,"\"method\":\"subscription.close\"")!=NULL};*out=(uint64_t)submitted;
-    if(is_sub)subscription=*out;
+    if(is_sub) { subscription=*out;generation++; }
     pthread_mutex_unlock(&lock);return 0;
 }
 int32_t ramflux_v2_operation_poll(uint64_t h,uint64_t op,struct RamfluxBuffer **out) {
@@ -128,6 +129,7 @@ int32_t ramflux_v2_operation_poll(uint64_t h,uint64_t op,struct RamfluxBuffer **
     else if(pending && !operations[op].is_subscription)code=24;
     else if(operations[op].is_close && (++ack_polls,ack_pending))code=24;
     else if(operations[op].is_close) { subscription=0;*out=output("{\"code\":0,\"response\":{}}"); }
+    else if(operations[op].is_subscription && strstr(terminal,"\"code\":0")) { char tagged[256];snprintf(tagged,sizeof tagged,"{\"code\":0,\"response\":{\"subscription_generation\":\"%llu\",\"body\":{}}}",(unsigned long long)generation);*out=output(tagged); }
     else { *out=output(terminal);if(secret_terminal) { test_zero(terminal,sizeof terminal);secret_terminal=0; } }
     pthread_mutex_unlock(&lock);return code;
 }
@@ -153,14 +155,17 @@ int32_t ramflux_v2_operation_release(uint64_t h,uint64_t op) {
 }
 int32_t ramflux_v2_event_poll(uint64_t h,struct RamfluxBuffer **out) {
     *out=NULL;pthread_mutex_lock(&lock);int code=event_status;
+    if(code==27) { char tagged[256];snprintf(tagged,sizeof tagged,"{\"subscription_generation\":\"%llu\",\"account_id\":\"account\",\"method\":\"stream.lagged\"}",(unsigned long long)generation);*out=output(tagged); }
     if(!h || h!=live_client || !subscription)code=26;
-    else if(!code && event[0]) { *out=output(event);test_zero(event,sizeof event); }
+    else if(!code && event[0]) { if(strstr(event,"subscription_generation"))*out=output(event);
+        else { char *tagged=malloc(CAP+256);if(!tagged)abort();snprintf(tagged,CAP+256,"{\"subscription_generation\":\"%llu\",\"account_id\":\"account\",%s",(unsigned long long)generation,event+1);*out=output(tagged);free(tagged); }
+        test_zero(event,sizeof event); }
     else if(!code)code=24;
     pthread_mutex_unlock(&lock);return code;
 }
-int32_t ramflux_v2_event_reset(uint64_t h) {
+int32_t ramflux_v2_event_reset(uint64_t h,uint64_t expected_generation) {
     pthread_mutex_lock(&lock);
-    if(h!=live_client || !h || subscription) { pthread_mutex_unlock(&lock);return 1; }
+    if(h!=live_client || !h || subscription || expected_generation!=generation) { pthread_mutex_unlock(&lock);return 1; }
     test_zero(event,sizeof event);event_status=0;resets++;pthread_mutex_unlock(&lock);return 0;
 }
 void ramflux_v2_buffer_free(struct RamfluxBuffer *b) {

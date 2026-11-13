@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import Testing
-@testable import RFCore
+@testable import AppData
 struct NavigationTests {
     @Test func untrustedLinksOnlyNavigateToReadRoutes() throws {
         #expect(AppRoute.parse(try #require(URL(string: "ramflux://conversation/thread"))) == .conversation("thread"))

@@ -554,3 +554,37 @@ struct BridgeTests {
     }
 
 }
+
+struct EventGenerationTests {
+    @Test func exactGenerationAndAccountAreBothRequired() throws {
+        let identity = try EventIdentity(snapshot: .object(["subscription_generation": .string("18446744073709551615")]), accountID: "account")
+        #expect(identity.accepts(.object(["subscription_generation": .string("18446744073709551615"), "account_id": .string("account")])))
+        #expect(!identity.accepts(.object(["subscription_generation": .string("18446744073709551614"), "account_id": .string("account")])))
+        #expect(!identity.accepts(.object(["subscription_generation": .string("18446744073709551615"), "account_id": .string("other")])))
+        for value in [JSONValue.string("0"), .string("01"), .number(1), .string("18446744073709551616")] {
+            #expect(throws: BridgeError.invalidResponse) { try EventIdentity(snapshot: .object(["subscription_generation": value]), accountID: nil) }
+        }
+    }
+}
+
+extension BridgeTests {
+    @Test func nativeQueueDropsStaleGenerationAndWrongAccount() async throws {
+        rf_fixture_reset(); let (core, client) = try await open()
+        let filter = try SubscriptionFilter(accountID: "account", topics: ["message"])
+        let first = try core.subscribe(filter)
+        rf_fixture_set_event("{\"subscription_generation\":\"0\",\"account_id\":\"account\",\"body\":{\"value\":\"stale\"}}")
+        #expect(try first.poll().isEmpty)
+        rf_fixture_set_event("{\"subscription_generation\":\"1\",\"account_id\":\"other\",\"body\":{\"value\":\"wrong-account\"}}")
+        #expect(try first.poll().isEmpty)
+        rf_fixture_set_event("{\"subscription_generation\":\"1\",\"account_id\":\"account\",\"body\":{\"value\":\"current\"}}")
+        #expect(try first.poll().first?["body"]?["value"] == .string("current"))
+        try first.finish(); try core.resetEvents()
+        let next = try core.subscribe(filter)
+        rf_fixture_set_event("{\"subscription_generation\":\"1\",\"account_id\":\"account\",\"body\":{\"value\":\"old-open\"}}")
+        #expect(try next.poll().isEmpty)
+        rf_fixture_set_event("{\"subscription_generation\":\"2\",\"account_id\":\"account\",\"body\":{\"value\":\"new-open\"}}")
+        #expect(try next.poll().first?["body"]?["value"] == .string("new-open"))
+        try next.finish(); try await client.close()
+        #expect(rf_fixture_live_buffers() == 0)
+    }
+}

@@ -6,7 +6,7 @@ and Xcode. It embeds the Ramflux core SDK through its C ABI.
 This repository contains only the AGPL client. The Ramflux core SDK and protocol
 crates live in `ramfluxhq/ramflux`.
 
-Status: project setup. Build instructions follow with the first module.
+Status: native application shell and C ABI bridge. See [application structure and build modes](docs/app-shell.md). Feature modules are delivered independently.
 
 ## License
 
@@ -26,8 +26,9 @@ swift test
 xcodebuild -scheme RamfluxCore -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
 ```
 
-The source-only library build checks Swift and C declarations. Tests link the
-`CABIFixture` target, which is excluded from the library product. These commands
+The source-only build uses a refusing C provider and returns typed unavailable
+account services. Tests override that provider with the test-only `CABIFixture`
+target, which is excluded from the library product. These commands
 do not prove that the Rust SDK has been linked or exercised.
 
 Build the matching Rust SDK XCFramework from a reviewed product checkout, then

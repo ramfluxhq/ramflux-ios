@@ -12,14 +12,15 @@ concurrency:
   cancel-in-progress: true
 jobs:
   compile-and-test:
-    runs-on: macos-15-arm64
-    timeout-minutes: 20
+    runs-on: macos-15
+    timeout-minutes: 30
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - name: Verify pinned Xcode
         run: |
+          sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
           test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
       - name: Install XcodeGen
@@ -29,8 +30,20 @@ jobs:
       - name: Headless bridge and feature tests
         run: |
           swift test
-          swift test --package-path Packages/RFCore
+          swift test --package-path Packages/AppData
+          swift test --package-path Packages/FeatureAppShell
       - name: Build iOS Simulator application
         run: xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
-      - name: Preview snapshot tests
+      - name: Design token tests
         run: swift test --package-path Packages/RFDesign
+      - name: Render every screen preview on iOS Simulator
+        run: |
+          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          xcrun simctl bootstatus "$device_id" -b
+          xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -resultBundlePath build/ScreenSnapshots.xcresult test CODE_SIGNING_ALLOWED=NO
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-screen-snapshots
+          path: build/ScreenSnapshots.xcresult
+          if-no-files-found: warn

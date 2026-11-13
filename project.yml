@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Span Brain
+name: Ramflux
+options:
+  bundleIdPrefix: org.ramflux
+  deploymentTarget:
+    iOS: '18.0'
+settings:
+  base:
+    SWIFT_VERSION: '6.0'
+    SWIFT_STRICT_CONCURRENCY: complete
+    CODE_SIGNING_ALLOWED: NO
+packages:
+  FeatureAppShell:
+    path: Packages/FeatureAppShell
+  RFDesign:
+    path: Packages/RFDesign
+  AppData:
+    path: Packages/AppData
+targets:
+  Ramflux:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: FeatureAppShell
+      - package: AppData
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.ramflux.ios
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Ramflux
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+        TARGETED_DEVICE_FAMILY: '1,2'
+        MARKETING_VERSION: '0.1.0'
+        CURRENT_PROJECT_VERSION: '1'
+    info:
+      path: build/App-Info.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLName: org.ramflux.ios.navigation
+            CFBundleURLSchemes: [ramflux]
+  RamfluxTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [AppTests]
+    dependencies:
+      - target: Ramflux
+      - package: FeatureAppShell
+      - package: RFDesign
+      - package: AppData
+schemes:
+  Ramflux:
+    build:
+      targets:
+        Ramflux: all
+        RamfluxTests: [test]
+    test:
+      targets: [RamfluxTests]

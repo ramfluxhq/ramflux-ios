@@ -4,9 +4,9 @@
 import PackageDescription
 import Foundation
 let native: [SwiftSetting] = ProcessInfo.processInfo.environment["RAMFLUX_CORE_XCFRAMEWORK"] == nil ? [] : [.define("RF_NATIVE_SDK")]
-let package = Package(name: "RFCore", platforms: [.iOS(.v18), .macOS(.v15)],
-    products: [.library(name: "RFCore", targets: ["RFCore"])],
+let package = Package(name: "AppData", platforms: [.iOS(.v18), .macOS(.v15)],
+    products: [.library(name: "AppData", targets: ["AppData"])],
     dependencies: [.package(name: "RamfluxCoreBridge", path: "../..")], targets: [
-        .target(name: "RFCore", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge")], swiftSettings: native),
-        .testTarget(name: "RFCoreTests", dependencies: ["RFCore"]),
+        .target(name: "AppData", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge")], swiftSettings: native),
+        .testTarget(name: "AppDataTests", dependencies: ["AppData"]),
     ], swiftLanguageModes: [.v6])
