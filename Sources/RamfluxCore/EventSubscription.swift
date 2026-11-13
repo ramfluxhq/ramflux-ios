@@ -77,6 +77,7 @@ public final class EventSubscription: Sendable {
         pair.continuation.onTermination = { @Sendable _ in requestedStop.request(); queue.cancel() }
         DispatchQueue(label: "org.ramflux.core.events").async {
             defer { stopped.leave() }
+            var failure: (any Error)?
             do {
                 while !requestedStop.isRequested {
                     let events = try queue.poll()
@@ -85,17 +86,19 @@ public final class EventSubscription: Sendable {
                         switch pair.continuation.yield(try BufferedEvent(event, budget: budget)) {
                         case .enqueued: break
                         case .dropped: throw BridgeError.resyncRequired
-                        case .terminated: queue.cancel(); return
+                        case .terminated: throw CancellationError()
                         @unknown default: throw BridgeError.resyncRequired
                         }
                     }
                 }
-                pair.continuation.finish()
             } catch {
-                queue.cancel()
-                if error is CancellationError || (requestedStop.isRequested && ((error as? BridgeError) == .closed || (error as? CoreFailure)?.code == .closed)) { pair.continuation.finish() }
-                else { pair.continuation.finish(throwing: error) }
+                if !(error is CancellationError) && !(requestedStop.isRequested && ((error as? BridgeError) == .closed || (error as? CoreFailure)?.code == .closed)) { failure = error }
             }
+            queue.cancel()
+            do { try queue.finish() }
+            catch { if failure == nil { failure = error } }
+            if let failure { pair.continuation.finish(throwing: failure) }
+            else { pair.continuation.finish() }
         }
     }
     public func cancel() { lifetime.cancel() }

@@ -105,7 +105,7 @@ def generate(sdk, commit, update_pin=False, check=False):
     manifest = dict(sourceCommit=commit, headerSHA256=hashlib.sha256(header).hexdigest(),
                     methodPolicySHA256=hashlib.sha256(policy_bytes).hexdigest(), operationCount=len(rows))
     methods_json = json.dumps([row['name'] for row in rows], separators=(',', ':'))
-    fixture = LICENSE + '#ifndef RF_GENERATED_METHODS_H\n#define RF_GENERATED_METHODS_H\n#define RF_FIXTURE_METHODS_JSON ' + json.dumps(methods_json) + '\n#endif\n'
+    fixture = LICENSE + '#ifndef RF_GENERATED_METHODS_H\n#define RF_GENERATED_METHODS_H\n#define RF_FIXTURE_METHODS_JSON ' + json.dumps(methods_json) + '\n#define RF_FIXTURE_POLICY_JSON ' + json.dumps(json.dumps(json.loads(policy_bytes), separators=(',', ':'))) + '\n#endif\n'
     outputs = {
         'Sources/CRamflux/include/ramflux_sdk.h': b'// SPDX-License-Identifier: BSD-3-Clause\n// Copyright (c) 2026 Span Brain\n' + header,
         'Sources/RamfluxCore/SDKOperation.swift': ''.join(lines).encode(),

@@ -28,7 +28,15 @@ final class NativeEventQueue: EventQueue {
             guard !cancelled else { return }
             cancelled = true
             operation.finish()
-            core.subscriptionEnded(client: operation.client)
+        }
+    }
+    func finish() throws {
+        cancel()
+        for attempt in 0..<3 {
+            let code = operation.finish()
+            if code == 0 { try core.finishSubscription(client: operation.client); return }
+            guard code == 15, attempt < 2 else { throw CoreFailure(code: code, effect: .none) }
+            usleep(20_000)
         }
     }
     deinit { cancel() }

@@ -9,12 +9,13 @@ final class NativeOperation: Sendable {
     let id: UInt64
     private let released = Mutex(false)
     init(client: UInt64, id: UInt64) { self.client = client; self.id = id }
-    func finish() {
+    @discardableResult func finish() -> Int32 {
         released.withLock { released in
-            guard !released else { return }
-            _ = ramflux_v2_operation_cancel(client, id)
-            _ = ramflux_v2_operation_release(client, id)
-            released = true
+            guard !released else { return 0 }
+            let code = ramflux_v2_operation_release(client, id)
+            // ABI release includes cancellation; failed admission must remain retryable.
+            if code == 0 || code == 26 { released = true }
+            return code
         }
     }
     deinit { finish() }

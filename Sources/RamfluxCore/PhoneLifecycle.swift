@@ -41,6 +41,7 @@ public actor PhoneLifecycle {
                 try await client.close(); state = .stopped
             }
         } catch {
+            if (error as? CoreFailure)?.writerReleaseConfirmed == true { state = .stopped }
             if (error as? BridgeError) == .lockStillHeld { state = .failed }
             throw error
         }

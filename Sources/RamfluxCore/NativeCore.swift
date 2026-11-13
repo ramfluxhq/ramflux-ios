@@ -7,7 +7,7 @@ import Darwin
 
 /// A C ABI v2 supervisor. Construct/start through RamfluxClient to keep filesystem work off UI.
 public final class NativeCore: CoreTransport {
-    private struct State { var handle: UInt64 = 0; var closing = false; var streamOpened = false }
+    private struct State { var handle: UInt64 = 0; var closing = false; var opening = false; var lifecycleBusy = false; var streamOpened = false }
     private let state = Mutex(State())
     private let configuration: Data
     private let dataRoot: URL
@@ -37,7 +37,23 @@ public final class NativeCore: CoreTransport {
             throw BridgeError.incompatibleABI
         }
         descriptorFingerprint = fingerprint
-        methods = Set(names.compactMap(\.string))
+        let advertised = names.compactMap(\.string)
+        let expected = Set(SDKOperation.allCases.map(\.rawValue))
+        guard advertised.count == names.count, Set(advertised).count == names.count,
+              Set(advertised) == expected,
+              let policy = metadata["method_policy"], policy["abi_major"] == .number(2),
+              policy["policy_version"] == .number(1), case .array(let rows) = policy["methods"],
+              rows.count == expected.count else { throw BridgeError.incompatibleABI }
+        var seen = Set<String>()
+        for row in rows {
+            guard let name = row["name"]?.string, seen.insert(name).inserted,
+                  let operation = SDKOperation(rawValue: name),
+                  row["capability"] == .string(operation.capability),
+                  row["secret_input"] == .bool(operation.requiresSecureInput),
+                  row["secret_output"] == .bool(operation.requiresSecureOutput),
+                  row["show_once"] == .bool(operation.showOnce) else { throw BridgeError.incompatibleABI }
+        }
+        methods = expected
     }
     func currentHandle() throws -> UInt64 {
         try state.withLock {
@@ -136,20 +152,36 @@ public final class NativeCore: CoreTransport {
         }
     }
     public func start() throws {
-        try state.withLock { state in
-            guard !state.closing else { throw BridgeError.closed }
-            guard state.handle == 0 else { return }
+        let shouldOpen = try state.withLock { state in
+            guard !state.closing, !state.opening, !state.lifecycleBusy else { throw BridgeError.closed }
+            guard state.handle == 0 else { return false }
+            state.opening = true; state.lifecycleBusy = true
+            return true
+        }
+        guard shouldOpen else { return }
+        var handle: UInt64 = 0
+        var code: Int32 = 0
+        do {
             #if os(iOS)
             _ = try AppStorage.prepare(applicationSupport: dataRoot.deletingLastPathComponent())
             #endif
-            var handle: UInt64 = 0
-            let code = configuration.withUnsafeBytes { ramflux_v2_client_open($0.bindMemory(to: UInt8.self).baseAddress, $0.count, &handle) }
-            guard code == 0, handle != 0 else {
-                if handle != 0 { state.handle = handle; state.closing = true; throw BridgeError.lockStillHeld }
-                throw CoreFailure(code: code == 0 ? 16 : code, effect: .none)
-            }
-            state.handle = handle; state.streamOpened = false
+            code = configuration.withUnsafeBytes { ramflux_v2_client_open($0.bindMemory(to: UInt8.self).baseAddress, $0.count, &handle) }
+        } catch {
+            state.withLock { $0.opening = false; $0.lifecycleBusy = false; $0.closing = false }
+            throw error
         }
+        let interrupted = state.withLock { state in
+            state.opening = false; state.lifecycleBusy = false
+            state.handle = handle; state.streamOpened = false
+            if code != 0, handle != 0 { state.closing = true }
+            return state.closing
+        }
+        if interrupted {
+            if handle != 0 { try close() }
+            else { state.withLock { $0.closing = false } }
+            throw BridgeError.closed
+        }
+        guard code == 0, handle != 0 else { throw CoreFailure(code: code == 0 ? 16 : code, effect: .none) }
     }
     public func resume() throws { try start() }
     public func suspend() throws -> JSONValue {
@@ -157,14 +189,38 @@ public final class NativeCore: CoreTransport {
         return .object(["data_root_lock_released": .bool(true)])
     }
     public func close() throws {
-        try state.withLock { state in
-            guard state.handle != 0 else {
-                if state.closing { throw BridgeError.lockStillHeld }; return
+        let handle = try state.withLock { state in
+            if state.opening { state.closing = true; throw BridgeError.lockStillHeld }
+            guard !state.lifecycleBusy else { throw BridgeError.lockStillHeld }
+            guard state.handle != 0 else { return UInt64(0) }
+            state.closing = true; state.lifecycleBusy = true
+            return state.handle
+        }
+        guard handle != 0 else { return }
+        let code = ramflux_v2_client_close(handle)
+        // release is itself a nonblocking terminal-state probe: Pending preserves the fence.
+        let released = code != 0 && code != 26 && ramflux_v2_client_release(handle) == 0
+        state.withLock { state in
+            state.lifecycleBusy = false
+            if code == 0 || code == 26 || released {
+                state.handle = 0; state.closing = false; state.streamOpened = false
             }
-            state.closing = true
-            let code = ramflux_v2_client_close(state.handle)
-            guard code == 0 || code == 26 else { throw BridgeError.lockStillHeld }
-            state.handle = 0; state.closing = false; state.streamOpened = false
+        }
+        if released { throw CoreFailure(code: code, effect: .unknown, writerReleaseConfirmed: true) }
+        guard code == 0 || code == 26 else { throw BridgeError.lockStillHeld }
+    }
+    func finishSubscription(client: UInt64) throws {
+        guard try currentHandle() == client else { throw BridgeError.closed }
+        let deadline = UInt64(Date().timeIntervalSince1970 * 1000) + 5_000
+        for attempt in 0..<3 {
+            let request = try CoreRequest(method: "subscription.close", sdkAPI: "subscription", body: .object([:]), deadlineUnixMilliseconds: deadline)
+            do {
+                _ = try execute(request, cancellation: NativeCancellation())
+                subscriptionEnded(client: client)
+                return
+            } catch let error as CoreFailure where error.rawCode == 15 && error.effect == .none && attempt < 2 {
+                usleep(20_000)
+            }
         }
     }
     public func subscribe(_ filter: SubscriptionFilter) throws -> any EventQueue {
@@ -175,7 +231,7 @@ public final class NativeCore: CoreTransport {
             return state.handle
         }
         var transferred = false
-        defer { if !transferred { subscriptionEnded(client: handle) } }
+        defer { if !transferred { try? finishSubscription(client: handle) } }
         let request = try CoreRequest(method: "subscription.open", sdkAPI: "subscription", accountID: filter.accountID,
             body: filter.body, deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 5_000)
         let body = try request.envelope().encodedRequest()
@@ -199,6 +255,9 @@ public final class NativeCore: CoreTransport {
 
     deinit {
         let handle = state.withLock { $0.handle }
-        if handle != 0 { DispatchQueue.global(qos: .utility).async { _ = ramflux_v2_client_close(handle) } }
+        if handle != 0 { DispatchQueue.global(qos: .utility).async {
+            let code = ramflux_v2_client_close(handle)
+            if code != 0 && code != 26 { _ = ramflux_v2_client_release(handle) }
+        } }
     }
 }

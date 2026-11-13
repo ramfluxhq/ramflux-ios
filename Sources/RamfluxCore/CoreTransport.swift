@@ -7,8 +7,10 @@ public protocol CancellationHandle: Sendable { func cancel() }
 public protocol EventQueue: Sendable {
     var initialSnapshot: JSONValue { get }
     func poll() throws -> [JSONValue]
+    func finish() throws
     func cancel()
 }
+public extension EventQueue { func finish() throws {} }
 public protocol CoreTransport: Sendable {
     func newCancellation() throws -> any CancellationHandle
     func execute(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> JSONValue

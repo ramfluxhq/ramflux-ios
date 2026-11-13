@@ -31,6 +31,86 @@ struct BridgeTests {
         let count = rf_fixture_copy_request(&bytes, bytes.count)
         return bytes.withUnsafeBytes { Data($0.prefix(count)) }
     }
+    private func awaitFixture(_ condition: @Sendable () -> Bool) async throws {
+        let deadline = Date().addingTimeInterval(1)
+        while !condition(), Date() < deadline { await Task.yield() }
+        try #require(condition(), "Fixture did not reach its semantic barrier")
+    }
+    @Test func negotiatedPolicyMustExactlyMatchPinnedFlagsAndInventory() throws {
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/sdk-method-policy.json")
+        var manifest = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let original = try #require(manifest["methods"] as? [[String: Any]])
+        for kind in 0..<7 {
+            rf_fixture_reset()
+            var rows = original
+            switch kind {
+            case 0: rows[0]["secret_input"] = !(rows[0]["secret_input"] as? Bool ?? false)
+            case 1: rows[0]["secret_output"] = !(rows[0]["secret_output"] as? Bool ?? false)
+            case 2: rows[0]["show_once"] = !(rows[0]["show_once"] as? Bool ?? false)
+            case 3: rows[0]["capability"] = "wrong"
+            case 4: rows.removeLast()
+            case 5: rows.append(original[0])
+            default: rows[0].removeValue(forKey: "secret_output")
+            }
+            manifest["methods"] = rows
+            let json = try JSONSerialization.data(withJSONObject: manifest)
+            rf_fixture_set_policy(String(decoding: json, as: UTF8.self))
+            #expect(throws: BridgeError.incompatibleABI) { try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root")) }
+            #expect(rf_fixture_opens() == 0)
+        }
+        rf_fixture_reset(); rf_fixture_set_policy("{}")
+        #expect(throws: BridgeError.incompatibleABI) { try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root")) }
+    }
+    @Test func subscriptionSlotRemainsFencedUntilCloseAcknowledged() async throws {
+        rf_fixture_reset(); let (core, client) = try await open()
+        let filter = try SubscriptionFilter(topics: ["message"])
+        let subscription = try await client.events(filter)
+        rf_fixture_set_release_busy(2)
+        rf_fixture_set_ack_pending(1)
+        let stop = Task { await subscription.stop() }
+        try await awaitFixture { rf_fixture_ack_polls() > 0 }
+        #expect(throws: BridgeError.invalidInput) { try core.resetEvents() }
+        #expect(throws: BridgeError.invalidInput) { try core.subscribe(filter) }
+        rf_fixture_set_ack_pending(0)
+        await stop.value
+        try core.resetEvents()
+        let next = try await client.events(filter)
+        await next.stop(); try await client.close()
+    }
+    @Test func blockingOpenAndCloseDoNotHoldStateMutex() async throws {
+        rf_fixture_reset()
+        let core = try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
+        rf_fixture_set_block_open(1)
+        let opening = Task.detached { try core.start() }
+        try await awaitFixture { rf_fixture_io_entered() == 1 }
+        #expect(throws: BridgeError.closed) { try core.currentHandle() }
+        #expect(throws: BridgeError.closed) { try core.start() }
+        #expect(rf_fixture_io_waiting() == 1)
+        rf_fixture_unblock_io(); try await opening.value
+        let queue = try core.subscribe(SubscriptionFilter(topics: ["message"]))
+        rf_fixture_set_block_close(1)
+        let closing = Task.detached { try core.close() }
+        try await awaitFixture { rf_fixture_closes() > 0 }
+        queue.cancel()
+        #expect(throws: BridgeError.closed) { try core.currentHandle() }
+        #expect(throws: BridgeError.lockStillHeld) { try core.close() }
+        #expect(rf_fixture_io_waiting() == 1)
+        rf_fixture_unblock_io(); try await closing.value
+        try core.start(); try core.close()
+    }
+    @Test func terminalShutdownErrorIsReportedAndHandleReleasedForReopen() async throws {
+        rf_fixture_reset(); let (_, client) = try await open()
+        let lifecycle = PhoneLifecycle(client: client, dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
+        try await lifecycle.foreground()
+        rf_fixture_set_close_code(8)
+        do { try await lifecycle.close(); Issue.record("Expected terminal shutdown failure") }
+        catch let failure as CoreFailure { #expect(failure.rawCode == 8); #expect(failure.writerReleaseConfirmed) }
+        #expect(rf_fixture_client_releases() == 1)
+        #expect(await lifecycle.state == .stopped)
+        rf_fixture_set_close_code(0)
+        try await lifecycle.foreground(); try await lifecycle.close()
+        #expect(rf_fixture_opens() == 2)
+    }
     @Test func nativeRequestPreservesIdentityAndReleasesBuffers() async throws {
         rf_fixture_reset()
         let (_, client) = try await open()
@@ -136,9 +216,10 @@ struct BridgeTests {
     }
     @Test func unavailableCapabilityAndMissingOperationKeyRefuseBeforeEffects() async throws {
         rf_fixture_reset(); rf_fixture_set_methods("[\"account.list\"]")
+        #expect(throws: BridgeError.incompatibleABI) { try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root")) }
+        rf_fixture_reset()
         let (_, client) = try await open()
         let proxy = SDKProxy(client: client)
-        await #expect(throws: CoreFailure.self) { try await proxy.groupList(context: context()) }
         await #expect(throws: BridgeError.invalidInput) { try await proxy.contactBlock(context: context()) }
         #expect(rf_fixture_submissions() == 0)
         try await client.close()

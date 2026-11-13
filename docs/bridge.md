@@ -47,16 +47,28 @@ Consume rows in the feature MainActor context. Cancel and `await subscription.st
 automatically joins established and concurrently opening pumps before native shutdown.
 Reopen and read projections after resync, then subscribe from the applied cursor.
 After stopping the old stream, re-read current projections and call
-`client.resetEvents()` before subscribing from the applied cursor. Failed opens
-and ended subscriptions release the stream slot. A copied stream or iterator
+`client.resetEvents()` before subscribing from the applied cursor. Teardown stops polling, cancels/releases the opening token, and awaits an explicit
+`subscription.close` completion before releasing the stream slot. Its acknowledgement
+has a five-second absolute deadline, with at most three admission attempts for
+code 15/no-effect and 20 ms backoff. Token release (which includes cancellation)
+also gets at most three retries with 20 ms backoff for code 15 before the ack request. Failure keeps the slot fenced until confirmed
+whole-client shutdown. Failed opens use the same acknowledgement cleanup. The pump
+performs no further polls after acknowledgement; `stop()` joins that pump. Direct
+CoreTransport consumers must call `EventQueue.finish()` after their last poll.
+The pinned SDK does not yet publish a subscription-generation field. Generation-based
+stale-frame rejection waits for that published contract; no field is guessed here. A copied stream or iterator
 retains its subscription when the EventSubscription handle is dropped. Requested
 stop terminates cleanly; an event gap remains a terminal resync error.
 
 `PhoneLifecycle` serializes transitions across actor suspension. Background return
 means the C supervisor shutdown completed and its writer was released. The app
 must grant background execution time around this call and end that OS task only
-after completion. A failed close/suspend retains its client handle and refuses start until a
-subsequent close confirms completion. Transient open errors hold no handle and
+after completion. Pending shutdown retains its client handle and refuses start until confirmed
+completion. After any close error, nonblocking `client_release` probes terminal
+completion: Pending preserves the fence, while confirmed release permits rebuild
+and reports the original numeric failure with `writerReleaseConfirmed`. Blocking
+open/close and filesystem preparation run outside the state mutex; transitions are
+reserved under the mutex, so cancellation and concurrent admission remain responsive. Transient open errors hold no handle and
 leave foreground retryable.
 Foreground reacquires the core. Extensions must never construct a NativeCore.
 
@@ -67,7 +79,7 @@ explicitly erased on consume, erase and destruction. `SecretRequest` encodes
 secret strings/three-word confirmation answers directly into an erased bounded
 buffer. Use `SecretField.text` or `.words`; the generated Proxy APIs use the SDK-owned secret_input/secret_output/show_once
 policy. Sealed outputs use a one-shot byte accessor, and secret input is encoded
-into erased storage. A new method without explicit SDK policy fails generation. AccountCeremony sequences show-once, hide, challenge,
+into erased storage. A new method without explicit SDK policy fails generation. Negotiation also requires an exact match of method inventory, capability and all three secret/show-once flags with the pinned table; absent or mismatched policy throws incompatibleABI. AccountCeremony sequences show-once, hide, challenge,
 and a single confirmation attempt; errors do not permit another confirmation.
 Creation and recovery must not interleave on one client connection.
 

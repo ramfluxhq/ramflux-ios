@@ -14,6 +14,7 @@ public enum CoreErrorCode: Int32, Codable, Sendable {
 /// A lost waiter is not proof of no effect. Reconcile using the original operation ID.
 public struct CoreFailure: Error, Sendable, Equatable, CustomStringConvertible, CustomDebugStringConvertible {
     public enum Effect: String, Codable, Sendable { case none, refused, unknown }
+    public let writerReleaseConfirmed: Bool
     public let rawCode: Int32
     public var code: CoreErrorCode? { CoreErrorCode(rawValue: rawCode) }
     public let effect: Effect
@@ -23,11 +24,12 @@ public struct CoreFailure: Error, Sendable, Equatable, CustomStringConvertible, 
     public let sealedResponse: SecretBytes?
     public var debugDescription: String { description }
     public var description: String { "CoreFailure(code: \(rawCode), effect: \(effect.rawValue))" }
-    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, response: JSONValue? = nil, sealedResponse: SecretBytes? = nil) {
+    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, response: JSONValue? = nil, sealedResponse: SecretBytes? = nil, writerReleaseConfirmed: Bool = false) {
+        self.writerReleaseConfirmed = writerReleaseConfirmed
         rawCode = code; self.effect = effect; self.operationID = operationID; self.reasonCode = reasonCode; self.response = response; self.sealedResponse = sealedResponse
     }
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.rawCode == rhs.rawCode && lhs.effect == rhs.effect && lhs.operationID == rhs.operationID
+        lhs.writerReleaseConfirmed == rhs.writerReleaseConfirmed && lhs.rawCode == rhs.rawCode && lhs.effect == rhs.effect && lhs.operationID == rhs.operationID
             && lhs.reasonCode == rhs.reasonCode && lhs.response == rhs.response && lhs.sealedResponse === rhs.sealedResponse
     }
 

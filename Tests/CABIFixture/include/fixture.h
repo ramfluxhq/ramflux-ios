@@ -25,3 +25,15 @@ int rf_fixture_closes(void);
 int rf_fixture_resets(void);
 int rf_fixture_subscription_cancels(void);
 int rf_fixture_subscription_releases(void);
+
+void rf_fixture_set_policy(const char *json);
+
+void rf_fixture_set_ack_pending(int value);
+int rf_fixture_ack_polls(void);
+void rf_fixture_set_block_open(int value);
+void rf_fixture_set_block_close(int value);
+int rf_fixture_io_entered(void);
+void rf_fixture_unblock_io(void);
+int rf_fixture_client_releases(void);
+int rf_fixture_io_waiting(void);
+void rf_fixture_set_release_busy(int value);
