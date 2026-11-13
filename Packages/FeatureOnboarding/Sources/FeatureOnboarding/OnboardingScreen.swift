@@ -90,7 +90,7 @@ public struct OnboardingScreen: View {
                 action("Read account fingerprint", .beginRecovery)
             }
         case .complete:
-            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(.caption) }
+            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(.caption); Text(account.networking == .live ? "Connected" : "Local account is ready. Network connection has not been confirmed.") }
             action("Continue", .done)
         case .link:
             Text("Linking needs a registered phone pairing coordinator. This build does not create a QR code or pairing code.")

@@ -6,6 +6,7 @@ import AppData
 import FeatureOnboarding
 import FeatureConversations
 import FeatureChat
+import FeatureContacts
 import RFDesign
 
 @main struct RamfluxApp: App {
@@ -22,10 +23,15 @@ import RFDesign
             }) { route in
                 switch route {
                 case .conversation(let id):
-                    if let account = coordinator.viewModel.state.session.activeAccountID { AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
-                    else { AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading a conversation.")) }
-                case .onboarding, .recoverAccount, .linkDevice: AnyView(OnboardingHost(coordinator: composition.onboarding))
-                default: AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message))
+                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
+                    else { return AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading a conversation.")) }
+                case .contacts, .strangers, .contact, .safetyNumber:
+                    if let account = coordinator.viewModel.state.session.activeAccountID {
+                        let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
+                        return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
+                    } else { return AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading contacts.")) }
+                case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
+                default: return AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message))
                 }
             }
                 .preferredColorScheme(appearance == "system" ? nil : (appearance == "dark" ? .dark : .light))

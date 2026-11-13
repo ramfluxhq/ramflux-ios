@@ -13,6 +13,8 @@ settings:
 packages:
   FeatureAppShell:
     path: Packages/FeatureAppShell
+  FeatureContacts:
+    path: Packages/FeatureContacts
   FeatureChat:
     path: Packages/FeatureChat
   FeatureConversations:
@@ -29,6 +31,7 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureContacts
       - package: FeatureChat
       - package: FeatureConversations
       - package: FeatureOnboarding
@@ -58,6 +61,7 @@ targets:
     sources: [AppTests]
     dependencies:
       - target: Ramflux
+      - package: FeatureContacts
       - package: FeatureChat
       - package: FeatureConversations
       - package: FeatureOnboarding

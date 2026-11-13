@@ -96,7 +96,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         return CeremonyMetadata(id: try ProxyGateway.text(body, "ceremony_id"), expiresInMilliseconds: expiry, anchor: body["account_anchor"]?.string)
     }
     private static func account(_ body: JSONValue) throws -> AccountRecord {
-        AccountRecord(id: try ProxyGateway.text(body, "account_id"), displayName: try ProxyGateway.text(body, "display_name"), isLocked: false)
+        AccountRecord(id: try ProxyGateway.text(body, "account_id"), displayName: try ProxyGateway.text(body, "display_name"), isLocked: false, networking: body["networking"]?.string.flatMap(AccountNetworking.init(rawValue:)))
     }
     deinit { display?.erase() }
 }

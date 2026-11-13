@@ -4,8 +4,9 @@ public struct ContactRecord: Identifiable, Sendable, Equatable {
     public let id: String
     public let displayName: String
     public let subtitle: String
+    public let rootCommitment: String?
     public let verified: Bool?
-    public init(id: String, displayName: String, subtitle: String, verified: Bool? = nil) {
-        self.id = id; self.displayName = displayName; self.subtitle = subtitle; self.verified = verified
+    public init(id: String, displayName: String, subtitle: String, verified: Bool? = nil, rootCommitment: String? = nil) {
+        self.id = id; self.displayName = displayName; self.subtitle = subtitle; self.verified = verified; self.rootCommitment = rootCommitment
     }
 }
