@@ -158,5 +158,7 @@
 	<string>Verifying</string>
 	<key>status.writing</key>
 	<string>Writing</string>
+	<key>tasks.unavailable</key>
+	<string>Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted.</string>
 </dict>
 </plist>

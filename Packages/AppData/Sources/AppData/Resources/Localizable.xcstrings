@@ -1249,6 +1249,22 @@
           }
         }
       }
+    },
+    "tasks.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智能体任务创建及移动端审批和干预决策需要额外的已验证上下文。请在受信任客户端审核；尚未授予任何权限。"
+          }
+        }
+      }
     }
   }
 }

@@ -156,5 +156,7 @@
 	<string>要恢复此已验证的归档吗？</string>
 	<key>privacy.requestApproval</key>
 	<string>请求批准方式：%@</string>
+	<key>tasks.title</key>
+	<string>任务</string>
 </dict>
 </plist>

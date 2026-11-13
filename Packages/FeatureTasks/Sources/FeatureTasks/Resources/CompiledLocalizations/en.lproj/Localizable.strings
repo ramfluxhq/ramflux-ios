@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>tasks.accept</key>
+	<string>Accept task</string>
+	<key>tasks.account</key>
+	<string>Account</string>
+	<key>tasks.approval</key>
+	<string>Approval request</string>
+	<key>tasks.assignee</key>
+	<string>Assignee</string>
+	<key>tasks.cancel</key>
+	<string>Cancel task</string>
+	<key>tasks.cancelled</key>
+	<string>Cancelled</string>
+	<key>tasks.capability</key>
+	<string>Capability</string>
+	<key>tasks.confirm</key>
+	<string>Hold to confirm</string>
+	<key>tasks.context</key>
+	<string>Tasks belong to a conversation. Select its actual local history.</string>
+	<key>tasks.conversation</key>
+	<string>Conversation</string>
+	<key>tasks.conversations</key>
+	<string>Choose a conversation</string>
+	<key>tasks.create</key>
+	<string>Start a new Agent task</string>
+	<key>tasks.decline</key>
+	<string>Decline task</string>
+	<key>tasks.dismiss</key>
+	<string>Dismiss</string>
+	<key>tasks.done</key>
+	<string>Done</string>
+	<key>tasks.empty</key>
+	<string>No records in this context</string>
+	<key>tasks.expiry</key>
+	<string>Expires</string>
+	<key>tasks.failed</key>
+	<string>Failed</string>
+	<key>tasks.grant</key>
+	<string>Existing grant</string>
+	<key>tasks.hash</key>
+	<string>Arguments hash</string>
+	<key>tasks.intervention</key>
+	<string>Review intervention on a trusted client</string>
+	<key>tasks.loading</key>
+	<string>Loading</string>
+	<key>tasks.more</key>
+	<string>Load next page</string>
+	<key>tasks.needs_me</key>
+	<string>Needs your input</string>
+	<key>tasks.noAuthority</key>
+	<string>These are SDK records, not a device-role authority claim. No mobile approval is issued here.</string>
+	<key>tasks.pending</key>
+	<string>Unresolved task action</string>
+	<key>tasks.permissions</key>
+	<string>Permissions and approvals</string>
+	<key>tasks.proposed</key>
+	<string>Proposed</string>
+	<key>tasks.reconcile</key>
+	<string>Reconcile original action</string>
+	<key>tasks.refresh</key>
+	<string>Refresh</string>
+	<key>tasks.requester</key>
+	<string>Requester</string>
+	<key>tasks.result</key>
+	<string>Result summary</string>
+	<key>tasks.review</key>
+	<string>Review this task action</string>
+	<key>tasks.reviewPermission</key>
+	<string>Review approval availability</string>
+	<key>tasks.running</key>
+	<string>Running</string>
+	<key>tasks.scope</key>
+	<string>Tool scope</string>
+	<key>tasks.server</key>
+	<string>Service</string>
+	<key>tasks.stale</key>
+	<string>Last confirmed data; refresh before acting</string>
+	<key>tasks.stalled</key>
+	<string>Progress stalled by assignee</string>
+	<key>tasks.status</key>
+	<string>Status</string>
+	<key>tasks.submitted</key>
+	<string>Task action submitted; delivery is not confirmed</string>
+	<key>tasks.task</key>
+	<string>Task</string>
+	<key>tasks.title</key>
+	<string>Tasks and permissions</string>
+	<key>tasks.tool</key>
+	<string>Tool</string>
+	<key>tasks.unknown</key>
+	<string>Unknown status</string>
+	<key>tasks.version</key>
+	<string>Observed revision</string>
+	<key>tasks.waiting</key>
+	<string>Task decision pending acknowledgement</string>
+</dict>
+</plist>

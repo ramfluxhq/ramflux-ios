@@ -156,5 +156,7 @@
 	<string>Restore this verified archive?</string>
 	<key>privacy.requestApproval</key>
 	<string>Request approval: %@</string>
+	<key>tasks.title</key>
+	<string>Tasks</string>
 </dict>
 </plist>

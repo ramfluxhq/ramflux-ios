@@ -39,7 +39,7 @@ public actor NativeUpdateSource {
             if let previous { await previous.value.stop() }
             do {
                 try await client.resetEvents()
-                let filter = try SubscriptionFilter(accountID: account, topics: ["conversation.changed", "call.changed", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", "account.backup.job.changed"], attendedFrontend: true)
+                let filter = try SubscriptionFilter(accountID: account, topics: ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", "account.backup.job.changed"], attendedFrontend: true)
                 return RepositoryObservation(subscription: try await client.events(filter))
             } catch { return RepositoryObservation(failure: AppFailure.map(error)) }
         }

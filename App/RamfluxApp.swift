@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureTasks
 import FeatureAgents
 import FeatureCalls
 import FeatureGroups
@@ -29,6 +30,9 @@ import RFDesign
                 return nil
             }) { route in
                 switch route {
+                case .tasks, .permissions:
+                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
                 case .calls(let conversation):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(CallsHost(coordinator: composition.calls(account: account, conversation: conversation))) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }

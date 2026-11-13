@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureTasks
 import FeatureAgents
 import FeatureCalls
 import FeatureGroups
@@ -61,6 +62,13 @@ import Observation
         currentAgents?.1.send(.disappeared)
         let coordinator = AgentsCoordinator(repository: repositories.agents, account: account)
         currentAgents = (account, coordinator); return coordinator
+    }
+    @ObservationIgnored private var currentTasks: (String, Bool, TasksCoordinator)?
+    func tasks(account: String, permissions: Bool) -> TasksCoordinator {
+        if let currentTasks, currentTasks.0 == account, currentTasks.1 == permissions { return currentTasks.2 }
+        currentTasks?.2.send(.disappeared)
+        let coordinator = TasksCoordinator(repository: repositories.tasks, conversations: repositories.conversations, account: account, mode: permissions ? .permissions : .conversations)
+        currentTasks = (account, permissions, coordinator); return coordinator
     }
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?
