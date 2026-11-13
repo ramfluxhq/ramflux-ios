@@ -49,7 +49,7 @@ public struct OnboardingScreen: View {
                 if let fingerprint = state.visibleNodeFingerprint {
                     Text(FeatureOnboardingStrings.text("node.fingerprintInstructions", locale: locale))
                     Text(fingerprint).font(theme.captionFont).textSelection(.enabled)
-                    action(FeatureOnboardingStrings.text("node.confirmFingerprint", locale: locale), .saveNode)
+                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.text("node.confirmFingerprint", locale: locale) + " · " + candidate.origin + " · " + fingerprint, enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
                     action(FeatureOnboardingStrings.text("node.editOperatorKey", locale: locale), .expectedNodeKeyChanged(""))
                 } else {
                     Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))
