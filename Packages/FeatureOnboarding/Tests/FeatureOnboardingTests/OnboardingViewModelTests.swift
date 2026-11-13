@@ -44,7 +44,7 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(model.state.stage == .normalizedAddress); #expect(await fake.origins.isEmpty)
         model.send(.inspectOrigin); await model.settle()
         #expect(await fake.origins == ["https://example.org"])
-        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.saveNode); await model.settle()
+        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.reviewNodeKey); model.send(.saveNode); await model.settle()
         #expect(await fake.saved.first?.publicKey == "observed-key")
         #expect(model.state.stage == .saved)
     }
@@ -57,11 +57,27 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.inspectOrigin); await model.settle()
         model.send(.expectedNodeKeyChanged("different")); model.send(.saveNode); await model.settle()
         #expect(model.state.failure == .nodeKeyMismatch); #expect(await fake.saved.isEmpty)
-        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.saveNode); await model.settle()
+        model.send(.expectedNodeKeyChanged("observed-key")); model.send(.reviewNodeKey); model.send(.saveNode); await model.settle()
         #expect(await fake.saved.count == 1); #expect(model.state.nodes.first?.pinSource == "operator")
         #expect(model.state.nodes.first?.canCreateAccount == true)
         model.send(.create); model.send(.beginCreation); await model.settle()
         #expect(model.state.stage == .savePhrase)
+    }
+    @Test func discoveryKeyIsNeverPresentationCopyAndFingerprintNeedsIndependentEntry() async {
+        let fake = FlowFake(); var state = OnboardingState(stage: .identity)
+        let key = String(repeating: "k", count: 200)
+        state.candidate = NodeRecord(id: "node", origin: "https://example.org", fingerprint: "fp", publicKey: key)
+        let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        #expect(vm.state.visibleNodeFingerprint == nil)
+        vm.send(.saveNode); await vm.settle(); #expect(await fake.saved.isEmpty)
+        vm.send(.expectedNodeKeyChanged("mismatch")); vm.send(.reviewNodeKey)
+        #expect(vm.state.failure == .nodeKeyMismatch); #expect(vm.state.visibleNodeFingerprint == nil)
+        vm.send(.expectedNodeKeyChanged(key)); #expect(vm.state.expectedNodeKey == key)
+        #expect(vm.state.visibleNodeFingerprint == nil)
+        vm.send(.reviewNodeKey); #expect(vm.state.visibleNodeFingerprint == "fp")
+        #expect(await fake.saved.isEmpty)
+        vm.send(.expectedNodeKeyChanged("changed")); #expect(vm.state.visibleNodeFingerprint == nil)
+        vm.send(.saveNode); await vm.settle(); #expect(await fake.saved.isEmpty)
     }
     @Test func confirmationIsOneAttemptAndUnknownOutcomeDoesNotRetry() async {
         let fake = FlowFake(); var state = OnboardingState(stage: .localUnlock); state.positions = [3,7,11]

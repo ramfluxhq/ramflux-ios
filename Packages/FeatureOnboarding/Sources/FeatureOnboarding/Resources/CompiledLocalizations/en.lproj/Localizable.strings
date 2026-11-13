@@ -140,12 +140,20 @@
 	<string>Node saved</string>
 	<key>copy.f23cb9253e3e</key>
 	<string>Show recovery phrase once</string>
+	<key>node.confirmFingerprint</key>
+	<string>Confirm fingerprint and pin node</string>
 	<key>node.confirmOperator</key>
 	<string>Confirm operator key and save node</string>
+	<key>node.editOperatorKey</key>
+	<string>Edit operator key</string>
+	<key>node.fingerprintInstructions</key>
+	<string>The independent operator key matches. Check this node fingerprint, then explicitly confirm the pin.</string>
 	<key>node.operatorInstructions</key>
-	<string>Discovery is untrusted until you compare this fingerprint and enter the public key supplied by the node operator. HTTP is used only for signed discovery and public records; it does not establish the node’s identity.</string>
+	<string>Enter the node public key obtained independently from the operator. The discovered key is never offered for copying.</string>
 	<key>node.operatorKey</key>
 	<string>Operator public key</string>
+	<key>node.reviewFingerprint</key>
+	<string>Review fingerprint</string>
 	<key>recovery.word.position</key>
 	<string>Word %@</string>
 </dict>

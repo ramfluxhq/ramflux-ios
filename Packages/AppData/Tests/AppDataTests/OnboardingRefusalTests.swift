@@ -15,7 +15,15 @@ struct OnboardingRefusalTests {
         #expect(AppFailure.map(CoreFailure(code: 99, reasonCode: "private input")) == .sdkRefusal(99))
         #expect(AppFailure.map(CoreFailure(code: 16, operationID: "original", reasonCode: "vault_permission")) == .outcomeUnknown)
     }
+    @Test func localAndBridgeFailuresRemainTyped() throws {
+        #expect(AppFailure.map(BridgeError.keychain(-34018)) == .vaultPermission)
+        #expect(AppFailure.map(BridgeError.missingVault) == .vaultMissing)
+        #expect(AppFailure.map(URLError(.notConnectedToInternet)) == .offline)
+        #expect(AppFailure.map(NSError(domain: NSCocoaErrorDomain, code: 513)) == .localStorage)
+        #expect(try NodeAddress("HTTPS://例子.测试:443/path").origin == "https://xn--fsqu00a.xn--0zwm56d")
+    }
     @Test func httpSavedTofuPinDoesNotAuthorizeNewAccount() {
+        #expect(!NodeRecord(id: "node", origin: "HTTP://example.org", isConfirmed: true, pinSource: "tofu").canCreateAccount)
         #expect(!NodeRecord(id: "node", origin: "http://example.org", isConfirmed: true, pinSource: "tofu").canCreateAccount)
         #expect(NodeRecord(id: "node", origin: "http://example.org", isConfirmed: true, pinSource: "operator").canCreateAccount)
         #expect(!NodeRecord(id: "node", origin: "http://example.org", pinSource: "operator").canCreateAccount)

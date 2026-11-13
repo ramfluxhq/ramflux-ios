@@ -9,8 +9,6 @@ settings:
   base:
     SWIFT_VERSION: '6.0'
     SWIFT_STRICT_CONCURRENCY: complete
-    CODE_SIGNING_ALLOWED: YES
-    "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
 packages:
   FeatureCards:
     path: Packages/FeatureCards
@@ -50,6 +48,14 @@ targets:
       properties:
         application-identifier: $(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)
         keychain-access-groups: [$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)]
+    preBuildScripts:
+      - name: Require device signing team
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "$PLATFORM_NAME" = iphoneos ] && [ "$CODE_SIGNING_ALLOWED" != NO ] && [ -z "$DEVELOPMENT_TEAM" ]; then
+            echo "error: Device and archive builds require RAMFLUX_DEVELOPMENT_TEAM=<Apple team ID>."
+            exit 1
+          fi
     dependencies:
       - package: FeatureCards
       - package: FeatureTasks
@@ -65,6 +71,21 @@ targets:
       - package: FeatureAppShell
       - package: AppData
     settings:
+      configs:
+        Debug:
+          "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+          "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Development
+          DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+          "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Distribution
+          DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
+          CODE_SIGN_STYLE: Automatic
       base:
         PRODUCT_BUNDLE_IDENTIFIER: org.ramflux.ios
         GENERATE_INFOPLIST_FILE: YES

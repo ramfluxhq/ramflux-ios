@@ -4,13 +4,14 @@ import Foundation
 import RamfluxCore
 public enum AppFailure: Error, Sendable, Equatable {
     case nodeRequired, nodeKeyMismatch, vaultPermission, vaultLocked, vaultMissing, vaultCorrupt, vaultBusy, vaultUnavailable
-    case sdkRefusal(Int32), onboardingProtocol
+    case sdkRefusal(Int32), onboardingProtocol, localStorage, localFailure
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
-        case .nodeRequired, .nodeKeyMismatch, .vaultPermission, .vaultLocked, .vaultMissing, .vaultCorrupt, .vaultBusy, .vaultUnavailable, .sdkRefusal, .onboardingProtocol:
+        case .sdkRefusal, .localStorage, .localFailure: AppDataStrings.text("request.refusal.title", locale: locale)
+        case .nodeRequired, .nodeKeyMismatch, .vaultPermission, .vaultLocked, .vaultMissing, .vaultCorrupt, .vaultBusy, .vaultUnavailable, .onboardingProtocol:
             AppDataStrings.text("onboarding.refusal.title", locale: locale)
         case .sdkUnavailable: AppDataStrings.text("copy.5562fbd3e629", locale: locale)
         case .unsupported, .notAvailable, .unavailableResource: AppDataStrings.text("copy.787406ddea2a", locale: locale)
@@ -38,6 +39,8 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .vaultUnavailable: AppDataStrings.text("onboarding.vaultUnavailable", locale: locale)
         case .sdkRefusal(let code): AppDataStrings.format("onboarding.sdkRefusal", String(code), locale: locale)
         case .onboardingProtocol: AppDataStrings.text("onboarding.protocol", locale: locale)
+        case .localStorage: AppDataStrings.text("request.localStorage", locale: locale)
+        case .localFailure: AppDataStrings.text("request.localFailure", locale: locale)
         case .sdkUnavailable: AppDataStrings.text("copy.c3654c6a066c", locale: locale)
         case .unsupported: AppDataStrings.text("copy.a18c44969ead", locale: locale)
         case .offline: AppDataStrings.text("copy.c294a0b00e74", locale: locale)
@@ -76,8 +79,26 @@ public enum AppFailure: Error, Sendable, Equatable {
             default: return .sdkRefusal(failure.rawCode)
             }
         }
-        if (error as? BridgeError) == .resyncRequired { return .resyncRequired }
+        if let bridge = error as? BridgeError {
+            switch bridge {
+            case .resyncRequired: return .resyncRequired
+            case .closed: return .offline
+            case .invalidInput: return .invalidInput
+            case .incompatibleABI: return .upgradeRequired
+            case .missingVault: return .vaultMissing
+            case .orphanedVault: return .vaultCorrupt
+            case .keychain(let code): return code == -34018 ? .vaultPermission : .vaultUnavailable
+            case .unsafeStoragePath: return .localStorage
+            case .lockStillHeld: return .busy
+            default: return .invalidData
+            }
+        }
         if error is UnavailableCapability { return .unsupported }
-        return .failed
+        if error is DecodingError { return .invalidData }
+        if error is URLError { return .offline }
+        let native = error as NSError
+        if native.domain == NSCocoaErrorDomain { return .localStorage }
+        if error is BridgeError { return .invalidData }
+        return .localFailure
     }
 }

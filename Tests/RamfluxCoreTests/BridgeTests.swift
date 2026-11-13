@@ -164,6 +164,23 @@ struct BridgeTests {
         #expect(String(describing: passphrase) == "SecretBytes")
         try await client.close()
     }
+    @Test func sealedNativeCompletionExtractsOnlyAllowlistedVaultRefusals() async throws {
+        for reason in ["vault_permission", "vault_locked", "vault_missing", "vault_corrupt", "vault_busy", "vault_primary_unavailable"] {
+            rf_fixture_reset()
+            let terminal = "{\"code\":16,\"response\":{\"error\":{\"reason_code\":\"\(reason)\",\"message\":\"private-test-text\"}}}"
+            rf_fixture_set_terminal(terminal)
+            let (_, client) = try await open()
+            do { _ = try await SDKProxy(client: client).accountList(context: context()); Issue.record("Expected sealed native refusal") }
+            catch let failure as CoreFailure {
+                #expect(failure.rawCode == 16); #expect(failure.reasonCode == reason)
+                #expect(failure.response == nil); #expect(failure.sealedResponse != nil)
+                #expect(!String(describing: failure).contains("private-test-text"))
+                failure.sealedResponse?.erase()
+            }
+            #expect(rf_fixture_live_buffers() == 0)
+            try await client.close()
+        }
+    }
     @Test func businessFailurePreservesSDKErrorFrame() async throws {
         rf_fixture_reset()
         rf_fixture_set_terminal("{\"code\":23,\"response\":{\"error\":{\"reason_code\":\"schema_reset_required\",\"details\":{\"generation\":\"18446744073709551615\"}}}}")

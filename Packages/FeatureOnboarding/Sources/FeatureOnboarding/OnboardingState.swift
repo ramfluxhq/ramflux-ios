@@ -12,6 +12,9 @@ public struct OnboardingState: Equatable, Sendable {
     public var selectedNodeID: String?
     public var expectedNodeKey = ""
     public var candidate: NodeRecord?
+    public var visibleNodeFingerprint: String? { reviewedNode == candidate && canReviewFingerprint ? candidate?.fingerprint : nil }
+    public var reviewedNode: NodeRecord?
+    public var canReviewFingerprint: Bool { candidate?.publicKey != nil && !expectedNodeKey.isEmpty && expectedNodeKey == candidate?.publicKey }
     public var busy = false
     public var failure: AppFailure?
     public var metadata: CeremonyMetadata?

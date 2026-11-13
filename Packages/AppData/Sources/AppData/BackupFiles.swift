@@ -36,7 +36,7 @@ final class BackupFiles: Sendable {
         let values = try source.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
         guard values.isRegularFile == true, values.isSymbolicLink != true else { throw AppFailure.invalidInput }
         let target = root.appendingPathComponent(UUID().uuidString + ".rfb")
-        guard FileManager.default.createFile(atPath: target.path, contents: nil, attributes: [.posixPermissions: 0o600]) else { throw AppFailure.failed }
+        guard FileManager.default.createFile(atPath: target.path, contents: nil, attributes: [.posixPermissions: 0o600]) else { throw AppFailure.localStorage }
         var complete = false; defer { if !complete { try? FileManager.default.removeItem(at: target) } }
         let input = try FileHandle(forReadingFrom: source), output = try FileHandle(forWritingTo: target)
         defer { try? input.close(); try? output.close() }

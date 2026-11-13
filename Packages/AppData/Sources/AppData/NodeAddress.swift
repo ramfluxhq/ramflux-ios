@@ -15,6 +15,10 @@ public struct NodeAddress: Sendable, Equatable {
         if (parts.scheme == "https" && parts.port == 443) || (parts.scheme == "http" && parts.port == 80) { parts.port = nil }
         parts.path = ""; parts.query = nil; parts.fragment = nil
         guard let url = parts.url, let host = url.host, !host.isEmpty else { throw AppFailure.invalidInput }
-        entered = trimmed; origin = url.absoluteString; changed = trimmed != origin
+        // URL performs IDNA encoding; always display the ASCII host the network uses.
+        guard let asciiHost = url.host(percentEncoded: false), asciiHost.unicodeScalars.allSatisfy({ $0.isASCII }) else { throw AppFailure.invalidInput }
+        parts.host = asciiHost
+        guard let asciiURL = parts.url else { throw AppFailure.invalidInput }
+        entered = trimmed; origin = asciiURL.absoluteString; changed = trimmed != origin
     }
 }

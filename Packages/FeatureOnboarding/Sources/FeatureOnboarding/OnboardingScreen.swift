@@ -46,13 +46,17 @@ public struct OnboardingScreen: View {
         case .identity:
             if let candidate = state.candidate {
                 Text(candidate.origin).textSelection(.enabled)
-                Text(candidate.fingerprint ?? FeatureOnboardingStrings.text("copy.a915dea73c38", locale: locale)).font(theme.captionFont).textSelection(.enabled)
-                Text(FeatureOnboardingStrings.text("copy.afb56637754e", locale: locale))
-                if let key = candidate.publicKey { Text(key).font(theme.captionFont).textSelection(.enabled) }
-                Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))
-                TextField(FeatureOnboardingStrings.text("node.operatorKey", locale: locale), text: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }))
-                    .textFieldStyle(.roundedBorder).rfAddressInput()
-                action(FeatureOnboardingStrings.text("node.confirmOperator", locale: locale), .saveNode)
+                if let fingerprint = state.visibleNodeFingerprint {
+                    Text(FeatureOnboardingStrings.text("node.fingerprintInstructions", locale: locale))
+                    Text(fingerprint).font(theme.captionFont).textSelection(.enabled)
+                    action(FeatureOnboardingStrings.text("node.confirmFingerprint", locale: locale), .saveNode)
+                    action(FeatureOnboardingStrings.text("node.editOperatorKey", locale: locale), .expectedNodeKeyChanged(""))
+                } else {
+                    Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))
+                    TextField(FeatureOnboardingStrings.text("node.operatorKey", locale: locale), text: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }))
+                        .textFieldStyle(.roundedBorder).rfAddressInput()
+                    action(FeatureOnboardingStrings.text("node.reviewFingerprint", locale: locale), .reviewNodeKey)
+                }
             }
         case .saved:
             Text(FeatureOnboardingStrings.text("copy.2ba256d7a297", locale: locale))

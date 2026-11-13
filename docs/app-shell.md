@@ -138,3 +138,7 @@ verification remains authoritative. No ATS relaxation is needed: this discovery
 path uses the SDK's reqwest/Tokio sockets, not URLSession. Native simulator HTTP
 discovery is verified with ATS defaults; adding a global arbitrary-load exception
 would weaken unrelated Foundation requests without affecting this path.
+
+Native signing is configured on the app target per configuration: simulator builds use ad hoc signing; physical-device Debug uses Apple Development and Release/archive uses Apple Distribution. Set `RAMFLUX_DEVELOPMENT_TEAM=<your Apple team ID>` and provide the corresponding automatic-signing account/profile. Device/archive builds without a team fail explicitly. CI compilation can use `CODE_SIGNING_ALLOWED=NO`; it does not prove device installation or distribution signing.
+
+Node setup accepts HTTP(S), IP addresses and IDNA-normalized ASCII hostnames. Enter the operator key obtained independently before the app reveals the fingerprint review. Confirming the fingerprint forces fresh signed discovery and refuses changes in node id, origin, fingerprint or key. The pinned SDK checks the expected public key again against its pending record before persistence.
