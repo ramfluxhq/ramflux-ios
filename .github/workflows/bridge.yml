@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Span Brain
+name: Swift bridge
+on: [pull_request, push]
+permissions:
+  contents: read
+jobs:
+  bridge:
+    runs-on: macos-15-arm64
+    timeout-minutes: 15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ios
+      - id: contract
+        name: Read immutable SDK pin
+        run: python3 -c 'import json; print("commit=" + json.load(open("docs/sdk-contract.json"))["sourceCommit"])' >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: ramfluxhq/ramflux
+          ref: ${{ steps.contract.outputs.commit }}
+          path: sdk
+      - name: Verify generated contract and generator guards
+        run: |
+          python3 scripts/sync-sdk-contract.py ../sdk --commit '${{ steps.contract.outputs.commit }}' --check
+          git diff --exit-code
+          python3 -m unittest discover -s scripts/tests -v
+      - name: Host compile and headless tests
+        run: |
+          swift build
+          swift test
+      - name: iOS simulator source compile
+        run: xcodebuild -scheme RamfluxCore -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO

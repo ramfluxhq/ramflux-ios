@@ -7,7 +7,7 @@ import Darwin
 
 /// A C ABI v2 supervisor. Construct/start through RamfluxClient to keep filesystem work off UI.
 public final class NativeCore: CoreTransport {
-    private struct State { var handle: UInt64 = 0; var failed = false; var streamOpened = false }
+    private struct State { var handle: UInt64 = 0; var closing = false; var streamOpened = false }
     private let state = Mutex(State())
     private let configuration: Data
     private let dataRoot: URL
@@ -41,23 +41,67 @@ public final class NativeCore: CoreTransport {
     }
     func currentHandle() throws -> UInt64 {
         try state.withLock {
-            guard !$0.failed, $0.handle != 0 else { throw BridgeError.closed }
+            guard !$0.closing, $0.handle != 0 else { throw BridgeError.closed }
             return $0.handle
         }
     }
     public func newCancellation() throws -> any CancellationHandle { NativeCancellation() }
     public func execute(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> JSONValue {
-        guard let cancellation = cancellation as? NativeCancellation else { throw BridgeError.invalidInput }
-        var data = try request.envelope().encoded()
+        guard let policy = SDKOperation(rawValue: request.method), !policy.requiresSecureInput, !policy.requiresSecureOutput else { throw BridgeError.invalidInput }
+        var data = try request.envelope().encodedRequest()
         defer { data.resetBytes(in: 0..<data.count) }
-        return try data.withUnsafeBytes { try executeBytes($0, request: request, cancellation: cancellation) }
+        return try data.withUnsafeBytes {
+            try requestResult($0, request: request, cancellation: cancellation) { try self.jsonCompletion($0, request: request) }.response
+        }
     }
     public func executeSecret(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> JSONValue {
-        guard let cancellation = cancellation as? NativeCancellation else { throw BridgeError.invalidInput }
-        return try request.json.consume { try executeBytes($0, request: request.request, cancellation: cancellation) }
+        guard let policy = SDKOperation(rawValue: request.request.method), !policy.requiresSecureOutput else { throw BridgeError.invalidInput }
+        return try request.json.consume {
+            try requestResult($0, request: request.request, cancellation: cancellation) { try self.jsonCompletion($0, request: request.request) }.response
+        }
     }
-    private func executeBytes(_ bytes: UnsafeRawBufferPointer, request: CoreRequest,
-                              cancellation: NativeCancellation) throws -> JSONValue {
+    public func executeSecretResponse(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> SecretBytes {
+        guard let policy = SDKOperation(rawValue: request.method), !policy.requiresSecureInput else { throw BridgeError.invalidInput }
+        var data = try request.envelope().encodedRequest()
+        defer { data.resetBytes(in: 0..<data.count) }
+        return try data.withUnsafeBytes {
+            try requestResult($0, request: request, cancellation: cancellation) { try self.sealedCompletion($0, request: request) }.response
+        }
+    }
+    public func executeSecretRequestResponse(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> SecretBytes {
+        try request.json.consume {
+            try requestResult($0, request: request.request, cancellation: cancellation) { try self.sealedCompletion($0, request: request.request) }.response
+        }
+    }
+    private func sealedCompletion(_ buffer: UnsafeMutablePointer<RamfluxBuffer>, request: CoreRequest) throws -> SecretBytes {
+        var code: Int32 = 0
+        guard rf_completion_code(buffer, &code) == 1 else {
+            throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "invalid_completion")
+        }
+        let value = buffer.pointee
+        let secret = try SecretBytes(copying: UnsafeRawBufferPointer(start: value.ptr, count: value.len), maximumBytes: CoreLimits.frameBytes)
+        guard code == 0 else { throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, sealedResponse: secret) }
+        return secret
+    }
+    private func jsonCompletion(_ buffer: UnsafeMutablePointer<RamfluxBuffer>, request: CoreRequest) throws -> JSONValue {
+        let terminal: JSONValue
+        do { terminal = try JSONValue.decode(NativeBuffers.copy(buffer)) }
+        catch { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "invalid_completion") }
+        guard case .number(let value) = terminal["code"], let status = Int32(exactly: value) else {
+            throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "invalid_completion")
+        }
+        if status != 0 {
+            let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
+            throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
+                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, response: terminal["response"])
+        }
+        guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }
+        return frame
+    }
+    private func requestResult<T: Sendable>(_ bytes: UnsafeRawBufferPointer, request: CoreRequest,
+        cancellation: any CancellationHandle, keepOperation: Bool = false,
+        parse: (UnsafeMutablePointer<RamfluxBuffer>) throws -> T) throws -> (response: T, operation: NativeOperation?) {
+        guard let cancellation = cancellation as? NativeCancellation else { throw BridgeError.invalidInput }
         guard methods.contains(request.method) else { throw CoreFailure(code: 3, effect: .none, operationID: request.operationID?.rawValue) }
         if cancellation.isCancelled { throw CoreFailure(code: 25, effect: .none, operationID: request.operationID?.rawValue) }
         guard Date().timeIntervalSince1970 * 1_000 < Double(request.deadlineUnixMilliseconds) else {
@@ -68,49 +112,42 @@ public final class NativeCore: CoreTransport {
         let status = ramflux_v2_execute(client, bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count, &operation)
         guard status == 0, operation != 0 else { throw CoreFailure(code: status == 0 ? 16 : status, effect: .none, operationID: request.operationID?.rawValue) }
         cancellation.attach(client: client, operation: operation)
-        defer { cancellation.detach(); _ = ramflux_v2_operation_release(client, operation) }
+        let owner = NativeOperation(client: client, id: operation)
+        var transferred = false
+        defer { cancellation.detach(); if !transferred { owner.finish() } }
         while true {
             var response: UnsafeMutablePointer<RamfluxBuffer>?
             let code = ramflux_v2_operation_poll(client, operation, &response)
             if code == 0 {
-                let terminal: JSONValue
-                do { terminal = try JSONValue.decode(NativeBuffers.take(response)) }
-                catch { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "invalid_completion") }
-                guard case .number(let value) = terminal["code"], let status = Int32(exactly: value) else {
-                    throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "invalid_completion")
-                }
-                if status != 0 {
-                    let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
-                    throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
-                        reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, response: terminal["response"])
-                }
-                guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }
-                return frame
+                guard let response else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue) }
+                defer { rf_buffer_wipe_free(response) }
+                let value = try parse(response)
+                transferred = keepOperation
+                return (value, keepOperation ? owner : nil)
             }
             if let response { rf_buffer_wipe_free(response) }
             guard code == 24 else { throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue) }
-            if cancellation.isCancelled {
-                throw CoreFailure(code: 25, effect: .unknown, operationID: request.operationID?.rawValue)
-            }
-            let now = Date().timeIntervalSince1970 * 1_000
-            if now >= Double(request.deadlineUnixMilliseconds) {
+            if cancellation.isCancelled { throw CoreFailure(code: 25, effect: .unknown, operationID: request.operationID?.rawValue) }
+            if Date().timeIntervalSince1970 * 1_000 >= Double(request.deadlineUnixMilliseconds) {
                 cancellation.cancel()
                 throw CoreFailure(code: 10, effect: .unknown, operationID: request.operationID?.rawValue)
             }
-            // Dedicated bounded worker, not the cooperative executor or UI thread.
             usleep(10_000)
         }
     }
     public func start() throws {
         try state.withLock { state in
-            guard !state.failed else { throw BridgeError.closed }
+            guard !state.closing else { throw BridgeError.closed }
             guard state.handle == 0 else { return }
             #if os(iOS)
             _ = try AppStorage.prepare(applicationSupport: dataRoot.deletingLastPathComponent())
             #endif
             var handle: UInt64 = 0
             let code = configuration.withUnsafeBytes { ramflux_v2_client_open($0.bindMemory(to: UInt8.self).baseAddress, $0.count, &handle) }
-            guard code == 0, handle != 0 else { state.failed = true; throw CoreFailure(code: code == 0 ? 16 : code, effect: .unknown) }
+            guard code == 0, handle != 0 else {
+                if handle != 0 { state.handle = handle; state.closing = true; throw BridgeError.lockStillHeld }
+                throw CoreFailure(code: code == 0 ? 16 : code, effect: .none)
+            }
             state.handle = handle; state.streamOpened = false
         }
     }
@@ -122,25 +159,44 @@ public final class NativeCore: CoreTransport {
     public func close() throws {
         try state.withLock { state in
             guard state.handle != 0 else {
-                if state.failed { throw BridgeError.lockStillHeld }; return
+                if state.closing { throw BridgeError.lockStillHeld }; return
             }
-            let handle = state.handle; state.handle = 0
-            let code = ramflux_v2_client_close(handle)
-            guard code == 0 else { state.failed = true; throw CoreFailure(code: code, effect: .unknown) }
+            state.closing = true
+            let code = ramflux_v2_client_close(state.handle)
+            guard code == 0 || code == 26 else { throw BridgeError.lockStillHeld }
+            state.handle = 0; state.closing = false; state.streamOpened = false
         }
     }
     public func subscribe(_ filter: SubscriptionFilter) throws -> any EventQueue {
         // The C ABI exposes one event queue per client, so it has one app-session consumer.
         let handle = try state.withLock { state in
-            guard !state.failed, state.handle != 0, !state.streamOpened else { throw BridgeError.invalidInput }
+            guard !state.closing, state.handle != 0, !state.streamOpened else { throw BridgeError.invalidInput }
             state.streamOpened = true
             return state.handle
         }
+        var transferred = false
+        defer { if !transferred { subscriptionEnded(client: handle) } }
         let request = try CoreRequest(method: "subscription.open", sdkAPI: "subscription", accountID: filter.accountID,
             body: filter.body, deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 5_000)
-        let snapshot = try execute(request, cancellation: NativeCancellation())
-        return NativeEventQueue(core: self, clientHandle: handle, snapshot: snapshot)
+        let body = try request.envelope().encodedRequest()
+        let result = try body.withUnsafeBytes {
+            try requestResult($0, request: request, cancellation: NativeCancellation(), keepOperation: true) { try self.jsonCompletion($0, request: request) }
+        }
+        guard let operation = result.operation else { throw BridgeError.invalidResponse }
+        transferred = true
+        return NativeEventQueue(core: self, operation: operation, snapshot: result.response)
     }
+    func subscriptionEnded(client: UInt64) {
+        state.withLock { if $0.handle == client { $0.streamOpened = false } }
+    }
+    public func resetEvents() throws {
+        try state.withLock { state in
+            guard !state.closing, state.handle != 0, !state.streamOpened else { throw BridgeError.invalidInput }
+            let code = ramflux_v2_event_reset(state.handle)
+            guard code == 0 else { throw CoreFailure(code: code, effect: .none) }
+        }
+    }
+
     deinit {
         let handle = state.withLock { $0.handle }
         if handle != 0 { DispatchQueue.global(qos: .utility).async { _ = ramflux_v2_client_close(handle) } }

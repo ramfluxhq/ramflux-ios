@@ -12,8 +12,11 @@ public final class SecretBytes: Sendable, CustomStringConvertible, CustomDebugSt
     private let storage: Mutex<Storage>
     public var description: String { "SecretBytes" }
     public var debugDescription: String { "SecretBytes" }
-    public init(copying bytes: UnsafeRawBufferPointer) throws {
-        guard !bytes.isEmpty, bytes.count <= 16_384 else { throw BridgeError.invalidInput }
+    public convenience init(copying bytes: UnsafeRawBufferPointer) throws {
+        try self.init(copying: bytes, maximumBytes: CoreLimits.frameBytes)
+    }
+    init(copying bytes: UnsafeRawBufferPointer, maximumBytes: Int) throws {
+        guard !bytes.isEmpty, bytes.count <= maximumBytes else { throw BridgeError.invalidInput }
         storage = Mutex(Storage(bytes: Array(bytes)))
     }
     public func consume<T: Sendable>(_ use: (UnsafeRawBufferPointer) throws -> T) throws -> T {
@@ -26,6 +29,8 @@ public final class SecretBytes: Sendable, CustomStringConvertible, CustomDebugSt
             }
         }
     }
+    var byteCount: Int { storage.withLock { $0.bytes.count } }
+    var isErased: Bool { storage.withLock { $0.consumed && $0.bytes.allSatisfy { $0 == 0 } } }
     public func erase() {
         storage.withLock { state in
             state.bytes.withUnsafeMutableBytes { rf_secure_zero($0.baseAddress, $0.count) }

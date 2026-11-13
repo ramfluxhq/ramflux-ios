@@ -22,7 +22,7 @@ message bindings are added; it refuses mismatches. The negotiated fingerprint is
 Construct `NativeCore` with a private data-root URL, then inject it into
 `RamfluxClient` and `SDKProxy`. Start the client before executing requests. The
 client dispatches blocking C startup/shutdown and operation waits off the caller's
-executor. Worker concurrency is four, with admission limited to 64 requests and
+executor. Ordinary worker concurrency is four, with a separate worker reserved for subscription opening, with admission limited to 64 requests and
 4 MiB of retained request bodies; lifecycle work has its own serial executor.
 Every request carries an absolute Unix deadline. Mutating Proxy calls require a
 caller-owned operation ID. The bridge never retries, reconciles automatically,
@@ -31,9 +31,12 @@ or invents a replacement operation ID.
 Swift Task cancellation explicitly invokes the ABI operation-cancel handle.
 Before submission cancellation has no effects. After submission the bridge keeps
 unknown-effect status unless the core provides its terminal no-effect result.
-Completion polling never resubmits. Every operation is released once. Unknown
-numeric error codes remain representable; failures retain the SDK error frame,
-reason and operation identity, while descriptions redact payloads.
+Completion polling never resubmits. Ordinary operation tokens are released once after completion; a subscription token is
+retained through its stream lifetime and cancelled/released exactly once at shutdown. Unknown
+numeric error codes remain representable. Errors from ordinary public completions
+retain the response/reason; secret-output errors retain the original bytes in
+CoreFailure.sealedResponse with numeric code and operation identity. Descriptions
+redact both representations.
 
 The package has one app-session event consumer per open client. Its subscription
 acknowledgement/snapshot is exposed as `EventSubscription.initialSnapshot`;
@@ -43,12 +46,18 @@ credit remains independent. Persist the last applied journal cursor yourself.
 Consume rows in the feature MainActor context. Cancel and `await subscription.stop()` when releasing a stream. Client suspend/close
 automatically joins established and concurrently opening pumps before native shutdown.
 Reopen and read projections after resync, then subscribe from the applied cursor.
-A cancelled session stream is not reopened on the same native client.
+After stopping the old stream, re-read current projections and call
+`client.resetEvents()` before subscribing from the applied cursor. Failed opens
+and ended subscriptions release the stream slot. A copied stream or iterator
+retains its subscription when the EventSubscription handle is dropped. Requested
+stop terminates cleanly; an event gap remains a terminal resync error.
 
 `PhoneLifecycle` serializes transitions across actor suspension. Background return
 means the C supervisor shutdown completed and its writer was released. The app
 must grant background execution time around this call and end that OS task only
-after completion. A failed close/suspend does not authorize another writer.
+after completion. A failed close/suspend retains its client handle and refuses start until a
+subsequent close confirms completion. Transient open errors hold no handle and
+leave foreground retryable.
 Foreground reacquires the core. Extensions must never construct a NativeCore.
 
 ## Secrets and app storage
@@ -56,8 +65,9 @@ Foreground reacquires the core. Extensions must never construct a NativeCore.
 `SecretBytes` is single-use, non-Codable and redacted. Its private allocation is
 explicitly erased on consume, erase and destruction. `SecretRequest` encodes
 secret strings/three-word confirmation answers directly into an erased bounded
-buffer. Use `SecretField.text` or `.words`; ordinary Proxy methods refuse known
-secret-bearing operations. AccountCeremony sequences show-once, hide, challenge,
+buffer. Use `SecretField.text` or `.words`; the generated Proxy APIs use the SDK-owned secret_input/secret_output/show_once
+policy. Sealed outputs use a one-shot byte accessor, and secret input is encoded
+into erased storage. A new method without explicit SDK policy fails generation. AccountCeremony sequences show-once, hide, challenge,
 and a single confirmation attempt; errors do not permit another confirmation.
 Creation and recovery must not interleave on one client connection.
 
@@ -66,12 +76,19 @@ disabled and no extension access group or file fallback. A key without its
 existing database returns orphanedVault; it never creates replacement identity
 state. AppStorage sets directory backup exclusion and owner permissions. On iOS
 it restricts the root to Application Support and applies
-completeUntilFirstUserAuthentication to database/WAL/shm files after foreground.
+completeUntilFirstUserAuthentication recursively to account directories and database/WAL/shm files after foreground.
 The database/spool never belong in an App Group. There is no NSE.
 
-Managed-language/CFData/JSONDecoder copies of secrets cannot all be erased.
-Account ceremony output is transiently decoded as a response frame before being
-sealed for one-time consumption; do not log, cache or persist response frames.
+Show-once responses never pass through Data, String, JSONValue, or JSONDecoder
+inside the bridge. A bounded C scan reads the numeric completion prefix, then the
+SDK allocation is copied directly into zeroizing SecretBytes and erased/released.
+Hiding the phrase erases that bridge-owned copy. Secret-output errors take the
+same sealed path. Decode ordinary app data only explicitly inside the accessor;
+do not log, cache or persist secret response frames. Caller-created and immutable
+Security-owned CFData copies cannot all be erased by the bridge. Keychain writes
+borrow the SecretBytes allocation without a Data copy; reads borrow the provider's
+immutable NSData directly into SecretBytes, without a COW resetBytes claim.
+Data-protection Keychain access and noninteractive LAContext are explicit.
 Keychain provider round trips, locked-phone behavior, SQLCipher lock release and
 real gateway execution require SDK/device integration; the headless fixture
 suite does not establish them.

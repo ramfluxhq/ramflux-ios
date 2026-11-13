@@ -41,6 +41,14 @@ RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework swift build
 The script builds device, simulator and host static libraries serially, with
 `c-abi` only, and copies the matching cbindgen header. It never updates the
 product checkout. `docs/sdk-contract.json` records the source commit and header
-hash. Re-run `scripts/sync-sdk-contract.py /path/to/product-checkout` when the
-SDK contract changes. Fixture tests and binary artifact builds are separate
+hash. Regenerate only from a clean checkout at the recorded full commit:
+
+```sh
+python3 scripts/sync-sdk-contract.py /path/to/product-checkout --commit <full-commit> --check
+```
+
+Use `--update-pin` explicitly when adopting a newly reviewed SDK checkpoint.
+The generator verifies SDK-owned method policy, expected count, Swift-name
+uniqueness, and all generated outputs. CI runs that check and the generator's
+negative tests. Fixture tests and binary artifact builds are separate
 package configurations; fixture symbols must never enter an application.

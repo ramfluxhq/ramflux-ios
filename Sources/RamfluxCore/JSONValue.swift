@@ -6,7 +6,7 @@ import Foundation
 public indirect enum JSONValue: Codable, Sendable, Equatable {
     case object([String: JSONValue]), array([JSONValue]), string(String), number(Double), unsigned(UInt64), bool(Bool), null
     public init(from decoder: any Decoder) throws {
-        guard decoder.codingPath.count <= 32 else { throw BridgeError.invalidResponse }
+        guard decoder.codingPath.count <= 128 else { throw BridgeError.invalidResponse }
         let c = try decoder.singleValueContainer()
         if c.decodeNil() { self = .null }
         else if let v = try? c.decode(Bool.self) { self = .bool(v) }
@@ -35,15 +35,20 @@ public indirect enum JSONValue: Codable, Sendable, Equatable {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         let bytes = try encoder.encode(self)
         guard bytes.count <= CoreLimits.frameBytes else { throw BridgeError.responseTooLarge }
-        try Self.checkBounds(bytes)
+        try Self.checkBounds(bytes, request: false)
         return bytes
     }
     static func decode(_ bytes: Data) throws -> JSONValue {
         guard bytes.count <= CoreLimits.frameBytes else { throw BridgeError.responseTooLarge }
-        try checkBounds(bytes)
+        try checkBounds(bytes, request: false)
         return try JSONDecoder().decode(Self.self, from: bytes)
     }
-    private static func checkBounds(_ data: Data) throws {
+    func encodedRequest() throws -> Data {
+        let data = try encoded()
+        try Self.checkBounds(data, request: true)
+        return data
+    }
+    private static func checkBounds(_ data: Data, request: Bool) throws {
         var depth = 0, nodes = 0
         var quoted = false, escaped = false, primitive = false
         for byte in data {
@@ -60,7 +65,7 @@ public indirect enum JSONValue: Codable, Sendable, Equatable {
             case 44, 58, 9, 10, 13, 32: primitive = false
             default: if !primitive { nodes += 1; primitive = true }
             }
-            guard depth <= 32, depth >= 0, nodes <= 4096 else { throw BridgeError.invalidResponse }
+            guard depth <= (request ? 32 : 128), depth >= 0, (!request || nodes <= 4096) else { throw BridgeError.invalidResponse }
         }
     }
 

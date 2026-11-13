@@ -23,36 +23,62 @@ fileprivate final class BufferedEvent: Sendable {
     }
     deinit { budget.release(cost) }
 }
+private final class EventStopSignal: Sendable {
+    private let requested = Mutex(false)
+    var isRequested: Bool { requested.withLock { $0 } }
+    func request() { requested.withLock { $0 = true } }
+}
+final class EventLifetime: Sendable {
+    let queue: any EventQueue
+    let stopped = DispatchGroup()
+    fileprivate let requestedStop = EventStopSignal()
+    init(queue: any EventQueue) { self.queue = queue; stopped.enter() }
+    func cancel() { requestedStop.request(); queue.cancel() }
+    func stop() async {
+        cancel()
+        await withCheckedContinuation { continuation in
+            stopped.notify(queue: .global(qos: .utility)) { continuation.resume() }
+        }
+    }
+    deinit { cancel() }
+}
 public struct EventUpdates: AsyncSequence, Sendable {
     public typealias Element = JSONValue
     fileprivate let stream: AsyncThrowingStream<BufferedEvent, any Error>
+    fileprivate let lifetime: EventLifetime
     public struct AsyncIterator: AsyncIteratorProtocol {
         fileprivate var iterator: AsyncThrowingStream<BufferedEvent, any Error>.Iterator
-        public mutating func next() async throws -> JSONValue? { try await iterator.next()?.value }
+        private let lifetime: EventLifetime
+        fileprivate init(iterator: AsyncThrowingStream<BufferedEvent, any Error>.Iterator, lifetime: EventLifetime) {
+            self.iterator = iterator; self.lifetime = lifetime
+        }
+        public mutating func next() async throws -> JSONValue? {
+            defer { withExtendedLifetime(lifetime) {} }
+            return try await iterator.next()?.value
+        }
     }
-    public func makeAsyncIterator() -> AsyncIterator { AsyncIterator(iterator: stream.makeAsyncIterator()) }
+    public func makeAsyncIterator() -> AsyncIterator { AsyncIterator(iterator: stream.makeAsyncIterator(), lifetime: lifetime) }
 }
 
-/// One app-session consumer. Cancel before closing the client on background; then reopen
-/// and subscribe from the consumer's last APPLIED journal cursor on foreground.
+/// The stream/iterator retains its native subscription independently of this handle.
+/// Explicit stop is clean termination; gaps and unexpected native failures remain errors.
 public final class EventSubscription: Sendable {
     public let stream: EventUpdates
     public let initialSnapshot: JSONValue
-    private let stopped = DispatchGroup()
-    private let queue: any EventQueue
+    let lifetime: EventLifetime
     init(queue: any EventQueue, capacity: Int) {
-        self.queue = queue
+        lifetime = EventLifetime(queue: queue)
         initialSnapshot = queue.initialSnapshot
-        stopped.enter()
-        let stopped = self.stopped
+        let stopped = lifetime.stopped
+        let requestedStop = lifetime.requestedStop
         let pair = AsyncThrowingStream<BufferedEvent, any Error>.makeStream(bufferingPolicy: .bufferingOldest(capacity))
-        stream = EventUpdates(stream: pair.stream)
+        stream = EventUpdates(stream: pair.stream, lifetime: lifetime)
         let budget = EventBudget()
-        pair.continuation.onTermination = { @Sendable _ in queue.cancel() }
+        pair.continuation.onTermination = { @Sendable _ in requestedStop.request(); queue.cancel() }
         DispatchQueue(label: "org.ramflux.core.events").async {
             defer { stopped.leave() }
             do {
-                while true {
+                while !requestedStop.isRequested {
                     let events = try queue.poll()
                     for event in events {
                         if event["kind"]?.string == "lagged" { throw BridgeError.resyncRequired }
@@ -64,15 +90,14 @@ public final class EventSubscription: Sendable {
                         }
                     }
                 }
-            } catch { queue.cancel(); pair.continuation.finish(throwing: error) }
+                pair.continuation.finish()
+            } catch {
+                queue.cancel()
+                if error is CancellationError || (requestedStop.isRequested && ((error as? BridgeError) == .closed || (error as? CoreFailure)?.code == .closed)) { pair.continuation.finish() }
+                else { pair.continuation.finish(throwing: error) }
+            }
         }
     }
-    public func cancel() { queue.cancel() }
-    public func stop() async {
-        queue.cancel()
-        await withCheckedContinuation { continuation in
-            stopped.notify(queue: .global(qos: .utility)) { continuation.resume() }
-        }
-    }
-    deinit { queue.cancel() }
+    public func cancel() { lifetime.cancel() }
+    public func stop() async { await lifetime.stop() }
 }

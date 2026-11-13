@@ -31,7 +31,7 @@ public actor PhoneLifecycle {
                 guard state != .running else { return }
                 if state == .stopped { try await client.start() } else { try await client.resume() }
                 do { try AppStorage.protectDatabaseFiles(in: dataRoot) }
-                catch { _ = try? await client.close(); throw error }
+                catch { try await client.close(); throw error }
                 state = .running
             case .background:
                 guard state != .failed else { throw BridgeError.lockStillHeld }
@@ -40,6 +40,9 @@ public actor PhoneLifecycle {
             case .close:
                 try await client.close(); state = .stopped
             }
-        } catch { state = .failed; throw error }
+        } catch {
+            if (error as? BridgeError) == .lockStillHeld { state = .failed }
+            throw error
+        }
     }
 }

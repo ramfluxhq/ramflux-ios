@@ -12,11 +12,11 @@ public actor AccountCeremony {
     private let kind: Kind
     private var phrase: SecretBytes?
     public init(proxy: SDKProxy, kind: Kind) { self.proxy = proxy; self.kind = kind }
-    public func begin(context: RequestContext, body: JSONValue) async throws -> JSONValue {
+    public func begin(context: RequestContext, body: JSONValue) async throws -> SecretBytes {
         guard state == .idle else { throw BridgeError.invalidCeremonyState }
         state = .beginning
         do {
-            let response = try await proxy.perform(kind == .creation ? .accountCreateBegin : .accountRecoverBegin, context: context, body: body)
+            let response = try await proxy.performSecretRequestResponse(kind == .creation ? .accountCreateBegin : .accountRecoverBegin, context: context, body: body, secrets: [:])
             state = .pending
             return response
         }
@@ -27,10 +27,7 @@ public actor AccountCeremony {
         guard kind == .creation, state == .pending else { throw BridgeError.invalidCeremonyState }
         state = .showingPhrase
         do {
-            let response = try await proxy.perform(.accountCreateShowOnce, context: context)
-            var bytes = try response.encoded()
-            defer { bytes.resetBytes(in: 0..<bytes.count) }
-            let secret = try bytes.withUnsafeBytes { try SecretBytes(copying: $0) }
+            let secret = try await proxy.performSecretResponse(.accountCreateShowOnce, context: context)
             phrase = secret; state = .phraseVisible
             return secret
         } catch { state = .failed; throw error }
@@ -39,24 +36,29 @@ public actor AccountCeremony {
         guard state == .phraseVisible else { throw BridgeError.invalidCeremonyState }
         phrase?.erase(); phrase = nil; state = .hidden
     }
-    public func challenge(context: RequestContext) async throws -> JSONValue {
+    public func challenge(context: RequestContext) async throws -> SecretBytes {
         guard kind == .creation, state == .hidden else { throw BridgeError.invalidCeremonyState }
         state = .requestingChallenge
         do {
-            let response = try await proxy.perform(.accountCreateHiddenChallenge, context: context)
+            let response = try await proxy.performSecretResponse(.accountCreateHiddenChallenge, context: context)
             state = .challenged
             return response
         }
         catch { state = .failed; throw error }
     }
-    public func confirm(context: RequestContext, body: JSONValue = .object([:]), fields: [String: SecretField]) async throws -> JSONValue {
+    public func confirm(context: RequestContext, body: JSONValue = .object([:]), fields: [String: SecretField]) async throws -> CeremonyResult {
         guard (kind == .creation && state == .challenged) || (kind == .recovery && state == .pending) else {
             fields.values.forEach { $0.erase() }; throw BridgeError.invalidCeremonyState
         }
         state = .confirming
         do {
-            let result = try await proxy.performSecret(kind == .creation ? .accountCreateConfirm : .accountRecoverConfirm,
-                                                       context: context, body: body, secrets: fields)
+            let result: CeremonyResult
+            let operation: SDKOperation = kind == .creation ? .accountCreateConfirm : .accountRecoverConfirm
+            if operation.requiresSecureOutput {
+                result = .sealed(try await proxy.performSecretRequestResponse(operation, context: context, body: body, secrets: fields))
+            } else {
+                result = .frame(try await proxy.performSecret(operation, context: context, body: body, secrets: fields))
+            }
             state = .finished; return result
         } catch { state = .failed; throw error }
     }

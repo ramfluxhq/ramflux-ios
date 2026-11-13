@@ -3,7 +3,7 @@
 
 /// Stops both established and concurrently opening pumps before supervisor shutdown.
 actor EventRegistry {
-    private struct WeakSubscription: Sendable { weak var value: EventSubscription? }
+    private struct WeakSubscription: Sendable { weak var value: EventLifetime? }
     private var accepting = true
     private var opening: Task<EventSubscription, any Error>?
     private var subscriptions: [WeakSubscription] = []
@@ -17,7 +17,7 @@ actor EventRegistry {
             opening = nil
             guard accepting else { await subscription.stop(); throw BridgeError.closed }
             subscriptions.removeAll { $0.value == nil }
-            subscriptions.append(WeakSubscription(value: subscription))
+            subscriptions.append(WeakSubscription(value: subscription.lifetime))
             return subscription
         } catch { opening = nil; throw error }
     }

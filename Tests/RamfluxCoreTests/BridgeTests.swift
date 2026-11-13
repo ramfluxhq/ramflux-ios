@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import Testing
+import Security
 import Synchronization
 import CABIFixture
 @testable import RamfluxCore
@@ -19,6 +20,12 @@ struct BridgeTests {
     private func secret(_ text: String) throws -> SecretBytes {
         try Array(text.utf8).withUnsafeBytes { try SecretBytes(copying: $0) }
     }
+    private func frame(_ secret: SecretBytes) throws -> JSONValue {
+        try secret.consume { bytes in
+            let value = try JSONValue.decode(Data(bytes))
+            return value["response"] ?? value
+        }
+    }
     private func requestBytes() -> Data {
         var bytes = [CChar](repeating: 0, count: CoreLimits.frameBytes)
         let count = rf_fixture_copy_request(&bytes, bytes.count)
@@ -27,7 +34,7 @@ struct BridgeTests {
     @Test func nativeRequestPreservesIdentityAndReleasesBuffers() async throws {
         rf_fixture_reset()
         let (_, client) = try await open()
-        let response = try await SDKProxy(client: client).accountList(context: context())
+        let response = try frame(await SDKProxy(client: client).accountList(context: context()))
         #expect(response["kind"] == .string("response"))
         let request = try JSONValue.decode(requestBytes())
         #expect(request["account_id"] == .string("account"))
@@ -42,7 +49,7 @@ struct BridgeTests {
         let (_, client) = try await open()
         let request = try CoreRequest(method: "account.unlock", sdkAPI: "account", operationID: OperationID("stable-operation"),
             deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 5_000)
-        let task = Task { try await client.execute(request) }
+        let task = Task { try await client.executeSecretRequestResponse(SecretRequest(request: request, fields: [:])) }
         // Semantic barrier: wait for observed C submission, with a fixed wall-clock deadline.
         let deadline = ContinuousClock.now + .seconds(2)
         while rf_fixture_submissions() == 0 && ContinuousClock.now < deadline { await Task.yield() }
@@ -63,7 +70,7 @@ struct BridgeTests {
         let cancellation = try core.newCancellation(); cancellation.cancel()
         let request = try CoreRequest(method: "account.list", sdkAPI: "account",
             deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 5_000)
-        #expect(throws: CoreFailure.self) { try core.execute(request, cancellation: cancellation) }
+        #expect(throws: CoreFailure.self) { try core.executeSecretResponse(request, cancellation: cancellation) }
         #expect(rf_fixture_submissions() == 0)
         try await client.close()
     }
@@ -84,8 +91,10 @@ struct BridgeTests {
         do { _ = try await SDKProxy(client: client).accountList(context: context()); Issue.record("Schema error was lost") }
         catch let error as CoreFailure {
             #expect(error.code == .schemaResetRequired)
-            #expect(error.reasonCode == "schema_reset_required")
-            #expect(error.response?["error"]?["details"]?["generation"] == .string("18446744073709551615"))
+            let preserved = try #require(error.sealedResponse)
+            let response = try frame(preserved)
+            #expect(response["error"]?["reason_code"] == .string("schema_reset_required"))
+            #expect(response["error"]?["details"]?["generation"] == .string("18446744073709551615"))
         }
         #expect(rf_fixture_live_buffers() == 0)
         try await client.close()
@@ -103,10 +112,11 @@ struct BridgeTests {
         rf_fixture_reset(); let (_, client) = try await open()
         let lifecycle = PhoneLifecycle(client: client, dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
         try await lifecycle.foreground(); rf_fixture_set_close_code(10)
-        await #expect(throws: CoreFailure.self) { try await lifecycle.background() }
+        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.background() }
         #expect(await lifecycle.state == .failed)
         await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.foreground() }
         rf_fixture_set_close_code(0)
+        try await lifecycle.close()
     }
     @Test func ceremonyRequiresHideAndAllowsOneConfirmationAttempt() async throws {
         rf_fixture_reset(); let (_, client) = try await open()
@@ -125,7 +135,8 @@ struct BridgeTests {
         try await client.close()
     }
     @Test func unavailableCapabilityAndMissingOperationKeyRefuseBeforeEffects() async throws {
-        rf_fixture_reset(); let (_, client) = try await open()
+        rf_fixture_reset(); rf_fixture_set_methods("[\"account.list\"]")
+        let (_, client) = try await open()
         let proxy = SDKProxy(client: client)
         await #expect(throws: CoreFailure.self) { try await proxy.groupList(context: context()) }
         await #expect(throws: BridgeError.invalidInput) { try await proxy.contactBlock(context: context()) }
@@ -147,10 +158,11 @@ struct BridgeTests {
         let encoded = try filter.body.encoded()
         #expect(String(decoding: encoded, as: UTF8.self).contains("18446744073709551615"))
         #expect(try JSONValue.decode(encoded)["since_seq"] == .unsigned(UInt64.max))
-        let deep = Data((String(repeating: "[", count: 33) + "0" + String(repeating: "]", count: 33)).utf8)
+        let deep = Data((String(repeating: "[", count: 129) + "0" + String(repeating: "]", count: 129)).utf8)
         #expect(throws: BridgeError.invalidResponse) { try JSONValue.decode(deep) }
         let wide = Data(("[" + Array(repeating: "0", count: 4097).joined(separator: ",") + "]").utf8)
-        #expect(throws: BridgeError.invalidResponse) { try JSONValue.decode(wide) }
+        let decoded = try JSONValue.decode(wide)
+        #expect(throws: BridgeError.invalidResponse) { try decoded.encodedRequest() }
     }
     @Test func deferredFeaturesReturnTypedUnavailableWithoutNativeCalls() async throws {
         rf_fixture_reset()
@@ -214,7 +226,7 @@ struct BridgeTests {
         let subscription = try await client.events(SubscriptionFilter(accountID: "account", topics: ["messages"]))
         try await client.close()
         var iterator = subscription.stream.makeAsyncIterator()
-        await #expect(throws: BridgeError.closed) { try await iterator.next() }
+        #expect(try await iterator.next() == nil)
         #expect(rf_fixture_live_buffers() == 0)
     }
 
@@ -243,6 +255,221 @@ struct BridgeTests {
         await #expect(throws: CoreFailure.self) { try await ceremony.cancel(context: context(mutation: true)) }
         #expect(await ceremony.state == .failed)
         try await client.close()
+    }
+
+    @Test func subscriptionTokenLivesUntilStopAndReleasesOnce() async throws {
+        rf_fixture_reset(); let (_, client) = try await open()
+        let subscription = try await client.events(SubscriptionFilter(accountID: "account", topics: ["message"]))
+        #expect(rf_fixture_subscription_releases() == 0)
+        rf_fixture_set_event("{\"body\":{\"event\":\"delivered\"}}")
+        var iterator = subscription.stream.makeAsyncIterator()
+        #expect(try await iterator.next()?["body"]?["event"] == .string("delivered"))
+        await subscription.stop(); await subscription.stop()
+        #expect(rf_fixture_subscription_cancels() == 1)
+        #expect(rf_fixture_subscription_releases() == 1)
+        #expect(try await iterator.next() == nil)
+        try await client.close()
+    }
+    @Test func overflowResetAndFailedOpenPermitResubscription() async throws {
+        rf_fixture_reset(); let (_, client) = try await open()
+        let filter = try SubscriptionFilter(accountID: "account", topics: ["message"])
+        let first = try await client.events(filter)
+        rf_fixture_set_event_status(27)
+        var iterator = first.stream.makeAsyncIterator()
+        await #expect(throws: BridgeError.resyncRequired) { try await iterator.next() }
+        try await client.resetEvents()
+        #expect(rf_fixture_resets() == 1)
+        rf_fixture_set_terminal("{\"code\":15,\"effects\":\"none\"}")
+        await #expect(throws: CoreFailure.self) { try await client.events(filter) }
+        rf_fixture_set_terminal("{\"code\":0,\"response\":{\"body\":{}}}")
+        let second = try await client.events(filter)
+        rf_fixture_set_event("{\"body\":{\"event\":\"resumed\"}}")
+        var next = second.stream.makeAsyncIterator()
+        #expect(try await next.next()?["body"]?["event"] == .string("resumed"))
+        await second.stop(); try await client.close()
+    }
+    @Test func busyOpenRetriesAndTimedOutCloseRetainsWriterHandle() async throws {
+        rf_fixture_reset(); rf_fixture_set_open_code(18)
+        let core = try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
+        let client = RamfluxClient(transport: core)
+        let lifecycle = PhoneLifecycle(client: client, dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
+        await #expect(throws: CoreFailure.self) { try await lifecycle.foreground() }
+        #expect(await lifecycle.state == .stopped)
+        try await lifecycle.foreground()
+        #expect(rf_fixture_opens() == 2)
+        rf_fixture_set_close_code(10)
+        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.background() }
+        #expect(throws: BridgeError.closed) { try core.start() }
+        #expect(rf_fixture_opens() == 2)
+        rf_fixture_set_close_code(24)
+        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.close() }
+        #expect(throws: BridgeError.closed) { try core.start() }
+        #expect(rf_fixture_opens() == 2)
+        rf_fixture_set_close_code(0)
+        try await lifecycle.close()
+        #expect(rf_fixture_closes() == 3)
+        try await lifecycle.foreground()
+        #expect(rf_fixture_opens() == 3)
+        try await lifecycle.close()
+    }
+    @Test func showOnceUsesSealedBytesAndHideErasesOnlyBridgeCopy() async throws {
+        rf_fixture_reset(); let (core, client) = try await open()
+        let ceremony = AccountCeremony(proxy: SDKProxy(client: client), kind: .creation)
+        let begin = try await ceremony.begin(context: context(mutation: true), body: .object([:]))
+        begin.erase()
+        rf_fixture_set_terminal("{\"code\":0,\"response\":{\"body\":{\"phrase\":\"sentinel mnemonic\"}}}")
+        rf_fixture_set_secret_terminal(1)
+        let phrase: SecretBytes = try await ceremony.showPhraseOnce(context: context(mutation: true))
+        #expect(!phrase.isErased)
+        #expect(rf_fixture_live_buffers() == 0)
+        let plain = try CoreRequest(method: "account.create.show_once", sdkAPI: "account",
+            operationID: OperationID("never-plain"), deadlineUnixMilliseconds: context().deadlineUnixMilliseconds)
+        #expect(throws: BridgeError.invalidInput) { try core.execute(plain, cancellation: core.newCancellation()) }
+        try await ceremony.hidePhrase()
+        #expect(phrase.isErased)
+        #expect(throws: BridgeError.secretConsumed) { try phrase.consume { _ in () } }
+        #expect(SDKOperation.accountCreateShowOnce.showOnce)
+        #expect(SDKOperation.accountCreateShowOnce.requiresSecureOutput)
+        try await client.close()
+    }
+    @Test func largeSuccessfulMutationCompletionIsNotUnknown() async throws {
+        rf_fixture_reset(); let (_, client) = try await open()
+        let row = JSONValue.object(Dictionary(uniqueKeysWithValues: (0..<40).map { ("k\($0)", .string("v")) }))
+        let terminal = JSONValue.object(["code": .number(0), "response": .object(["body": .object(["rows": .array(Array(repeating: row, count: 2000))])])])
+        let encoded = try terminal.encoded()
+        #expect(encoded.count < CoreLimits.frameBytes)
+        rf_fixture_set_terminal(String(decoding: encoded, as: UTF8.self))
+        let response = try await SDKProxy(client: client).accountBackupCancel(context: context(mutation: true))
+        let body = try #require(response["body"])
+        let value = try #require(body["rows"])
+        if case .array(let rows) = value { #expect(rows.count == 2000) }
+        else { Issue.record("Successful rows lost") }
+        try await client.close()
+    }
+    @Test func generatedMethodsExactlyMatchNegotiatedInventoryAndSecretFlags() async throws {
+        rf_fixture_reset(); let (core, client) = try await open()
+        #expect(Set(SDKOperation.allCases.map(\.rawValue)) == core.methods)
+        #expect(SDKOperation.devicePairJoin.requiresSecureInput)
+        #expect(SDKOperation.accountCustodyShowOnce.showOnce)
+        try await client.close()
+    }
+    @Test func streamOwnsSubscriptionAfterHandleIsDropped() async throws {
+        rf_fixture_reset(); let (_, client) = try await open()
+        let stream = try await client.events(SubscriptionFilter(accountID: "account", topics: ["message"])).stream
+        #expect(rf_fixture_subscription_releases() == 0)
+        rf_fixture_set_event("{\"body\":{\"event\":\"still-live\"}}")
+        var iterator = stream.makeAsyncIterator()
+        #expect(try await iterator.next()?["body"]?["event"] == .string("still-live"))
+        try await client.close()
+        #expect(try await iterator.next() == nil)
+        #expect(rf_fixture_subscription_releases() == 1)
+    }
+    @Test func subscriptionOpeningHasReservedWorkerCredit() async throws {
+        rf_fixture_reset(); rf_fixture_set_pending(1)
+        let (_, client) = try await open()
+        let request = try CoreRequest(method: "daemon.status", sdkAPI: "daemon",
+            deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 10_000)
+        let tasks = (0..<4).map { _ in Task { try await client.execute(request) } }
+        let deadline = ContinuousClock.now + .seconds(2)
+        while rf_fixture_submissions() < 4 && ContinuousClock.now < deadline { await Task.yield() }
+        #expect(rf_fixture_submissions() == 4)
+        let subscription = try await client.events(SubscriptionFilter(accountID: "account", topics: ["message"]))
+        #expect(rf_fixture_submissions() == 5)
+        await subscription.stop()
+        for task in tasks { task.cancel(); _ = try? await task.value }
+        try await client.close()
+    }
+    @Test func nestedStorageFilesAreProtectedAndSymlinksRefused() throws {
+        #if os(iOS)
+        let support = try #require(FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first)
+        let root = try AppStorage.prepare(applicationSupport: support)
+        let owned = root.appendingPathComponent(UUID().uuidString)
+        #else
+        let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
+        let owned = root
+        #endif
+        let nested = owned.appendingPathComponent("account/nested")
+        try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: owned) }
+        let database = nested.appendingPathComponent("store.db")
+        try Data([0]).write(to: database)
+        try AppStorage.protectDatabaseFiles(in: root)
+        let attributes = try FileManager.default.attributesOfItem(atPath: database.path)
+        #expect((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o600)
+        #if os(iOS)
+        #expect(attributes[.protectionKey] as? FileProtectionType == .completeUntilFirstUserAuthentication)
+        #endif
+        try FileManager.default.createSymbolicLink(at: nested.appendingPathComponent("link"), withDestinationURL: database)
+        #expect(throws: BridgeError.unsafeStoragePath) { try AppStorage.protectDatabaseFiles(in: root) }
+    }
+    private final class MemoryKeychain: KeychainAccess {
+        let entries = Mutex([String: Data]())
+        let policyValid = Mutex(true)
+        private func fields(_ query: CFDictionary) -> [String: Any] { query as! [String: Any] }
+        private func inspect(_ values: [String: Any]) {
+            let valid = values[kSecUseDataProtectionKeychain as String] as? Bool == true
+                && values[kSecAttrSynchronizable as String] as? Bool == false
+            policyValid.withLock { $0 = $0 && valid }
+        }
+        func add(_ query: CFDictionary) -> OSStatus {
+            let values = fields(query); inspect(values)
+            guard let account = values[kSecAttrAccount as String] as? String,
+                  let input = values[kSecValueData as String] as? Data else { return errSecParam }
+            policyValid.withLock { $0 = $0 && (values[kSecAttrAccessible as String] as? String == kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly as String) }
+            let copy = input.withUnsafeBytes { Data(bytes: $0.baseAddress!, count: $0.count) }
+            return entries.withLock { if $0[account] != nil { return errSecDuplicateItem }; $0[account] = copy; return errSecSuccess }
+        }
+        func update(_ query: CFDictionary, attributes: CFDictionary) -> OSStatus {
+            let values = fields(query); inspect(values)
+            guard let account = values[kSecAttrAccount as String] as? String,
+                  let input = fields(attributes)[kSecValueData as String] as? Data else { return errSecParam }
+            let copy = input.withUnsafeBytes { Data(bytes: $0.baseAddress!, count: $0.count) }
+            entries.withLock { $0[account] = copy }; return errSecSuccess
+        }
+        func copy(_ query: CFDictionary, result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus {
+            let values = fields(query); inspect(values)
+            guard let account = values[kSecAttrAccount as String] as? String,
+                  let data = entries.withLock({ $0[account] }) else { return errSecItemNotFound }
+            if let result { result.pointee = data as CFData }
+            return errSecSuccess
+        }
+        func delete(_ query: CFDictionary) -> OSStatus {
+            let values = fields(query); inspect(values)
+            guard let account = values[kSecAttrAccount as String] as? String else { return errSecParam }
+            return entries.withLock { $0.removeValue(forKey: account) == nil ? errSecItemNotFound : errSecSuccess }
+        }
+    }
+    @Test func keychainStoreLoadUpdateAndOrphanPolicy() async throws {
+        let backend = MemoryKeychain()
+        let vault = KeychainVault(service: "unit-test", keychain: backend)
+        let temp = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: temp) }
+        let database = temp.appendingPathComponent("db")
+        try Data([0]).write(to: database)
+        let input = try secret("first")
+        try await vault.store(input, account: "account")
+        #expect(input.isErased)
+        try await vault.store(secret("second"), account: "account")
+        let loaded = try await vault.load(account: "account", existingDatabase: database)
+        let matches = try loaded.consume { Array($0) == Array("second".utf8) }
+        #expect(matches)
+        #expect(loaded.isErased)
+        try FileManager.default.removeItem(at: database)
+        await #expect(throws: BridgeError.orphanedVault) { try await vault.load(account: "account", existingDatabase: database) }
+        try await vault.remove(account: "account")
+        await #expect(throws: BridgeError.missingVault) { try await vault.load(account: "account", existingDatabase: database) }
+        #expect(backend.policyValid.withLock { $0 })
+    }
+
+    @Test func secretRequestUsesFrameLimitAndExactAdmissionSize() throws {
+        let context = try context(mutation: true)
+        let request = try CoreRequest(method: "account.backup.cancel", sdkAPI: "account", operationID: context.operationID,
+            body: .object(["metadata": .string(String(repeating: "x", count: 25_000))]), deadlineUnixMilliseconds: context.deadlineUnixMilliseconds)
+        let secret = try SecretRequest(request: request, fields: [:])
+        #expect(secret.json.byteCount > 25_000)
+        #expect(secret.json.byteCount < CoreLimits.frameBytes)
+        secret.json.erase()
     }
 
 }

@@ -15,7 +15,7 @@ public struct RequestContext: Sendable {
 public protocol SDKProxyProtocol: Sendable { var client: RamfluxClient { get } }
 public extension SDKProxyProtocol {
     func perform(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
-        guard !operation.requiresSecureInput else { throw BridgeError.invalidInput }
+        guard !operation.requiresSecureInput, !operation.requiresSecureOutput else { throw BridgeError.invalidInput }
         return try await client.execute(makeRequest(operation, context: context, body: body))
     }
     func performSecret(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:]),
@@ -24,9 +24,18 @@ public extension SDKProxyProtocol {
         let request = try makeRequest(operation, context: context, body: body)
         return try await client.executeSecret(SecretRequest(request: request, fields: secrets))
     }
+    func performSecretResponse(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await client.executeSecretResponse(makeRequest(operation, context: context, body: body))
+    }
+    func performSecretRequestResponse(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:]),
+                                     secrets: [String: SecretField]) async throws -> SecretBytes {
+        defer { secrets.values.forEach { $0.erase() } }
+        let request = try makeRequest(operation, context: context, body: body)
+        return try await client.executeSecretRequestResponse(SecretRequest(request: request, fields: secrets))
+    }
     private func makeRequest(_ operation: SDKOperation, context: RequestContext, body: JSONValue) throws -> CoreRequest {
         guard !operation.requiresOperationID || context.operationID != nil else { throw BridgeError.invalidInput }
-        return try CoreRequest(method: operation.rawValue, sdkAPI: String(operation.rawValue.split(separator: ".").first ?? ""),
+        return try CoreRequest(method: operation.rawValue, sdkAPI: operation.capability,
             accountID: context.accountID, operationID: context.operationID, body: body,
             deadlineUnixMilliseconds: context.deadlineUnixMilliseconds)
     }
@@ -34,7 +43,7 @@ public extension SDKProxyProtocol {
 
 public struct SDKProxy: AccountProxy, NodeProxy, ConversationProxy, MessageProxy, ContactProxy,
     GroupProxy, CallProxy, BotProxy, DeviceProxy, ObjectProxy, SurfaceProxy, GrantProxy, TaskProxy,
-    MCPProxy, A2IProxy, A2UIProxy, SyncProxy, StreamProxy, IdentityProxy, BusProxy, DaemonProxy {
+    MCPProxy, A2IProxy, A2UIProxy, SyncProxy, StreamProxy, IdentityProxy, BusProxy, DaemonProxy, SubscriptionProxy {
     public let client: RamfluxClient
     public init(client: RamfluxClient) { self.client = client }
 }

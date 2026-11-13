@@ -16,3 +16,12 @@ int rf_fixture_cancellations(void);
 int rf_fixture_releases(void);
 int rf_fixture_live_buffers(void);
 #endif
+// Additional ABI-faithfulness controls.
+void rf_fixture_set_open_code(int code);
+void rf_fixture_set_secret_terminal(int enabled);
+void rf_fixture_set_methods(const char *json);
+int rf_fixture_opens(void);
+int rf_fixture_closes(void);
+int rf_fixture_resets(void);
+int rf_fixture_subscription_cancels(void);
+int rf_fixture_subscription_releases(void);

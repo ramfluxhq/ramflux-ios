@@ -10,14 +10,14 @@ public struct SecretRequest: Sendable, CustomStringConvertible, CustomDebugStrin
     public var debugDescription: String { "SecretRequest" }
     public init(request: CoreRequest, fields: [String: SecretField]) throws {
         defer { fields.values.forEach { $0.erase() } }
-        guard case .object(let body) = request.body, !fields.isEmpty,
-              fields.count <= 4, Set(fields.keys).isDisjoint(with: body.keys) else { throw BridgeError.invalidInput }
+        guard case .object(let body) = request.body, fields.count <= 4, Set(fields.keys).isDisjoint(with: body.keys) else { throw BridgeError.invalidInput }
         // Build the entire ABI request in the same erased allocation.
         let envelope = request.envelope()
         guard case .object(var outer) = envelope else { throw BridgeError.invalidInput }
         outer.removeValue(forKey: "body")
         let envelopeBytes = try JSONValue.object(outer).encoded()
-        let metadata = try request.body.encoded()
+        var metadata = try request.body.encodedRequest()
+        defer { metadata.resetBytes(in: 0..<metadata.count) }
         let capacity = CoreLimits.frameBytes
         let buffer = UnsafeMutableRawPointer.allocate(byteCount: capacity, alignment: 1)
         defer { rf_secure_zero(buffer, capacity); buffer.deallocate() }

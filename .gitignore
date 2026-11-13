@@ -13,3 +13,5 @@ xcuserdata/
 *.dSYM
 *.xcodeproj/
 .swiftpm/
+
+__pycache__/

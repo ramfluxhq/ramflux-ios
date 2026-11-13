@@ -9,18 +9,27 @@ final class NativeEventQueue: EventQueue {
     let initialSnapshot: JSONValue
     private let cancelled = Mutex(false)
     private let core: NativeCore
-    private let client: UInt64
-    init(core: NativeCore, clientHandle: UInt64, snapshot: JSONValue) { self.core = core; client = clientHandle; initialSnapshot = snapshot }
+    private let operation: NativeOperation
+    init(core: NativeCore, operation: NativeOperation, snapshot: JSONValue) {
+        self.core = core; self.operation = operation; initialSnapshot = snapshot
+    }
     func poll() throws -> [JSONValue] {
-        guard !cancelled.withLock({ $0 }) else { throw BridgeError.closed }
+        if cancelled.withLock({ $0 }) { throw CancellationError() }
         var events: UnsafeMutablePointer<RamfluxBuffer>?
-        let code = ramflux_v2_event_poll(client, &events)
+        let code = ramflux_v2_event_poll(operation.client, &events)
         if code == 0 { return [try JSONValue.decode(NativeBuffers.take(events))] }
         if let events { rf_buffer_wipe_free(events) }
         if code == 24 { usleep(10_000); return [] }
         if code == 27 { throw BridgeError.resyncRequired }
         throw CoreFailure(code: code, effect: .unknown)
     }
-    func cancel() { cancelled.withLock { $0 = true } }
+    func cancel() {
+        cancelled.withLock { cancelled in
+            guard !cancelled else { return }
+            cancelled = true
+            operation.finish()
+            core.subscriptionEnded(client: operation.client)
+        }
+    }
     deinit { cancel() }
 }

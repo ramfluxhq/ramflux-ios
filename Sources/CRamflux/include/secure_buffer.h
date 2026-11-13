@@ -3,6 +3,7 @@
 #ifndef RF_SECURE_BUFFER_H
 #define RF_SECURE_BUFFER_H
 #include "ramflux_sdk.h"
+int rf_completion_code(const struct RamfluxBuffer *buffer, int32_t *code);
 void rf_secure_zero(void *pointer, size_t length);
 void rf_buffer_wipe_free(struct RamfluxBuffer *buffer);
 #endif

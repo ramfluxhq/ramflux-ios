@@ -11,6 +11,8 @@ export IPHONEOS_DEPLOYMENT_TARGET=18.0
 if [[ -n "$(git -C "$sdk_root" status --porcelain)" ]]; then
     echo 'SDK checkout must be committed before packaging matching headers and libraries' >&2; exit 1
 fi
+sdk_commit=$(git -C "$sdk_root" rev-parse HEAD)
+python3 "$package_root/scripts/sync-sdk-contract.py" "$sdk_root" --commit "$sdk_commit" --check
 output="$package_root/build"
 mkdir -p "$output"
 # Serial Cargo only. Never mutate the SDK checkout or enable fixture features.
@@ -21,7 +23,6 @@ done
 cmp "$CARGO_TARGET_DIR/include/ramflux_sdk.h" "$sdk_root/crates/ramflux-sdk/include/ramflux_sdk.h" || {
     echo 'Generated header differs from the committed SDK contract' >&2; exit 1
 }
-python3 "$package_root/scripts/sync-sdk-contract.py" "$sdk_root"
 headers="$output/headers"
 mkdir -p "$headers"
 cp "$package_root/Sources/CRamflux/include/ramflux_sdk.h" "$headers/ramflux_sdk.h"

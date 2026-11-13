@@ -34,17 +34,20 @@ public enum AppStorage {
     }
     /// Apply after foreground open as well: SQLite can recreate WAL/shm files.
     public static func protectDatabaseFiles(in root: URL) throws {
-        #if os(iOS)
-        let files = try FileManager.default.contentsOfDirectory(at: root,
-            includingPropertiesForKeys: [.isRegularFileKey, .isSymbolicLinkKey])
-        for file in files {
-            let values = try file.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+        guard let files = FileManager.default.enumerator(at: root,
+            includingPropertiesForKeys: [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey]) else {
+            throw BridgeError.unsafeStoragePath
+        }
+        for case let file as URL in files {
+            let values = try file.resourceValues(forKeys: [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey])
             guard values.isSymbolicLink != true else { throw BridgeError.unsafeStoragePath }
-            if values.isRegularFile == true {
-                try FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication,
-                                                        .posixPermissions: 0o600], ofItemAtPath: file.path)
+            if values.isRegularFile == true || values.isDirectory == true {
+                var attributes: [FileAttributeKey: Any] = [.posixPermissions: values.isDirectory == true ? 0o700 : 0o600]
+                #if os(iOS)
+                attributes[.protectionKey] = FileProtectionType.completeUntilFirstUserAuthentication
+                #endif
+                try FileManager.default.setAttributes(attributes, ofItemAtPath: file.path)
             }
         }
-        #endif
     }
 }

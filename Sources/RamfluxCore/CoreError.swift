@@ -20,11 +20,17 @@ public struct CoreFailure: Error, Sendable, Equatable, CustomStringConvertible, 
     public let operationID: String?
     public let reasonCode: String?
     public let response: JSONValue?
+    public let sealedResponse: SecretBytes?
     public var debugDescription: String { description }
     public var description: String { "CoreFailure(code: \(rawCode), effect: \(effect.rawValue))" }
-    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, response: JSONValue? = nil) {
-        rawCode = code; self.effect = effect; self.operationID = operationID; self.reasonCode = reasonCode; self.response = response
+    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, response: JSONValue? = nil, sealedResponse: SecretBytes? = nil) {
+        rawCode = code; self.effect = effect; self.operationID = operationID; self.reasonCode = reasonCode; self.response = response; self.sealedResponse = sealedResponse
     }
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.rawCode == rhs.rawCode && lhs.effect == rhs.effect && lhs.operationID == rhs.operationID
+            && lhs.reasonCode == rhs.reasonCode && lhs.response == rhs.response && lhs.sealedResponse === rhs.sealedResponse
+    }
+
 }
 
 public enum BridgeError: Error, Sendable, Equatable {
