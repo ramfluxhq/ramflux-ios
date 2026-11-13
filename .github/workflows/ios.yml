@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (c) 2026 Span Brain
+name: iOS
+on:
+  pull_request:
+  push:
+    branches: [main, feat/ios-ui]
+permissions:
+  contents: read
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  compile-and-test:
+    runs-on: macos-15-arm64
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pinned Xcode
+        run: |
+          xcodebuild -version
+          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Headless bridge and feature tests
+        run: |
+          swift test
+          swift test --package-path Packages/RFCore
+      - name: Build iOS Simulator application
+        run: xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
+      - name: Preview snapshot tests
+        run: swift test --package-path Packages/RFDesign
