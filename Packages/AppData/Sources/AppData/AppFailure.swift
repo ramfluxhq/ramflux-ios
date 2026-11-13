@@ -23,7 +23,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .invalidData: AppDataStrings.text("copy.536ec5ca4da6", locale: locale)
         case .invalidInput: AppDataStrings.text("copy.29ea6afd1a52", locale: locale)
         case .outcomeUnknown: AppDataStrings.text("copy.b5e82d852d43", locale: locale)
-        case .failed: AppDataStrings.text("copy.ab827e3fe17d", locale: locale)
+        case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -53,7 +53,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .unavailableResource(let key): AppDataStrings.text(key, locale: locale)
         case .notAvailable(let message): message
         case .outcomeUnknown: AppDataStrings.text("copy.1b6fe0889add", locale: locale)
-        case .failed: AppDataStrings.text("copy.4f3713e485e9", locale: locale)
+        case .failed: AppDataStrings.text("request.localFailure", locale: locale)
         }
     }
     public var canRetry: Bool { self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported }

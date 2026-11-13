@@ -54,6 +54,10 @@ private struct MicrophoneFake: MicrophoneRepository { func status() async -> Mic
         vm.send(.audioControl); vm.send(.openSettings); #expect(events == [.openSystemSettings]); #expect(await fake.attempts.isEmpty)
         #expect(vm.state.microphone == .denied); vm.send(.disappeared)
     }
+    @Test func systemSettingsFailureIsTyped() {
+        let vm = CallsViewModel(repository: CallsFake(), microphone: MicrophoneFake(), account: "a", emit: { _ in })
+        vm.send(.settingsResult(false)); #expect(vm.state.failure == .localFailure)
+    }
     @Test func cancellationAndReplacementKeepOriginalSignalingKey() async {
         let gate = MutationGate(), fake = CallsFake(gate: gate); defer { gate.release() }
         let vm = CallsViewModel(repository: fake, microphone: MicrophoneFake(), account: "a", state: CallsState(mode: .detail("c")), emit: { _ in })
