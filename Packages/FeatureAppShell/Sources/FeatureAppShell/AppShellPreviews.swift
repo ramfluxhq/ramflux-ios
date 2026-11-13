@@ -3,11 +3,6 @@
 import SwiftUI
 import AppData
 
-public struct AppShellPreview: Identifiable, Sendable {
-    public let id: String
-    public let state: AppShellState
-}
-/// Explicit presentation fixtures; never used to construct the application repository.
 public enum AppShellPreviews {
     public static let cases: [AppShellPreview] = [
         AppShellPreview(id: "locked", state: AppShellState()),

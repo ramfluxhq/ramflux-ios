@@ -16,7 +16,7 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
-    public init(repository: any ChatRepository, account: String, conversation: String, state: ChatState = ChatState(), emit: @escaping (ChatEvent) -> Void) { self.repository = repository; self.account = account; self.conversation = conversation; self.state = state; self.emit = emit }
+    public init(repository: any ChatRepository, account: String, conversation: String, state: ChatState = ChatState(), emit: @escaping (ChatEvent) -> Void) { self.repository = repository; self.account = account; self.conversation = conversation; var initial = state; initial.conversationID = conversation; self.state = initial; self.emit = emit }
     public func send(_ action: ChatAction) {
         switch action {
         case .appeared: refresh(); observe()

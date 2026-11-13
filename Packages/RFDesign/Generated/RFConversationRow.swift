@@ -34,7 +34,7 @@ public struct RFConversationRow: View {
                     .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 2.0) {
                     HStack {
-                        Text(model.title).font(.custom(theme.font, size: 16.0).weight(.semibold))
+                        Text(model.title).font(.custom(theme.font, size: 17.0).weight(.semibold))
                             .foregroundStyle(theme.text).lineLimit(1)
                         Spacer(minLength: 4)
                         Text(model.timestamp).font(.custom(theme.font_latin, size: theme.size_mobile_caption))

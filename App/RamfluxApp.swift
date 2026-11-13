@@ -7,6 +7,7 @@ import FeatureOnboarding
 import FeatureConversations
 import FeatureChat
 import FeatureContacts
+import FeatureSettings
 import RFDesign
 
 @main struct RamfluxApp: App {
@@ -14,11 +15,12 @@ import RFDesign
     @State private var runtime = AppLifecycleCoordinator()
     @State private var composition = AppComposition()
     private var coordinator: AppShellCoordinator { composition.shell }
-    @AppStorage("appearance") private var appearance = "system"
+    private var appearance: AppearanceMode { composition.appearance }
     var body: some Scene {
         WindowGroup {
             AppShellHost(coordinator: coordinator, tabContent: { tab, account in
                 if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
+                if tab == .more { return AnyView(SettingsHost(coordinator: composition.settings(account: account, route: .settings))) }
                 return nil
             }) { route in
                 switch route {
@@ -31,16 +33,16 @@ import RFDesign
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
                     } else { return AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading contacts.")) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
-                default: return AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message))
+                default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
                 }
             }
-                .preferredColorScheme(appearance == "system" ? nil : (appearance == "dark" ? .dark : .light))
-                .onAppear { coordinator.send(phase == .active ? .appeared : .sceneInactive) }
+                .preferredColorScheme(appearance == .system ? nil : (appearance == .dark ? .dark : .light))
+                .onAppear { composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
                 .onChange(of: phase) { _, phase in
                     switch phase {
-                    case .active: coordinator.send(.sceneActive)
+                    case .active: composition.startPreferences(); coordinator.send(.sceneActive)
                     case .inactive: coordinator.send(.sceneInactive)
                     case .background: runtime.enterBackground(coordinator)
                     @unknown default: coordinator.send(.sceneInactive)

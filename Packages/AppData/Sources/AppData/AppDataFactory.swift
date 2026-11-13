@@ -12,7 +12,8 @@ public enum AppDataFactory {
             let root = support.appendingPathComponent("ramflux", isDirectory: true)
             let client = RamfluxClient(transport: try NativeCore(dataRoot: root, custody: HostCustodyProvider()))
             let updates = NativeUpdateSource(client: client)
-            return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root), nodes: NativeNodeRepository(client: client), onboarding: NativeOnboardingRepository(client: client), conversations: NativeConversationsRepository(client: client, updates: updates), chat: NativeChatRepository(client: client, updates: updates), contacts: NativeContactsRepository(client: client, updates: updates))
+            let nodes = NativeNodeRepository(client: client)
+            return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root), nodes: nodes, onboarding: NativeOnboardingRepository(client: client), conversations: NativeConversationsRepository(client: client, updates: updates), chat: NativeChatRepository(client: client, updates: updates), contacts: NativeContactsRepository(client: client, updates: updates), settings: NativeSettingsRepository(client: client, nodes: nodes, updates: updates), backup: NativeBackupRepository(client: client, directory: root.appendingPathComponent("backups", isDirectory: true)))
         } catch { return unavailable() }
         #else
         return unavailable()

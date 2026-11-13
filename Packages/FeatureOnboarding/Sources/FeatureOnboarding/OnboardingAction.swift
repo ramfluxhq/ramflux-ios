@@ -9,4 +9,3 @@ public enum OnboardingAction: Equatable, Sendable, CustomStringConvertible, Cust
     public var description: String { switch self { case .submit: "submit"; default: "OnboardingAction" } }
     public var debugDescription: String { description }
 }
-public enum OnboardingEvent: Equatable, Sendable { case completed(AccountRecord), dismissed }

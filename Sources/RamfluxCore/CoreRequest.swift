@@ -45,7 +45,7 @@ public struct SubscriptionFilter: Sendable {
     public let body: JSONValue
     public let capacity: Int
     public init(accountID: String? = nil, topics: [String], afterSequence: String? = nil,
-                capacity: Int = CoreLimits.eventBuffer) throws {
+                capacity: Int = CoreLimits.eventBuffer, attendedFrontend: Bool = false) throws {
         guard (1...CoreLimits.eventBuffer).contains(capacity), topics.count <= 64,
               topics.allSatisfy({ !$0.isEmpty && $0.utf8.count <= 128 }),
               afterSequence == nil || afterSequence?.allSatisfy(\.isNumber) == true else {
@@ -53,6 +53,7 @@ public struct SubscriptionFilter: Sendable {
         }
         self.accountID = accountID; self.capacity = capacity
         var body: [String: JSONValue] = ["topics": .array(topics.map(JSONValue.string))]
+        if attendedFrontend { body["attended_frontend"] = .bool(true) }
         if let afterSequence { guard let sequence = UInt64(afterSequence) else { throw BridgeError.invalidInput }
             body["since_seq"] = .unsigned(sequence) }
         self.body = .object(body)

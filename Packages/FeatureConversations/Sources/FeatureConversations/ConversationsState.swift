@@ -8,5 +8,3 @@ public struct ConversationsState: Equatable, Sendable {
     public var query = ""
     public init(rows: [ConversationRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.rows = rows; self.loading = loading; self.failure = failure }
 }
-public enum ConversationsAction: Equatable, Sendable { case appeared, disappeared, refresh, queryChanged(String), search, open(String), contacts, strangers }
-public enum ConversationsEvent: Equatable, Sendable { case navigate(AppRoute) }

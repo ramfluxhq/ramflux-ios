@@ -24,19 +24,3 @@ public struct AppShellHost: View {
         switch route { case .settings: "Settings"; case .conversation: "Conversation"; case .devices: "My devices"; case .contacts: "Contacts"; default: "Ramflux" }
     }
 }
-public struct AccountPickerScreen: View {
-    public let state: AppShellState
-    public let onAction: (AppShellAction) -> Void
-    public init(state: AppShellState, onAction: @escaping (AppShellAction) -> Void) { self.state = state; self.onAction = onAction }
-    public var body: some View {
-        RFPage {
-            if state.session.accounts.isEmpty {
-                RFUnavailableView(title: "No open accounts", message: "Account setup and unlock belong to the onboarding module.")
-            } else {
-                List(state.session.accounts) { account in
-                    Button(account.displayName) { onAction(.selectAccount(account.id)) }.disabled(state.busy)
-                }.scrollContentBackground(.hidden)
-            }
-        }.navigationTitle("Accounts")
-    }
-}

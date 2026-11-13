@@ -11,6 +11,8 @@ public struct RFTheme: Sendable {
     public let badge: Color
     public let bg: Color
     public let bubble_max: CGFloat
+    public let chart_1: Color
+    public let chart_2: Color
     public let column_max: CGFloat
     public let composer_min: CGFloat
     public let control: Color
@@ -78,6 +80,7 @@ public struct RFTheme: Sendable {
     public let size_metric: CGFloat
     public let size_mobile_body: CGFloat
     public let size_mobile_caption: CGFloat
+    public let size_mobile_large_title: CGFloat
     public let size_page: CGFloat
     public let size_secondary: CGFloat
     public let size_subheading: CGFloat
@@ -99,6 +102,8 @@ public enum RFDesign {
         badge: Color(.sRGB, red: 0.133333333333, green: 0.133333333333, blue: 0.141176470588, opacity: 1.000000000000),
         bg: Color(.sRGB, red: 0.988235294118, green: 0.984313725490, blue: 0.976470588235, opacity: 1.000000000000),
         bubble_max: 600.0,
+        chart_1: Color(.sRGB, red: 0.164705882353, green: 0.470588235294, blue: 0.839215686275, opacity: 1.000000000000),
+        chart_2: Color(.sRGB, red: 0.921568627451, green: 0.407843137255, blue: 0.203921568627, opacity: 1.000000000000),
         column_max: 880.0,
         composer_min: 48.0,
         control: Color(.sRGB, red: 0.556862745098, green: 0.556862745098, blue: 0.556862745098, opacity: 1.000000000000),
@@ -166,6 +171,7 @@ public enum RFDesign {
         size_metric: 32.0,
         size_mobile_body: 17.0,
         size_mobile_caption: 11.0,
+        size_mobile_large_title: 32.0,
         size_page: 24.0,
         size_secondary: 13.0,
         size_subheading: 17.0,
@@ -186,6 +192,8 @@ public enum RFDesign {
         badge: Color(.sRGB, red: 0.921568627451, green: 0.921568627451, blue: 0.921568627451, opacity: 1.000000000000),
         bg: Color(.sRGB, red: 0.090196078431, green: 0.090196078431, blue: 0.086274509804, opacity: 1.000000000000),
         bubble_max: 600.0,
+        chart_1: Color(.sRGB, red: 0.223529411765, green: 0.529411764706, blue: 0.898039215686, opacity: 1.000000000000),
+        chart_2: Color(.sRGB, red: 0.850980392157, green: 0.349019607843, blue: 0.149019607843, opacity: 1.000000000000),
         column_max: 880.0,
         composer_min: 48.0,
         control: Color(.sRGB, red: 0.478431372549, green: 0.478431372549, blue: 0.478431372549, opacity: 1.000000000000),
@@ -253,6 +261,7 @@ public enum RFDesign {
         size_metric: 32.0,
         size_mobile_body: 17.0,
         size_mobile_caption: 11.0,
+        size_mobile_large_title: 32.0,
         size_page: 24.0,
         size_secondary: 13.0,
         size_subheading: 17.0,

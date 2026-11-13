@@ -6,7 +6,10 @@ and Xcode. It embeds the Ramflux core SDK through its C ABI.
 This repository contains only the AGPL client. The Ramflux core SDK and protocol
 crates live in `ramfluxhq/ramflux`.
 
-Status: native application shell and C ABI bridge. See [application structure and build modes](docs/app-shell.md). Feature modules are delivered independently.
+Status: native shell, onboarding, conversations, UIKit chat, contacts/strangers,
+and settings/devices/backup modules over the C ABI bridge. See
+[application structure and build modes](docs/app-shell.md). Missing SDK
+capabilities are explicit unavailable states.
 
 ## License
 

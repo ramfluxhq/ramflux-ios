@@ -10,6 +10,7 @@ public struct ContactsScreen: View {
     public init(state: ContactsState, onAction: @escaping (ContactsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: RFTheme.adaptive(scheme).gap) {
+            RFPageHeader(title: title, subtitle: "", theme: RFTheme.adaptive(scheme), leading: { EmptyView() }, trailing: { EmptyView() })
             if state.loading { ProgressView("Loading contacts") }
             content
             if let failure = state.failure { RFFailureView(title: failure.title, message: failure.message) }
@@ -34,7 +35,7 @@ public struct ContactsScreen: View {
         switch state.mode {
         case .contacts:
             HStack { Button("Strangers") { onAction(.mode(.strangers)) }; Button("Sent requests") { onAction(.mode(.sent)) }; Spacer(); Button("Add", systemImage: "person.badge.plus") { onAction(.mode(.add)) } }
-            TextField("Filter contacts", text: Binding(get: { state.query }, set: { onAction(.filter($0)) })).textFieldStyle(.roundedBorder)
+            RFSearchField(id: "contact-filter", label: "Filter contacts", value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), theme: RFTheme.adaptive(scheme))
             let filtered = state.contacts.filter { state.query.isEmpty || $0.displayName.localizedCaseInsensitiveContains(state.query) || $0.id.localizedCaseInsensitiveContains(state.query) }
             if filtered.isEmpty && !state.loading { RFUnavailableView(title: "No contacts found", message: "Add a contact using their account address.") }
             ForEach(filtered) { contact in
@@ -94,27 +95,3 @@ public struct ContactsScreen: View {
         }
     }
 }
-public struct ContactsHost: View {
-    @Environment(\.scenePhase) private var phase
-    public let coordinator: ContactsCoordinator
-    public init(coordinator: ContactsCoordinator) { self.coordinator = coordinator }
-    public var body: some View { ContactsScreen(state: coordinator.viewModel.state, onAction: coordinator.send)
-        .onAppear { coordinator.send(.appeared) }.onDisappear { coordinator.send(.disappeared) }
-        .onChange(of: phase) { _, value in coordinator.send(value == .active ? .appeared : .disappeared) }
-    }
-}
-public enum ContactsPreviews {
-    public static var states: [ContactsState] {
-        var empty = ContactsState(), loading = ContactsState(), offline = ContactsState(), populated = ContactsState()
-        loading.loading = true; offline.failure = .offline
-        populated.contacts = [ContactRecord(id: "alex@example.org", displayName: "Alex", subtitle: "alex@example.org", verified: false)]
-        var strangers = ContactsState(mode: .strangers)
-        strangers.requests = [ContactRequestRecord(id: "request", principal: "alex@example.org", name: "Alex", direction: "inbound", state: "pending", preview: "Hello")]
-        var detail = strangers; detail.mode = .request("request")
-        var sent = ContactsState(mode: .sent); sent.requests = [ContactRequestRecord(id: "outgoing", principal: "alex@example.org", name: "Alex", direction: "outbound", state: "pending")]
-        var safety = ContactsState(mode: .safety("alex")); safety.safety = ContactSafety(root: "preview-root", number: "12345 67890 12345", fingerprint: "preview-fingerprint", verified: false, requiresReview: true)
-        empty.loading = false
-        return [empty, loading, offline, populated, strangers, detail, sent, safety, ContactsState(mode: .add)]
-    }
-}
-#Preview("Contacts") { ContactsScreen(state: ContactsPreviews.states[3], onAction: { _ in }) }

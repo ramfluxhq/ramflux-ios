@@ -2,8 +2,8 @@
 
 `FeatureAppShell` is the independently buildable application shell. It owns
 navigation, account selection, session presentation and lifecycle privacy. Feature
-screens are installed by later feature packages; missing modules have an explicit
-unavailable presentation.
+screens are installed by independent feature packages; missing capabilities have
+an explicit unavailable presentation.
 
 - `AppShellScreen` and `AccountPickerScreen` render a value State and emit Action.
   They have no SDK imports, async calls, repositories or mutable application data.
@@ -59,3 +59,33 @@ alone does not prove those captures executed.
 The app immediately shields UI on inactivity; proving actual writer release
 before OS suspension still requires a linked SDK/device test. No recovery words,
 keys, message bodies or operation payloads are logged or exported by the shell.
+
+## Feature modules
+
+`FeatureOnboarding`, `FeatureConversations`, `FeatureChat`, `FeatureContacts` and
+`FeatureSettings` each expose Screen, State, Action, Event, ViewModel and Coordinator
+types. Screens render State and emit Action; ViewModels own cancellable asynchronous
+work. AppData owns repositories shared over one RamfluxClient and maps SDK responses
+into application records. One visible feature observes the native event subscription;
+replacement stops and joins the previous subscription before resetting and reloading
+the projection. UIKit owns the message timeline, marked-text composer and secure
+input editors. Recovery output is painted from erasable bytes rather than decoded
+into a Swift String; spoken recovery-word accessibility is currently limited.
+
+Message sending uses the high-level conversation intent. An uncertain send retains
+its original operation key and text for explicit retry. Device revocation and verified
+archive installation require native 1.2-second holds bound to the selected facts.
+Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
+archive sharing accepts regular files within private backup storage only.
+
+Local search, phone pairing, attachment transfer, revisions, stranger reporting and
+atomic safety-fingerprint verification are unavailable until their SDK/integration
+contracts exist. Open-account reachability is not inferred from automatic contact
+request acceptance. No synthetic identity, routing, delivery or verification state
+is used as a substitute. Previews use isolated illustrative fixtures; production
+repositories do not.
+
+Each feature package supports `swift build --package-path Packages/FeatureName` and
+`swift test --package-path Packages/FeatureName`. CI also captures major feature
+states in both themes. Generated design files are hash-owned and read-only;
+platform compatibility extensions remain in RFDesign/Sources.

@@ -112,13 +112,3 @@ public struct OnboardingScreen: View {
         RFActionButton(id: title, label: title, kind: .primary, disabled: state.busy, theme: RFTheme.adaptive(scheme)) { onAction(action) }
     }
 }
-public struct OnboardingHost: View {
-    @Environment(\.scenePhase) private var phase
-    public let coordinator: OnboardingCoordinator
-    public init(coordinator: OnboardingCoordinator) { self.coordinator = coordinator }
-    public var body: some View {
-        OnboardingScreen(state: coordinator.viewModel.state, onAction: coordinator.send)
-            .onAppear { coordinator.send(.appeared) }.onDisappear { coordinator.send(.disappeared) }
-            .onChange(of: phase) { _, phase in if phase != .active { coordinator.send(.conceal) } }
-    }
-}

@@ -211,3 +211,47 @@ public struct RFApprovalFact: Identifiable, Sendable {
     let style = RFStyles.attachment_shell_default(theme)
     return rfBox(style) { HStack(spacing: style.gap) { icon(); VStack(alignment: .leading) { Text(title); Text(detail).foregroundStyle(theme.secondary) }; actions() } }
 }
+
+public enum RFChartKind: Sendable { case line, bar, table, state }
+public enum RFChatHeaderKind: Sendable { case `default`, channel }
+
+/// Controlled presentation: hosts supply the plot/table/state, legend and actions.
+@MainActor public func RFChart<L: View, C: View, A: View>(id: String, title: String, subtitle: String,
+    summary: String, kind: RFChartKind, theme: RFTheme, density: RFDensity = .mobile,
+    @ViewBuilder legend: () -> L, @ViewBuilder content: () -> C, @ViewBuilder actions: () -> A) -> some View {
+    let mobile = density == .mobile
+    let style = switch kind {
+    case .line: RFStyles.chart_line(theme, mobile: mobile)
+    case .bar: RFStyles.chart_bar(theme, mobile: mobile)
+    case .table: RFStyles.chart_table(theme, mobile: mobile)
+    case .state: RFStyles.chart_state(theme, mobile: mobile)
+    }
+    return rfBox(style) {
+        VStack(alignment: .leading, spacing: style.gap) {
+            HStack { VStack(alignment: .leading) { Text(title).fontWeight(.semibold); Text(subtitle).foregroundStyle(theme.secondary) }; Spacer(); actions() }
+            if kind == .line || kind == .bar { legend() }
+            content().frame(minHeight: style.plot_height)
+            Text(summary).font(.custom(theme.font, size: theme.size_caption, relativeTo: .caption)).foregroundStyle(theme.secondary)
+        }
+    }.id(id).accessibilityElement(children: .contain).accessibilityLabel(title)
+}
+
+@MainActor public func RFChatHeader<L: View, T: View>(id: String, title: String, subtitle: String,
+    kind: RFChatHeaderKind = .default, theme: RFTheme, density: RFDensity = .mobile,
+    @ViewBuilder leading: () -> L, @ViewBuilder trailing: () -> T) -> some View {
+    let style = kind == .channel ? RFStyles.chat_header_channel(theme, mobile: density == .mobile) : RFStyles.chat_header_default(theme, mobile: density == .mobile)
+    return rfBox(style) {
+        HStack(spacing: style.gap) { leading(); VStack(alignment: .leading) { Text(title).fontWeight(.semibold); Text(subtitle).foregroundStyle(theme.secondary) }; Spacer(); trailing() }
+    }.id(id)
+}
+
+@MainActor public func RFSearchField(id: String, label: String, value: Binding<String>, theme: RFTheme,
+    disabled: Bool = false, density: RFDensity = .mobile) -> some View {
+    let style = RFStyles.search_field_default(theme, mobile: density == .mobile)
+    return VStack(alignment: .leading, spacing: style.gap) {
+        Text(label).foregroundStyle(theme.secondary)
+        HStack { Image(systemName: "magnifyingglass").accessibilityHidden(true); TextField(label, text: value).disabled(disabled).textInputAutocapitalization(.never).autocorrectionDisabled() }
+            .frame(minHeight: style.editor_height).padding(.horizontal, style.right)
+            .background(style.editor_background, in: RoundedRectangle(cornerRadius: theme.radius_input))
+    }.id(id)
+}
