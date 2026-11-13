@@ -8,11 +8,14 @@ import AppData
 import RFDesign
 
 public struct SecureOnboardingForm: UIViewRepresentable {
+    @Environment(\.colorScheme) private var scheme
     public let labels: [(String, String)]
     public let enabled: Bool
     public let submit: (SensitiveSubmission) -> Void
     public func makeUIView(context: Context) -> SecureFormView { SecureFormView(labels: labels, submit: submit) }
-    public func updateUIView(_ view: SecureFormView, context: Context) { view.submit = submit; view.button.isEnabled = enabled }
+    public func updateUIView(_ view: SecureFormView, context: Context) {
+        view.submit = submit; view.button.isEnabled = enabled; view.apply(RFTheme.adaptive(scheme))
+    }
     public static func dismantleUIView(_ view: SecureFormView, coordinator: ()) { view.erase() }
 }
 @MainActor public final class SecureFormView: UIView {
@@ -34,6 +37,13 @@ public struct SecureOnboardingForm: UIViewRepresentable {
         button.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true; stack.addArrangedSubview(button); addSubview(stack)
         NSLayoutConstraint.activate([stack.topAnchor.constraint(equalTo: topAnchor), stack.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor), stack.leadingAnchor.constraint(equalTo: leadingAnchor), stack.trailingAnchor.constraint(equalTo: trailingAnchor)])
     }
+    func apply(_ theme: RFTheme) {
+        for (_, editor) in editors {
+            editor.textColor = UIColor(theme.text); editor.backgroundColor = UIColor(theme.input)
+            editor.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_mobile_body) ?? .systemFont(ofSize: theme.size_mobile_body))
+        }
+        button.tintColor = UIColor(theme.primary)
+    }
     @objc private func commit() {
         let input = SensitiveSubmission(values: Dictionary(editors.map { ($0.0, $0.1.text ?? "") }, uniquingKeysWith: { _, last in last }))
         erase(); submit(input)
@@ -42,9 +52,10 @@ public struct SecureOnboardingForm: UIViewRepresentable {
     public required init?(coder: NSCoder) { return nil }
 }
 public struct RecoveryPhraseView: UIViewRepresentable {
+    @Environment(\.colorScheme) private var scheme
     public let display: RecoveryDisplay
     public func makeUIView(context: Context) -> RecoveryGlyphView { RecoveryGlyphView(display: display) }
-    public func updateUIView(_ view: RecoveryGlyphView, context: Context) { view.display = display; view.setNeedsDisplay() }
+    public func updateUIView(_ view: RecoveryGlyphView, context: Context) { view.display = display; view.ink = UIColor(RFTheme.adaptive(scheme).text); view.setNeedsDisplay() }
     public func sizeThatFits(_ proposal: ProposedViewSize, uiView: RecoveryGlyphView, context: Context) -> CGSize? {
         let width = proposal.width ?? 320
         let size = UIFont.preferredFont(forTextStyle: .body).pointSize
@@ -54,6 +65,7 @@ public struct RecoveryPhraseView: UIViewRepresentable {
     public static func dismantleUIView(_ view: RecoveryGlyphView, coordinator: ()) { view.display = nil; view.setNeedsDisplay() }
 }
 @MainActor public final class RecoveryGlyphView: UIView {
+    var ink = UIColor(RFDesign.light.text)
     var display: RecoveryDisplay?
     init(display: RecoveryDisplay) {
         self.display = display; super.init(frame: .zero); backgroundColor = .clear
@@ -67,8 +79,8 @@ public struct RecoveryPhraseView: UIViewRepresentable {
         let size = UIFont.preferredFont(forTextStyle: .body).pointSize
         let columns = bounds.width >= size * 20 ? 2 : 1
         let rows = 24 / columns
-        let font = CTFontCreateWithName("Menlo" as CFString, size, nil)
-        context.setFillColor(UIColor.label.cgColor)
+        let font = CTFontCreateWithName(RFDesign.light.font_mono as CFString, size, nil)
+        context.setFillColor(ink.cgColor)
         display?.withDrawingBytes { raw in
             var column = 0, word = 0
             for byte in raw {
