@@ -12,3 +12,35 @@ Status: project setup. Build instructions follow with the first module.
 
 AGPL-3.0-or-later with the Ramflux App Store Exception. See `LICENSE`,
 `LICENSING.md` and `NOTICE`.
+
+## Swift bridge
+
+`RamfluxCore` contains the headless C ABI v2 bridge and application Proxy protocols.
+See [bridge ownership and security](docs/bridge.md).
+
+Compile and run the isolated headless ABI contract tests:
+
+```sh
+swift build
+swift test
+xcodebuild -scheme RamfluxCore -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
+```
+
+The source-only library build checks Swift and C declarations. Tests link the
+`CABIFixture` target, which is excluded from the library product. These commands
+do not prove that the Rust SDK has been linked or exercised.
+
+Build the matching Rust SDK XCFramework from a reviewed product checkout, then
+select it explicitly for application builds:
+
+```sh
+scripts/build-xcframework.sh /path/to/product-checkout
+RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework swift build
+```
+
+The script builds device, simulator and host static libraries serially, with
+`c-abi` only, and copies the matching cbindgen header. It never updates the
+product checkout. `docs/sdk-contract.json` records the source commit and header
+hash. Re-run `scripts/sync-sdk-contract.py /path/to/product-checkout` when the
+SDK contract changes. Fixture tests and binary artifact builds are separate
+package configurations; fixture symbols must never enter an application.

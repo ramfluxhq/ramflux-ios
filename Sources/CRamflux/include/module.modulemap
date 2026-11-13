@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (c) 2026 Span Brain
+module CRamflux {
+    header "ramflux_sdk.h"
+    header "secure_buffer.h"
+    export *
+}
