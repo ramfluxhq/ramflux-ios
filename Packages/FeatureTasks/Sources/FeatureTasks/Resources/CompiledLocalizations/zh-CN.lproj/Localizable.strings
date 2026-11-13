@@ -26,8 +26,12 @@
 	<string>选择会话</string>
 	<key>tasks.create</key>
 	<string>启动新的智能体任务</string>
+	<key>tasks.decision</key>
+	<string>决策</string>
 	<key>tasks.decline</key>
 	<string>拒绝任务</string>
+	<key>tasks.delivery</key>
+	<string>决策传递状态</string>
 	<key>tasks.dismiss</key>
 	<string>关闭</string>
 	<key>tasks.done</key>
@@ -52,12 +56,44 @@
 	<string>需要您的输入</string>
 	<key>tasks.noAuthority</key>
 	<string>这些是 SDK 记录，不代表设备角色具有授权权限。此处不会发出移动端审批。</string>
+	<key>tasks.notRevoked</key>
+	<string>未标记撤销</string>
+	<key>tasks.operationBoundary</key>
+	<string>允许某一步，不代表整项任务已经完成。</string>
 	<key>tasks.pending</key>
 	<string>任务操作结果未定</string>
+	<key>tasks.pendingItems</key>
+	<string>查看待处理事项</string>
+	<key>tasks.permission.applied</key>
+	<string>已应用</string>
+	<key>tasks.permission.approved</key>
+	<string>已批准</string>
+	<key>tasks.permission.denied</key>
+	<string>已拒绝</string>
+	<key>tasks.permission.failed</key>
+	<string>失败</string>
+	<key>tasks.permission.pending</key>
+	<string>待处理</string>
+	<key>tasks.permission.rejected</key>
+	<string>已拒收</string>
+	<key>tasks.permission.submitted</key>
+	<string>已提交</string>
 	<key>tasks.permissions</key>
 	<string>权限与审批</string>
 	<key>tasks.proposed</key>
 	<string>已提议</string>
+	<key>tasks.reason.intervention_closed</key>
+	<string>干预已关闭</string>
+	<key>tasks.reason.invalid_decision</key>
+	<string>决策无效</string>
+	<key>tasks.reason.retry_exhausted</key>
+	<string>决策传递重试次数已用尽</string>
+	<key>tasks.reason.submit_conflict</key>
+	<string>决策提交冲突</string>
+	<key>tasks.reason.transport_unavailable</key>
+	<string>传输不可用</string>
+	<key>tasks.receipt</key>
+	<string>决策回执</string>
 	<key>tasks.reconcile</key>
 	<string>核对原始操作</string>
 	<key>tasks.refresh</key>
@@ -70,6 +106,8 @@
 	<string>审核此任务操作</string>
 	<key>tasks.reviewPermission</key>
 	<string>检查审批功能</string>
+	<key>tasks.revoked</key>
+	<string>已撤销</string>
 	<key>tasks.running</key>
 	<string>进行中</string>
 	<key>tasks.scope</key>
@@ -80,8 +118,12 @@
 	<string>上次确认的数据；操作前请刷新</string>
 	<key>tasks.stalled</key>
 	<string>执行者进度停滞</string>
+	<key>tasks.startProposed</key>
+	<string>开始任务</string>
 	<key>tasks.status</key>
 	<string>状态</string>
+	<key>tasks.step</key>
+	<string>任务步骤</string>
 	<key>tasks.submitted</key>
 	<string>任务操作已提交；尚未确认送达</string>
 	<key>tasks.task</key>

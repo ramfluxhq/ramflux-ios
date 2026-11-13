@@ -13,6 +13,19 @@ public struct TasksScreen: View {
     private func copy(_ key: String) -> String { FeatureTasksStrings.text("tasks." + key, locale: locale) }
     private func status(_ value: String) -> String { copy(["proposed", "running", "needs_me", "done", "failed", "cancelled"].contains(value) ? value : "unknown") }
     public var body: some View {
+        Group {
+            if case .detail = state.mode, let row = state.selected { TasksDetailScreen(state: state, row: row, onAction: onAction) }
+            else { regularBody }
+        }.privacySensitive()
+        .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
+            RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
+                Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
+                RFHostHoldToConfirm(label: copy("confirm"), enabled: state.fresh && !state.busy && state.pending == nil) { onAction(.confirm(confirmation.id)) }.id(confirmation.id)
+                Button(copy("dismiss")) { onAction(.cancelConfirmation) }.disabled(state.busy)
+            }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
+        }
+    }
+    private var regularBody: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { Button(copy("refresh")) { onAction(.refresh) } })
             if state.loading || state.busy { ProgressView(copy("loading")) }
@@ -24,14 +37,6 @@ public struct TasksScreen: View {
             Button(copy("conversations")) { onAction(.mode(.conversations)) }
             Button(copy("permissions")) { onAction(.mode(.permissions)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-        .privacySensitive()
-        .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
-            RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-                Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
-                RFHostHoldToConfirm(label: copy("confirm"), enabled: state.fresh && !state.busy && state.pending == nil) { onAction(.confirm(confirmation.id)) }.id(confirmation.id)
-                Button(copy("dismiss")) { onAction(.cancelConfirmation) }.disabled(state.busy)
-            }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
-        }
     }
     @ViewBuilder private var content: some View {
         switch state.mode {
@@ -44,33 +49,22 @@ public struct TasksScreen: View {
             if state.rows.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
             ForEach(state.rows) { row in RFListRow(id: row.id, title: row.title, subtitle: status(row.status), theme: theme, leading: { Image(systemName: "checklist") }, trailing: { Image(systemName: "chevron.right") }) { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) } }
             if state.nextCursor != nil { Button(copy("more")) { onAction(.loadMore) }.disabled(state.loading || state.busy) }
-        case .detail:
-            if let row = state.selected {
-                Text(row.title).font(theme.pageFont); Text(status(row.status))
-                LabeledContent(copy("version"), value: row.version.formatted(.number.locale(locale)))
-                LabeledContent(copy("assignee"), value: row.assignee)
-                if let requester = row.requester { LabeledContent(copy("requester"), value: requester) }
-                ForEach(row.steps) { step in VStack(alignment: .leading) { Text(step.title); Text(status(step.status)); if step.interventionKind != nil { Button(copy("intervention")) { onAction(.unavailable) } } } }
-                if row.stalled { Text(copy("stalled")) }
-                if row.pendingResolution { Text(copy("waiting")) }
-                if let result = row.result { LabeledContent(copy("result"), value: result) }
-                if ["proposed", "running", "needs_me"].contains(row.status) {
-                    ForEach(row.status == "proposed" ? TaskDecisionKind.allCases : [.cancel], id: \.self) { kind in Button(copy(kind.rawValue)) { onAction(.prepare(kind)) }.disabled(!state.fresh || state.busy || state.pending != nil || row.pendingResolution) }
-                }
-            }
+        case .detail: EmptyView()
         case .permissions:
             Text(copy("noAuthority")).font(theme.captionFont)
             if state.permissions.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
-            ForEach(state.permissions) { row in Button { onAction(.mode(.permission(row.id))) } label: { VStack(alignment: .leading) { Text(row.tool); Text(copy(row.approval ? "approval" : "grant")); Text(row.server).font(theme.captionFont) } } }
+            ForEach(state.permissions) { row in Button { onAction(.mode(.permission(row.id))) } label: {
+                VStack(alignment: .leading) {
+                    switch row {
+                    case .grant(let grant): Text(grant.state.tool); Text(copy("grant")); Text(grant.state.server).font(theme.captionFont)
+                    case .approval(let approval): Text(approval.tool); Text(copy("approval")); Text(approval.server).font(theme.captionFont)
+                    case .receipt(let receipt): Text(copy("receipt")); Text(receipt.binding.taskID).font(theme.captionFont)
+                    }
+                }
+            } }
         case .permission:
             if let row = state.selectedPermission {
-                Text(copy(row.approval ? "approval" : "grant")).font(theme.pageFont)
-                LabeledContent(copy("server"), value: row.server); LabeledContent(copy("tool"), value: row.tool)
-                LabeledContent(copy("capability"), value: row.capability)
-                LabeledContent(copy("status"), value: AppDataStrings.status(row.status, locale: locale))
-                if let scope = row.scope { LabeledContent(copy("scope"), value: scope) }
-                if let hash = row.argumentsHash { LabeledContent(copy("hash"), value: hash).textSelection(.enabled) }
-                LabeledContent(copy("expiry"), value: Date(timeIntervalSince1970: TimeInterval(row.expiresAt)).formatted(.dateTime.year().month().day().hour().minute().locale(locale)))
+                TaskPermissionDetails(row: row)
                 Text(copy("noAuthority")); Button(copy("reviewPermission")) { onAction(.unavailable) }
             }
         }

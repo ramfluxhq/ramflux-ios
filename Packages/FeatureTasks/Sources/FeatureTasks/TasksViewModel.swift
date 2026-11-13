@@ -53,7 +53,7 @@ import AppData
             case .failure(let failure): self.state.failure = failure; self.state.fresh = false; if failure == .locked { self.eraseRows() }; if self.pendingRefresh { self.pendingRefresh = false; self.refresh() } }
         }
     }
-    private func eraseRows() { state.rows = []; state.selected = nil; state.conversations = []; state.permissions = []; state.selectedPermission = nil }
+    private func eraseRows() { state.rows = []; state.selected = nil; state.conversations = []; state.permissions = []; state.selectedPermission = nil; state.pending = nil; state.outcome = nil; state.nextCursor = nil }
     private func refresh(cursor: String? = nil) {
         guard !state.busy else { pendingRefresh = true; return }
         generation &+= 1; let id = generation, mode = state.mode; read?.cancel(); state.loading = true; state.fresh = false; state.confirmation = nil; state.accountID = account
@@ -86,15 +86,20 @@ import AppData
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
     }
+    private func observationEnded(_ failure: AppFailure) {
+        generation &+= 1; read?.cancel(); pendingRefresh = false
+        state.loading = false; state.fresh = false; state.confirmation = nil; state.failure = failure
+        if failure == .locked { eraseRows() }
+    }
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let id = watchID
         observer = Task { [weak self, repository, account] in
             let observation = await repository.observe(account: account)
             for await update in observation.stream {
                 guard !Task.isCancelled, let self else { break }; self.state.fresh = false; self.state.confirmation = nil
-                switch update { case .invalidated: if self.state.loading || self.state.busy { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.state.failure = failure }
+                switch update { case .invalidated: if self.state.loading || self.state.busy { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.observationEnded(failure) }
             }
-            await observation.stop(); if let self, self.watchID == id { self.observer = nil; self.state.fresh = false; self.state.confirmation = nil }
+            await observation.stop(); if let self, self.watchID == id { self.observer = nil; self.observationEnded(self.state.failure ?? .resyncRequired) }
         }
     }
     public func settle() async { await mutation?.value; while true { let id = generation; await read?.value; if id == generation { return } } }

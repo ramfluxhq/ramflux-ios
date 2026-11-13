@@ -43,15 +43,8 @@ public struct NativeTasksRepository: TasksRepository {
     public func permissions(account: String) async -> RepositoryResult<[PermissionRecord]> {
         do {
             let body = try await gateway.call(.grantList, account: account)
-            func map(_ row: JSONValue, _ approval: Bool) throws -> PermissionRecord {
-                let facts = approval ? row : row["signing_body"] ?? .null
-                guard let expiry = ProxyGateway.integer(facts["expires_at"]), (0...253402300799).contains(expiry) else { throw AppFailure.invalidData }
-                return PermissionRecord(id: try ProxyGateway.text(row, approval ? "approval_id" : "grant_id"), approval: approval,
-                    server: try ProxyGateway.text(facts, "server_id"), tool: try ProxyGateway.text(facts, "tool_name"), capability: try ProxyGateway.text(facts, "capability"), status: try ProxyGateway.text(row, approval ? "status" : "state"), expiresAt: expiry, scope: facts["tool_scope"]?.string,
-                    argumentsHash: approval ? row["details"]?["arguments_hash"]?.string : facts["arguments_hash"]?.string)
-            }
-            let rows = try ProxyGateway.rows(body, "grants").map { try map($0, false) } + ProxyGateway.rows(body, "approvals").map { try map($0, true) }
-            guard Set(rows.map { ($0.approval ? "approval:" : "grant:") + $0.id }).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
+            let rows = try ProxyGateway.rows(body, "grants").map(PermissionProjection.grant) + ProxyGateway.rows(body, "approvals").map(PermissionProjection.approval)
+            guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
         } catch { return .failure(AppFailure.map(error)) }
     }
     public func unavailable() -> AppFailure { .unavailableResource("tasks.unavailable") }

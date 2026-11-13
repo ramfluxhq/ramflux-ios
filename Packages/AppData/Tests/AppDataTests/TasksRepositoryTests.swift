@@ -36,15 +36,23 @@ import RamfluxCore
         let attempt = PendingTaskMutation(arguments: TaskMutationArguments(task: actual, kind: .decline), operationID: "unknown")
         #expect(await native.mutate(account: "a", attempt: attempt) == .failure(.outcomeUnknown)); #expect(await native.pending(account: "a") == attempt)
     }
-    @Test func grantsUseSigningBodyAndApprovalAndGrantIdsCannotCollide() async {
+    @Test func structuredGrantAndMixedPendingDecisionReceiptsPreserveTheirDistinctFacts() async {
         let fixture = ProxyTransport { request in
             #expect(request.method == "grant.list")
-            let facts: [String: JSONValue] = ["server_id": .string("service"), "tool_name": .string("email"), "capability": .string("email_send"), "expires_at": .number(1_900_000_000), "arguments_hash": .string("hash")]
-            var approval = facts; approval["approval_id"] = .string("same"); approval["status"] = .string("pending"); approval["details"] = .object(["arguments_hash": .string("bound-hash")])
-            return .object(["grants": .array([.object(["grant_id": .string("same"), "state": .string("active"), "signing_body": .object(facts)])]), "approvals": .array([.object(approval)])])
+            let state: JSONValue = .object(["server_id": .string("service"), "tool_name": .string("email"), "tool_scope": .string("outbox"), "registry_hash": .string("registry"), "tool_manifest_set_hash": .string("manifest"), "full_delegation": .bool(false), "allowed_capabilities": .array([.string("email_send")]), "revoked": .bool(true), "expires_at": .number(1_900_000_000)])
+            let signing: JSONValue = .object(["approval_id": .string("same"), "grant_id": .string("same"), "server_id": .string("service"), "tool_name": .string("email"), "tool_scope": .string("outbox"), "capability": .string("email_send"), "registry_hash": .string("registry"), "tool_manifest_set_hash": .string("manifest"), "full_delegation": .bool(false), "single_use": .bool(true), "arguments_hash": .string("hash"), "expires_at": .number(1_900_000_000)])
+            let grant: JSONValue = .object(["grant_id": .string("same"), "state": state, "signed_by_device_id": .string("phone"), "signer_public_key": .string("key"), "signature": .string("signature"), "signing_body": signing, "confirmation_mode": .string("explicit")])
+            let pending: JSONValue = .object(["approval_id": .string("same"), "server_id": .string("service"), "tool_name": .string("email"), "capability": .string("email_send"), "risk_level": .string("high"), "tool_scope": .string("outbox"), "confirmation_mode": .string("explicit"), "expires_at": .number(1_900_000_000), "status": .string("pending"), "details": .object(["arguments_hash": .string("bound-hash")])])
+            let binding: JSONValue = .object(["conversation_id": .string("thread"), "task_id": .string("t"), "step_id": .string("step"), "opening_revision": .unsigned(UInt64.max), "requester": .string("requester"), "assignee": .string("agent"), "executor_device_id": .string("executor")])
+            let receipt: JSONValue = .object(["approval_id": .string("task_approval_request"), "decision_id": .string("decision"), "grant_id": .string("grant"), "task_binding": binding, "status": .string("denied"), "delivery_state": .string("failed"), "reason_code": .string("retry_exhausted"), "expires_at": .number(1_900_000_001)])
+            return .object(["grants": .array([grant]), "approvals": .array([pending, receipt])])
         }
-        guard case .success(let rows) = await repository(fixture).permissions(account: "a") else { Issue.record("Permission mapping failed"); return }
-        #expect(rows.count == 2); #expect(Set(rows.map(\.id)).count == 2); #expect(rows.first?.argumentsHash == "hash"); #expect(rows.last?.argumentsHash == "bound-hash")
+        guard case .success(let rows) = await repository(fixture).permissions(account: "a") else { Issue.record("Valid mixed SDK permission page was refused"); return }
+        #expect(rows.count == 3); #expect(Set(rows.map(\.id)).count == 3)
+        guard case .grant(let grant)? = rows.first, case .approval(let approval)? = rows.dropFirst().first, case .receipt(let receipt)? = rows.last else { Issue.record("Permission variants were conflated"); return }
+        #expect(grant.referenceID == "same"); #expect(grant.state.revoked); #expect(grant.state.allowedCapabilities == ["email_send"]); #expect(grant.state.expiresAt == 1_900_000_000); #expect(grant.argumentsHash == "hash")
+        #expect(approval.status == "pending"); #expect(approval.argumentsHash == "bound-hash")
+        #expect(receipt.referenceID == "task_approval_request"); #expect(receipt.decisionID == "decision"); #expect(receipt.grantID == "grant"); #expect(receipt.status == "denied"); #expect(receipt.deliveryState == "failed"); #expect(receipt.reasonCode == "retry_exhausted"); #expect(receipt.binding.openingRevision == UInt64.max); #expect(receipt.expiresAt == 1_900_000_001)
         #expect(fixture.calls.withLock { $0.count == 1 })
     }
 }

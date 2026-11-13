@@ -26,8 +26,12 @@
 	<string>Choose a conversation</string>
 	<key>tasks.create</key>
 	<string>Start a new Agent task</string>
+	<key>tasks.decision</key>
+	<string>Decision</string>
 	<key>tasks.decline</key>
 	<string>Decline task</string>
+	<key>tasks.delivery</key>
+	<string>Decision delivery</string>
 	<key>tasks.dismiss</key>
 	<string>Dismiss</string>
 	<key>tasks.done</key>
@@ -52,12 +56,44 @@
 	<string>Needs your input</string>
 	<key>tasks.noAuthority</key>
 	<string>These are SDK records, not a device-role authority claim. No mobile approval is issued here.</string>
+	<key>tasks.notRevoked</key>
+	<string>Not marked revoked</string>
+	<key>tasks.operationBoundary</key>
+	<string>Allowing one step does not mean the whole task has completed.</string>
 	<key>tasks.pending</key>
 	<string>Unresolved task action</string>
+	<key>tasks.pendingItems</key>
+	<string>View pending items</string>
+	<key>tasks.permission.applied</key>
+	<string>Applied</string>
+	<key>tasks.permission.approved</key>
+	<string>Approved</string>
+	<key>tasks.permission.denied</key>
+	<string>Denied</string>
+	<key>tasks.permission.failed</key>
+	<string>Failed</string>
+	<key>tasks.permission.pending</key>
+	<string>Pending</string>
+	<key>tasks.permission.rejected</key>
+	<string>Rejected</string>
+	<key>tasks.permission.submitted</key>
+	<string>Submitted</string>
 	<key>tasks.permissions</key>
 	<string>Permissions and approvals</string>
 	<key>tasks.proposed</key>
 	<string>Proposed</string>
+	<key>tasks.reason.intervention_closed</key>
+	<string>Intervention closed</string>
+	<key>tasks.reason.invalid_decision</key>
+	<string>Invalid decision</string>
+	<key>tasks.reason.retry_exhausted</key>
+	<string>Decision delivery retries exhausted</string>
+	<key>tasks.reason.submit_conflict</key>
+	<string>Decision submission conflict</string>
+	<key>tasks.reason.transport_unavailable</key>
+	<string>Transport unavailable</string>
+	<key>tasks.receipt</key>
+	<string>Decision receipt</string>
 	<key>tasks.reconcile</key>
 	<string>Reconcile original action</string>
 	<key>tasks.refresh</key>
@@ -70,6 +106,8 @@
 	<string>Review this task action</string>
 	<key>tasks.reviewPermission</key>
 	<string>Review approval availability</string>
+	<key>tasks.revoked</key>
+	<string>Revoked</string>
 	<key>tasks.running</key>
 	<string>Running</string>
 	<key>tasks.scope</key>
@@ -80,8 +118,12 @@
 	<string>Last confirmed data; refresh before acting</string>
 	<key>tasks.stalled</key>
 	<string>Progress stalled by assignee</string>
+	<key>tasks.startProposed</key>
+	<string>Start task</string>
 	<key>tasks.status</key>
 	<string>Status</string>
+	<key>tasks.step</key>
+	<string>Task step</string>
 	<key>tasks.submitted</key>
 	<string>Task action submitted; delivery is not confirmed</string>
 	<key>tasks.task</key>
