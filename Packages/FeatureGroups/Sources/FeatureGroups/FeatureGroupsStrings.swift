@@ -10,6 +10,8 @@ public enum FeatureGroupsStrings {
         return locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA" ? "［" + value + " · " + value + "］" : value
     }
     public static func format(_ key: String, _ arguments: CVarArg..., locale: Locale = .current) -> String {
-        String(format: text(key, locale: locale), locale: locale, arguments: arguments)
+        let expanded = locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA"
+        let value = String(format: text(key, locale: expanded ? Locale(identifier: "en") : locale), locale: locale, arguments: arguments)
+        return expanded ? "［" + value + " · " + value + "］" : value
     }
 }

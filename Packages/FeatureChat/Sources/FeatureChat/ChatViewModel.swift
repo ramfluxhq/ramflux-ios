@@ -19,7 +19,7 @@ import AppData
     public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, title: String? = nil, state: ChatState = ChatState(), emit: @escaping (ChatEvent) -> Void) { self.repository = repository; self.account = account; self.conversation = conversation; var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation; self.state = initial; self.emit = emit }
     public func send(_ action: ChatAction) {
         switch action {
-        case .callRequested: state.failure = repository.unavailable(.calls)
+        case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
         case .detailsRequested: state.failure = repository.unavailable(.details)
         case .appeared: refresh(); observe()
         case .refresh: refresh(); observe()

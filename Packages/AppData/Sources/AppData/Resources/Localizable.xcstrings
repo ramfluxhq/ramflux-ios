@@ -1217,6 +1217,22 @@
           }
         }
       }
+    },
+    "calls.audioUnavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。"
+          }
+        }
+      }
     }
   }
 }

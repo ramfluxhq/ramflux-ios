@@ -31,16 +31,21 @@ for path in sorted(ROOT.glob('**/Localizable.xcstrings')):
         values = item.get('localizations', {})
         if set(values) != {'en', 'zh-CN'}:
             failures.append(f'{path.relative_to(ROOT)}:{key}: en/zh-CN keys differ')
-        placeholders = []
+        signatures = []
         for locale in ['en', 'zh-CN']:
-            value = values.get(locale, {}).get('stringUnit', {}).get('value', '')
-            placeholders.append(Counter(re.findall(r'%(?:[0-9]+\$)?[@dfiu]', value)))
-        if placeholders[0] != placeholders[1]:
+            entry = values.get(locale, {})
+            plural = entry.get('variations', {}).get('plural')
+            units = list(plural.values()) if plural else [entry]
+            if plural is not None and 'other' not in plural:
+                failures.append(f'{path.relative_to(ROOT)}:{key}: missing plural other in {locale}')
+            for unit in units:
+                value = unit.get('stringUnit', {}).get('value', '')
+                if not value:
+                    failures.append(f'{path.relative_to(ROOT)}:{key}: empty {locale}')
+                signatures.append(Counter(re.findall(r'%(?:[0-9]+\$)?(?:ll|l)?[@dfiu]', value)))
+        if signatures and any(value != signatures[0] for value in signatures):
             failures.append(f'{path.relative_to(ROOT)}:{key}: format placeholders differ')
-        for locale in ['en', 'zh-CN']:
-            if not values.get(locale, {}).get('stringUnit', {}).get('value'):
-                failures.append(f'{path.relative_to(ROOT)}:{key}: empty {locale}')
-for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'FeatureGroups', 'AppData', 'RFDesign']:
+for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'FeatureGroups', 'FeatureCalls', 'AppData', 'RFDesign']:
     if not (ROOT / 'Packages' / name / 'Tests' / (name + 'Tests') / 'LocalizationTests.swift').is_file():
         failures.append(f'{name}: missing locale-resolution test')
 if failures:

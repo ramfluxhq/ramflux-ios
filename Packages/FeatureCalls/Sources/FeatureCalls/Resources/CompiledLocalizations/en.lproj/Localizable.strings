@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>calls.account</key>
+	<string>Account</string>
+	<key>calls.active</key>
+	<string>Signaling is active</string>
+	<key>calls.answer</key>
+	<string>Answer</string>
+	<key>calls.answered</key>
+	<string>Answered</string>
+	<key>calls.answered_elsewhere</key>
+	<string>Answered on another device</string>
+	<key>calls.applying</key>
+	<string>Applying signaling action</string>
+	<key>calls.authority_refused</key>
+	<string>Identity authority refused the call</string>
+	<key>calls.authority_unavailable</key>
+	<string>Current identity authority is unavailable</string>
+	<key>calls.busy</key>
+	<string>Busy</string>
+	<key>calls.cancel</key>
+	<string>Cancel</string>
+	<key>calls.cancelled</key>
+	<string>Cancelled</string>
+	<key>calls.completed</key>
+	<string>Completed</string>
+	<key>calls.confirm</key>
+	<string>Confirm this call action</string>
+	<key>calls.connecting</key>
+	<string>Signaling is connecting</string>
+	<key>calls.conversation</key>
+	<string>Conversation</string>
+	<key>calls.created</key>
+	<string>Started</string>
+	<key>calls.daemon_restarted</key>
+	<string>The account service restarted</string>
+	<key>calls.decline</key>
+	<string>Decline call</string>
+	<key>calls.declined</key>
+	<string>Declined</string>
+	<key>calls.denied</key>
+	<string>Denied</string>
+	<key>calls.dial</key>
+	<string>Voice call</string>
+	<key>calls.duration</key>
+	<string>Duration</string>
+	<key>calls.empty</key>
+	<string>No call records</string>
+	<key>calls.empty.message</key>
+	<string>Call records from this account will appear here.</string>
+	<key>calls.endReason</key>
+	<string>End reason</string>
+	<key>calls.ended</key>
+	<string>Call ended</string>
+	<key>calls.endedAt</key>
+	<string>Ended</string>
+	<key>calls.failed</key>
+	<string>Failed</string>
+	<key>calls.filter</key>
+	<string>Filter call history</string>
+	<key>calls.granted</key>
+	<string>Allowed</string>
+	<key>calls.hangup</key>
+	<string>End call</string>
+	<key>calls.history</key>
+	<string>Call history</string>
+	<key>calls.id</key>
+	<string>Call ID</string>
+	<key>calls.incoming</key>
+	<string>Incoming</string>
+	<key>calls.incoming_ringing</key>
+	<string>Incoming call</string>
+	<key>calls.loading</key>
+	<string>Loading calls</string>
+	<key>calls.localFailure</key>
+	<string>This device’s failure</string>
+	<key>calls.media_lease_expired</key>
+	<string>Media authorization expired</string>
+	<key>calls.microphone</key>
+	<string>Microphone access</string>
+	<key>calls.missed</key>
+	<string>Missed</string>
+	<key>calls.mute</key>
+	<string>Mute microphone</string>
+	<key>calls.noAudio</key>
+	<string>Audio controls are unavailable on this phone. No microphone or speaker state is implied by signaling status.</string>
+	<key>calls.outgoing</key>
+	<string>Outgoing</string>
+	<key>calls.outgoing_ringing</key>
+	<string>Outgoing call · ringing</string>
+	<key>calls.peer</key>
+	<string>Peer account</string>
+	<key>calls.peerFailure</key>
+	<string>Peer-reported failure</string>
+	<key>calls.pending</key>
+	<string>A signaling action is unresolved</string>
+	<key>calls.permission.message</key>
+	<string>Microphone access is managed in iOS Settings. This screen reads the current permission without requesting access.</string>
+	<key>calls.permissionUnavailable</key>
+	<string>Permission status unavailable</string>
+	<key>calls.permissions</key>
+	<string>System permissions</string>
+	<key>calls.reasonUnknown</key>
+	<string>Reason unavailable</string>
+	<key>calls.reconcile</key>
+	<string>Reconcile original signaling action</string>
+	<key>calls.refresh</key>
+	<string>Refresh</string>
+	<key>calls.relay_unavailable</key>
+	<string>Voice relay unavailable</string>
+	<key>calls.review</key>
+	<string>Review signaling action</string>
+	<key>calls.sequence</key>
+	<string>Observed call version</string>
+	<key>calls.settings</key>
+	<string>Open iOS Settings</string>
+	<key>calls.share</key>
+	<string>Share screen</string>
+	<key>calls.signaling_unavailable</key>
+	<string>Signaling unavailable</string>
+	<key>calls.speaker</key>
+	<string>Speaker</string>
+	<key>calls.stale</key>
+	<string>Last confirmed call status. Refresh before applying an action.</string>
+	<key>calls.start</key>
+	<string>Start voice call</string>
+	<key>calls.timeout</key>
+	<string>No answer</string>
+	<key>calls.title</key>
+	<string>Calls</string>
+	<key>calls.undetermined</key>
+	<string>Not requested</string>
+	<key>calls.unknown</key>
+	<string>Call status unavailable</string>
+</dict>
+</plist>

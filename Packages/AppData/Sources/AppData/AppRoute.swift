@@ -11,6 +11,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
 public enum AppRoute: Hashable, Sendable {
     case conversation(String), groupConversation(String, title: String?), contacts, strangers, contact(String), safetyNumber(String)
     case settings, devices, device(String), nodes, node(String), appearance, privacy, backup, account, about
+    case calls(String?)
     case permissions, tasks, linkDevice, recoverAccount, onboarding
     public static func parse(_ url: URL) -> Self? {
         guard url.scheme == "ramflux", url.user == nil, url.password == nil,

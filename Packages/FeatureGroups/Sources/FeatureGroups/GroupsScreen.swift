@@ -52,7 +52,7 @@ public struct GroupsScreen: View {
         switch state.mode {
         case .list:
             RFSearchField(id: "group-search", label: FeatureGroupsStrings.text("groups.filter", locale: locale), value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), theme: theme)
-            if state.visibleGroups.isEmpty && !state.loading { RFStateBlock(title: FeatureGroupsStrings.text("groups.empty.title", locale: locale), description: FeatureGroupsStrings.text("groups.empty.message", locale: locale), kind: .empty, theme: theme) { EmptyView() } }
+            if state.visibleGroups.isEmpty && !state.loading && state.failure == nil { RFStateBlock(title: FeatureGroupsStrings.text("groups.empty.title", locale: locale), description: FeatureGroupsStrings.text("groups.empty.message", locale: locale), kind: .empty, theme: theme) { EmptyView() } }
             ForEach(state.visibleGroups) { group in groupRow(group) }
             if !state.invitations.isEmpty {
                 RFSectionHeader(title: FeatureGroupsStrings.text("groups.invites", locale: locale), theme: theme) { EmptyView() }
@@ -106,7 +106,7 @@ public struct GroupsScreen: View {
                 }
             }
         case .requests:
-            if state.requests.isEmpty && !state.loading { Text(FeatureGroupsStrings.text("groups.noRequests", locale: locale)) }
+            if state.requests.isEmpty && !state.loading && state.failure == nil { Text(FeatureGroupsStrings.text("groups.noRequests", locale: locale)) }
             ForEach(state.requests) { request in VStack(alignment: .leading) { Text(request.id); Text(requestStatus(request)); expiry(request.expiresAt) } }
         case .invitation(let id):
             if let invitation = state.invitations.first(where: { $0.id == id }) {

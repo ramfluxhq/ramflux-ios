@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureCalls
 import FeatureGroups
 import Observation
 @Observable @MainActor final class AppComposition {
@@ -28,7 +29,7 @@ import Observation
     func chat(account: String, conversation: String, isGroup: Bool = false, title: String? = nil) -> ChatCoordinator {
         if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == isGroup { return currentChat.3 }
         currentChat?.3.send(.disappeared)
-        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation, isGroup: isGroup, title: title)
+        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation, isGroup: isGroup, title: title) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
         currentChat = (account, conversation, isGroup, coordinator); return coordinator
     }
     @ObservationIgnored private var currentContacts: (String, ContactsMode, ContactsCoordinator)?
@@ -44,6 +45,14 @@ import Observation
         currentGroups?.1.send(.disappeared)
         let coordinator = GroupsCoordinator(repository: repositories.groups, contacts: repositories.contacts, account: account) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
         currentGroups = (account, coordinator); return coordinator
+    }
+    @ObservationIgnored private var currentCalls: (String, CallsMode, CallsCoordinator)?
+    func calls(account: String, conversation: String?) -> CallsCoordinator {
+        let mode: CallsMode = conversation.map { .dial($0) } ?? .history
+        if let currentCalls, currentCalls.0 == account, currentCalls.1 == mode { return currentCalls.2 }
+        currentCalls?.2.send(.disappeared)
+        let coordinator = CallsCoordinator(repository: repositories.calls, microphone: repositories.microphone, account: account, mode: mode)
+        currentCalls = (account, mode, coordinator); return coordinator
     }
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?

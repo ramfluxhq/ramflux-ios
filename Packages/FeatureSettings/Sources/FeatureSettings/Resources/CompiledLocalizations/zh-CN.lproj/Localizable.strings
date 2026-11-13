@@ -4,6 +4,8 @@
 <dict>
 	<key>backup.jobSummary</key>
 	<string>%@ · %@</string>
+	<key>calls.title</key>
+	<string>通话</string>
 	<key>copy.01a234cb80c4</key>
 	<string>关联新设备</string>
 	<key>copy.0370bcb8f79e</key>
