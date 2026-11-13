@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.01fad993ff61</key>
+	<string>表情回应</string>
+	<key>copy.0e9161011702</key>
+	<string>刷新</string>
+	<key>copy.2f77668a9dfb</key>
+	<string>消息</string>
+	<key>copy.3b6e2ca67ca5</key>
+	<string>此会话的消息将在这里显示。</string>
+	<key>copy.464c4ffd019e</key>
+	<string>编辑</string>
+	<key>copy.4ef7d6d3a97d</key>
+	<string>此操作不会删除他人设备上的副本。</string>
+	<key>copy.7e94d4b9a46b</key>
+	<string>消息已删除</string>
+	<key>copy.83ceae7197e5</key>
+	<string>通话记录</string>
+	<key>copy.87b2e22c1b97</key>
+	<string>重试原始发送操作</string>
+	<key>copy.87e7176a7ce7</key>
+	<string>删除消息</string>
+	<key>copy.8a7b78a5873c</key>
+	<string>账户服务报告发送失败。原始操作已保留。</string>
+	<key>copy.a45a93aaa69f</key>
+	<string>要从你自己的设备中删除吗？</string>
+	<key>copy.a8a3813c2900</key>
+	<string>已提交到账户服务</string>
+	<key>copy.aa8730bbb4e3</key>
+	<string>正在加载消息</string>
+	<key>copy.b486522010d5</key>
+	<string>发送失败</string>
+	<key>copy.c253f451bdd5</key>
+	<string>回复</string>
+	<key>copy.d406ade2958c</key>
+	<string>添加附件</string>
+	<key>copy.d47d7cb0e4f8</key>
+	<string>更多</string>
+	<key>copy.d6e645b7d2b2</key>
+	<string>通话</string>
+	<key>copy.f42e0f66017d</key>
+	<string>暂无消息</string>
+	<key>copy.f67cb7740d52</key>
+	<string>从我的设备中删除</string>
+	<key>copy.f6f4688ff23d</key>
+	<string>发送</string>
+</dict>
+</plist>

@@ -26,7 +26,9 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Check complete localized UI copy
-        run: python3 scripts/check-ui-localization.py
+        run: |
+          python3 scripts/check-ui-localization.py
+          python3 scripts/export-localizations.py --check
       - name: Generate project
         run: xcodegen generate
       - name: Headless bridge and feature tests

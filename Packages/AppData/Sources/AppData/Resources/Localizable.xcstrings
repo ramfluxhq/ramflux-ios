@@ -1121,6 +1121,102 @@
           }
         }
       }
+    },
+    "groups.unavailable.threads": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group threads and forum posts are not available in this phone build."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机版本暂不支持群组线程和论坛帖子。"
+          }
+        }
+      }
+    },
+    "groups.unavailable.transfer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。"
+          }
+        }
+      }
+    },
+    "groups.unavailable.leave": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A dedicated leave-group flow is not available. Removing a device is not a substitute for leaving the account’s group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专用的退出群组流程暂不可用。移除某台设备并不等于账户退出群组。"
+          }
+        }
+      }
+    },
+    "groups.unavailable.history": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing new-member history policy is not available in the current SDK."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 SDK 暂不支持更改新成员的历史记录策略。"
+          }
+        }
+      }
+    },
+    "groups.unavailable.archive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group archive is not available in the current SDK."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前 SDK 暂不支持归档群组。"
+          }
+        }
+      }
+    },
+    "groups.unavailable.permission": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device has no current root-qualified permission to manage this group. No management change has been submitted."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备当前没有与根身份绑定的群组管理权限。未提交任何管理变更。"
+          }
+        }
+      }
     }
   }
 }

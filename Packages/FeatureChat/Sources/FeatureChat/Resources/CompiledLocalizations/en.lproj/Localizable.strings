@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.01fad993ff61</key>
+	<string>React</string>
+	<key>copy.0e9161011702</key>
+	<string>Refresh</string>
+	<key>copy.2f77668a9dfb</key>
+	<string>Message</string>
+	<key>copy.3b6e2ca67ca5</key>
+	<string>Messages in this conversation will appear here.</string>
+	<key>copy.464c4ffd019e</key>
+	<string>Edit</string>
+	<key>copy.4ef7d6d3a97d</key>
+	<string>This does not erase copies on other people's devices.</string>
+	<key>copy.7e94d4b9a46b</key>
+	<string>Message deleted</string>
+	<key>copy.83ceae7197e5</key>
+	<string>Call history</string>
+	<key>copy.87b2e22c1b97</key>
+	<string>Retry original send</string>
+	<key>copy.87e7176a7ce7</key>
+	<string>Delete message</string>
+	<key>copy.8a7b78a5873c</key>
+	<string>The account service reported delivery failed. The original operation is retained.</string>
+	<key>copy.a45a93aaa69f</key>
+	<string>Delete from your own devices?</string>
+	<key>copy.a8a3813c2900</key>
+	<string>Submitted to account service</string>
+	<key>copy.aa8730bbb4e3</key>
+	<string>Loading messages</string>
+	<key>copy.b486522010d5</key>
+	<string>Delivery failed</string>
+	<key>copy.c253f451bdd5</key>
+	<string>Reply</string>
+	<key>copy.d406ade2958c</key>
+	<string>Attach</string>
+	<key>copy.d47d7cb0e4f8</key>
+	<string>More</string>
+	<key>copy.d6e645b7d2b2</key>
+	<string>Call</string>
+	<key>copy.f42e0f66017d</key>
+	<string>No messages yet</string>
+	<key>copy.f67cb7740d52</key>
+	<string>Delete from my devices</string>
+	<key>copy.f6f4688ff23d</key>
+	<string>Send</string>
+</dict>
+</plist>

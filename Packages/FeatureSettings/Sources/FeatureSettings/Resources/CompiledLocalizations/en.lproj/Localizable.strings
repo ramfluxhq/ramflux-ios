@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>backup.jobSummary</key>
+	<string>%@ · %@</string>
+	<key>copy.01a234cb80c4</key>
+	<string>Link new device</string>
+	<key>copy.0370bcb8f79e</key>
+	<string>Save retention</string>
+	<key>copy.048d49a605a8</key>
+	<string>Verify encrypted archive</string>
+	<key>copy.0e9161011702</key>
+	<string>Refresh</string>
+	<key>copy.103639eac40d</key>
+	<string>No saved nodes were returned.</string>
+	<key>copy.1440cdc8faae</key>
+	<string>Use as default</string>
+	<key>copy.150d3477a59a</key>
+	<string>Import and verify</string>
+	<key>copy.16b8400e47c7</key>
+	<string>Archives are encrypted. Keep the backup passphrase separate from the archive.</string>
+	<key>copy.18a702c5399d</key>
+	<string>Lock account</string>
+	<key>copy.19766ed6ccb2</key>
+	<string>Cancel</string>
+	<key>copy.1ba44456db5e</key>
+	<string>Add node</string>
+	<key>copy.1d70139d93b4</key>
+	<string>Applying operation</string>
+	<key>copy.20cb3df08ed4</key>
+	<string>This removes future access. Previously read copies cannot be erased remotely.</string>
+	<key>copy.21696a2dd237</key>
+	<string>Open an account to read its devices.</string>
+	<key>copy.28f2d4300544</key>
+	<string>Ramflux</string>
+	<key>copy.2aeef869fc03</key>
+	<string>The origin's operator can read plaintext on this web device.</string>
+	<key>copy.32c46f7c19e7</key>
+	<string>Backup and recovery</string>
+	<key>copy.3907fa7f8072</key>
+	<string>Appearance</string>
+	<key>copy.495799da310f</key>
+	<string>Open account and username reachability</string>
+	<key>copy.4d9b709adaef</key>
+	<string>Export sanitized diagnostics</string>
+	<key>copy.509c3e500d38</key>
+	<string>Loading settings</string>
+	<key>copy.53a6e343d08e</key>
+	<string>Open this account and wait for the attended session before starting a backup.</string>
+	<key>copy.53e6cce56bee</key>
+	<string>Share encrypted backup</string>
+	<key>copy.548139b9e4bc</key>
+	<string>Revoke device</string>
+	<key>copy.54a57c3147c4</key>
+	<string>Privacy</string>
+	<key>copy.5548cdf42bc6</key>
+	<string>About and diagnostics</string>
+	<key>copy.5da7ca5ffda2</key>
+	<string>Connected services</string>
+	<key>copy.60acc53f13a5</key>
+	<string>Dark</string>
+	<key>copy.61c34ddaed9f</key>
+	<string>Default node</string>
+	<key>copy.6491d8373952</key>
+	<string>The SDK will install the archive's account on this phone.</string>
+	<key>copy.6725e7bbcd28</key>
+	<string>System</string>
+	<key>copy.68c7da5c0ea2</key>
+	<string>Require manual approval</string>
+	<key>copy.6f3cba5e5a8e</key>
+	<string>My devices</string>
+	<key>copy.72830405351a</key>
+	<string>Account unavailable</string>
+	<key>copy.74a883a037bc</key>
+	<string>Settings</string>
+	<key>copy.75081b593d15</key>
+	<string>Disabled</string>
+	<key>copy.7ac362063b9f</key>
+	<string>Nodes</string>
+	<key>copy.7e9d26bfdf5c</key>
+	<string>Create encrypted backup</string>
+	<key>copy.7f920bb639c9</key>
+	<string>7 days</string>
+	<key>copy.8542eab86011</key>
+	<string>Manage services</string>
+	<key>copy.8802d45c10a5</key>
+	<string>The SDK will merge this archive with the existing account and preserve newer records.</string>
+	<key>copy.8b2af02164d1</key>
+	<string>Choose a backup passphrase</string>
+	<key>copy.902c4d2aff10</key>
+	<string>Notifications contain a generic alert. No message preview is sent through push.</string>
+	<key>copy.92c1cdfdf4cb</key>
+	<string>Enabled</string>
+	<key>copy.948d4afeba2b</key>
+	<string>Refresh reads actual SDK job status. A submitted job is not reported as completed.</string>
+	<key>copy.953e554960b1</key>
+	<string>Hold to revoke</string>
+	<key>copy.967bd624c2d5</key>
+	<string>Review restore</string>
+	<key>copy.a1bcb108941e</key>
+	<string>Complete secure input in the iOS app.</string>
+	<key>copy.a1ec4eb88afb</key>
+	<string>Touch and hold continuously for 1.2 seconds</string>
+	<key>copy.a5032d26d61d</key>
+	<string>Cancel job</string>
+	<key>copy.a7ba6a12696a</key>
+	<string>Linked device</string>
+	<key>copy.ab50f8bde1ab</key>
+	<string>AGPL-3.0-or-later with App Store Exception</string>
+	<key>copy.c031af609a56</key>
+	<string>Archive account</string>
+	<key>copy.c322afd72270</key>
+	<string>Network connection is live</string>
+	<key>copy.cf211c6c4ba0</key>
+	<string>Share archive</string>
+	<key>copy.cfd40d618f8e</key>
+	<string>This device record is unavailable. Refresh before continuing.</string>
+	<key>copy.d052579c6a31</key>
+	<string>This device</string>
+	<key>copy.d822cfc2d621</key>
+	<string>Retention for newly sent messages</string>
+	<key>copy.dbcd5e7bb7a0</key>
+	<string>Light</string>
+	<key>copy.dfe87d5e5bba</key>
+	<string>Appearance and language</string>
+	<key>copy.e58ff986d436</key>
+	<string>Use a local data passphrase for the installed account. This is separate from the archive passphrase.</string>
+	<key>copy.e6728991cc16</key>
+	<string>Existing messages keep their original retention.</string>
+	<key>copy.e7611f0537df</key>
+	<string>Passphrase</string>
+	<key>copy.e7e35e2c6b94</key>
+	<string>Revoke this device?</string>
+	<key>copy.e8e01909593a</key>
+	<string>Account and security</string>
+	<key>copy.ececf6457703</key>
+	<string>Open or create an account</string>
+	<key>copy.eea8986208e1</key>
+	<string>Hold to confirm this restore</string>
+	<key>copy.ef187b43e1da</key>
+	<string>Network connection has not been confirmed</string>
+	<key>copy.f2c50525757d</key>
+	<string>Connected services can request actions. Approvals must show the exact operation and origin in the native host.</string>
+	<key>copy.f4faccd0c67d</key>
+	<string>Language follows the per-app language in system settings.</string>
+	<key>copy.f697c1b7ba14</key>
+	<string>Share encrypted archive</string>
+	<key>copy.f8b8883f0c9d</key>
+	<string>1 hour</string>
+	<key>copy.fa665d95d29e</key>
+	<string>1 day</string>
+	<key>copy.fbd0df19e20e</key>
+	<string>Restore this verified archive?</string>
+	<key>privacy.requestApproval</key>
+	<string>Request approval: %@</string>
+</dict>
+</plist>

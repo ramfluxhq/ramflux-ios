@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>backup.jobSummary</key>
+	<string>%@ · %@</string>
+	<key>copy.01a234cb80c4</key>
+	<string>关联新设备</string>
+	<key>copy.0370bcb8f79e</key>
+	<string>保存保留时间</string>
+	<key>copy.048d49a605a8</key>
+	<string>验证加密归档</string>
+	<key>copy.0e9161011702</key>
+	<string>刷新</string>
+	<key>copy.103639eac40d</key>
+	<string>未返回已保存的节点。</string>
+	<key>copy.1440cdc8faae</key>
+	<string>设为默认</string>
+	<key>copy.150d3477a59a</key>
+	<string>导入并验证</string>
+	<key>copy.16b8400e47c7</key>
+	<string>归档经过加密。请将备份口令与归档分开保存。</string>
+	<key>copy.18a702c5399d</key>
+	<string>锁定账户</string>
+	<key>copy.19766ed6ccb2</key>
+	<string>取消</string>
+	<key>copy.1ba44456db5e</key>
+	<string>添加节点</string>
+	<key>copy.1d70139d93b4</key>
+	<string>正在执行操作</string>
+	<key>copy.20cb3df08ed4</key>
+	<string>此操作将撤销后续访问权限。已读取的副本无法远程擦除。</string>
+	<key>copy.21696a2dd237</key>
+	<string>打开账户以查看其设备。</string>
+	<key>copy.28f2d4300544</key>
+	<string>Ramflux</string>
+	<key>copy.2aeef869fc03</key>
+	<string>此源地址的运营方能够读取该网页设备上的明文。</string>
+	<key>copy.32c46f7c19e7</key>
+	<string>备份与恢复</string>
+	<key>copy.3907fa7f8072</key>
+	<string>外观</string>
+	<key>copy.495799da310f</key>
+	<string>公开账户与用户名查找</string>
+	<key>copy.4d9b709adaef</key>
+	<string>导出脱敏诊断信息</string>
+	<key>copy.509c3e500d38</key>
+	<string>正在加载设置</string>
+	<key>copy.53a6e343d08e</key>
+	<string>请打开此账户，等待前台会话就绪后再开始备份。</string>
+	<key>copy.53e6cce56bee</key>
+	<string>共享加密备份</string>
+	<key>copy.548139b9e4bc</key>
+	<string>撤销设备</string>
+	<key>copy.54a57c3147c4</key>
+	<string>隐私</string>
+	<key>copy.5548cdf42bc6</key>
+	<string>关于与诊断</string>
+	<key>copy.5da7ca5ffda2</key>
+	<string>已连接的服务</string>
+	<key>copy.60acc53f13a5</key>
+	<string>深色</string>
+	<key>copy.61c34ddaed9f</key>
+	<string>默认节点</string>
+	<key>copy.6491d8373952</key>
+	<string>SDK 将在此手机上安装归档中的账户。</string>
+	<key>copy.6725e7bbcd28</key>
+	<string>跟随系统</string>
+	<key>copy.68c7da5c0ea2</key>
+	<string>要求手动批准</string>
+	<key>copy.6f3cba5e5a8e</key>
+	<string>我的设备</string>
+	<key>copy.72830405351a</key>
+	<string>账户不可用</string>
+	<key>copy.74a883a037bc</key>
+	<string>设置</string>
+	<key>copy.75081b593d15</key>
+	<string>已停用</string>
+	<key>copy.7ac362063b9f</key>
+	<string>节点</string>
+	<key>copy.7e9d26bfdf5c</key>
+	<string>创建加密备份</string>
+	<key>copy.7f920bb639c9</key>
+	<string>7 天</string>
+	<key>copy.8542eab86011</key>
+	<string>管理服务</string>
+	<key>copy.8802d45c10a5</key>
+	<string>SDK 将把此归档合并到现有账户，并保留较新的记录。</string>
+	<key>copy.8b2af02164d1</key>
+	<string>设置备份口令</string>
+	<key>copy.902c4d2aff10</key>
+	<string>通知仅包含通用提醒，不通过推送发送消息预览。</string>
+	<key>copy.92c1cdfdf4cb</key>
+	<string>已启用</string>
+	<key>copy.948d4afeba2b</key>
+	<string>刷新会读取 SDK 的实际任务状态。已提交的任务不会被显示为已完成。</string>
+	<key>copy.953e554960b1</key>
+	<string>长按以撤销</string>
+	<key>copy.967bd624c2d5</key>
+	<string>审核恢复操作</string>
+	<key>copy.a1bcb108941e</key>
+	<string>请在 iOS 应用中完成安全输入。</string>
+	<key>copy.a1ec4eb88afb</key>
+	<string>请持续按住 1.2 秒</string>
+	<key>copy.a5032d26d61d</key>
+	<string>取消任务</string>
+	<key>copy.a7ba6a12696a</key>
+	<string>已关联的设备</string>
+	<key>copy.ab50f8bde1ab</key>
+	<string>AGPL-3.0-or-later（附 App Store 例外条款）</string>
+	<key>copy.c031af609a56</key>
+	<string>归档账户</string>
+	<key>copy.c322afd72270</key>
+	<string>网络已连接</string>
+	<key>copy.cf211c6c4ba0</key>
+	<string>共享归档</string>
+	<key>copy.cfd40d618f8e</key>
+	<string>此设备记录不可用。请刷新后再继续。</string>
+	<key>copy.d052579c6a31</key>
+	<string>此设备</string>
+	<key>copy.d822cfc2d621</key>
+	<string>新发送消息的保留时间</string>
+	<key>copy.dbcd5e7bb7a0</key>
+	<string>浅色</string>
+	<key>copy.dfe87d5e5bba</key>
+	<string>外观与语言</string>
+	<key>copy.e58ff986d436</key>
+	<string>请为安装的账户设置本地数据口令。此口令与归档口令不同。</string>
+	<key>copy.e6728991cc16</key>
+	<string>已有消息保持其原始保留时间。</string>
+	<key>copy.e7611f0537df</key>
+	<string>口令</string>
+	<key>copy.e7e35e2c6b94</key>
+	<string>要撤销此设备吗？</string>
+	<key>copy.e8e01909593a</key>
+	<string>账户与安全</string>
+	<key>copy.ececf6457703</key>
+	<string>打开或创建账户</string>
+	<key>copy.eea8986208e1</key>
+	<string>长按以确认此次恢复</string>
+	<key>copy.ef187b43e1da</key>
+	<string>网络连接尚未确认</string>
+	<key>copy.f2c50525757d</key>
+	<string>已连接的服务可以请求执行操作。批准界面必须在原生应用中显示确切操作和来源。</string>
+	<key>copy.f4faccd0c67d</key>
+	<string>语言跟随系统设置中为此应用选择的语言。</string>
+	<key>copy.f697c1b7ba14</key>
+	<string>共享加密归档</string>
+	<key>copy.f8b8883f0c9d</key>
+	<string>1 小时</string>
+	<key>copy.fa665d95d29e</key>
+	<string>1 天</string>
+	<key>copy.fbd0df19e20e</key>
+	<string>要恢复此已验证的归档吗？</string>
+	<key>privacy.requestApproval</key>
+	<string>请求批准方式：%@</string>
+</dict>
+</plist>

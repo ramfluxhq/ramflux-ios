@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.04d7b4833927</key>
+	<string>Messages</string>
+	<key>copy.0d60084f056e</key>
+	<string>No conversations yet</string>
+	<key>copy.0e9161011702</key>
+	<string>Refresh</string>
+	<key>copy.10eb36925a11</key>
+	<string>Add someone to your contacts to start a conversation.</string>
+	<key>copy.4ebdb8769377</key>
+	<string>Strangers</string>
+	<key>copy.8d384c507b47</key>
+	<string>Loading conversations</string>
+	<key>copy.b450645debe2</key>
+	<string>Contacts</string>
+	<key>copy.ddf0602b21a7</key>
+	<string>Search messages</string>
+</dict>
+</plist>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.a2538eaa411f</key>
+	<string>Confirm once</string>
+	<key>copy.c771af79a1fe</key>
+	<string>Reading your local records</string>
+	<key>copy.d8b8392e2c54</key>
+	<string>Try again</string>
+	<key>copy.dc380888c4e2</key>
+	<string>Loading</string>
+	<key>hold.duration.hint</key>
+	<string>Touch and hold continuously for 1.2 seconds</string>
+	<key>theme.dark</key>
+	<string>Dark</string>
+	<key>theme.light</key>
+	<string>Light</string>
+</dict>
+</plist>

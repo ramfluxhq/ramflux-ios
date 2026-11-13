@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.28f2d4300544</key>
+	<string>Ramflux</string>
+	<key>copy.446531641e6a</key>
+	<string>正在打开账户服务</string>
+	<key>copy.555b840fbf7c</key>
+	<string>请在账户设置中创建或解锁账户。</string>
+	<key>copy.6f3cba5e5a8e</key>
+	<string>我的设备</string>
+	<key>copy.74a883a037bc</key>
+	<string>设置</string>
+	<key>copy.79b40467bd3e</key>
+	<string>没有已打开的账户</string>
+	<key>copy.7a9453b18943</key>
+	<string>Ramflux 已锁定</string>
+	<key>copy.7e1b0d5641f2</key>
+	<string>账户</string>
+	<key>copy.8a7c8b67fe8b</key>
+	<string>账户</string>
+	<key>copy.9882e82fed9b</key>
+	<string>账户服务不可用</string>
+	<key>copy.b450645debe2</key>
+	<string>联系人</string>
+	<key>copy.b5305ec41049</key>
+	<string>设置此手机</string>
+	<key>copy.cf60a4dcdd09</key>
+	<string>账户服务已停止</string>
+	<key>copy.eab0ba7f342e</key>
+	<string>选择账户，或设置此手机。</string>
+</dict>
+</plist>

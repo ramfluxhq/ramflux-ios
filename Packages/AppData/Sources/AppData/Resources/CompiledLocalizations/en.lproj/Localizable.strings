@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.04d7b4833927</key>
+	<string>Messages</string>
+	<key>copy.0e3b0c4afad6</key>
+	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
+	<key>copy.11cc2995d69e</key>
+	<string>Account setup requires the phone's protected key provider.</string>
+	<key>copy.1b6fe0889add</key>
+	<string>The action may have completed. Check its current status before starting another attempt.</string>
+	<key>copy.25c796d9c8f8</key>
+	<string>This message has no displayable text projection.</string>
+	<key>copy.25f5b958f6a6</key>
+	<string>The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.</string>
+	<key>copy.279b44d2ab4b</key>
+	<string>Agents</string>
+	<key>copy.29ea6afd1a52</key>
+	<string>Check your input</string>
+	<key>copy.39bbb719fa2b</key>
+	<string>Groups</string>
+	<key>copy.4f3713e485e9</key>
+	<string>Your last confirmed state is preserved.</string>
+	<key>copy.528e4d2bc7b7</key>
+	<string>Stranger reporting is not available in the account service yet. Decline or block remains available.</string>
+	<key>copy.536ec5ca4da6</key>
+	<string>Unable to read this information</string>
+	<key>copy.5562fbd3e629</key>
+	<string>Account services are unavailable</string>
+	<key>copy.5856eb3d60b0</key>
+	<string>An update is required</string>
+	<key>copy.61e1cb437dd3</key>
+	<string>Local message search is not available yet.</string>
+	<key>copy.68d02ee6497e</key>
+	<string>Unlock this account</string>
+	<key>copy.6bf512f2eab9</key>
+	<string>Local message search is not available in the account service yet.</string>
+	<key>copy.6d135fefd8df</key>
+	<string>This feature module is not installed yet.</string>
+	<key>copy.6dc7a42f5b47</key>
+	<string>Batch decisions are not available yet. Review each request separately.</string>
+	<key>copy.70336657918f</key>
+	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
+	<key>copy.70de3acff368</key>
+	<string>Unlock this device before opening your local records.</string>
+	<key>copy.787406ddea2a</key>
+	<string>Not available yet</string>
+	<key>copy.79ee17726170</key>
+	<string>This archive exceeds the 256 MiB mobile import limit.</string>
+	<key>copy.7cca3d86d331</key>
+	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
+	<key>copy.7fe3baa7c52d</key>
+	<string>The service returned information this app cannot display.</string>
+	<key>copy.84f9c932bfcd</key>
+	<string>Complete the required fields before continuing.</string>
+	<key>copy.8f3374ffa405</key>
+	<string>Calling is not available in this phone build.</string>
+	<key>copy.90e302595fee</key>
+	<string>Editing, reactions and replies require the updated message service.</string>
+	<key>copy.9503c0e50707</key>
+	<string>Refresh your local records</string>
+	<key>copy.98b57b0920ec</key>
+	<string>Conversation details are not available in this phone build.</string>
+	<key>copy.9dcdd3257d89</key>
+	<string>Please try again shortly</string>
+	<key>copy.a18c44969ead</key>
+	<string>This action is not supported by the account service.</string>
+	<key>copy.ab827e3fe17d</key>
+	<string>Something went wrong</string>
+	<key>copy.b5e82d852d43</key>
+	<string>Outcome not confirmed</string>
+	<key>copy.b72e06e9393e</key>
+	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
+	<key>copy.c294a0b00e74</key>
+	<string>Check your connection. Your local records and drafts are kept.</string>
+	<key>copy.c3654c6a066c</key>
+	<string>This build cannot open the account service. Your saved data has not been changed.</string>
+	<key>copy.cdf40b9785de</key>
+	<string>Advanced connected-service configuration is managed on your desktop.</string>
+	<key>copy.d47d7cb0e4f8</key>
+	<string>More</string>
+	<key>copy.dafb5d4bae01</key>
+	<string>Another operation or account writer is still active.</string>
+	<key>copy.dcaee1a8b499</key>
+	<string>An update gap occurred. Refresh to load current records and reopen updates.</string>
+	<key>copy.e1f1db374598</key>
+	<string>Sanitized diagnostic export is not available in this build. No private account data has been shared.</string>
+	<key>copy.e40966162b11</key>
+	<string>Unable to connect</string>
+	<key>copy.e48183526bae</key>
+	<string>The service does not expose this request's reply conversation yet. No contact has been accepted.</string>
+	<key>copy.e6aaf3412a3a</key>
+	<string>The current contact identity commitment is unavailable.</string>
+	<key>copy.f92268007794</key>
+	<string>Update Ramflux before continuing with this account.</string>
+	<key>groups.unavailable.archive</key>
+	<string>Group archive is not available in the current SDK.</string>
+	<key>groups.unavailable.history</key>
+	<string>Changing new-member history policy is not available in the current SDK.</string>
+	<key>groups.unavailable.leave</key>
+	<string>A dedicated leave-group flow is not available. Removing a device is not a substitute for leaving the account’s group.</string>
+	<key>groups.unavailable.permission</key>
+	<string>This device has no current root-qualified permission to manage this group. No management change has been submitted.</string>
+	<key>groups.unavailable.threads</key>
+	<string>Group threads and forum posts are not available in this phone build.</string>
+	<key>groups.unavailable.transfer</key>
+	<string>Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet.</string>
+	<key>receipt.deviceState</key>
+	<string>%1$@: %2$@</string>
+	<key>status.accept</key>
+	<string>Accept</string>
+	<key>status.accepted</key>
+	<string>Accepted</string>
+	<key>status.auto_accept</key>
+	<string>Automatic acceptance</string>
+	<key>status.backup</key>
+	<string>Backup</string>
+	<key>status.block</key>
+	<string>Block</string>
+	<key>status.blocked</key>
+	<string>Blocked</string>
+	<key>status.cancelled</key>
+	<string>Cancelled</string>
+	<key>status.decline</key>
+	<string>Decline</string>
+	<key>status.declined</key>
+	<string>Declined</string>
+	<key>status.delivered</key>
+	<string>Delivered</string>
+	<key>status.done</key>
+	<string>Done</string>
+	<key>status.failed</key>
+	<string>Failed</string>
+	<key>status.installing</key>
+	<string>Installing</string>
+	<key>status.manual</key>
+	<string>Manual approval</string>
+	<key>status.pending</key>
+	<string>Pending</string>
+	<key>status.preparing</key>
+	<string>Preparing</string>
+	<key>status.read</key>
+	<string>Read</string>
+	<key>status.restore</key>
+	<string>Restore</string>
+	<key>status.sent</key>
+	<string>Sent</string>
+	<key>status.unavailable</key>
+	<string>Unavailable</string>
+	<key>status.verified</key>
+	<string>Verified</string>
+	<key>status.verifying</key>
+	<string>Verifying</string>
+	<key>status.writing</key>
+	<string>Writing</string>
+</dict>
+</plist>

@@ -97,6 +97,22 @@
           }
         }
       }
+    },
+    "hold.duration.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch and hold continuously for 1.2 seconds"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请持续按住 1.2 秒"
+          }
+        }
+      }
     }
   }
 }

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.0234cae2e221</key>
+	<string>Unable to save this node</string>
+	<key>copy.043a01d16971</key>
+	<string>Private recovery phrase display</string>
+	<key>copy.04d3e7f2e48b</key>
+	<string>Account is ready</string>
+	<key>copy.04eef37abc74</key>
+	<string>Existing local passphrase</string>
+	<key>copy.07af72e6141b</key>
+	<string>Your last confirmed connection is preserved.</string>
+	<key>copy.0896fec51d88</key>
+	<string>Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt.</string>
+	<key>copy.0b547581bb84</key>
+	<string>Local account is ready. Network connection has not been confirmed.</string>
+	<key>copy.0caae4e9b4c4</key>
+	<string>Connect to</string>
+	<key>copy.103d79748699</key>
+	<string>Confirm this account fingerprint through a trusted channel. Recovery revokes all other devices. Enter your phrase only for recovery you started yourself.</string>
+	<key>copy.10f868719bac</key>
+	<string>Recovery resumes an account already stored on this phone.</string>
+	<key>copy.1710d243883c</key>
+	<string>Connect to this origin</string>
+	<key>copy.1b01d88bd34d</key>
+	<string>Keep these words private and save them offline. They cannot be shown again in this ceremony.</string>
+	<key>copy.1b2db98c4d8d</key>
+	<string>Edit node address</string>
+	<key>copy.22965568d22a</key>
+	<string>Connected</string>
+	<key>copy.28f2d4300544</key>
+	<string>Ramflux</string>
+	<key>copy.2afe8ba12d97</key>
+	<string>Other node</string>
+	<key>copy.2b0ebbd9991d</key>
+	<string>Check address</string>
+	<key>copy.2b7f6a84de91</key>
+	<string>Display name</string>
+	<key>copy.2ba256d7a297</key>
+	<string>The account service saved this node's identity.</string>
+	<key>copy.2fcb31c28a31</key>
+	<string>Set up local unlock</string>
+	<key>copy.31fbef162594</key>
+	<string>Continue</string>
+	<key>copy.41edd3f47328</key>
+	<string>Recovery phrase</string>
+	<key>copy.458db8c2c8c1</key>
+	<string>Prepare recovery phrase</string>
+	<key>copy.4a248ed11c79</key>
+	<string>Existing local account ID</string>
+	<key>copy.4d5c943931a4</key>
+	<string>You are offline</string>
+	<key>copy.51ac0753998e</key>
+	<string>Recover your account</string>
+	<key>copy.57fb564a5f32</key>
+	<string>This phone can be your primary device.</string>
+	<key>copy.59d9af4c5214</key>
+	<string>Saving your node</string>
+	<key>copy.5cafb0b934b6</key>
+	<string>Local passphrase</string>
+	<key>copy.5ccd5b11457e</key>
+	<string>I saved it. Hide and continue</string>
+	<key>copy.5dfe7b2bb38d</key>
+	<string>Link an existing account</string>
+	<key>copy.5f13d96a0063</key>
+	<string>Check the node identity</string>
+	<key>copy.5fca79c1258a</key>
+	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
+	<key>copy.63466cf4d5b0</key>
+	<string>Read account fingerprint</string>
+	<key>copy.650cfe3a448f</key>
+	<string>Please wait</string>
+	<key>copy.68295d2e45cf</key>
+	<string>Local account ID</string>
+	<key>copy.7ae2c8b71f1a</key>
+	<string>Use as default node</string>
+	<key>copy.7cee9719c6e5</key>
+	<string>Verifying the node</string>
+	<key>copy.83c95649b037</key>
+	<string>Review your connection</string>
+	<key>copy.86033f75a4c0</key>
+	<string>Create an account</string>
+	<key>copy.8b8843897868</key>
+	<string>Unlock saved account</string>
+	<key>copy.8e9aff1d599c</key>
+	<string>Choose a node</string>
+	<key>copy.985536fc1f55</key>
+	<string>Next, enter the words at these positions in order:</string>
+	<key>copy.985b82be2098</key>
+	<string>Check the node address</string>
+	<key>copy.a1bcb108941e</key>
+	<string>Complete secure input in the iOS app.</string>
+	<key>copy.a915dea73c38</key>
+	<string>Fingerprint unavailable</string>
+	<key>copy.a93020e0cfed</key>
+	<string>Linking needs a registered phone pairing coordinator. This build does not create a QR code or pairing code.</string>
+	<key>copy.a954d93bce56</key>
+	<string>Confirm your recovery phrase</string>
+	<key>copy.aa242a674642</key>
+	<string>Account keys are generated on this phone.</string>
+	<key>copy.afb56637754e</key>
+	<string>Compare the node fingerprint through another trusted channel before saving.</string>
+	<key>copy.b47895eadb24</key>
+	<string>Node verification failed</string>
+	<key>copy.b9d9bb247022</key>
+	<string>Keep your conversations connected</string>
+	<key>copy.c17bac18b5a6</key>
+	<string>Cancel setup</string>
+	<key>copy.c9aadf9cd263</key>
+	<string>Node address</string>
+	<key>copy.cb4bd1634dfb</key>
+	<string>Recover an account</string>
+	<key>copy.cdfc37ac7863</key>
+	<string>I checked this account fingerprint</string>
+	<key>copy.cf339d96c54f</key>
+	<string>No saved node is available. You can prepare local keys and configure a node separately.</string>
+	<key>copy.d59626702d22</key>
+	<string>Setup expired. Start a new account ceremony.</string>
+	<key>copy.dac665b06b4d</key>
+	<string>Custom node</string>
+	<key>copy.db7dc45de14f</key>
+	<string>Entered</string>
+	<key>copy.deb375ac99ed</key>
+	<string>Open this secure phrase display in the iOS app.</string>
+	<key>copy.df79088cb69a</key>
+	<string>Trust and save this node</string>
+	<key>copy.e0d94a676bb9</key>
+	<string>Save your recovery phrase</string>
+	<key>copy.e0e8eed587f2</key>
+	<string>The full phrase has been hidden and its display storage erased.</string>
+	<key>copy.e1b57debc57c</key>
+	<string>Restoring your connection</string>
+	<key>copy.e2d11145163b</key>
+	<string>Only the HTTPS origin will be used. Paths and invitations are not sent.</string>
+	<key>copy.e40966162b11</key>
+	<string>Unable to connect</string>
+	<key>copy.e77b763e169d</key>
+	<string>Node saved</string>
+	<key>copy.f23cb9253e3e</key>
+	<string>Show recovery phrase once</string>
+	<key>recovery.word.position</key>
+	<string>Word %@</string>
+</dict>
+</plist>

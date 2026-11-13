@@ -4,4 +4,4 @@
 import PackageDescription
 let package = Package(name: "FeatureOnboarding", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
  products: [.library(name: "FeatureOnboarding", targets: ["FeatureOnboarding"])], dependencies: [.package(path: "../AppData"), .package(path: "../RFDesign")],
- targets: [.target(name: "FeatureOnboarding", dependencies: ["AppData", "RFDesign"], resources: [.process("Resources")]), .testTarget(name: "FeatureOnboardingTests", dependencies: ["FeatureOnboarding", "AppData"])], swiftLanguageModes: [.v6])
+ targets: [.target(name: "FeatureOnboarding", dependencies: ["AppData", "RFDesign"], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")]), .testTarget(name: "FeatureOnboardingTests", dependencies: ["FeatureOnboarding", "AppData"])], swiftLanguageModes: [.v6])

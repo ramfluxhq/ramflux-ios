@@ -7,6 +7,6 @@ let native: [SwiftSetting] = ProcessInfo.processInfo.environment["RAMFLUX_CORE_X
 let package = Package(name: "AppData", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
     products: [.library(name: "AppData", targets: ["AppData"])],
     dependencies: [.package(name: "RamfluxCoreBridge", path: "../..")], targets: [
-        .target(name: "AppData", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge")], resources: [.process("Resources")], swiftSettings: native),
+        .target(name: "AppData", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge")], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")], swiftSettings: native),
         .testTarget(name: "AppDataTests", dependencies: ["AppData"]),
     ], swiftLanguageModes: [.v6])

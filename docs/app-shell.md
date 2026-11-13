@@ -95,6 +95,9 @@ platform compatibility extensions remain in RFDesign/Sources.
 
 Every package owns an English/Simplified Chinese String Catalog. Handwritten native
 controls, errors and accessibility labels use explicit package-bundle lookups.
+`export-localizations.py` compiles catalogs into checked portable `.strings`/`.stringsdict`
+resources for SwiftPM native CLI compatibility. Catalogs remain the sole source;
+CI verifies exported semantics with the pinned Apple catalog compiler.
 Peer text and protocol identifiers are data rather than translation keys. Catalog
 format entries carry variable labels; dates and numbers use the active locale.
 The UI copy check rejects literal presentation labels and incomplete locale keys.

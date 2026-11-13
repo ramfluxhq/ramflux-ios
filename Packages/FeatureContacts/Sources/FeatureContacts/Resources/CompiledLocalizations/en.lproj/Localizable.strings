@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>copy.0013e6984bf6</key>
+	<string>No contacts found</string>
+	<key>copy.076c195e33c2</key>
+	<string>Batch actions</string>
+	<key>copy.0e9161011702</key>
+	<string>Refresh</string>
+	<key>copy.115034107ae1</key>
+	<string>Stranger request</string>
+	<key>copy.1390f67d32c2</key>
+	<string>Safety details are unavailable for this contact.</string>
+	<key>copy.13b58a61daec</key>
+	<string>Identity not verified</string>
+	<key>copy.151339072593</key>
+	<string>Not verified</string>
+	<key>copy.19766ed6ccb2</key>
+	<string>Cancel</string>
+	<key>copy.211d0bb8cf4f</key>
+	<string>Block</string>
+	<key>copy.29f7a933bca1</key>
+	<string>No requests</string>
+	<key>copy.2b5c3d26721a</key>
+	<string>Contact</string>
+	<key>copy.4b7574aab6d2</key>
+	<string>I compared this number</string>
+	<key>copy.4d43cecc17d7</key>
+	<string>A request does not make the other account verified.</string>
+	<key>copy.4ebdb8769377</key>
+	<string>Strangers</string>
+	<key>copy.4f7838402f37</key>
+	<string>Verified</string>
+	<key>copy.5adf603bb15f</key>
+	<string>Apply this decision to this incoming request?</string>
+	<key>copy.5dacc74e46f5</key>
+	<string>Identity changed. Compare the complete number again.</string>
+	<key>copy.604bf8eb82d8</key>
+	<string>Filter contacts</string>
+	<key>copy.65fd288cba62</key>
+	<string>First contact · identity not verified</string>
+	<key>copy.7ca1e1523ef9</key>
+	<string>Replying does not accept a request or add a contact.</string>
+	<key>copy.874d69d66eb2</key>
+	<string>Sent requests</string>
+	<key>copy.89713b9c9c1b</key>
+	<string>Accept</string>
+	<key>copy.97a2aa71bc3b</key>
+	<string>Safety number</string>
+	<key>copy.99b52fb41be2</key>
+	<string>Identity verified</string>
+	<key>copy.9c240ce98597</key>
+	<string>Compare this number through another trusted channel.</string>
+	<key>copy.9fd728c66c9a</key>
+	<string>Add</string>
+	<key>copy.a02ce0df219d</key>
+	<string>Add contact</string>
+	<key>copy.a131c2d2b123</key>
+	<string>View safety number</string>
+	<key>copy.a17f264ff140</key>
+	<string>Applying decision</string>
+	<key>copy.a2d285b35287</key>
+	<string>Decline</string>
+	<key>copy.a45f93ef3f36</key>
+	<string>Send contact request</string>
+	<key>copy.b25dcb116a99</key>
+	<string>Loading contacts</string>
+	<key>copy.b2e254c8cd4a</key>
+	<string>This request is no longer present. Refresh for its current status.</string>
+	<key>copy.b450645debe2</key>
+	<string>Contacts</string>
+	<key>copy.b6ce788d9786</key>
+	<string>Report</string>
+	<key>copy.c253f451bdd5</key>
+	<string>Reply</string>
+	<key>copy.c3f72136e5bb</key>
+	<string>Reconcile original contact action</string>
+	<key>copy.cc755b5f1b02</key>
+	<string>Account address</string>
+	<key>copy.d6aa21ab75ee</key>
+	<string>Add a contact using their account address.</string>
+	<key>copy.d911b7040af8</key>
+	<string>This contact is unavailable. Refresh your contacts.</string>
+	<key>copy.e4876d53862c</key>
+	<string>Accept this request and add this account to your contacts?</string>
+	<key>copy.eb4cab81786c</key>
+	<string>Requests for this account will appear here.</string>
+	<key>request.sentStatus</key>
+	<string>Sent request · %@</string>
+</dict>
+</plist>
