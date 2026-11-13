@@ -31,7 +31,7 @@
 	<key>groups.cancel</key>
 	<string>Cancel</string>
 	<key>groups.confirm</key>
-	<string>Hold to confirm this operation</string>
+	<string>Confirm this operation</string>
 	<key>groups.create</key>
 	<string>Create group</string>
 	<key>groups.created</key>
@@ -133,7 +133,7 @@
 	<key>groups.review</key>
 	<string>Review exact operation</string>
 	<key>groups.review.message</key>
-	<string>Check the account, group and target identity. Holding confirms only these displayed facts. The SDK still checks authority.</string>
+	<string>Check the account, group and target identity. Tap Confirm for these displayed facts. The SDK still checks authority.</string>
 	<key>groups.reviewCreate</key>
 	<string>Review group creation</string>
 	<key>groups.root</key>

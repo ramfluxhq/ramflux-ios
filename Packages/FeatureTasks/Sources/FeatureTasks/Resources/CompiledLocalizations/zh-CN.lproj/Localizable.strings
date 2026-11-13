@@ -17,7 +17,7 @@
 	<key>tasks.capability</key>
 	<string>能力</string>
 	<key>tasks.confirm</key>
-	<string>长按确认</string>
+	<string>确认</string>
 	<key>tasks.context</key>
 	<string>任务属于特定会话。请选择其本地记录。</string>
 	<key>tasks.conversation</key>

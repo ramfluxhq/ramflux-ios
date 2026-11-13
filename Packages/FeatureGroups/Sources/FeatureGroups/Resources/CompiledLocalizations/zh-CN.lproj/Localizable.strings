@@ -31,7 +31,7 @@
 	<key>groups.cancel</key>
 	<string>取消</string>
 	<key>groups.confirm</key>
-	<string>长按以确认此操作</string>
+	<string>确认此操作</string>
 	<key>groups.create</key>
 	<string>创建群组</string>
 	<key>groups.created</key>
@@ -133,7 +133,7 @@
 	<key>groups.review</key>
 	<string>审核确切操作</string>
 	<key>groups.review.message</key>
-	<string>请核对账户、群组和目标身份。长按仅确认这里显示的事实。SDK 仍会检查权限。</string>
+	<string>请核对账户、群组和目标身份。轻点确认这里显示的事实。SDK 仍会检查权限。</string>
 	<key>groups.reviewCreate</key>
 	<string>审核群组创建</string>
 	<key>groups.root</key>

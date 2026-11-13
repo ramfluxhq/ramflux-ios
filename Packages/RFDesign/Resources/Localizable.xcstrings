@@ -98,18 +98,50 @@
         }
       }
     },
-    "hold.duration.hint": {
+    "confirmation.confirm": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touch and hold continuously for 1.2 seconds"
+            "value": "Confirm"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请持续按住 1.2 秒"
+            "value": "确认"
+          }
+        }
+      }
+    },
+    "confirmation.cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "confirmation.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm: %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认：%@"
           }
         }
       }

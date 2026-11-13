@@ -18,7 +18,7 @@ public struct GroupsScreen: View {
             if state.loading { ProgressView(FeatureGroupsStrings.text("groups.loading", locale: locale)) }
             if let pending = state.pending {
                 RFApprovalPresentation(title: FeatureGroupsStrings.text("groups.pending", locale: locale), origin: state.accountID, facts: facts(pending.mutation), theme: theme) {
-                    RFHostHoldToConfirm(label: FeatureGroupsStrings.text("groups.reconcile", locale: locale), enabled: !state.busy) { onAction(.reconcileOriginal(pending.operationID)) }.id(pending.operationID)
+                    Button(FeatureGroupsStrings.text("groups.reconcile", locale: locale)) { onAction(.reconcileOriginal(pending.operationID)) }.disabled(state.busy)
                 }
             }
             if let outcome = state.outcome {
@@ -36,12 +36,12 @@ public struct GroupsScreen: View {
                 RFApprovalPresentation(title: FeatureGroupsStrings.text("groups.review", locale: locale), origin: state.accountID, facts: facts(confirmation.attempt.mutation), theme: theme) {
                     VStack(spacing: theme.gap) {
                         Text(FeatureGroupsStrings.text("groups.review.message", locale: locale))
-                        RFHostHoldToConfirm(label: FeatureGroupsStrings.text("groups.confirm", locale: locale), enabled: !state.busy && state.pending == nil) { onAction(.confirm(confirmation.id)) }.id(confirmation.id)
+                        RFHostConfirmationActions(summary: confirmationSummary(confirmation.attempt.mutation), enabled: !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
                     }
                 }
                 if state.busy { ProgressView(FeatureGroupsStrings.text("groups.applying", locale: locale)) }
                 if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-            }.padding(theme.gap) } }.toolbar { Button(FeatureGroupsStrings.text("groups.cancel", locale: locale)) { onAction(.cancelConfirmation) }.disabled(state.busy) } }.interactiveDismissDisabled(state.busy)
+            }.padding(theme.gap) } } }.interactiveDismissDisabled(state.busy)
         }
     }
     private var title: String {
@@ -132,6 +132,17 @@ public struct GroupsScreen: View {
     }
     @ViewBuilder private func expiry(_ timestamp: Int64) -> some View {
         if (0...253402300799).contains(timestamp) { LabeledContent(FeatureGroupsStrings.text("groups.expires", locale: locale), value: Date(timeIntervalSince1970: TimeInterval(timestamp)).formatted(.dateTime.year().month().day().hour().minute().locale(locale))) }
+    }
+    private func confirmationSummary(_ change: GroupMutation) -> String {
+        let key: String = switch change {
+        case .create: "groups.create"
+        case .rename: "groups.rename"
+        case .role: "groups.newRole"
+        case .remove: "groups.remove"
+        case .add: "groups.add"
+        case .invitation(_, let accept): accept ? "groups.accept" : "groups.decline"
+        }
+        return ([FeatureGroupsStrings.text(key, locale: locale)] + facts(change).map(\.value)).joined(separator: " · ")
     }
     private func facts(_ change: GroupMutation) -> [RFApprovalFact] {
         var values = [RFApprovalFact(id: "account", label: FeatureGroupsStrings.text("groups.account", locale: locale), value: state.accountID), RFApprovalFact(id: "group", label: FeatureGroupsStrings.text("groups.id", locale: locale), value: change.groupID)]

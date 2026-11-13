@@ -24,10 +24,10 @@ public struct ContactsScreen: View {
                     Text(pending.request.name).font(theme.bodyFont.weight(.semibold))
                     Text(pending.request.principal).textSelection(.enabled)
                     Text(pending.action == .accept ? FeatureContactsStrings.text("copy.e4876d53862c", locale: locale) : FeatureContactsStrings.text("copy.5adf603bb15f", locale: locale))
-                    Button(AppDataStrings.status(pending.action.rawValue, locale: locale), role: pending.action == .accept ? nil : .destructive) { onAction(.confirmDecision) }.disabled(state.busy || state.unknownMutation)
+                    RFHostConfirmationActions(summary: AppDataStrings.status(pending.action.rawValue, locale: locale) + " · " + pending.request.name + " · " + pending.request.principal, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
                     if state.busy { ProgressView(FeatureContactsStrings.text("copy.a17f264ff140", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-                }.padding(theme.gap) }.toolbar { Button(FeatureContactsStrings.text("copy.19766ed6ccb2", locale: locale)) { onAction(.cancelDecision) }.disabled(state.busy) } }.interactiveDismissDisabled(state.busy)
+                }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
             }
     }
     private var title: String {

@@ -34,8 +34,15 @@ public struct ChatScreen: View {
             }, actions: { EmptyView() })
         } }.privacySensitive()
             .toolbar { Button(FeatureChatStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
-            .confirmationDialog(FeatureChatStrings.text("copy.a45a93aaa69f", locale: locale), isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
-                Button(FeatureChatStrings.text("copy.87e7176a7ce7", locale: locale), role: .destructive) { onAction(.confirmDelete) }
-            } message: { Text(FeatureChatStrings.text("copy.4ef7d6d3a97d", locale: locale)) }
+            .sheet(isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
+                if let message = state.pendingDelete {
+                    RFPage { VStack(alignment: .leading, spacing: theme.gap) {
+                        Text(FeatureChatStrings.text("copy.a45a93aaa69f", locale: locale)).font(theme.pageFont)
+                        Text(FeatureChatStrings.text("copy.4ef7d6d3a97d", locale: locale))
+                        Text(message).font(theme.captionFont)
+                        RFHostConfirmationActions(summary: FeatureChatStrings.text("copy.87e7176a7ce7", locale: locale) + " · " + message, enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(message)
+                    }.padding(theme.gap) }
+                }
+            }
     }
 }

@@ -199,13 +199,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hold to confirm"
+            "value": "Confirm"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "长按确认"
+            "value": "确认"
           }
         }
       }
