@@ -4,6 +4,7 @@ import SwiftUI
 import AppData
 import RFDesign
 public struct ConversationsHost: View {
+    @Environment(\.locale) private var locale
     @Environment(\.scenePhase) private var phase
     public let coordinator: ConversationsCoordinator
     public init(coordinator: ConversationsCoordinator) { self.coordinator = coordinator }

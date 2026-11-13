@@ -22,7 +22,7 @@ import AppData
                 let observation = await repository.observe(account: account)
                 for await update in observation.stream {
                     guard !Task.isCancelled, let self else { break }
-                    switch update { case .invalidated: if self.state.loading { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
+                    switch update { case .invalidated: self.state.failure = nil; if self.state.loading { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
                 }
                 await observation.stop()
                 if let self, self.observationID == watchID { self.observer = nil }
@@ -50,6 +50,7 @@ import AppData
             if self.pendingRefresh { self.pendingRefresh = false; self.reload(search: false) }
         }
     }
-    public func settle() async { await work?.value }
+    public func joinObservation() async { await observer?.value }
+    public func settle() async { while true { let current = generation; await work?.value; if current == generation { return } } }
     deinit { work?.cancel(); observer?.cancel() }
 }

@@ -1,38 +1,41 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Foundation
 import RamfluxCore
 public enum AppFailure: Error, Sendable, Equatable {
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case notAvailable(String), outcomeUnknown, failed
-    public var title: String {
+    public var title: String { title(locale: .current) }
+    public func title(locale: Locale) -> String {
         switch self {
-        case .sdkUnavailable: "Account services are unavailable"
-        case .unsupported, .notAvailable: "Not available yet"
-        case .offline: "Unable to connect"
-        case .locked: "Unlock this account"
-        case .busy: "Please try again shortly"
-        case .upgradeRequired: "An update is required"
-        case .resyncRequired: "Refresh your local records"
-        case .invalidData: "Unable to read this information"
-        case .invalidInput: "Check your input"
-        case .outcomeUnknown: "Outcome not confirmed"
-        case .failed: "Something went wrong"
+        case .sdkUnavailable: AppDataStrings.text("copy.5562fbd3e629", locale: locale)
+        case .unsupported, .notAvailable: AppDataStrings.text("copy.787406ddea2a", locale: locale)
+        case .offline: AppDataStrings.text("copy.e40966162b11", locale: locale)
+        case .locked: AppDataStrings.text("copy.68d02ee6497e", locale: locale)
+        case .busy: AppDataStrings.text("copy.9dcdd3257d89", locale: locale)
+        case .upgradeRequired: AppDataStrings.text("copy.5856eb3d60b0", locale: locale)
+        case .resyncRequired: AppDataStrings.text("copy.9503c0e50707", locale: locale)
+        case .invalidData: AppDataStrings.text("copy.536ec5ca4da6", locale: locale)
+        case .invalidInput: AppDataStrings.text("copy.29ea6afd1a52", locale: locale)
+        case .outcomeUnknown: AppDataStrings.text("copy.b5e82d852d43", locale: locale)
+        case .failed: AppDataStrings.text("copy.ab827e3fe17d", locale: locale)
         }
     }
-    public var message: String {
+    public var message: String { message(locale: .current) }
+    public func message(locale: Locale) -> String {
         switch self {
-        case .sdkUnavailable: "This build cannot open the account service. Your saved data has not been changed."
-        case .unsupported: "This action is not supported by the account service."
-        case .offline: "Check your connection. Your local records and drafts are kept."
-        case .locked: "Unlock this device before opening your local records."
-        case .busy: "Another operation or account writer is still active."
-        case .upgradeRequired: "Update Ramflux before continuing with this account."
-        case .resyncRequired: "An update gap occurred. Refresh to load current records and reopen updates."
-        case .invalidData: "The service returned information this app cannot display."
-        case .invalidInput: "Complete the required fields before continuing."
+        case .sdkUnavailable: AppDataStrings.text("copy.c3654c6a066c", locale: locale)
+        case .unsupported: AppDataStrings.text("copy.a18c44969ead", locale: locale)
+        case .offline: AppDataStrings.text("copy.c294a0b00e74", locale: locale)
+        case .locked: AppDataStrings.text("copy.70de3acff368", locale: locale)
+        case .busy: AppDataStrings.text("copy.dafb5d4bae01", locale: locale)
+        case .upgradeRequired: AppDataStrings.text("copy.f92268007794", locale: locale)
+        case .resyncRequired: AppDataStrings.text("copy.dcaee1a8b499", locale: locale)
+        case .invalidData: AppDataStrings.text("copy.7fe3baa7c52d", locale: locale)
+        case .invalidInput: AppDataStrings.text("copy.84f9c932bfcd", locale: locale)
         case .notAvailable(let message): message
-        case .outcomeUnknown: "The action may have completed. Check its current status before starting another attempt."
-        case .failed: "Your last confirmed state is preserved."
+        case .outcomeUnknown: AppDataStrings.text("copy.1b6fe0889add", locale: locale)
+        case .failed: AppDataStrings.text("copy.4f3713e485e9", locale: locale)
         }
     }
     public var canRetry: Bool { self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported }

@@ -45,7 +45,7 @@ final class BackupFiles: Sendable {
             guard !token.cancelled, ContinuousClock.now < deadline else { throw CancellationError() }
             guard let chunk = try input.read(upToCount: 65_536), !chunk.isEmpty else { break }
             total += chunk.count
-            guard total <= 256 * 1024 * 1024 else { throw AppFailure.notAvailable("This archive exceeds the 256 MiB mobile import limit.") }
+            guard total <= 256 * 1024 * 1024 else { throw AppFailure.notAvailable(AppDataStrings.text("copy.79ee17726170")) }
             try output.write(contentsOf: chunk)
         }
         guard total > 0 else { throw AppFailure.invalidData }; complete = true; return target

@@ -6,7 +6,8 @@ import SwiftUI
 import RFDesign
 
 public struct ChatComposer: UIViewRepresentable {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     @Binding public var text: String
     public let enabled: Bool
     public let send: () -> Void
@@ -20,10 +21,11 @@ public struct ChatComposer: UIViewRepresentable {
     }
     public func updateUIView(_ view: ComposerView, context: Context) {
         context.coordinator.parent = self
+        view.editor.accessibilityLabel = FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale)
         // Do not replace marked text while an input method is composing.
         if view.editor.markedTextRange == nil, view.editor.text != text { view.editor.text = text }
+        view.button.setTitle(FeatureChatStrings.text("copy.f6f4688ff23d", locale: locale), for: .normal)
         view.button.isEnabled = enabled && !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        let theme = RFTheme.adaptive(scheme)
         view.backgroundColor = UIColor(theme.surface)
         view.editor.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_mobile_body) ?? .systemFont(ofSize: theme.size_mobile_body))
         view.editor.textColor = UIColor(theme.text)

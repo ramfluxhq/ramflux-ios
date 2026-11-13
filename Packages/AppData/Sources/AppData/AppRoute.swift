@@ -4,7 +4,8 @@ import Foundation
 public enum AppTab: String, CaseIterable, Identifiable, Sendable {
     case messages, groups, agents, more
     public var id: Self { self }
-    public var title: String { switch self { case .messages: "Messages"; case .groups: "Groups"; case .agents: "Agents"; case .more: "More" } }
+    public var title: String { title(locale: .current) }
+    public func title(locale: Locale) -> String { switch self { case .messages: AppDataStrings.text("copy.04d7b4833927", locale: locale); case .groups: AppDataStrings.text("copy.39bbb719fa2b", locale: locale); case .agents: AppDataStrings.text("copy.279b44d2ab4b", locale: locale); case .more: AppDataStrings.text("copy.d47d7cb0e4f8", locale: locale) } }
     public var symbol: String { switch self { case .messages: "bubble.left.and.bubble.right"; case .groups: "person.3"; case .agents: "sparkles"; case .more: "ellipsis" } }
 }
 public enum AppRoute: Hashable, Sendable {

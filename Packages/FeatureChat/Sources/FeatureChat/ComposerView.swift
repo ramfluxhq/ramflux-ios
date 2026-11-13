@@ -12,9 +12,9 @@ import RFDesign
         super.init(frame: .zero)
         editor.font = UIFont.preferredFont(forTextStyle: .body)
         editor.adjustsFontForContentSizeCategory = true
-        editor.accessibilityLabel = "Message"
+        editor.accessibilityLabel = FeatureChatStrings.text("copy.2f77668a9dfb")
         editor.accessibilityIdentifier = "chat-draft"
-        button.setTitle("Send", for: .normal); button.accessibilityIdentifier = "chat-send"
+        button.setTitle(FeatureChatStrings.text("copy.f6f4688ff23d"), for: .normal); button.accessibilityIdentifier = "chat-send"
         let stack = UIStackView(arrangedSubviews: [editor, button])
         stack.alignment = .center; stack.spacing = 8; stack.translatesAutoresizingMaskIntoConstraints = false
         editor.translatesAutoresizingMaskIntoConstraints = false

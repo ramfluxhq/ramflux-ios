@@ -2,6 +2,6 @@
 // Copyright (c) 2026 Span Brain
 import AppData
 public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
-    case appeared, disappeared, conceal, refresh, unavailableAttachment, draftChanged(String), send, retrySameSend, requestDelete(String), cancelDelete, confirmDelete, unavailableRevision
+    case callRequested, detailsRequested, appeared, disappeared, conceal, refresh, unavailableAttachment, draftChanged(String), send, retrySameSend, requestDelete(String), cancelDelete, confirmDelete, unavailableRevision
     public var description: String { "ChatAction" }
 }

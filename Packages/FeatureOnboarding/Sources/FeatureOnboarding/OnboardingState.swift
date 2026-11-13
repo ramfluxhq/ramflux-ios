@@ -14,7 +14,7 @@ public struct OnboardingState: Equatable, Sendable {
     public var busy = false
     public var failure: AppFailure?
     public var metadata: CeremonyMetadata?
-    public var display: RecoveryDisplay?
+    public var displayID: UUID?
     public var positions: [Int] = []
     public var anchorChecked = false
     public var unlockingSavedAccount = false

@@ -4,6 +4,9 @@ import Testing
 import AppData
 @testable import FeatureOnboarding
 private actor FlowFake: OnboardingRepository, NodeRepository {
+    let gate: MutationGate?
+    init(gate: MutationGate? = nil) { self.gate = gate }
+
     private(set) var origins: [String] = []
     private(set) var saved: [NodeRecord] = []
     private(set) var confirmations = 0
@@ -15,13 +18,26 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     func begin(name: String, nodeID: String?) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "ceremony", expiresInMilliseconds: 60_000)) }
     func showPhrase() -> RepositoryResult<RecoveryDisplay> { .failure(.unsupported) }
     func hideAndChallenge() -> RepositoryResult<[Int]> { .success([3, 7, 11]) }
-    func confirm(_ submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { confirmations += 1; submission.erase(); return .failure(.outcomeUnknown) }
+    func confirmationUnresolved() async -> Bool { confirmations > 0 }
+    func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> { confirmations += 1; if let gate { await gate.wait() }; submission.erase(); return .failure(.outcomeUnknown) }
     func beginRecovery(accountID: String) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "recovery", expiresInMilliseconds: 60_000, anchor: "fingerprint")) }
     func confirmRecovery(anchor: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { confirmations += 1; submission.erase(); return .success(AccountRecord(id: "account", displayName: "Account", isLocked: false)) }
     func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { submission.erase(); return .failure(.locked) }
     func cancel() -> RepositoryResult<Void> { cancellations += 1; return .success(()) }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct OnboardingViewModelTests {
+    @Test func concealAfterConfirmationDispatchKeepsRepositoryFenceAfterCleanup() async {
+        let gate = MutationGate(), fake = FlowFake(gate: gate)
+        defer { gate.release() }
+        var state = OnboardingState(stage: .localUnlock); state.positions = [3,7,11]
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        model.send(.submit(SensitiveSubmission(values: [:])))
+        var dispatched = gate.entered.stream.makeAsyncIterator(); _ = await dispatched.next()
+        model.send(.conceal); gate.release(); await model.settle()
+        #expect(model.state.confirmationConsumed); #expect(model.state.failure == .outcomeUnknown)
+        model.send(.create); model.send(.nameChanged("Fresh")); model.send(.beginCreation); await model.settle()
+        #expect(model.state.failure == .outcomeUnknown); #expect(await fake.confirmations == 1)
+    }
     @Test func originMustBeReviewedBeforeNetworkAndSavedKeyIsExact() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
         model.send(.customNode); model.send(.addressChanged("example.org/invite?token=secret")); model.send(.checkAddress)
@@ -48,7 +64,7 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.checkAnchor(true)); model.send(.submit(SensitiveSubmission(values: [:]))); await model.settle()
         #expect(model.state.stage == .complete)
         model.send(.conceal); await model.settle()
-        #expect(model.state.metadata == nil); #expect(model.state.display == nil)
+        #expect(model.state.metadata == nil); #expect(model.state.displayID == nil)
         #expect(await fake.cancellations == 1)
     }
     @Test func explicitExpiryCancelsBackendAndConcealsAllSecretState() async {
@@ -56,7 +72,7 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.create); model.send(.nameChanged("Account")); model.send(.beginCreation); await model.settle()
         #expect(model.state.stage == .savePhrase)
         model.send(.expired); await model.settle()
-        #expect(model.state.metadata == nil); #expect(model.state.display == nil)
+        #expect(model.state.metadata == nil); #expect(model.state.displayID == nil)
         #expect(await fake.cancellations == 1)
     }
     @Test func unavailableRepositoryNeverCompletesCreation() async {

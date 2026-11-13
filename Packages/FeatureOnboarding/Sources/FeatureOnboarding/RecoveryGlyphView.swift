@@ -8,11 +8,11 @@ import AppData
 import RFDesign
 
 @MainActor public final class RecoveryGlyphView: UIView {
-    var ink = UIColor(RFDesign.light.text)
+    var ink = UIColor(RFTheme.light.text)
     var display: RecoveryDisplay?
     init(display: RecoveryDisplay) {
         self.display = display; super.init(frame: .zero); backgroundColor = .clear
-        isAccessibilityElement = true; accessibilityLabel = "Private recovery phrase display"
+        isAccessibilityElement = true; accessibilityLabel = FeatureOnboardingStrings.text("copy.043a01d16971")
     }
     public required init?(coder: NSCoder) { return nil }
     public override func draw(_ rect: CGRect) {
@@ -22,7 +22,7 @@ import RFDesign
         let size = UIFont.preferredFont(forTextStyle: .body).pointSize
         let columns = bounds.width >= size * 20 ? 2 : 1
         let rows = 24 / columns
-        let font = CTFontCreateWithName(RFDesign.light.font_mono as CFString, size, nil)
+        let font = CTFontCreateWithName(RFTheme.light.font_mono as CFString, size, nil)
         context.setFillColor(ink.cgColor)
         display?.withDrawingBytes { raw in
             var column = 0, word = 0

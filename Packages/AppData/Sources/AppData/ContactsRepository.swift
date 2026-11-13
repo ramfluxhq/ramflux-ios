@@ -3,6 +3,7 @@
 import Foundation
 import RamfluxCore
 public protocol ContactsRepository: Sendable {
+    func pendingMutation(account: String) async -> PendingContactMutation?
     func contacts(account: String) async -> RepositoryResult<[ContactRecord]>
     func requests(account: String) async -> RepositoryResult<[ContactRequestRecord]>
     func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void>
@@ -12,6 +13,11 @@ public protocol ContactsRepository: Sendable {
     func unavailable(_ capability: ContactUnavailable) -> AppFailure
 }
 public struct NativeContactsRepository: ContactsRepository {
+    private let mutations = RetainedMutation<ContactMutationArguments, Void>()
+    public func pendingMutation(account: String) async -> PendingContactMutation? {
+        guard let entry = await mutations.snapshot(scope: account), entry.unresolved else { return nil }
+        return PendingContactMutation(arguments: entry.arguments, operationID: entry.operationID)
+    }
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
@@ -39,16 +45,20 @@ public struct NativeContactsRepository: ContactsRepository {
     public func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> {
         let value = principal.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !value.isEmpty, value.utf8.count <= 2048 else { return .failure(.invalidInput) }
+        return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
         do { _ = try await gateway.call(.contactAdd, account: account, body: .object(["principal_id": .string(value)]), operationID: operationID); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
+        }
     }
     public func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> {
         let operation: SDKOperation = switch decision { case .accept: .contactRequestAccept; case .decline: .contactRequestDecline; case .block: .contactRequestBlock }
+        return await mutations.run(scope: account, arguments: .decide(request, decision), operationID: operationID) { [gateway] in
         do { _ = try await gateway.call(operation, account: account, body: .object(["request_id": .string(request)]), operationID: operationID); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
+        }
     }
     public func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> {
-        guard let root = contact.rootCommitment else { return .failure(.notAvailable("The current contact identity commitment is unavailable.")) }
+        guard let root = contact.rootCommitment else { return .failure(.notAvailable(AppDataStrings.text("copy.e6aaf3412a3a"))) }
         do {
             let body = try await gateway.call(.contactVerificationStatus, account: account, body: .object(["contact_identity_commitment": .string(root)]))
             guard body["contact_identity_commitment"] == .string(root), let number = Self.number(body["safety_number"]) else { throw AppFailure.invalidData }
@@ -67,10 +77,10 @@ public struct NativeContactsRepository: ContactsRepository {
     public func unavailable(_ capability: ContactUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: ContactUnavailable) -> AppFailure {
         switch capability {
-        case .reporting: .notAvailable("Stranger reporting is not available in the account service yet. Decline or block remains available.")
-        case .batch: .notAvailable("Batch decisions are not available yet. Review each request separately.")
-        case .replyWithoutAcceptance: .notAvailable("The service does not expose this request's reply conversation yet. No contact has been accepted.")
-        case .atomicSafetyVerification: .notAvailable("The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.")
+        case .reporting: .notAvailable(AppDataStrings.text("copy.528e4d2bc7b7"))
+        case .batch: .notAvailable(AppDataStrings.text("copy.6dc7a42f5b47"))
+        case .replyWithoutAcceptance: .notAvailable(AppDataStrings.text("copy.e48183526bae"))
+        case .atomicSafetyVerification: .notAvailable(AppDataStrings.text("copy.25f5b958f6a6"))
         }
     }
 }
@@ -84,3 +94,5 @@ public struct UnavailableContactsRepository: ContactsRepository {
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: ContactUnavailable) -> AppFailure { NativeContactsRepository.refusal(capability) }
 }
+
+public extension ContactsRepository { func pendingMutation(account: String) async -> PendingContactMutation? { nil } }

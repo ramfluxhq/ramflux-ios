@@ -25,6 +25,8 @@ jobs:
           test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
       - name: Install XcodeGen
         run: brew install xcodegen
+      - name: Check complete localized UI copy
+        run: python3 scripts/check-ui-localization.py
       - name: Generate project
         run: xcodegen generate
       - name: Headless bridge and feature tests

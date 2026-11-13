@@ -8,7 +8,10 @@ private actor DirectoryFake: ConversationsRepository {
     func fail() { failure = .offline }
     func list(account: String) -> RepositoryResult<[ConversationRecord]> { if let failure { return .failure(failure) }; return .success([ConversationRecord(id: "thread", title: "Thread", preview: "")]) }
     func search(account: String, query: String) -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable("Search unavailable")) }
-    func observe(account: String) -> RepositoryObservation { RepositoryObservation(stream: AsyncStream { $0.finish() }) }
+    func observe(account: String) -> RepositoryObservation { {
+        let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
+        return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() })
+    }() }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct ConversationsViewModelTests {
     @Test func listsOnlyRepositoryRecordsAndNavigationChecksIdentity() async {

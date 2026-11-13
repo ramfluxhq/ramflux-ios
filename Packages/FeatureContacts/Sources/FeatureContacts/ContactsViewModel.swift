@@ -19,10 +19,18 @@ import AppData
     public func send(_ action: ContactsAction) {
         switch action {
         case .appeared, .refresh: refresh(); observe()
-        case .filter(let value): state.query = String(value.prefix(256))
+        case .filter(let value): state.query = String(value.prefix(256)); projectVisibleRows()
         case .principal(let value): state.principal = String(value.prefix(2048))
         case .mode(let mode):
-            switch mode { case .profile(let id): emit(.navigate(.contact(id))); case .safety(let id): emit(.navigate(.safetyNumber(id))); default: state.mode = mode; state.failure = nil }
+            switch mode { case .profile(let id): emit(.navigate(.contact(id))); case .safety(let id): emit(.navigate(.safetyNumber(id))); default: state.mode = mode; state.failure = nil; projectVisibleRows() }
+        case .retryPendingMutation:
+            guard !state.busy, let pending = state.pendingMutation else { return }
+            mutate { [repository, account] in
+                switch pending.arguments {
+                case .add(let principal): await repository.add(account: account, principal: principal, operationID: pending.operationID)
+                case .decide(let request, let decision): await repository.decide(account: account, request: request, decision: decision, operationID: pending.operationID)
+                }
+            }
         case .add:
             guard !state.busy, !state.unknownMutation else { return }
             let principal = state.principal; mutate { [repository, account] in await repository.add(account: account, principal: principal, operationID: UUID().uuidString) }
@@ -42,27 +50,43 @@ import AppData
     }
     private func mutate(_ operation: @escaping @Sendable () async -> RepositoryResult<Void>) {
         let current = epoch; state.busy = true; state.failure = nil
-        mutation = Task { [weak self] in
+        mutation = Task { [weak self, repository, account] in
             let result = await operation()
+            let pending = await repository.pendingMutation(account: account)
             guard !Task.isCancelled, let self, self.epoch == current else { return }
-            self.state.busy = false
-            switch result { case .success: self.state.pending = nil; self.state.principal = ""; if self.state.mode == .add { self.state.mode = .contacts }; self.refresh()
+            self.state.busy = false; self.state.pendingMutation = pending
+            switch result { case .success: self.state.unknownMutation = false; self.state.pendingMutation = nil; self.state.pending = nil; self.state.principal = ""; if self.state.mode == .add { self.state.mode = .contacts }; self.refresh()
             case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = failure == .outcomeUnknown }
         }
     }
     private func refresh() {
         readID &+= 1; let current = readID; let mode = state.mode; state.loading = true; read?.cancel()
+        if case .safety = mode { state.safety = nil; state.safetyPrincipal = nil; state.safetyStale = false }
         read = Task { [weak self, repository, account] in
+            let pendingMutation = await repository.pendingMutation(account: account)
             let contacts = await repository.contacts(account: account), requests = await repository.requests(account: account)
             var safety: RepositoryResult<ContactSafety>?
             if case .safety(let id) = mode, case .success(let rows) = contacts, let contact = rows.first(where: { $0.id == id }) { safety = await repository.safety(account: account, contact: contact) }
             guard !Task.isCancelled, let self, self.readID == current else { return }
             self.state.loading = false
+            self.state.pendingMutation = pendingMutation
+            self.state.unknownMutation = pendingMutation != nil
             switch contacts { case .success(let rows): self.state.contacts = rows; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.contacts = [] } }
             switch requests { case .success(let rows): self.state.requests = rows; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.requests = [] } }
-            if let safety { switch safety { case .success(let value): self.state.safety = value; case .failure(let failure): self.state.failure = failure; self.state.safety = nil } }
+            if case .safety(let selected) = mode {
+                self.state.safety = nil; self.state.safetyPrincipal = nil; self.state.safetyStale = false
+                if case .success(let rows) = contacts, let contact = rows.first(where: { $0.id == selected }),
+                   case .success(let value) = safety, value.root == contact.rootCommitment {
+                    self.state.safety = value; self.state.safetyPrincipal = selected
+                } else if case .failure(let failure) = safety { self.state.failure = failure }
+            }
+            self.projectVisibleRows()
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
+    }
+    private func projectVisibleRows() {
+        state.visibleContacts = state.contacts.filter { state.query.isEmpty || $0.displayName.localizedCaseInsensitiveContains(state.query) || $0.id.localizedCaseInsensitiveContains(state.query) }
+        state.visibleRequests = state.requests.filter { $0.direction == (state.mode == .sent ? "outbound" : "inbound") }
     }
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let current = watchID
@@ -75,6 +99,6 @@ import AppData
             await observation.stop(); if let self, self.watchID == current { self.observer = nil }
         }
     }
-    public func settle() async { await mutation?.value; await read?.value }
+    public func settle() async { await mutation?.value; while true { let current = readID; await read?.value; if current == readID { return } } }
     deinit { read?.cancel(); mutation?.cancel(); observer?.cancel() }
 }

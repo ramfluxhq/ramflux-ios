@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
+import RFDesign
 import AppData
 
 public enum AppShellPreviews {
@@ -21,3 +22,7 @@ public enum AppShellPreviews {
         VStack { Text(item.id); AppShellPreviews.screen(item).frame(width: 390, height: 844) }
     } } }
 }
+
+#Preview("Chinese") { RFThemeScope { ScrollView { VStack { ForEach(AppShellPreviews.cases) { item in AppShellPreviews.screen(item).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "zh-CN")) }
+
+#Preview("Expanded") { RFThemeScope { ScrollView { VStack { ForEach(AppShellPreviews.cases) { item in AppShellPreviews.screen(item).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "en-XA")) }

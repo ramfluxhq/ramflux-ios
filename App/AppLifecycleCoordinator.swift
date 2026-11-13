@@ -9,7 +9,7 @@ import FeatureAppShell
     private var completion: Task<Void, Never>?
     func enterBackground(_ coordinator: AppShellCoordinator) {
         guard lease == .invalid else { return }
-        lease = UIApplication.shared.beginBackgroundTask(withName: "Release account storage") { [weak self] in self?.endLease() }
+        lease = UIApplication.shared.beginBackgroundTask(withName: RamfluxAppStrings.text("copy.94e3068f8e98")) { [weak self] in self?.endLease() }
         coordinator.send(.sceneBackground)
         completion?.cancel()
         completion = Task { [weak self, model = coordinator.viewModel] in

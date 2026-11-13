@@ -8,10 +8,11 @@ import AppData
 import RFDesign
 
 public struct RecoveryPhraseView: UIViewRepresentable {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public let display: RecoveryDisplay
     public func makeUIView(context: Context) -> RecoveryGlyphView { RecoveryGlyphView(display: display) }
-    public func updateUIView(_ view: RecoveryGlyphView, context: Context) { view.display = display; view.ink = UIColor(RFTheme.adaptive(scheme).text); view.setNeedsDisplay() }
+    public func updateUIView(_ view: RecoveryGlyphView, context: Context) { view.display = display; view.ink = UIColor(theme.text); view.setNeedsDisplay() }
     public func sizeThatFits(_ proposal: ProposedViewSize, uiView: RecoveryGlyphView, context: Context) -> CGSize? {
         let width = proposal.width ?? 320
         let size = UIFont.preferredFont(forTextStyle: .body).pointSize

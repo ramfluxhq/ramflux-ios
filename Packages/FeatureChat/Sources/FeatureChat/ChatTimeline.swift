@@ -6,6 +6,7 @@ import SwiftUI
 import AppData
 
 public struct ChatTimeline: UIViewControllerRepresentable {
+    @Environment(\.locale) private var locale
     public let onAction: (ChatAction) -> Void
     public let messages: [MessageRecord]
     public init(messages: [MessageRecord], onAction: @escaping (ChatAction) -> Void = { _ in }) { self.messages = messages; self.onAction = onAction }

@@ -18,7 +18,7 @@ import AppData
     public func send(_ action: OnboardingAction) {
         switch action {
         case .disappeared, .conceal, .cancel: cleanup(dismiss: action == .cancel); return
-        case .expired: cleanup(dismiss: false); state.failure = .notAvailable("Setup expired. Start a new account ceremony."); return
+        case .expired: cleanup(dismiss: false); state.failure = .notAvailable(FeatureOnboardingStrings.text("copy.d59626702d22")); return
         default: break
         }
         guard !state.busy else { if case .submit(let input) = action { input.erase() }; return }
@@ -34,7 +34,7 @@ import AppData
         case .recover: state.stage = .recover
         case .link:
             state.stage = .link
-            state.failure = .notAvailable("This SDK has no registered phone pairing coordinator. No pairing code has been created.")
+            state.failure = .notAvailable(FeatureOnboardingStrings.text("copy.5fca79c1258a"))
         case .customNode: state.stage = .address
         case .checkAddress:
             do { state.normalized = try NodeAddress(state.address); state.stage = .normalizedAddress }
@@ -57,7 +57,7 @@ import AppData
             run { [repository] in .began(await repository.begin(name: name, nodeID: node)) }
         case .showPhrase: run { [repository] in .display(await repository.showPhrase()) }
         case .hidePhrase:
-            state.display?.erase(); state.display = nil
+            emit(.revokeRecovery); state.displayID = nil
             run { [repository] in .challenge(await repository.hideAndChallenge()) }
         case .beginRecovery:
             guard !unresolvedConfirmation else { state.failure = .outcomeUnknown; return }
@@ -109,7 +109,8 @@ import AppData
         case .defaultSet(.success): state.selectedNodeID = state.candidate?.id; state.stage = .saved
         case .began(.success(let metadata)):
             state.metadata = metadata; state.stage = .savePhrase; scheduleExpiry(metadata)
-        case .display(.success(let display)): state.display = display
+        case .display(.success(let display)):
+            let id = UUID(); state.displayID = id; emit(.presentRecovery(id, display))
         case .challenge(.success(let positions)): state.positions = positions; state.stage = .confirmPhrase
         case .recovery(.success(let metadata)): state.metadata = metadata; scheduleExpiry(metadata)
         case .confirmed(.success(let account)): expiry?.cancel(); state.completedAccount = account; state.stage = .complete
@@ -129,14 +130,18 @@ import AppData
     }
     private func cleanup(dismiss: Bool) {
         generation &+= 1; let epoch = generation
-        state.display?.erase(); expiry?.cancel(); expiry = nil
+        emit(.revokeRecovery); expiry?.cancel(); expiry = nil
         let previous = work; previous?.cancel()
         state = OnboardingState(); state.busy = true
         work = Task { [weak self, repository] in
             await previous?.value
             let result = await repository.cancel()
+            let unresolved = await repository.confirmationUnresolved()
             guard let self, self.generation == epoch else { return }
             self.state.busy = false
+            self.unresolvedConfirmation = unresolved
+            self.state.confirmationConsumed = unresolved
+            if unresolved { self.state.failure = .outcomeUnknown }
             if case .failure(let error) = result { self.state.failure = error; self.state.confirmationConsumed = true }
             if dismiss { self.emit(.dismissed) }
         }

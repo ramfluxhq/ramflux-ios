@@ -7,6 +7,11 @@ import RamfluxCore
 @testable import AppData
 private struct CeremonyCancellation: CancellationHandle { func cancel() {} }
 private final class CeremonyTransport: CoreTransport {
+    let dispatched = AsyncStream<Void>.makeStream()
+    let release = DispatchSemaphore(value: 0)
+    let blockConfirmation: Bool
+    init(blockConfirmation: Bool = false) { self.blockConfirmation = blockConfirmation }
+
     let requests = Mutex<[CoreRequest]>([])
     func newCancellation() throws -> any CancellationHandle { CeremonyCancellation() }
     func execute(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> JSONValue { requests.withLock { $0.append(request) }; return .object(["ok": .bool(true), "body": .object([:])]) }
@@ -15,6 +20,11 @@ private final class CeremonyTransport: CoreTransport {
     func executeSecretRequestResponse(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> SecretBytes { try reply(request.request) }
     private func reply(_ request: CoreRequest) throws -> SecretBytes {
         requests.withLock { $0.append(request) }
+        if request.method == "account.create.confirm", blockConfirmation {
+            dispatched.continuation.yield(())
+            guard release.wait(timeout: .now() + 5) == .success else { throw AppFailure.failed }
+            throw AppFailure.outcomeUnknown
+        }
         let body: JSONValue = switch request.method {
         case "account.create.begin": .object(["ceremony_id": .string("pending"), "expires_in_ms": .number(60_000)])
         case "account.create.show_once": .object(["phrase": .string("alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima")])
@@ -30,6 +40,19 @@ private final class CeremonyTransport: CoreTransport {
     func subscribe(_ filter: SubscriptionFilter) throws -> any EventQueue { throw BridgeError.invalidInput }
 }
 @Suite(.timeLimit(.minutes(1))) struct OnboardingRepositoryTests {
+    @Test func cancelledWaiterAndSuccessfulCleanupDoNotClearConfirmationFence() async {
+        let transport = CeremonyTransport(blockConfirmation: true)
+        defer { transport.release.signal(); transport.dispatched.continuation.finish() }
+        let live = NativeOnboardingRepository(client: RamfluxClient(transport: transport))
+        _ = await live.begin(name: "Account", nodeID: nil); _ = await live.showPhrase(); _ = await live.hideAndChallenge()
+        let work = Task { await live.confirm(SensitiveSubmission(values: ["word1":"a", "word2":"b", "word3":"c", "passphrase":"test"])) }
+        var events = transport.dispatched.stream.makeAsyncIterator(); _ = await events.next()
+        work.cancel(); let cleanup = Task { await live.cancel() }; transport.release.signal()
+        #expect(await work.value == .failure(.outcomeUnknown)); _ = await cleanup.value
+        #expect(await live.confirmationUnresolved())
+        #expect(await live.begin(name: "Fresh", nodeID: nil) == .failure(.outcomeUnknown))
+        #expect(await live.beginRecovery(accountID: "account") == .failure(.outcomeUnknown))
+    }
     @Test func fullCreationUsesRealProxyAndConnectionLocalUnkeyedCeremony() async {
         let transport = CeremonyTransport()
         let live = NativeOnboardingRepository(client: RamfluxClient(transport: transport))

@@ -11,3 +11,7 @@ public enum ChatPreviews {
     ])]
 }
 #Preview("Chat") { ChatScreen(state: ChatPreviews.states[3], onAction: { _ in }) }
+
+#Preview("Chinese") { RFThemeScope { ScrollView { VStack { ForEach(ChatPreviews.states.indices, id: \.self) { index in ChatScreen(state: ChatPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "zh-CN")) }
+
+#Preview("Expanded") { RFThemeScope { ScrollView { VStack { ForEach(ChatPreviews.states.indices, id: \.self) { index in ChatScreen(state: ChatPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "en-XA")) }

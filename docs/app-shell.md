@@ -19,8 +19,9 @@ an explicit unavailable presentation.
   responses, maps account records and manages PhoneLifecycle. No SDK values cross
   this boundary. Its bounded snapshot stream retains only the newest state.
 - `RFDesign` imports manifest-owned generated tokens/components. Handwritten
-  extensions and layout live outside `Generated`. Font names come from the design
-  tokens; dedicated font assets are not bundled yet, so system fallback can apply.
+  extensions and layout live outside `Generated`. Licensed Noto Sans SC, Hanken Grotesk and JetBrains Mono variable fonts are
+  bundled and registered by their actual PostScript names before rendering.
+  Clean-process tests verify the resolved names and packaged font URLs.
 
 ## Build modes
 
@@ -89,3 +90,20 @@ Each feature package supports `swift build --package-path Packages/FeatureName` 
 `swift test --package-path Packages/FeatureName`. CI also captures major feature
 states in both themes. Generated design files are hash-owned and read-only;
 platform compatibility extensions remain in RFDesign/Sources.
+
+## Localization and themes
+
+Every package owns an English/Simplified Chinese String Catalog. Handwritten native
+controls, errors and accessibility labels use explicit package-bundle lookups.
+Peer text and protocol identifiers are data rather than translation keys. Catalog
+format entries carry variable labels; dates and numbers use the active locale.
+The UI copy check rejects literal presentation labels and incomplete locale keys.
+Major-state captures cover both shipped themes in English, Chinese and expanded
+pseudo-localized copy. These are render artifacts for design review.
+
+RFThemeScope supplies the active RFTheme environment value. Themes are bounded,
+validated JSON token files copied from the shared token source; adding another
+file and its localized label requires no renderer changes. The per-device Settings
+selection applies immediately and survives relaunch. Follow-system respects the
+system scheme; Increase Contrast remaps weaker semantic roles to strong token
+roles. Contrast tests cover shipped foreground/background and control pairs.

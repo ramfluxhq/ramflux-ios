@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 import AppData
 import RFDesign
 public struct SettingsHost: View {
+    @Environment(\.locale) private var locale
     @Environment(\.scenePhase) private var phase
     public let coordinator: SettingsCoordinator
     public init(coordinator: SettingsCoordinator) { self.coordinator = coordinator }

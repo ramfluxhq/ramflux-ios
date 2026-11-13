@@ -9,6 +9,7 @@ public struct CeremonyMetadata: Equatable, Sendable {
     public init(id: String, expiresInMilliseconds: Int64, anchor: String? = nil) { self.id = id; self.expiresInMilliseconds = expiresInMilliseconds; self.anchor = anchor }
 }
 public protocol OnboardingRepository: Sendable {
+    func confirmationUnresolved() async -> Bool
     func begin(name: String, nodeID: String?) async -> RepositoryResult<CeremonyMetadata>
     func showPhrase() async -> RepositoryResult<RecoveryDisplay>
     func hideAndChallenge() async -> RepositoryResult<[Int]>
@@ -23,9 +24,13 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     private let gateway: ProxyGateway
     private var ceremony: AccountCeremony?
     private var recovery = false
+    private var unresolvedConfirmation = false
+    private var confirmation: Task<RepositoryResult<AccountRecord>, Never>?
+    public func confirmationUnresolved() async -> Bool { unresolvedConfirmation }
     private var display: RecoveryDisplay?
     public init(client: RamfluxClient) { proxy = SDKProxy(client: client); gateway = ProxyGateway(proxy: SDKProxy(client: client)) }
     public func begin(name: String, nodeID: String?) async -> RepositoryResult<CeremonyMetadata> {
+        guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         guard ceremony == nil else { return .failure(.busy) }
         let ceremony = AccountCeremony(proxy: proxy, kind: .creation); self.ceremony = ceremony; recovery = false
         do {
@@ -58,13 +63,11 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     public func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let ceremony, !recovery, let fields = submission.take(), fields["words"] != nil, fields["passphrase"] != nil else { return .failure(.invalidInput) }
-        do {
-            let result = try await ceremony.confirm(context: gateway.context(.accountCreateConfirm), fields: fields)
-            guard case .sealed(let frame) = result else { throw AppFailure.invalidData }
-            let record = try Self.account(ProxyGateway.body(frame)); self.ceremony = nil; return .success(record)
-        } catch { return .failure(.outcomeUnknown) }
+        return await dispatchConfirmation(ceremony: ceremony, operation: .accountCreateConfirm, body: .object([:]), fields: fields)
     }
+
     public func beginRecovery(accountID: String) async -> RepositoryResult<CeremonyMetadata> {
+        guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         guard ceremony == nil else { return .failure(.busy) }
         let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true
         do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin), body: .object(["account_id": .string(accountID)]))))) }
@@ -73,12 +76,24 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     public func confirmRecovery(anchor: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let ceremony, recovery, let fields = submission.take(), fields["phrase"] != nil, fields["passphrase"] != nil else { return .failure(.invalidInput) }
-        do {
-            let result = try await ceremony.confirm(context: gateway.context(.accountRecoverConfirm), body: .object(["confirmed_anchor": .string(anchor)]), fields: fields)
-            guard case .sealed(let frame) = result else { throw AppFailure.invalidData }
-            let record = try Self.account(ProxyGateway.body(frame)); self.ceremony = nil; return .success(record)
-        } catch { return .failure(.outcomeUnknown) }
+        return await dispatchConfirmation(ceremony: ceremony, operation: .accountRecoverConfirm, body: .object(["confirmed_anchor": .string(anchor)]), fields: fields)
     }
+    private func dispatchConfirmation(ceremony: AccountCeremony, operation: SDKOperation, body: JSONValue, fields: [String: SecretField]) async -> RepositoryResult<AccountRecord> {
+        guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
+        unresolvedConfirmation = true
+        let task = Task { [gateway] () -> RepositoryResult<AccountRecord> in
+            do {
+                let result = try await ceremony.confirm(context: gateway.context(operation), body: body, fields: fields)
+                guard case .sealed(let frame) = result else { return .failure(.outcomeUnknown) }
+                return .success(try Self.account(ProxyGateway.body(frame)))
+            } catch { return .failure(.outcomeUnknown) }
+        }
+        confirmation = task
+        let result = await task.value
+        if case .success = result { unresolvedConfirmation = false; self.ceremony = nil }
+        return result
+    }
+
     public func unlock(accountID: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let fields = submission.take(), fields["passphrase"] != nil else { return .failure(.invalidInput) }
@@ -87,6 +102,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     }
     public func cancel() async -> RepositoryResult<Void> {
         display?.erase(); display = nil
+        if let confirmation { _ = await confirmation.value }
         guard let ceremony else { return .success(()) }
         do { try await ceremony.cancel(context: gateway.context(recovery ? .accountRecoverCancel : .accountCreateCancel)); self.ceremony = nil; return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
@@ -98,9 +114,10 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     private static func account(_ body: JSONValue) throws -> AccountRecord {
         AccountRecord(id: try ProxyGateway.text(body, "account_id"), displayName: try ProxyGateway.text(body, "display_name"), isLocked: false, networking: body["networking"]?.string.flatMap(AccountNetworking.init(rawValue:)))
     }
-    deinit { display?.erase() }
+    deinit { display?.erase(); confirmation?.cancel() }
 }
 public struct UnavailableOnboardingRepository: OnboardingRepository {
+    public func confirmationUnresolved() async -> Bool { false }
     public init() {}
     public func begin(name: String, nodeID: String?) async -> RepositoryResult<CeremonyMetadata> { .failure(.sdkUnavailable) }
     public func showPhrase() async -> RepositoryResult<RecoveryDisplay> { .failure(.sdkUnavailable) }

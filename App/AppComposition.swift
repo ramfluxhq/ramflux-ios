@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import RFDesign
 import AppData
 import FeatureAppShell
 import FeatureOnboarding
@@ -59,5 +60,5 @@ import Observation
         }
     }
     deinit { preferenceTask?.cancel() }
-    init() { let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session) }
+    init() { _ = DesignFonts.registered; let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session) }
 }

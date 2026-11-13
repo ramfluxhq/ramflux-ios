@@ -13,3 +13,7 @@ public enum SettingsPreviews {
     } }
 }
 #Preview("Settings") { SettingsScreen(state: SettingsState(), onAction: { _ in }) }
+
+#Preview("Chinese") { RFThemeScope { ScrollView { VStack { ForEach(SettingsPreviews.states.indices, id: \.self) { index in SettingsScreen(state: SettingsPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "zh-CN")) }
+
+#Preview("Expanded") { RFThemeScope { ScrollView { VStack { ForEach(SettingsPreviews.states.indices, id: \.self) { index in SettingsScreen(state: SettingsPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "en-XA")) }

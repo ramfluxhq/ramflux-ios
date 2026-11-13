@@ -4,19 +4,50 @@ import Testing
 import AppData
 @testable import FeatureContacts
 private actor ContactsFake: ContactsRepository {
+    let journal = RetainedMutation<ContactMutationArguments, Void>()
+    let gate: MutationGate?
+    private(set) var attempts: [(String, String)] = []
+    init(gate: MutationGate? = nil) { self.gate = gate }
+    func pendingMutation(account: String) async -> PendingContactMutation? {
+        guard let row = await journal.snapshot(scope: account), row.unresolved else { return nil }
+        return PendingContactMutation(arguments: row.arguments, operationID: row.operationID)
+    }
     private(set) var decisions: [String] = []
     func contacts(account: String) -> RepositoryResult<[ContactRecord]> { .success([]) }
     func requests(account: String) -> RepositoryResult<[ContactRequestRecord]> { .success([
         ContactRequestRecord(id: "incoming", principal: "peer", name: "Peer", direction: "inbound", state: "pending"),
         ContactRequestRecord(id: "outgoing", principal: "peer", name: "Peer", direction: "outbound", state: "pending"),
     ]) }
-    func add(account: String, principal: String, operationID: String) -> RepositoryResult<Void> { .failure(.outcomeUnknown) }
+    func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> {
+        await journal.run(scope: account, arguments: .add(principal), operationID: operationID) { await self.perform(principal: principal, operationID: operationID) }
+    }
+    private func perform(principal: String, operationID: String) async -> RepositoryResult<Void> {
+        attempts.append((operationID, principal)); if let gate { await gate.wait() }; return .failure(.outcomeUnknown)
+    }
     func decide(account: String, request: String, decision: ContactDecision, operationID: String) -> RepositoryResult<Void> { decisions.append(request + ":" + decision.rawValue); return .success(()) }
     func safety(account: String, contact: ContactRecord) -> RepositoryResult<ContactSafety> { .failure(.unsupported) }
-    func observe(account: String) -> RepositoryObservation { RepositoryObservation(stream: AsyncStream { $0.finish() }) }
+    func observe(account: String) -> RepositoryObservation { {
+        let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
+        return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() })
+    }() }
     nonisolated func unavailable(_ capability: ContactUnavailable) -> AppFailure { .unsupported }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct ContactsViewModelTests {
+    @Test func accountFenceAndOriginalArgumentsSurviveCancelledWaiterAndCoordinatorReplacement() async {
+        let gate = MutationGate(), fake = ContactsFake(gate: gate)
+        defer { gate.release() }
+        let first = ContactsCoordinator(repository: fake, account: "a", mode: .contacts, navigate: { _ in })
+        first.send(.principal("peer")); first.send(.add)
+        var entered = gate.entered.stream.makeAsyncIterator(); _ = await entered.next()
+        first.send(.disappeared); gate.release(); await first.viewModel.settle()
+        let next = ContactsCoordinator(repository: fake, account: "a", mode: .profile("peer"), navigate: { _ in })
+        next.send(.refresh); await next.viewModel.settle()
+        #expect(next.viewModel.state.unknownMutation)
+        #expect(next.viewModel.state.pendingMutation?.arguments == .add("peer"))
+        #expect(next.viewModel.state.pendingMutation?.operationID == (await fake.attempts).first?.0)
+        next.send(.principal("different")); next.send(.add); await next.viewModel.settle(); #expect(await fake.attempts.count == 1)
+        next.send(.disappeared)
+    }
     @Test func onlyIncomingPendingRequestsCanBeSelectedAndNoDecisionBeforeConfirm() async {
         let fake = ContactsFake(); let model = ContactsViewModel(repository: fake, account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()

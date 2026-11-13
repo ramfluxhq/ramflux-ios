@@ -8,11 +8,12 @@ struct ChatRepositoryTests {
         let transport = ProxyTransport { _ in .object(["messages": .array([
             .object(["message_id": .string("m"), "conversation_id": .string("c"), "is_own": .bool(false), "body_utf8": .string("Authenticated display text"), "encrypted_body": .string("DO NOT DISPLAY")]),
             .object(["message_id": .string("deleted"), "conversation_id": .string("c"), "is_own": .bool(true), "deleted": .bool(true), "sender_id": .string("ERASED"), "body_utf8": .string("ERASED")]),
+            .object(["id": .string("call"), "message_id": .string("call"), "conversation_id": .string("c"), "kind": .string("call"), "created_at": .number(10), "call": .object([:]), "duration_seconds": .number(5), "missed": .bool(false)]),
         ])]) }
         let client = RamfluxClient(transport: transport), updates = NativeUpdateSource(client: RamfluxClient(transport: transport))
         let repo = NativeChatRepository(client: client, updates: updates)
         guard case .success(let messages) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Mapping failed"); return }
-        #expect(messages.first?.kind == .text("Authenticated display text")); #expect(messages.last?.kind == .deleted); #expect(messages.last?.sender == "")
+        #expect(messages.first?.kind == .text("Authenticated display text")); #expect(messages.dropFirst().first?.kind == .deleted); #expect(messages.dropFirst().first?.sender == ""); #expect(messages.last?.kind == .callHistory); #expect(messages.last?.isOwn == nil)
     }
     @Test func sendUsesOnlyConversationIntentAndStableCallerKeyNeverClientRouting() async {
         let transport = ProxyTransport { request in

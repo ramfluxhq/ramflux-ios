@@ -4,34 +4,38 @@ import SwiftUI
 import AppData
 import RFDesign
 public struct ChatScreen: View {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public let state: ChatState
     public let onAction: (ChatAction) -> Void
     public init(state: ChatState, onAction: @escaping (ChatAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
-            RFChatHeader(id: state.conversationID, title: state.conversationID, subtitle: "", theme: RFTheme.adaptive(scheme), leading: { EmptyView() }, trailing: { EmptyView() })
-            if state.loading { ProgressView("Loading messages") }
-            if let failure = state.failure { RFFailureView(title: failure.title, message: failure.message) }
-            if state.messages.isEmpty && !state.loading { RFUnavailableView(title: "No messages yet", message: "Messages in this conversation will appear here.") }
+            RFChatHeader(id: state.conversationID, title: state.conversationID, subtitle: "", theme: theme, leading: { RFAvatar(initial: String(state.conversationID.prefix(1)), kind: .person, theme: theme) }, trailing: { HStack { Button(FeatureChatStrings.text("copy.d6e645b7d2b2", locale: locale), systemImage: "phone") { onAction(.callRequested) }; Button(FeatureChatStrings.text("copy.d47d7cb0e4f8", locale: locale), systemImage: "ellipsis") { onAction(.detailsRequested) } } })
+            if state.loading { ProgressView(FeatureChatStrings.text("copy.aa8730bbb4e3", locale: locale)) }
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+            if state.messages.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("copy.f42e0f66017d", locale: locale), message: FeatureChatStrings.text("copy.3b6e2ca67ca5", locale: locale)) }
             #if os(iOS)
             ChatTimeline(messages: state.messages, onAction: onAction)
             #else
             ScrollView { LazyVStack { ForEach(state.messages) { MessageBubble(message: $0, onAction: onAction) } } }
             #endif
-            if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? "Submitted to account service" : "Delivery failed").font(.caption) }
-            if state.pendingSend != nil && !state.sending { Button("Retry original send") { onAction(.retrySameSend) } }
-            #if os(iOS)
-            ChatComposer(text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }), enabled: !state.sending && state.pendingSend == nil) { onAction(.send) }
-                .frame(minHeight: 52, maxHeight: 140)
-            #else
-            TextField("Message", text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }))
-            Button("Send") { onAction(.send) }.disabled(state.sending || state.pendingSend != nil)
-            #endif
+            if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("copy.a8a3813c2900", locale: locale) : FeatureChatStrings.text("copy.b486522010d5", locale: locale)).font(theme.captionFont) }
+            if state.pendingSend != nil && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }
+            RFComposerShell(id: "chat-composer", theme: theme, mode: { EmptyView() }, quote: { EmptyView() }, attachment: {
+                Button(FeatureChatStrings.text("copy.d406ade2958c", locale: locale), systemImage: "paperclip") { onAction(.unavailableAttachment) }
+            }, editor: {
+                #if os(iOS)
+                ChatComposer(text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }), enabled: !state.loading && !state.sending && state.pendingSend == nil) { onAction(.send) }.frame(minHeight: theme.composer_min, maxHeight: theme.composer_min * 3)
+                #else
+                TextField(FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale), text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }))
+                Button(FeatureChatStrings.text("copy.f6f4688ff23d", locale: locale)) { onAction(.send) }.disabled(state.loading || state.sending || state.pendingSend != nil)
+                #endif
+            }, actions: { EmptyView() })
         } }.privacySensitive()
-            .toolbar { Button("Refresh", systemImage: "arrow.clockwise") { onAction(.refresh) } }
-            .confirmationDialog("Delete from your own devices?", isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
-                Button("Delete message", role: .destructive) { onAction(.confirmDelete) }
-            } message: { Text("This does not erase copies on other people's devices.") }
+            .toolbar { Button(FeatureChatStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+            .confirmationDialog(FeatureChatStrings.text("copy.a45a93aaa69f", locale: locale), isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
+                Button(FeatureChatStrings.text("copy.87e7176a7ce7", locale: locale), role: .destructive) { onAction(.confirmDelete) }
+            } message: { Text(FeatureChatStrings.text("copy.4ef7d6d3a97d", locale: locale)) }
     }
 }

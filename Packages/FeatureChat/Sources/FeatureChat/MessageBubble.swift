@@ -4,29 +4,32 @@ import SwiftUI
 import AppData
 import RFDesign
 public struct MessageBubble: View {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public let message: MessageRecord
     public let onAction: (ChatAction) -> Void
     public init(message: MessageRecord, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.message = message; self.onAction = onAction }
     public var body: some View {
+        if message.kind == .callHistory { Label(FeatureChatStrings.text("copy.83ceae7197e5", locale: locale), systemImage: "phone").font(theme.captionFont).frame(maxWidth: .infinity).padding(theme.gap) } else {
         HStack {
-            if message.isOwn { Spacer(minLength: 32) }
-            RFMessageBubble(id: message.id, kind: message.isOwn ? .own : .peer, sender: message.sender, theme: RFTheme.adaptive(scheme),
+            if message.isOwn == true { Spacer(minLength: theme.gap * 2) }
+            RFMessageBubble(id: message.id, kind: message.isOwn == true ? .own : .peer, sender: message.sender, theme: theme,
                 content: { Text(text).textSelection(.enabled) }, quote: { EmptyView() }, attachment: {
                     ForEach(message.attachments) { attachment in Button { onAction(.unavailableAttachment) } label: { Label(attachment.name, systemImage: "doc") } }
                 }, footer: {
-                    if let timestamp = message.timestamp, (0...253402300799).contains(timestamp) { Text(Date(timeIntervalSince1970: TimeInterval(timestamp)), style: .time).font(.caption) }
-                    if let receipt = message.receipt { Text(receipt).font(.caption) }
+                    if let timestamp = message.timestamp, (0...253402300799).contains(timestamp) { Text(Date(timeIntervalSince1970: TimeInterval(timestamp)).formatted(.dateTime.hour().minute().locale(locale))).font(theme.captionFont) }
+                    if let receipt = message.receipt { Text(receipt).font(theme.captionFont) }
                 })
-            if !message.isOwn { Spacer(minLength: 32) }
-        }.padding(.horizontal).accessibilityElement(children: .combine)
+            if message.isOwn == false { Spacer(minLength: theme.gap * 2) }
+        }.padding(.horizontal, theme.gap).accessibilityElement(children: .combine)
             .contextMenu {
-                if message.kind != .deleted {
-                    Button("Reply") { onAction(.unavailableRevision) }; Button("React") { onAction(.unavailableRevision) }
-                    if message.isOwn { Button("Edit") { onAction(.unavailableRevision) } }
-                    Button("Delete from my devices", role: .destructive) { onAction(.requestDelete(message.id)) }
+                if message.kind != .deleted && message.kind != .callHistory {
+                    Button(FeatureChatStrings.text("copy.c253f451bdd5", locale: locale)) { onAction(.unavailableRevision) }; Button(FeatureChatStrings.text("copy.01fad993ff61", locale: locale)) { onAction(.unavailableRevision) }
+                    if message.isOwn == true { Button(FeatureChatStrings.text("copy.464c4ffd019e", locale: locale)) { onAction(.unavailableRevision) } }
+                    Button(FeatureChatStrings.text("copy.f67cb7740d52", locale: locale), role: .destructive) { onAction(.requestDelete(message.id)) }
                 }
             }
     }
-    private var text: String { switch message.kind { case .text(let text): text; case .deleted: "Message deleted"; case .unsupported(let reason): reason } }
+    }
+    private var text: String { switch message.kind { case .text(let text): text; case .deleted: FeatureChatStrings.text("copy.7e94d4b9a46b", locale: locale); case .callHistory: FeatureChatStrings.text("copy.83ceae7197e5", locale: locale); case .unsupported(let reason): reason } }
 }

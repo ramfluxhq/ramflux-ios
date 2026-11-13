@@ -19,14 +19,17 @@ import AppData
     public init(repository: any ChatRepository, account: String, conversation: String, state: ChatState = ChatState(), emit: @escaping (ChatEvent) -> Void) { self.repository = repository; self.account = account; self.conversation = conversation; var initial = state; initial.conversationID = conversation; self.state = initial; self.emit = emit }
     public func send(_ action: ChatAction) {
         switch action {
+        case .callRequested: state.failure = repository.unavailable(.calls)
+        case .detailsRequested: state.failure = repository.unavailable(.details)
         case .appeared: refresh(); observe()
         case .refresh: refresh(); observe()
         case .draftChanged(let text): if text.utf8.count <= 65_536 { state.draft = text }
         case .send:
+            guard !state.loading else { return }
             guard !state.sending, state.pendingSend == nil, !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
             let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft); state.pendingSend = attempt; submit(attempt)
         case .retrySameSend: if !state.sending, let attempt = state.pendingSend { submit(attempt) }
-        case .requestDelete(let id): if state.messages.contains(where: { $0.id == id && $0.kind != .deleted }) { state.pendingDelete = id }
+        case .requestDelete(let id): if state.messages.contains(where: { $0.id == id && $0.kind != .deleted && $0.kind != .callHistory }) { state.pendingDelete = id }
         case .cancelDelete: state.pendingDelete = nil
         case .confirmDelete:
             guard !state.sending, let id = state.pendingDelete else { return }
@@ -50,8 +53,10 @@ import AppData
         state.sending = true; state.failure = nil; let current = epoch
         mutation = Task { [weak self, repository, account, conversation] in
             let result = await repository.send(account: account, conversation: conversation, text: attempt.text, operationID: attempt.operationID)
+            let retained = await repository.sendState(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.sending = false
+            if let retained, retained.unresolved { self.state.pendingSend = FrozenSend(operationID: retained.operationID, text: retained.text) }
             switch result {
             case .success(let outcome):
                 self.state.lastSubmission = outcome
@@ -59,7 +64,7 @@ import AppData
                     self.state.pendingSend = nil
                     if self.state.draft == attempt.text { self.state.draft = "" }
                     self.emit(.messageSubmitted(outcome.messageID)); self.refresh()
-                } else { self.state.failure = .notAvailable("The account service reported delivery failed. The original operation is retained.") }
+                } else { self.state.failure = .notAvailable(FeatureChatStrings.text("copy.8a7b78a5873c")) }
             case .failure(let error):
                 self.state.failure = error
                 if error != .outcomeUnknown && error != .offline { self.state.pendingSend = nil }
@@ -70,8 +75,18 @@ import AppData
         readID &+= 1; let current = readID; state.loading = true; load?.cancel()
         load = Task { [weak self, repository, account, conversation] in
             let result = await repository.messages(account: account, conversation: conversation)
+            let retained = await repository.sendState(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.readID == current else { return }
             self.state.loading = false
+            if let retained {
+                if retained.unresolved {
+                    self.state.pendingSend = FrozenSend(operationID: retained.operationID, text: retained.text)
+                    if self.state.draft.isEmpty { self.state.draft = retained.text }
+                    self.state.failure = .outcomeUnknown
+                } else if case .success(let outcome) = retained.result {
+                    self.state.lastSubmission = outcome; self.state.pendingSend = nil
+                }
+            }
             switch result { case .success(let rows): self.state.messages = rows; case .failure(let error): self.state.failure = error; if error == .locked { self.state.messages = [] } }
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
@@ -88,6 +103,6 @@ import AppData
             if let self, self.watchID == current { self.observer = nil }
         }
     }
-    public func settle() async { await mutation?.value; await load?.value }
+    public func settle() async { await mutation?.value; while true { let current = readID; await load?.value; if current == readID { return } } }
     deinit { load?.cancel(); mutation?.cancel(); observer?.cancel() }
 }

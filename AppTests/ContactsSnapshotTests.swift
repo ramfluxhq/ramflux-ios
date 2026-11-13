@@ -6,7 +6,7 @@ import FeatureContacts
 @MainActor final class ContactsSnapshotTests: XCTestCase {
     func testContactRequestAndSafetyStates() {
         for (index, state) in ContactsPreviews.states.enumerated() { for scheme in [ColorScheme.light, .dark] {
-            SnapshotCapture.record(ContactsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "contacts-\(index)-\(scheme)", test: self)
+            SnapshotCapture.record(ContactsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "contacts-\(index)-\(scheme)", scheme: scheme, test: self)
         } }
     }
 }

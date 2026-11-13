@@ -4,111 +4,113 @@ import SwiftUI
 import AppData
 import RFDesign
 public struct OnboardingScreen: View {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    public let securePresentation: AnyView?
     public let state: OnboardingState
     public let onAction: (OnboardingAction) -> Void
-    public init(state: OnboardingState, onAction: @escaping (OnboardingAction) -> Void) { self.state = state; self.onAction = onAction }
+    public init(state: OnboardingState, onAction: @escaping (OnboardingAction) -> Void, securePresentation: AnyView? = nil) { self.state = state; self.onAction = onAction; self.securePresentation = securePresentation }
     public var body: some View {
-        RFPage { ScrollView { VStack(alignment: .leading, spacing: RFTheme.adaptive(scheme).gap) {
-            Text("Ramflux").font(.caption)
-            Text(state.stage.title).font(RFTheme.adaptive(scheme).pageFont).accessibilityAddTraits(.isHeader)
+        RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
+            Text(FeatureOnboardingStrings.text("copy.28f2d4300544", locale: locale)).font(theme.captionFont)
+            Text(state.stage.title(locale: locale)).font(theme.pageFont).accessibilityAddTraits(.isHeader)
             content
-            if state.busy { ProgressView("Please wait") }
-            if let failure = state.failure { RFFailureView(title: failure.title, message: failure.message) }
-            Button("Cancel setup") { onAction(.cancel) }
-        }.padding().frame(maxWidth: RFTheme.adaptive(scheme).column_max, alignment: .leading).frame(maxWidth: .infinity) } }
+            if state.busy { ProgressView(FeatureOnboardingStrings.text("copy.650cfe3a448f", locale: locale)) }
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+            Button(FeatureOnboardingStrings.text("copy.c17bac18b5a6", locale: locale)) { onAction(.cancel) }
+        }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
             .privacySensitive().accessibilityIdentifier(state.stage.board)
     }
     @ViewBuilder private var content: some View {
         switch state.stage {
         case .welcome, .launch, .start:
-            Text("This phone can be your primary device.")
-            action("Unlock saved account", .unlockExisting); action("Create an account", .create); action("Recover an account", .recover)
-            action("Link an existing account", .link); action("Choose a node", .customNode)
+            Text(FeatureOnboardingStrings.text("copy.57fb564a5f32", locale: locale))
+            action(FeatureOnboardingStrings.text("copy.8b8843897868", locale: locale), .unlockExisting); action(FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale), .create); action(FeatureOnboardingStrings.text("copy.cb4bd1634dfb", locale: locale), .recover)
+            action(FeatureOnboardingStrings.text("copy.5dfe7b2bb38d", locale: locale), .link); action(FeatureOnboardingStrings.text("copy.8e9aff1d599c", locale: locale), .customNode)
         case .create:
-            TextField("Display name", text: Binding(get: { state.name }, set: { onAction(.nameChanged($0)) })).textFieldStyle(.roundedBorder)
-            Text("Account keys are generated on this phone.")
+            TextField(FeatureOnboardingStrings.text("copy.2b7f6a84de91", locale: locale), text: Binding(get: { state.name }, set: { onAction(.nameChanged($0)) })).textFieldStyle(.roundedBorder)
+            Text(FeatureOnboardingStrings.text("copy.aa242a674642", locale: locale))
             nodeChoices
-            action("Prepare recovery phrase", .beginCreation)
+            action(FeatureOnboardingStrings.text("copy.458db8c2c8c1", locale: locale), .beginCreation)
         case .address, .connection, .defaultNode:
-            TextField("Node address", text: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }))
+            TextField(FeatureOnboardingStrings.text("copy.c9aadf9cd263", locale: locale), text: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }))
                 .textFieldStyle(.roundedBorder).rfAddressInput()
-            action("Check address", .checkAddress)
+            action(FeatureOnboardingStrings.text("copy.2b0ebbd9991d", locale: locale), .checkAddress)
         case .normalizedAddress, .checkingAddress:
             if let normalized = state.normalized {
-                LabeledContent("Entered", value: normalized.entered)
-                LabeledContent("Connect to", value: normalized.origin).textSelection(.enabled)
-                if normalized.changed { Text("Only the HTTPS origin will be used. Paths and invitations are not sent.") }
-                action("Connect to this origin", .inspectOrigin)
+                LabeledContent(FeatureOnboardingStrings.text("copy.db7dc45de14f", locale: locale), value: normalized.entered)
+                LabeledContent(FeatureOnboardingStrings.text("copy.0caae4e9b4c4", locale: locale), value: normalized.origin).textSelection(.enabled)
+                if normalized.changed { Text(FeatureOnboardingStrings.text("copy.e2d11145163b", locale: locale)) }
+                action(FeatureOnboardingStrings.text("copy.1710d243883c", locale: locale), .inspectOrigin)
             }
         case .identity:
             if let candidate = state.candidate {
                 Text(candidate.origin).textSelection(.enabled)
-                Text(candidate.fingerprint ?? "Fingerprint unavailable").font(.caption).textSelection(.enabled)
-                Text("Compare the node fingerprint through another trusted channel before saving.")
-                action("Trust and save this node", .saveNode)
+                Text(candidate.fingerprint ?? FeatureOnboardingStrings.text("copy.a915dea73c38", locale: locale)).font(theme.captionFont).textSelection(.enabled)
+                Text(FeatureOnboardingStrings.text("copy.afb56637754e", locale: locale))
+                action(FeatureOnboardingStrings.text("copy.df79088cb69a", locale: locale), .saveNode)
             }
         case .saved:
-            Text("The account service saved this node's identity.")
-            action("Use as default node", .setDefault); action("Create an account", .create)
+            Text(FeatureOnboardingStrings.text("copy.2ba256d7a297", locale: locale))
+            action(FeatureOnboardingStrings.text("copy.7ae2c8b71f1a", locale: locale), .setDefault); action(FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale), .create)
         case .savePhrase:
-            Text("Keep these words private and save them offline. They cannot be shown again in this ceremony.")
-            if let display = state.display {
+            Text(FeatureOnboardingStrings.text("copy.1b01d88bd34d", locale: locale))
+            if state.displayID != nil {
                 #if os(iOS)
-                RecoveryPhraseView(display: display)
+                securePresentation
                 #else
-                Text("Open this secure phrase display in the iOS app.")
+                Text(FeatureOnboardingStrings.text("copy.deb375ac99ed", locale: locale))
                 #endif
-                action("I saved it. Hide and continue", .hidePhrase)
-            } else { action("Show recovery phrase once", .showPhrase) }
+                action(FeatureOnboardingStrings.text("copy.5ccd5b11457e", locale: locale), .hidePhrase)
+            } else { action(FeatureOnboardingStrings.text("copy.f23cb9253e3e", locale: locale), .showPhrase) }
         case .confirmPhrase:
-            Text("Next, enter the words at these positions in order:")
-            ForEach(state.positions, id: \.self) { Text("Word \($0)") }
-            Text("The full phrase has been hidden and its display storage erased.")
-            action("Set up local unlock", .continueUnlock)
+            Text(FeatureOnboardingStrings.text("copy.985536fc1f55", locale: locale))
+            ForEach(state.positions, id: \.self) { Text(FeatureOnboardingStrings.format("recovery.word.position", $0.formatted(.number.locale(locale)), locale: locale)) }
+            Text(FeatureOnboardingStrings.text("copy.e0e8eed587f2", locale: locale))
+            action(FeatureOnboardingStrings.text("copy.2fcb31c28a31", locale: locale), .continueUnlock)
         case .localUnlock:
             if state.unlockingSavedAccount {
-                TextField("Local account ID", text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
-            } else { Text("Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt.") }
+                TextField(FeatureOnboardingStrings.text("copy.68295d2e45cf", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
+            } else { Text(FeatureOnboardingStrings.text("copy.0896fec51d88", locale: locale)) }
             #if os(iOS)
-            SecureOnboardingForm(labels: (state.unlockingSavedAccount ? [] : state.positions.enumerated().map { ("word\($0.offset + 1)", "Word \($0.element)") }) + [("passphrase", "Local passphrase")], enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
-                .frame(minHeight: state.unlockingSavedAccount ? 120 : 260)
+            SecureOnboardingForm(labels: (state.unlockingSavedAccount ? [] : state.positions.enumerated().map { ("word\($0.offset + 1)", FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }) + [("passphrase", FeatureOnboardingStrings.text("copy.5cafb0b934b6", locale: locale))], enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
+                .frame(minHeight: theme.composer_min * (state.unlockingSavedAccount ? 3 : 6))
             #else
-            Text("Complete secure input in the iOS app.")
+            Text(FeatureOnboardingStrings.text("copy.a1bcb108941e", locale: locale))
             #endif
         case .recover:
             if let metadata = state.metadata, let anchor = metadata.anchor {
                 Text(anchor).textSelection(.enabled)
-                Text("Confirm this account fingerprint through a trusted channel. Recovery revokes all other devices. Enter your phrase only for recovery you started yourself.")
-                Toggle("I checked this account fingerprint", isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
+                Text(FeatureOnboardingStrings.text("copy.103d79748699", locale: locale))
+                Toggle(FeatureOnboardingStrings.text("copy.cdfc37ac7863", locale: locale), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
                 #if os(iOS)
-                SecureOnboardingForm(labels: [("phrase", "Recovery phrase"), ("passphrase", "Existing local passphrase")], enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: 180)
+                SecureOnboardingForm(labels: [("phrase", FeatureOnboardingStrings.text("copy.41edd3f47328", locale: locale)), ("passphrase", FeatureOnboardingStrings.text("copy.04eef37abc74", locale: locale))], enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
                 #endif
             } else {
-                TextField("Existing local account ID", text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
-                Text("Recovery resumes an account already stored on this phone.")
-                action("Read account fingerprint", .beginRecovery)
+                TextField(FeatureOnboardingStrings.text("copy.4a248ed11c79", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
+                Text(FeatureOnboardingStrings.text("copy.10f868719bac", locale: locale))
+                action(FeatureOnboardingStrings.text("copy.63466cf4d5b0", locale: locale), .beginRecovery)
             }
         case .complete:
-            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(.caption); Text(account.networking == .live ? "Connected" : "Local account is ready. Network connection has not been confirmed.") }
-            action("Continue", .done)
+            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(theme.captionFont); Text(account.networking == .live ? FeatureOnboardingStrings.text("copy.22965568d22a", locale: locale) : FeatureOnboardingStrings.text("copy.0b547581bb84", locale: locale)) }
+            action(FeatureOnboardingStrings.text("copy.31fbef162594", locale: locale), .done)
         case .link:
-            Text("Linking needs a registered phone pairing coordinator. This build does not create a QR code or pairing code.")
-        case .verifying, .restoring, .saving: ProgressView(state.stage.title)
+            Text(FeatureOnboardingStrings.text("copy.a93020e0cfed", locale: locale))
+        case .verifying, .restoring, .saving: ProgressView(state.stage.title(locale: locale))
         case .connectionFailed, .verificationFailed, .saveFailed, .configuration, .offline:
-            Text("Your last confirmed connection is preserved.")
-            action("Edit node address", .customNode)
+            Text(FeatureOnboardingStrings.text("copy.07af72e6141b", locale: locale))
+            action(FeatureOnboardingStrings.text("copy.1b2db98c4d8d", locale: locale), .customNode)
         }
     }
     @ViewBuilder private var nodeChoices: some View {
-        if state.nodes.isEmpty { Text("No saved node is available. You can prepare local keys and configure a node separately.") }
+        if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("copy.cf339d96c54f", locale: locale)) }
         ForEach(state.nodes) { node in
             Button { onAction(.nodeSelected(node.id)) } label: { Label(node.origin, systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
                 .disabled(!node.enabled || state.busy)
         }
-        action("Other node", .customNode)
+        action(FeatureOnboardingStrings.text("copy.2afe8ba12d97", locale: locale), .customNode)
     }
     private func action(_ title: String, _ action: OnboardingAction) -> some View {
-        RFActionButton(id: title, label: title, kind: .primary, disabled: state.busy, theme: RFTheme.adaptive(scheme)) { onAction(action) }
+        RFActionButton(id: title, label: title, kind: .primary, disabled: state.busy, theme: theme) { onAction(action) }
     }
 }

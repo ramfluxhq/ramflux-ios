@@ -18,7 +18,7 @@ import RFDesign
     private var appearance: AppearanceMode { composition.appearance }
     var body: some Scene {
         WindowGroup {
-            AppShellHost(coordinator: coordinator, tabContent: { tab, account in
+            RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
                 if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
                 if tab == .more { return AnyView(SettingsHost(coordinator: composition.settings(account: account, route: .settings))) }
                 return nil
@@ -26,17 +26,17 @@ import RFDesign
                 switch route {
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
-                    else { return AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading a conversation.")) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
                 case .contacts, .strangers, .contact, .safetyNumber:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
                         let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
-                    } else { return AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading contacts.")) }
+                    } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.8a07f13cdb0d"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
                 default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
                 }
             }
-                .preferredColorScheme(appearance == .system ? nil : (appearance == .dark ? .dark : .light))
+            }
                 .onAppear { composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }

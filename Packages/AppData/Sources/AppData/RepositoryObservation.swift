@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import RamfluxCore
+import Synchronization
 public enum RepositoryUpdate: Equatable, Sendable { case invalidated, failed(AppFailure) }
 /// One visible feature owns this observation. Replacement joins the previous native subscription.
 public final class RepositoryObservation: Sendable {
     public let stream: AsyncStream<RepositoryUpdate>
     private let task: Task<Void, Never>?
+    private let onStop: @Sendable () async -> Void
+    private let stopCalled = Mutex(false)
     private let subscription: EventSubscription?
     init(subscription: EventSubscription) {
-        self.subscription = subscription
+        onStop = {}; self.subscription = subscription
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); stream = pair.stream
         pair.continuation.onTermination = { _ in subscription.cancel() }
         task = Task {
@@ -21,9 +24,9 @@ public final class RepositoryObservation: Sendable {
             pair.continuation.finish(); await subscription.stop()
         }
     }
-    public init(failure: AppFailure) { subscription = nil; task = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
-    public init(stream: AsyncStream<RepositoryUpdate>) { subscription = nil; task = nil; self.stream = stream }
-    public func stop() async { task?.cancel(); subscription?.cancel(); await task?.value; await subscription?.stop() }
+    public init(failure: AppFailure) { onStop = {}; subscription = nil; task = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
+    public init(stream: AsyncStream<RepositoryUpdate>, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; subscription = nil; task = nil; self.stream = stream }
+    public func stop() async { task?.cancel(); subscription?.cancel(); await task?.value; await subscription?.stop(); let call = stopCalled.withLock { value in let old = value; value = true; return !old }; if call { await onStop() } }
     deinit { task?.cancel(); subscription?.cancel() }
 }
 public actor NativeUpdateSource {

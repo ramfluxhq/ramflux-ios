@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import PackageDescription
-let package = Package(name: "RFDesign", platforms: [.iOS(.v18), .macOS(.v15)],
+let package = Package(name: "RFDesign", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
     products: [.library(name: "RFDesign", targets: ["RFDesign"])], targets: [
-        .target(name: "RFDesign", path: ".", exclude: ["Generated/.ramflux-design-manifest.json"], sources: ["Generated", "Sources"]),
+        .target(name: "RFDesign", path: ".", exclude: ["Generated/.ramflux-design-manifest.json"], sources: ["Generated", "Sources"], resources: [.copy("Resources/Fonts"), .copy("Resources/Themes"), .process("Resources/Localizable.xcstrings")]),
         .testTarget(name: "RFDesignTests", dependencies: ["RFDesign"]),
     ], swiftLanguageModes: [.v6])

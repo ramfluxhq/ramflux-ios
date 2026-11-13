@@ -55,6 +55,8 @@ targets:
     info:
       path: build/App-Info.plist
       properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, zh-CN]
         CFBundleURLTypes:
           - CFBundleURLName: org.ramflux.ios.navigation
             CFBundleURLSchemes: [ramflux]

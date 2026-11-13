@@ -7,7 +7,7 @@ import FeatureChat
     func testNativeTimelineAndComposerAcrossMajorStates() {
         for (index, state) in ChatPreviews.states.enumerated() {
             for scheme in [ColorScheme.light, .dark] {
-                SnapshotCapture.record(ChatScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "chat-\(index)-\(scheme)", test: self)
+                SnapshotCapture.record(ChatScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "chat-\(index)-\(scheme)", scheme: scheme, test: self)
             }
         }
     }

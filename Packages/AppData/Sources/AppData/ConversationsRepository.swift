@@ -20,12 +20,12 @@ public struct NativeConversationsRepository: ConversationsRepository {
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
         } catch { return .failure(AppFailure.map(error)) }
     }
-    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable("Local message search is not available in the account service yet.")) }
+    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable(AppDataStrings.text("copy.6bf512f2eab9"))) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
 }
 public struct UnavailableConversationsRepository: ConversationsRepository {
     public init() {}
     public func list(account: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.sdkUnavailable) }
-    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable("Local message search is not available yet.")) }
+    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable(AppDataStrings.text("copy.61e1cb437dd3"))) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
 }

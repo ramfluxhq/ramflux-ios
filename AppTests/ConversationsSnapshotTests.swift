@@ -7,7 +7,7 @@ import FeatureConversations
     func testInboxStatesInBothThemes() {
         for (index, state) in ConversationsPreviews.states.enumerated() {
             for scheme in [ColorScheme.light, .dark] {
-                SnapshotCapture.record(ConversationsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "inbox-\(index)-\(scheme)", test: self)
+                SnapshotCapture.record(ConversationsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "inbox-\(index)-\(scheme)", scheme: scheme, test: self)
             }
         }
     }

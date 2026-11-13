@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
+import RFDesign
 import AppData
 public enum OnboardingPreviews {
     public static var states: [OnboardingState] { OnboardingStage.allCases.map { stage in
@@ -18,3 +19,7 @@ public enum OnboardingPreviews {
         OnboardingScreen(state: state, onAction: { _ in }).frame(width: 390, height: 844)
     } } }
 }
+
+#Preview("Chinese") { RFThemeScope { ScrollView { VStack { ForEach(OnboardingPreviews.states.indices, id: \.self) { index in OnboardingScreen(state: OnboardingPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "zh-CN")) }
+
+#Preview("Expanded") { RFThemeScope { ScrollView { VStack { ForEach(OnboardingPreviews.states.indices, id: \.self) { index in OnboardingScreen(state: OnboardingPreviews.states[index], onAction: { _ in }).frame(height: 844) } } } }.environment(\.locale, Locale(identifier: "en-XA")) }

@@ -6,10 +6,11 @@ import RFDesign
 
 /// Navigation adapter only; all asynchronous work belongs to AppShellViewModel.
 public struct AppShellHost: View {
+    @Environment(\.locale) private var locale
     @Bindable public var coordinator: AppShellCoordinator
     private let tabContent: (AppTab, String?) -> AnyView?
     private let destination: (AppRoute) -> AnyView
-    public init(coordinator: AppShellCoordinator, tabContent: @escaping (AppTab, String?) -> AnyView? = { _, _ in nil }, destination: @escaping (AppRoute) -> AnyView = { _ in AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message)) }) { self.coordinator = coordinator; self.destination = destination; self.tabContent = tabContent }
+    public init(coordinator: AppShellCoordinator, tabContent: @escaping (AppTab, String?) -> AnyView? = { _, _ in nil }, destination: @escaping (AppRoute) -> AnyView = { _ in AnyView(RFUnavailableView(title: FeatureAppShellStrings.text("copy.28f2d4300544"), message: UnavailableReason.featureNotInstalled.message)) }) { self.coordinator = coordinator; self.destination = destination; self.tabContent = tabContent }
     public var body: some View {
         NavigationStack(path: $coordinator.path) {
             AppShellScreen(state: coordinator.viewModel.state, onAction: coordinator.send, featureContent: tabContent(coordinator.viewModel.state.tab, coordinator.viewModel.state.session.activeAccountID))
@@ -21,6 +22,6 @@ public struct AppShellHost: View {
         }
     }
     private func title(_ route: AppRoute) -> String {
-        switch route { case .settings: "Settings"; case .conversation: "Conversation"; case .devices: "My devices"; case .contacts: "Contacts"; default: "Ramflux" }
+        switch route { case .settings: FeatureAppShellStrings.text("copy.74a883a037bc", locale: locale); case .conversation: "Conversation"; case .devices: FeatureAppShellStrings.text("copy.6f3cba5e5a8e", locale: locale); case .contacts: FeatureAppShellStrings.text("copy.b450645debe2", locale: locale); default: FeatureAppShellStrings.text("copy.28f2d4300544", locale: locale) }
     }
 }

@@ -18,7 +18,7 @@ import UIKit
             field.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
             editors.append((id, field)); stack.addArrangedSubview(field)
         }
-        button.setTitle("Confirm once", for: .normal); button.addTarget(self, action: #selector(commit), for: .touchUpInside)
+        button.setTitle(RFDesignStrings.text("copy.a2538eaa411f"), for: .normal); button.addTarget(self, action: #selector(commit), for: .touchUpInside)
         button.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true; stack.addArrangedSubview(button); addSubview(stack)
         NSLayoutConstraint.activate([stack.topAnchor.constraint(equalTo: topAnchor), stack.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor), stack.leadingAnchor.constraint(equalTo: leadingAnchor), stack.trailingAnchor.constraint(equalTo: trailingAnchor)])
     }

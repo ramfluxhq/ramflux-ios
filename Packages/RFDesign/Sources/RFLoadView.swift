@@ -3,7 +3,8 @@
 import SwiftUI
 
 public struct RFFailureView: View {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public let title: String
     public let message: String
     public let retry: (() -> Void)?
@@ -11,17 +12,17 @@ public struct RFFailureView: View {
         self.title = title; self.message = message; self.retry = retry
     }
     public var body: some View {
-        let theme = RFTheme.adaptive(scheme)
         RFStateBlock(title: title, description: message, kind: .error, theme: theme) {
-            if let retry { Button("Try again", action: retry).buttonStyle(.bordered) }
+            if let retry { Button(RFDesignStrings.text("copy.d8b8392e2c54", locale: locale), action: retry).buttonStyle(.bordered) }
         }.accessibilityElement(children: .contain)
     }
 }
 public struct RFLoadingView: View {
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public init() {}
     public var body: some View {
-        RFStateBlock(title: "Loading", description: "Reading your local records", kind: .loading,
-                     theme: RFTheme.adaptive(scheme)) { EmptyView() }
+        RFStateBlock(title: RFDesignStrings.text("copy.dc380888c4e2", locale: locale), description: RFDesignStrings.text("copy.c771af79a1fe", locale: locale), kind: .loading,
+                     theme: theme) { EmptyView() }
     }
 }

@@ -3,30 +3,30 @@
 import SwiftUI
 
 public extension RFTheme {
-    static var light: Self { RFDesign.light }
-    static var dark: Self { RFDesign.dark }
-    static func adaptive(_ scheme: ColorScheme) -> Self { scheme == .dark ? RFDesign.dark : RFDesign.light }
+    static var light: Self { RFDesign.light.registeredTheme }
+    static var dark: Self { RFDesign.dark.registeredTheme }
+    static func adaptive(_ scheme: ColorScheme) -> Self { scheme == .dark ? .dark : .light }
     var bodyFont: Font { .custom(font, size: size_mobile_body, relativeTo: .body) }
     var captionFont: Font { .custom(font, size: size_mobile_caption, relativeTo: .caption) }
     var pageFont: Font { .custom(font, size: size_page, relativeTo: .title) }
 }
 public struct RFPage<Content: View>: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     private let content: Content
     public init(@ViewBuilder content: () -> Content) { self.content = content() }
     public var body: some View {
-        let theme = RFTheme.adaptive(colorScheme)
         ZStack { theme.bg.ignoresSafeArea(); content }
             .font(theme.bodyFont).foregroundStyle(theme.text).tint(theme.primary)
     }
 }
 public struct RFUnavailableView: View {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
     public let title: String
     public let message: String
     public init(title: String, message: String) { self.title = title; self.message = message }
     public var body: some View {
-        let theme = RFTheme.adaptive(colorScheme)
         RFPage {
             RFStateBlock(title: title, description: message, kind: .empty, theme: theme) { EmptyView() }
                 .frame(maxWidth: theme.column_max)

@@ -69,10 +69,10 @@ public struct NativeSettingsRepository: SettingsRepository {
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: SettingsUnavailable) -> AppFailure {
         switch capability {
-        case .openAccount: .notAvailable("Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.")
-        case .pairing: .notAvailable("The phone pairing coordinator is not registered. No device code or authorization has been created.")
-        case .connectedServices: .notAvailable("Advanced connected-service configuration is managed on your desktop.")
-        case .diagnosticExport: .notAvailable("Sanitized diagnostic export is not available in this build. No private account data has been shared.")
+        case .openAccount: .notAvailable(AppDataStrings.text("copy.b72e06e9393e"))
+        case .pairing: .notAvailable(AppDataStrings.text("copy.70336657918f"))
+        case .connectedServices: .notAvailable(AppDataStrings.text("copy.cdf40b9785de"))
+        case .diagnosticExport: .notAvailable(AppDataStrings.text("copy.e1f1db374598"))
         }
     }
 }

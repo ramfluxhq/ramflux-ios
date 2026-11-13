@@ -3,6 +3,11 @@
 import AppData
 public struct ContactsState: Equatable, Sendable {
     public var mode: ContactsMode
+    public var visibleContacts: [ContactRecord] = []
+    public var visibleRequests: [ContactRequestRecord] = []
+    public var safetyPrincipal: String?
+    public var safetyStale = false
+    public var pendingMutation: PendingContactMutation?
     public var contacts: [ContactRecord] = []
     public var requests: [ContactRequestRecord] = []
     public var query = ""

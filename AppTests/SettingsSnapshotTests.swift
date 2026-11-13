@@ -6,7 +6,7 @@ import FeatureSettings
 @MainActor final class SettingsSnapshotTests: XCTestCase {
     func testSettingsDevicesAndBackupStates() {
         for (index, state) in SettingsPreviews.states.enumerated() { for scheme in [ColorScheme.light, .dark] {
-            SnapshotCapture.record(SettingsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "settings-\(index)-\(scheme)", test: self)
+            SnapshotCapture.record(SettingsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "settings-\(index)-\(scheme)", scheme: scheme, test: self)
         } }
     }
 }
