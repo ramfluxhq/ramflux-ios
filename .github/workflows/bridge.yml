@@ -15,6 +15,7 @@ jobs:
         working-directory: ios
     steps:
       - name: Select pinned installed Xcode
+        working-directory: .
         run: |
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
