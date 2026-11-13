@@ -36,7 +36,7 @@ public struct NativeTasksRepository: TasksRepository {
             do { response = try await gateway.call(kind == .accept ? .taskAccept : kind == .decline ? .taskDecline : .taskCancel, account: account, body: .object(body), operationID: attempt.operationID) }
             catch { return .failure(AppFailure.map(error)) }
             guard response["task_id"] == .string(selected.id), case .bool(let accepted) = response["accepted"], case .bool(let pending) = response["pending"] else { return .failure(.outcomeUnknown) }
-            guard accepted || pending else { return .failure(.failed) }
+            guard accepted || pending else { return .failure(.invalidData) }
             return .success(TaskMutationOutcome(taskID: selected.id, pending: pending))
         }
     }

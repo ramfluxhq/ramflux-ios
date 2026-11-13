@@ -140,12 +140,20 @@
 	<string>节点已保存</string>
 	<key>copy.f23cb9253e3e</key>
 	<string>显示恢复助记词（仅一次）</string>
+	<key>node.confirmFingerprint</key>
+	<string>确认指纹并固定节点</string>
 	<key>node.confirmOperator</key>
 	<string>确认运营方公钥并保存节点</string>
+	<key>node.editOperatorKey</key>
+	<string>修改运营者公钥</string>
+	<key>node.fingerprintInstructions</key>
+	<string>独立获取的运营者公钥已匹配。请核对此节点指纹，然后明确确认固定。</string>
 	<key>node.operatorInstructions</key>
-	<string>在核对指纹并输入节点运营方提供的公钥之前，发现结果不可信。HTTP 仅用于带签名的发现和公开记录，不代表节点身份已验证。</string>
+	<string>请输入通过独立渠道从运营者获取的节点公钥。此处不会提供发现的公钥供复制。</string>
 	<key>node.operatorKey</key>
 	<string>运营方公钥</string>
+	<key>node.reviewFingerprint</key>
+	<string>核对指纹</string>
 	<key>recovery.word.position</key>
 	<string>第 %@ 个词</string>
 </dict>

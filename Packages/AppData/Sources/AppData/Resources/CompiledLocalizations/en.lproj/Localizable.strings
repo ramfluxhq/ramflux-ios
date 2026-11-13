@@ -127,7 +127,7 @@
 	<key>onboarding.refusal.title</key>
 	<string>Account setup needs attention</string>
 	<key>onboarding.sdkRefusal</key>
-	<string>The SDK refused account setup (code %@). Keep the current account state and check the node or app configuration.</string>
+	<string>The SDK refused this request (code %@). Keep the current state and check the node or app configuration.</string>
 	<key>onboarding.vaultBusy</key>
 	<string>The private Keychain is busy. Finish the current account operation and try again.</string>
 	<key>onboarding.vaultCorrupt</key>
@@ -142,6 +142,12 @@
 	<string>The private Keychain provider is unavailable on this device.</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@: %2$@</string>
+	<key>request.localFailure</key>
+	<string>A local system operation could not complete. Keep the current state; reopen the screen to review it before retrying.</string>
+	<key>request.localStorage</key>
+	<string>The local file operation failed. Check available storage and file access before trying again.</string>
+	<key>request.refusal.title</key>
+	<string>Request could not complete</string>
 	<key>settings.mobileBackup</key>
 	<string>Backup and restore are available on the desktop client. No backup task can be started from this phone.</string>
 	<key>status.accept</key>

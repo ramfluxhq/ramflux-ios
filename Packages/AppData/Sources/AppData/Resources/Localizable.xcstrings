@@ -1495,13 +1495,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The SDK refused account setup (code %@). Keep the current account state and check the node or app configuration."
+            "value": "The SDK refused this request (code %@). Keep the current state and check the node or app configuration."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "SDK 拒绝了账户设置（代码 %@）。请保留当前账户状态，并检查节点或应用配置。"
+            "value": "SDK 拒绝了此请求（代码 %@）。请保留当前状态，并检查节点或应用配置。"
           }
         }
       }
@@ -1518,6 +1518,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "账户设置响应与支持的 SDK 合约不一致。请更新应用后重试。"
+          }
+        }
+      }
+    },
+    "request.refusal.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request could not complete"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求未能完成"
+          }
+        }
+      }
+    },
+    "request.localStorage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The local file operation failed. Check available storage and file access before trying again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地文件操作失败。请检查可用存储空间和文件访问权限后再重试。"
+          }
+        }
+      }
+    },
+    "request.localFailure": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A local system operation could not complete. Keep the current state; reopen the screen to review it before retrying."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地系统操作未能完成。请保留当前状态；重新打开页面核对后再决定是否重试。"
           }
         }
       }

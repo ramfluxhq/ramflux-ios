@@ -1127,13 +1127,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Discovery is untrusted until you compare this fingerprint and enter the public key supplied by the node operator. HTTP is used only for signed discovery and public records; it does not establish the node’s identity."
+            "value": "Enter the node public key obtained independently from the operator. The discovered key is never offered for copying."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "在核对指纹并输入节点运营方提供的公钥之前，发现结果不可信。HTTP 仅用于带签名的发现和公开记录，不代表节点身份已验证。"
+            "value": "请输入通过独立渠道从运营者获取的节点公钥。此处不会提供发现的公钥供复制。"
           }
         }
       }
@@ -1166,6 +1166,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认运营方公钥并保存节点"
+          }
+        }
+      }
+    },
+    "node.reviewFingerprint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review fingerprint"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核对指纹"
+          }
+        }
+      }
+    },
+    "node.confirmFingerprint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm fingerprint and pin node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认指纹并固定节点"
+          }
+        }
+      }
+    },
+    "node.fingerprintInstructions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The independent operator key matches. Check this node fingerprint, then explicitly confirm the pin."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "独立获取的运营者公钥已匹配。请核对此节点指纹，然后明确确认固定。"
+          }
+        }
+      }
+    },
+    "node.editOperatorKey": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit operator key"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修改运营者公钥"
           }
         }
       }
