@@ -29,15 +29,17 @@ import RFDesign
         let columns = bounds.width >= size * 20 ? 2 : 1
         let rows = 24 / columns
         let font = CTFontCreateWithName(fontName as CFString, size, nil)
+        let lineHeight = CTFontGetAscent(font) + CTFontGetDescent(font) + CTFontGetLeading(font) + size * 0.6
         context.setFillColor(ink.cgColor)
         display?.withDrawingBytes { raw in
-            var column = 0, word = 0
+            var advanceX: CGFloat = 0, word = 0
             for byte in raw {
-                if byte == 32 { word += 1; column = 0; continue }
+                if byte == 32 { word += 1; advanceX = 0; continue }
                 var character = UniChar(byte), glyph = CGGlyph(0)
                 _ = CTFontGetGlyphsForCharacters(font, &character, &glyph, 1)
-                var point = CGPoint(x: CGFloat(word / rows) * bounds.width / CGFloat(columns) + CGFloat(column) * size * 0.62, y: bounds.height - size - CGFloat(word % rows) * size * 1.6)
-                CTFontDrawGlyphs(font, &glyph, &point, 1, context); column += 1
+                var point = CGPoint(x: CGFloat(word / rows) * bounds.width / CGFloat(columns) + advanceX, y: bounds.height - size - CGFloat(word % rows) * lineHeight)
+                CTFontDrawGlyphs(font, &glyph, &point, 1, context)
+                var advance = CGSize.zero; _ = CTFontGetAdvancesForGlyphs(font, .horizontal, &glyph, &advance, 1); advanceX += advance.width
             }
         }
     }

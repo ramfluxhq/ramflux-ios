@@ -17,7 +17,9 @@ public struct RecoveryPhraseView: UIViewRepresentable {
         let width = proposal.width ?? 320
         let size = UIFontMetrics(forTextStyle: .body).scaledValue(for: theme.size_mobile_body)
         let columns = width >= size * 20 ? 2 : 1
-        return CGSize(width: width, height: CGFloat(24 / columns) * size * 1.6 + size)
+        let font = CTFontCreateWithName(DesignFonts.face(for: theme.font_mono) as CFString, size, nil)
+        let lineHeight = CTFontGetAscent(font) + CTFontGetDescent(font) + CTFontGetLeading(font) + size * 0.6
+        return CGSize(width: width, height: CGFloat(24 / columns) * lineHeight + size)
     }
     public static func dismantleUIView(_ view: RecoveryGlyphView, coordinator: ()) { view.display = nil; view.setNeedsDisplay() }
 }
