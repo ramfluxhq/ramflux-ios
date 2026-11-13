@@ -84,6 +84,10 @@ import AppData
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
     }
+    private func revokeSafety() {
+        readID &+= 1; read?.cancel(); state.loading = false
+        state.safety = nil; state.safetyPrincipal = nil; state.safetyStale = true
+    }
     private func projectVisibleRows() {
         state.visibleContacts = state.contacts.filter { state.query.isEmpty || $0.displayName.localizedCaseInsensitiveContains(state.query) || $0.id.localizedCaseInsensitiveContains(state.query) }
         state.visibleRequests = state.requests.filter { $0.direction == (state.mode == .sent ? "outbound" : "inbound") }
@@ -94,9 +98,9 @@ import AppData
             let observation = await repository.observe(account: account)
             for await update in observation.stream {
                 guard !Task.isCancelled, let self else { break }
-                switch update { case .invalidated: if self.state.loading { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.state.failure = failure }
+                switch update { case .invalidated: if self.state.loading { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.state.failure = failure; self.revokeSafety() }
             }
-            await observation.stop(); if let self, self.watchID == current { self.observer = nil }
+            await observation.stop(); if let self, self.watchID == current { self.observer = nil; self.revokeSafety() }
         }
     }
     public func settle() async { await mutation?.value; while true { let current = readID; await read?.value; if current == readID { return } } }

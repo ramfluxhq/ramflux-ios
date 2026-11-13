@@ -273,6 +273,70 @@
           }
         }
       }
+    },
+    "agents.nameRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a name."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入名称。"
+          }
+        }
+      }
+    },
+    "agents.nameLimit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use at most 40 Unicode scalars and 256 UTF-8 bytes."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名称最多 40 个 Unicode 标量且不超过 256 个 UTF-8 字节。"
+          }
+        }
+      }
+    },
+    "agents.goalRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a responsibility."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入职责。"
+          }
+        }
+      }
+    },
+    "agents.goalLimit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Responsibility must be at most 256 UTF-8 bytes."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "职责不得超过 256 个 UTF-8 字节。"
+          }
+        }
+      }
     }
   }
 }

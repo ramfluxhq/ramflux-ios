@@ -5,7 +5,7 @@ import AppData
 import RFDesign
 public enum AgentsPreviews {
     public static var states: [AgentsState] { AgentCapability.allCases.map { mode in
-        var state = AgentsState(mode: mode); state.failure = .notAvailable(AppDataStrings.text("agents.unavailable")); return state
+        var state = AgentsState(mode: mode); state.failure = .unavailableResource("agents.unavailable"); return state
     } }
 }
 #Preview("Agents") { RFThemeScope { AgentsScreen(state: AgentsPreviews.states[0], onAction: { _ in }) } }

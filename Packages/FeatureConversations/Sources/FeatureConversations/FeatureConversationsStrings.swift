@@ -9,6 +9,16 @@ public enum FeatureConversationsStrings {
         let value = String(localized: String.LocalizationValue(key), bundle: localized, locale: locale)
         return locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA" ? "［" + value + " · " + value + "］" : value
     }
+    public static func unread(_ count: UInt, locale: Locale) -> String {
+        guard count > 0 else { return "" }
+        let expanded = locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA"
+        let lookupLocale = expanded ? Locale(identifier: "en") : locale
+        let source: Bundle = .module
+        let language = Bundle.preferredLocalizations(from: source.localizations, forPreferences: [lookupLocale.identifier.replacingOccurrences(of: "_", with: "-")]).first ?? "en"
+        let localized = source.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? source
+        let value = String(localized: "conversations.unread \(count)", bundle: localized, locale: lookupLocale)
+        return expanded ? "［" + value + " · " + value + "］" : value
+    }
     public static func format(_ key: String, _ arguments: CVarArg..., locale: Locale = .current) -> String {
         let expanded = locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA"
         let value = String(format: text(key, locale: expanded ? Locale(identifier: "en") : locale), locale: locale, arguments: arguments)

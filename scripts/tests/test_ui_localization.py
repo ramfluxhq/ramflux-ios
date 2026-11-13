@@ -22,3 +22,19 @@ class LocalizationGuardTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('literal UI copy', result.stderr)
             self.assertIn('en/zh-CN keys differ', result.stderr)
+
+    def test_generated_accessibility_and_plural_signature_drift_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'scripts').mkdir()
+            shutil.copyfile(Path(__file__).resolve().parents[1] / 'check-ui-localization.py', root / 'scripts/check-ui-localization.py')
+            generated = root / 'Packages/RFDesign/Generated'
+            generated.mkdir(parents=True)
+            (generated / 'Row.swift').write_text('String(localized: "Unread messages")')
+            (root / 'App').mkdir()
+            (root / 'App/Localizable.xcstrings').write_text(json.dumps({'strings': {'key %lld': {'localizations': {'en': {'variations': {'plural': {'other': {'stringUnit': {'value': '%lld messages'}}}}}, 'zh-CN': {'variations': {'plural': {'one': {'stringUnit': {'value': '%@ message'}}}}}}}}}))
+            result = subprocess.run(['python3', str(root / 'scripts/check-ui-localization.py')], capture_output=True, text=True, timeout=5)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('generated accessibility must receive host-localized text', result.stderr)
+            self.assertIn('missing plural other', result.stderr)
+            self.assertIn('format placeholders differ', result.stderr)

@@ -6,8 +6,13 @@ import AppData
 import RFDesign
 public enum CallsPreviews {
     public static var states: [CallsState] {
-        let rows = [CallPhase.outgoingRinging, .incomingRinging, .connecting, .active, .ended, .unknown].enumerated().map { index, phase in
-            CallRecord(id: "preview-call-\(index)", conversationID: "preview-conversation", peerID: "preview-peer", direction: phase == .incomingRinging ? .incoming : .outgoing, phase: phase, endReason: phase == .ended ? "completed" : nil, sequence: UInt64(index), createdAt: 1_800_000_000, answeredAt: phase == .ended ? 1_800_000_010 : nil, endedAt: phase == .ended ? 1_800_000_071 : nil)
+        let phases: [CallPhase] = [.outgoingRinging, .incomingRinging, .connecting, .active, .ended, .unknown]
+        let rows: [CallRecord] = phases.enumerated().map { index, phase -> CallRecord in
+            let direction: CallDirection = phase == .incomingRinging ? .incoming : .outgoing
+            let reason: String? = phase == .ended ? "completed" : nil
+            let answered: Int64? = phase == .ended ? 1_800_000_010 : nil
+            let ended: Int64? = phase == .ended ? 1_800_000_071 : nil
+            return CallRecord(id: "preview-call-\(index)", conversationID: "preview-conversation", peerID: "preview-peer", direction: direction, phase: phase, endReason: reason, sequence: UInt64(index), createdAt: 1_800_000_000, answeredAt: answered, endedAt: ended)
         }
         var history = CallsState(); history.calls = rows; history.visibleCalls = rows; history.fresh = true
         var permission = CallsState(mode: .permissions); permission.microphone = .denied

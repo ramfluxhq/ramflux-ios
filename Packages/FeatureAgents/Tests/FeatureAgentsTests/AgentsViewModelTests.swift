@@ -13,7 +13,14 @@ import AppData
     }
     @Test func concealFencesLateAvailabilityAndDraftInputsAreBounded() async {
         let vm = AgentsViewModel(repository: UnavailableAgentsRepository(), account: "a", emit: { _ in })
-        vm.send(.name(String(repeating: "x", count: 300))); #expect(vm.state.draft.name.count == 256)
+        vm.send(.name(String(repeating: "x", count: 300))); #expect(vm.state.draftIssue == .nameLimit)
         vm.send(.appeared); vm.send(.disappeared); await vm.settle(); #expect(vm.state == AgentsState())
+    }
+    @Test func nameScalarAndResponsibilityByteBoundsMatchFinalContract() {
+        var draft = AgentDraft(); draft.name = String(repeating: "界", count: 40); draft.goal = String(repeating: "a", count: 256); #expect(draft.issue == nil)
+        draft.name += "界"; #expect(draft.issue == .nameLimit)
+        draft.name = "Research"; draft.goal = String(repeating: "界", count: 85); #expect(draft.issue == nil)
+        draft.goal += "界"; #expect(draft.issue == .goalLimit)
+        draft.goal = ""; #expect(draft.issue == .goalRequired)
     }
 }

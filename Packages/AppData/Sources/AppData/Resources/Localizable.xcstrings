@@ -1265,6 +1265,70 @@
           }
         }
       }
+    },
+    "FeatureChat.copy.8a7b78a5873c": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account service reported delivery failed. The original operation is retained."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户服务报告发送失败。原始操作已保留。"
+          }
+        }
+      }
+    },
+    "FeatureOnboarding.copy.d59626702d22": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup expired. Start a new account ceremony."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置已过期。请重新开始账户设置。"
+          }
+        }
+      }
+    },
+    "FeatureOnboarding.copy.5fca79c1258a": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This SDK has no registered phone pairing coordinator. No pairing code has been created."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 SDK 没有已注册的手机配对服务。未创建配对码。"
+          }
+        }
+      }
+    },
+    "settings.mobileBackup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup and restore are available on the desktop client. No backup task can be started from this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份和恢复请使用桌面客户端。此手机不会启动备份任务。"
+          }
+        }
+      }
     }
   }
 }

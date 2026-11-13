@@ -46,7 +46,7 @@ public struct NativeCallsRepository: CallsRepository {
     // merely to render a call screen. Signaling history and explicit end actions remain real.
     public func start(account: String, conversation: String) async -> RepositoryResult<CallRecord> { .failure(audioUnavailable()) }
     public func answer(account: String, expected: CallRecord) async -> RepositoryResult<CallRecord> { .failure(audioUnavailable()) }
-    public func audioUnavailable() -> AppFailure { .notAvailable(AppDataStrings.text("calls.audioUnavailable")) }
+    public func audioUnavailable() -> AppFailure { .unavailableResource("calls.audioUnavailable") }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     private static func record(_ row: JSONValue) throws -> CallRecord {
         guard let sequence = unsigned(row["seq"]), let generation = unsigned(row["media_generation"]),

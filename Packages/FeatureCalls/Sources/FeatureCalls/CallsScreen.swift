@@ -11,6 +11,11 @@ public struct CallsScreen: View {
     public init(state: CallsState, onAction: @escaping (CallsAction) -> Void) { self.state = state; self.onAction = onAction }
     private func copy(_ key: String) -> String { FeatureCallsStrings.text("calls." + key, locale: locale) }
     public var body: some View {
+        if case .detail = state.mode, let row = state.selected {
+            CallSessionScreen(state: state, row: row, onAction: onAction) { detail(row) }
+        } else { regularBody }
+    }
+    private var regularBody: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: {
                 Button(copy("history")) { onAction(.mode(.history)) }
@@ -69,14 +74,7 @@ public struct CallsScreen: View {
             if let reason = row.endReason { LabeledContent(copy("endReason"), value: copy(["declined", "completed", "cancelled", "missed", "busy", "timeout", "failed", "answered_elsewhere"].contains(reason) ? reason : "reasonUnknown")) }
             if let reason = row.failureReason { LabeledContent(copy("localFailure"), value: copy(reason == .unknown ? "reasonUnknown" : reason.rawValue)) }
             if let reason = row.peerReason { LabeledContent(copy("peerFailure"), value: copy(reason == .unknown ? "reasonUnknown" : reason.rawValue)) }
-            if row.canDecline {
-                Button(copy("answer"), systemImage: "phone") { onAction(.answer) }.disabled(state.busy || state.pending != nil)
-                Button(copy("decline"), role: .destructive) { onAction(.signal(.decline, callID: row.id, sequence: row.sequence)) }.disabled(!state.canDecline)
-            }
-            if row.canHangup { Button(copy("hangup"), role: .destructive) { onAction(.signal(.hangup, callID: row.id, sequence: row.sequence)) }.disabled(!state.canHangup) }
-            if row.phase == .active || row.phase == .connecting {
-                ForEach(["mute", "speaker", "share"], id: \.self) { key in Button(copy(key)) { onAction(.audioControl) } }
-            }
+
         }
     }
     private func time(_ key: String, _ timestamp: Int64) -> some View {

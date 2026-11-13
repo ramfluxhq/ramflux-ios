@@ -135,7 +135,7 @@ public struct NativeGroupsRepository: GroupsRepository {
     public func unavailable(_ capability: GroupUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: GroupUnavailable) -> AppFailure {
         let key: String = switch capability { case .managementPermission: "groups.unavailable.permission"; case .threads: "groups.unavailable.threads"; case .ownershipTransfer: "groups.unavailable.transfer"; case .leave: "groups.unavailable.leave"; case .historyPolicy: "groups.unavailable.history"; case .archive: "groups.unavailable.archive" }
-        return .notAvailable(AppDataStrings.text(key))
+        return .unavailableResource(key)
     }
     private static func record(_ row: JSONValue) throws -> GroupRecord {
         let epoch: UInt64?

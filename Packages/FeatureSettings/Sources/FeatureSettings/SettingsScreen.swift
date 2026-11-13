@@ -13,6 +13,11 @@ public struct SettingsScreen: View {
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             RFPageHeader(title: title, subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { EmptyView() })
+            if let pending = state.pendingMutation {
+                Text(FeatureSettingsStrings.text("settings.pending", locale: locale))
+                Text(pending.operationID).font(theme.captionFont)
+                Button(FeatureSettingsStrings.text("settings.reconcile", locale: locale)) { onAction(.reconcileOriginal(pending.operationID)) }.disabled(state.busy)
+            }
             if state.loading { ProgressView(FeatureSettingsStrings.text("copy.509c3e500d38", locale: locale)) }
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
@@ -26,14 +31,11 @@ public struct SettingsScreen: View {
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.toolbar { Button(FeatureSettingsStrings.text("copy.19766ed6ccb2", locale: locale)) { onAction(.dismissModal) }.disabled(state.busy) } }.interactiveDismissDisabled(state.busy)
             }
-            .fileImporter(isPresented: Binding(get: { state.importSelecting }, set: { if !$0 { onAction(.cancelImport) } }), allowedContentTypes: [.data]) { result in
-                switch result { case .success(let url): onAction(.importSelected(url)); case .failure: onAction(.cancelImport) }
-            }
+
     }
     private var modal: SettingsModal? {
         if let device = state.pendingRevoke { return .revoke(device) }
-        if let intent = state.backupIntent { return .backup(intent) }
-        return state.shareURL.map(SettingsModal.share)
+        return nil
     }
     private var title: String {
         switch state.route { case .devices, .device: FeatureSettingsStrings.text("copy.6f3cba5e5a8e", locale: locale); case .nodes, .node: FeatureSettingsStrings.text("copy.7ac362063b9f", locale: locale); case .appearance: FeatureSettingsStrings.text("copy.dfe87d5e5bba", locale: locale)
@@ -100,19 +102,7 @@ public struct SettingsScreen: View {
         }
     }
     @ViewBuilder private var backupContent: some View {
-        Text(FeatureSettingsStrings.text("copy.16b8400e47c7", locale: locale))
-        HStack { Button(FeatureSettingsStrings.text("copy.7e9d26bfdf5c", locale: locale)) { onAction(.createBackup) }; Button(FeatureSettingsStrings.text("copy.150d3477a59a", locale: locale)) { onAction(.selectImport) } }.disabled(!state.attended || state.busy || state.unknownMutation)
-        if !state.attended { Text(FeatureSettingsStrings.text("copy.53a6e343d08e", locale: locale)).font(theme.captionFont) }
-        ForEach(state.jobs) { job in
-            VStack(alignment: .leading, spacing: theme.gap / 2) {
-                Text(FeatureSettingsStrings.format("backup.jobSummary", AppDataStrings.status(job.kind, locale: locale), AppDataStrings.status(job.state, locale: locale), locale: locale)).font(theme.bodyFont.weight(.semibold)); Text(job.id).font(theme.captionFont)
-                if let id = job.accountID { LabeledContent(FeatureSettingsStrings.text("copy.c031af609a56", locale: locale), value: id) }
-                if job.state == "verified", job.kind == "restore" { Button(FeatureSettingsStrings.text("copy.967bd624c2d5", locale: locale)) { onAction(.requestInstall(job.id)) } }
-                if job.state == "done", job.shareURL != nil { Button(FeatureSettingsStrings.text("copy.f697c1b7ba14", locale: locale)) { onAction(.share(job.id)) } }
-                if ["preparing","writing","verifying"].contains(job.state) { Button(FeatureSettingsStrings.text("copy.a5032d26d61d", locale: locale), role: .destructive) { onAction(.cancelJob(job.id)) } }
-            }.disabled(state.busy || state.unknownMutation)
-        }
-        Text(FeatureSettingsStrings.text("copy.948d4afeba2b", locale: locale)).font(theme.captionFont)
+        RFUnavailableView(title: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale), message: AppFailure.unavailableResource("settings.mobileBackup").message(locale: locale))
     }
     @ViewBuilder private func modalContent(_ modal: SettingsModal) -> some View {
         switch modal {
@@ -121,27 +111,9 @@ public struct SettingsScreen: View {
             if let origin = device.webOrigin { Text(origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("copy.20cb3df08ed4", locale: locale))
             RFHostHoldToConfirm(label: FeatureSettingsStrings.text("copy.953e554960b1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.confirmRevoke(device.id)) }.id(device.id)
-        case .share(let url):
-            Text(FeatureSettingsStrings.text("copy.53e6cce56bee", locale: locale)).font(theme.pageFont)
-            ShareLink(item: url) { Label(FeatureSettingsStrings.text("copy.cf211c6c4ba0", locale: locale), systemImage: "square.and.arrow.up") }
-        case .backup(let intent):
-            switch intent {
-            case .create: Text(FeatureSettingsStrings.text("copy.8b2af02164d1", locale: locale)).font(theme.pageFont)
-            case .verify(let url): Text(FeatureSettingsStrings.text("copy.048d49a605a8", locale: locale)).font(theme.pageFont); Text(url.lastPathComponent)
-            case .install(let job):
-                Text(FeatureSettingsStrings.text("copy.fbd0df19e20e", locale: locale)).font(theme.pageFont); Text(job.accountID ?? FeatureSettingsStrings.text("copy.72830405351a", locale: locale)).textSelection(.enabled)
-                Text(job.merge == true ? FeatureSettingsStrings.text("copy.8802d45c10a5", locale: locale) : FeatureSettingsStrings.text("copy.6491d8373952", locale: locale))
-                Text(FeatureSettingsStrings.text("copy.e58ff986d436", locale: locale))
-                RFHostHoldToConfirm(label: FeatureSettingsStrings.text("copy.eea8986208e1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.restoreHold(job.id, job.sequence)) }.id(job.id + ":" + String(job.sequence))
-            }
-            #if os(iOS)
-            RFSecretFields(labels: [("passphrase", FeatureSettingsStrings.text("copy.e7611f0537df", locale: locale))], enabled: !state.busy && !state.unknownMutation && (isInstall(intent) ? state.restoreHeld : true)) { onAction(.submitBackup(SensitiveSubmission(values: $0))) }.frame(minHeight: theme.composer_min * 3).id(intent.id)
-            #else
-            Text(FeatureSettingsStrings.text("copy.a1bcb108941e", locale: locale))
-            #endif
+        case .backup, .share: backupContent
         }
     }
-    private func isInstall(_ intent: BackupIntent) -> Bool { if case .install = intent { true } else { false } }
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
         RFListRow(id: id, title: title, subtitle: subtitle, theme: theme, leading: { EmptyView() }, trailing: { Image(systemName: "chevron.right").accessibilityHidden(true) }) { onAction(.open(route)) }
     }

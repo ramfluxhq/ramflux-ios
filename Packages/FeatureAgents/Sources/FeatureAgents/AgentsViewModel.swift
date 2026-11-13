@@ -15,10 +15,11 @@ import AppData
         switch action {
         case .appeared, .retry: load()
         case .mode(let mode): state.mode = mode; state.failure = nil; load()
-        case .name(let value): state.draft.name = String(value.prefix(256))
-        case .goal(let value): state.draft.goal = String(value.prefix(4096))
+        case .name(let value): state.draft.name = String(value.unicodeScalars.prefix(257)); state.draftIssue = state.draft.issue
+        case .goal(let value): state.draft.goal = String(value.unicodeScalars.prefix(257)); state.draftIssue = state.draft.issue
         case .create:
-            guard state.mode == .create, !state.loading, !state.draft.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+            state.draftIssue = state.draft.issue
+            guard state.mode == .create, !state.loading, state.draftIssue == nil else { return }
             generation &+= 1; let id = generation, draft = state.draft; state.loading = true; task?.cancel()
             task = Task { [weak self, repository, account] in
                 let result = await repository.create(account: account, draft: draft)

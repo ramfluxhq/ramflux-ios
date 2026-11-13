@@ -4,12 +4,12 @@ import Foundation
 import RamfluxCore
 public enum AppFailure: Error, Sendable, Equatable {
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
-    case notAvailable(String), outcomeUnknown, failed
+    case unavailableResource(String), notAvailable(String), outcomeUnknown, failed
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
         case .sdkUnavailable: AppDataStrings.text("copy.5562fbd3e629", locale: locale)
-        case .unsupported, .notAvailable: AppDataStrings.text("copy.787406ddea2a", locale: locale)
+        case .unsupported, .notAvailable, .unavailableResource: AppDataStrings.text("copy.787406ddea2a", locale: locale)
         case .offline: AppDataStrings.text("copy.e40966162b11", locale: locale)
         case .locked: AppDataStrings.text("copy.68d02ee6497e", locale: locale)
         case .busy: AppDataStrings.text("copy.9dcdd3257d89", locale: locale)
@@ -33,6 +33,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .resyncRequired: AppDataStrings.text("copy.dcaee1a8b499", locale: locale)
         case .invalidData: AppDataStrings.text("copy.7fe3baa7c52d", locale: locale)
         case .invalidInput: AppDataStrings.text("copy.84f9c932bfcd", locale: locale)
+        case .unavailableResource(let key): AppDataStrings.text(key, locale: locale)
         case .notAvailable(let message): message
         case .outcomeUnknown: AppDataStrings.text("copy.1b6fe0889add", locale: locale)
         case .failed: AppDataStrings.text("copy.4f3713e485e9", locale: locale)

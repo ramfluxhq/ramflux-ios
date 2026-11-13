@@ -33,59 +33,52 @@ import AppData
             }
         case .retention(let seconds): state.retentionSeconds = seconds
         case .saveRetention:
-            guard let account else { return }; let seconds = state.retentionSeconds
-            mutate { [repository] in Self.completion(await repository.retention(account: account, seconds: seconds, operationID: UUID().uuidString)) }
+            guard account != nil else { return }; let seconds = state.retentionSeconds
+            dispatch(PendingSettingsMutation(change: .retention(seconds), operationID: UUID().uuidString))
         case .manualRequests:
-            guard let account else { return }
-            mutate { [repository] in Self.completion(await repository.requireManualRequests(account: account, operationID: UUID().uuidString)) }
+            guard account != nil else { return }
+            dispatch(PendingSettingsMutation(change: .manualRequests, operationID: UUID().uuidString))
         case .requestRevoke(let id):
             guard !state.busy, !state.unknownMutation, let device = state.snapshot.devices.first(where: { $0.id == id && !$0.isLocal }) else { return }; state.pendingRevoke = device
         case .confirmRevoke(let id):
-            guard let account, let device = state.pendingRevoke, device.id == id else { return }
-            mutate { [repository] in Self.completion(await repository.revoke(account: account, device: device, operationID: UUID().uuidString)) }
+            guard account != nil, let device = state.pendingRevoke, device.id == id else { return }
+            dispatch(PendingSettingsMutation(change: .revoke(device), operationID: UUID().uuidString))
         case .cancelRevoke: if !state.busy { state.pendingRevoke = nil }
         case .lock:
-            guard let account else { return }
-            mutate { [repository] in switch await repository.lock(account: account) { case .success: .locked; case .failure(let failure): .failure(failure) } }
+            guard account != nil else { return }
+            dispatch(PendingSettingsMutation(change: .lock, operationID: UUID().uuidString))
         case .setDefault(let id):
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
-            mutate { [nodes] in Self.completion(await nodes.setDefault(node, operationID: UUID().uuidString)) }
+            dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .createBackup: if canBackup { state.backupIntent = .create; state.restoreHeld = false }
-        case .selectImport: if canBackup { state.importSelecting = true }
-        case .importSelected(let source): state.importSelecting = false; if canBackup { state.backupIntent = .verify(source); state.restoreHeld = false }
+        case .createBackup, .selectImport, .importSelected, .requestInstall, .restoreHold, .cancelJob, .share:
+            state.failure = repository.unavailable(.mobileBackup)
+        case .submitBackup(let credentials): credentials.erase(); state.failure = repository.unavailable(.mobileBackup)
         case .cancelImport: state.importSelecting = false
-        case .requestInstall(let id):
-            guard canBackup, let job = state.jobs.first(where: { $0.id == id && $0.kind == "restore" && $0.state == "verified" && $0.accountID != nil }) else { return }
-            state.backupIntent = .install(job); state.restoreHeld = false
-        case .restoreHold(let id, let sequence):
-            if !state.busy, case .install(let job) = state.backupIntent, job.id == id, job.sequence == sequence { state.restoreHeld = true }
-        case .dismissModal: if !state.busy { state.pendingRevoke = nil; state.backupIntent = nil; state.shareURL = nil; state.restoreHeld = false }
-        case .submitBackup(let credentials):
-            guard let account, let intent = state.backupIntent, canBackup else { credentials.erase(); return }
-            if case .install = intent, !state.restoreHeld { credentials.erase(); return }
-            mutate { [backup] in
-                let result: RepositoryResult<BackupRecord>
-                switch intent {
-                case .create: result = await backup.create(account: account, credentials: credentials, operationID: UUID().uuidString)
-                case .verify(let source): result = await backup.verify(account: account, source: source, credentials: credentials, operationID: UUID().uuidString)
-                case .install(let job): result = await backup.install(account: account, expected: job, credentials: credentials, operationID: UUID().uuidString)
-                }
-                switch result { case .success: return .updated; case .failure(let failure): return .failure(failure) }
-            }
-        case .cancelBackupForm: if !state.busy { state.backupIntent = nil; state.restoreHeld = false }
-        case .cancelJob(let id):
-            guard let account, state.jobs.contains(where: { $0.id == id }) else { return }
-            mutate { [backup] in Self.completion(await backup.cancel(account: account, jobID: id, operationID: UUID().uuidString)) }
-        case .share(let id): state.shareURL = state.jobs.first(where: { $0.id == id && $0.kind == "backup" && $0.state == "done" })?.shareURL
+        case .dismissModal, .cancelBackupForm: state.pendingRevoke = nil; state.backupIntent = nil; state.restoreHeld = false
         case .closeShare: state.shareURL = nil
+        case .reconcileOriginal(let id):
+            if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
             state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown
         }
     }
-    private var canBackup: Bool { account != nil && state.attended && !state.busy && !state.unknownMutation }
+    private func dispatch(_ attempt: PendingSettingsMutation, reconciling: Bool = false) {
+        guard !state.busy, reconciling || !state.unknownMutation else { return }
+        readID &+= 1; read?.cancel(); state.loading = false; state.busy = true; let current = epoch
+        mutation = Task { [weak self, repository, account] in
+            let result = await repository.mutate(account: account, change: attempt.change, operationID: attempt.operationID)
+            let pending = await repository.pending(account: account)
+            guard !Task.isCancelled, let self, self.epoch == current else { return }
+            self.state.busy = false; self.state.pendingMutation = pending; self.state.unknownMutation = pending != nil
+            switch result {
+            case .success: self.state.pendingRevoke = nil; if attempt.change == .lock { self.emit(.locked) } else { self.refresh() }
+            case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = pending != nil || failure == .outcomeUnknown || failure == .offline
+            }
+        }
+    }
     private enum Completion: Sendable { case updated, locked, appearance(AppearanceMode), failure(AppFailure) }
     private nonisolated static func completion(_ result: RepositoryResult<Void>) -> Completion { switch result { case .success: .updated; case .failure(let failure): .failure(failure) } }
     private func mutate(_ operation: @escaping @Sendable () async -> Completion) {
@@ -105,16 +98,15 @@ import AppData
     }
     private func refresh() {
         readID &+= 1; let current = readID; state.loading = true; read?.cancel()
-        let showJobs = state.route == .backup
-        read = Task { [weak self, repository, backup, preferences, account] in
+        read = Task { [weak self, repository, preferences, account] in
             let snapshot = await repository.snapshot(account: account)
-            let jobs: RepositoryResult<[BackupRecord]>? = if showJobs, let account { await backup.jobs(account: account) } else { nil }
+            let pending = await repository.pending(account: account)
             let appearance = await preferences.appearance()
             guard !Task.isCancelled, let self, self.readID == current else { return }
-            self.state.loading = false; self.state.appearance = appearance
+            self.state.loading = false; self.state.appearance = appearance; self.state.pendingMutation = pending; self.state.unknownMutation = pending != nil
             switch snapshot { case .success(let value): self.state.snapshot = value; self.state.retentionSeconds = value.retentionSeconds ?? self.state.retentionSeconds
             case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.snapshot = SettingsSnapshot() } }
-            if let jobs { switch jobs { case .success(let rows): self.state.jobs = rows; case .failure(let failure): self.state.failure = failure } }
+
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
     }

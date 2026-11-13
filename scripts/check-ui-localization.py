@@ -12,13 +12,15 @@ failures = []
 # Presentation strings must be resource lookups. Literal image names, accessibility IDs,
 # SDK keys, peer text and test/preview fixture data have distinct non-copy roles.
 visible = re.compile(r'(?:\b(?:Text|Button|Label|ProgressView|Picker|TextField|SecureField|LabeledContent)\s*\(|\.(?:navigationTitle|accessibilityLabel|accessibilityHint|confirmationDialog|alert)\s*\(|\bsetTitle\s*\(|\bplaceholder\s*=\s*)\s*"([^"\n]+)"')
-for directory in [ROOT / 'App', *sorted((ROOT / 'Packages').glob('*/Sources'))]:
+for directory in [ROOT / 'App', ROOT / 'Packages/RFDesign/Generated', *sorted((ROOT / 'Packages').glob('*/Sources'))]:
     for path in directory.rglob('*.swift'):
         if path.name.endswith('Previews.swift'):
             continue
         source = path.read_text()
         for match in visible.finditer(source):
             failures.append(f'{path.relative_to(ROOT)}: literal UI copy {match.group(1)!r}')
+        if 'Generated' in path.parts and re.search(r'String\(localized:', source):
+            failures.append(f'{path.relative_to(ROOT)}: generated accessibility must receive host-localized text')
         # Display parameters of native controls/generated presentation cannot bake in labels.
         for match in re.finditer(r'\b(?:title|subtitle|description|message|label)\s*:\s*"([^"\n]+)"', source):
             if match.group(1):

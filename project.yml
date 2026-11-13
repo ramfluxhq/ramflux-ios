@@ -11,6 +11,8 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     CODE_SIGNING_ALLOWED: NO
 packages:
+  RamfluxCore:
+    path: .
   FeatureTasks:
     path: Packages/FeatureTasks
   FeatureAgents:
@@ -82,6 +84,7 @@ targets:
       - package: FeatureCalls
       - package: FeatureGroups
       - target: Ramflux
+      - package: RamfluxCore
       - package: FeatureSettings
       - package: FeatureContacts
       - package: FeatureChat

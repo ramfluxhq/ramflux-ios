@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FeatureChat.copy.8a7b78a5873c</key>
+	<string>The account service reported delivery failed. The original operation is retained.</string>
+	<key>FeatureOnboarding.copy.5fca79c1258a</key>
+	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
+	<key>FeatureOnboarding.copy.d59626702d22</key>
+	<string>Setup expired. Start a new account ceremony.</string>
 	<key>agents.unavailable</key>
 	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
 	<key>calls.audioUnavailable</key>
@@ -112,6 +118,8 @@
 	<string>Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet.</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@: %2$@</string>
+	<key>settings.mobileBackup</key>
+	<string>Backup and restore are available on the desktop client. No backup task can be started from this phone.</string>
 	<key>status.accept</key>
 	<string>Accept</string>
 	<key>status.accepted</key>

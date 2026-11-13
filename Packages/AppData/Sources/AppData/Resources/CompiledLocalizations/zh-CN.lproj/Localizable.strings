@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>FeatureChat.copy.8a7b78a5873c</key>
+	<string>账户服务报告发送失败。原始操作已保留。</string>
+	<key>FeatureOnboarding.copy.5fca79c1258a</key>
+	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
+	<key>FeatureOnboarding.copy.d59626702d22</key>
+	<string>设置已过期。请重新开始账户设置。</string>
 	<key>agents.unavailable</key>
 	<string>此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。</string>
 	<key>calls.audioUnavailable</key>
@@ -112,6 +118,8 @@
 	<string>转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@：%2$@</string>
+	<key>settings.mobileBackup</key>
+	<string>备份和恢复请使用桌面客户端。此手机不会启动备份任务。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>

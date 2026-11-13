@@ -27,6 +27,26 @@ private actor SafetyDirectory: ContactsRepository {
     nonisolated func unavailable(_ capability: ContactUnavailable) -> AppFailure { .unsupported }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct SafetyFreshnessTests {
+    @Test func terminalFailuresAndUnexpectedFinishImmediatelyRevokeVerifiedDisplay() async {
+        for failure in [AppFailure.locked, .offline, .resyncRequired] {
+            let repo = SafetyDirectory(), model = ContactsViewModel(repository: SafetyDirectory(), account: "unused", emit: { _ in }); model.send(.disappeared)
+            let vm = ContactsViewModel(repository: repo, account: "a", state: ContactsState(mode: .safety("peer")), emit: { _ in })
+            vm.send(.refresh); await vm.settle(); #expect(vm.state.safety?.verified == true)
+            let signal = AsyncStream<Void>.makeStream(); let deadline = Task { try? await Task.sleep(for: .seconds(5)); signal.continuation.finish() }
+            withObservationTracking { _ = vm.state.safety } onChange: { signal.continuation.yield(()) }
+            repo.updates.continuation.yield(.failed(failure)); repo.updates.continuation.finish()
+            var iterator = signal.stream.makeAsyncIterator(); #expect(await iterator.next() != nil); deadline.cancel(); signal.continuation.finish()
+            #expect(vm.state.safety == nil); #expect(vm.state.safetyPrincipal == nil); #expect(vm.state.safetyStale)
+            vm.send(.disappeared)
+        }
+        let repo = SafetyDirectory(), vm = ContactsViewModel(repository: SafetyDirectory(), account: "unused", emit: { _ in }); vm.send(.disappeared)
+        let model = ContactsViewModel(repository: repo, account: "a", state: ContactsState(mode: .safety("peer")), emit: { _ in })
+        model.send(.refresh); await model.settle(); #expect(model.state.safety?.verified == true)
+        let signal = AsyncStream<Void>.makeStream(); let deadline = Task { try? await Task.sleep(for: .seconds(5)); signal.continuation.finish() }
+        withObservationTracking { _ = model.state.safety } onChange: { signal.continuation.yield(()) }
+        repo.updates.continuation.finish(); var iterator = signal.stream.makeAsyncIterator(); #expect(await iterator.next() != nil); deadline.cancel(); signal.continuation.finish()
+        #expect(model.state.safety == nil); model.send(.disappeared)
+    }
     @Test func removedLockedAndOfflineAuthorityCannotKeepVerifiedSafety() async {
         let repo = SafetyDirectory()
         let model = ContactsViewModel(repository: repo, account: "a", state: ContactsState(mode: .safety("peer")), emit: { _ in })

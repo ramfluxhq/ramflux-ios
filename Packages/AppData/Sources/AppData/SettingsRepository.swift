@@ -13,8 +13,10 @@ public struct SettingsSnapshot: Equatable, Sendable {
         self.accountID = accountID; self.networking = networking; self.devices = devices; self.nodes = nodes; self.retentionSeconds = retentionSeconds; self.requestPolicy = requestPolicy
     }
 }
-public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport }
+public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport, mobileBackup }
 public protocol SettingsRepository: Sendable {
+    func pending(account: String?) async -> PendingSettingsMutation?
+    func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void>
     func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot>
     func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void>
     func lock(account: String) async -> RepositoryResult<Void>
@@ -27,6 +29,7 @@ public struct NativeSettingsRepository: SettingsRepository {
     private let gateway: ProxyGateway
     private let nodes: any NodeRepository
     private let updates: NativeUpdateSource
+    private let journal = RetainedMutation<SettingsMutation, Void>()
     public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates }
     public func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot> {
         let savedNodes: [NodeRecord]
@@ -47,32 +50,43 @@ public struct NativeSettingsRepository: SettingsRepository {
                 retentionSeconds: ProxyGateway.integer(config["offline_retention_secs"]), requestPolicy: policy["contact_requests"]?.string))
         } catch { return .failure(AppFailure.map(error)) }
     }
-    public func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void> {
-        guard !device.isLocal else { return .failure(.invalidInput) }
-        do { _ = try await gateway.call(.deviceRevoke, account: account, body: .object(["device_id": .string(device.id)]), operationID: operationID); return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
+    public func pending(account: String?) async -> PendingSettingsMutation? {
+        guard let entry = await journal.snapshot(scope: account ?? "@device"), entry.unresolved else { return nil }
+        return PendingSettingsMutation(change: entry.arguments, operationID: entry.operationID)
     }
-    public func lock(account: String) async -> RepositoryResult<Void> {
-        do { _ = try await gateway.call(.accountLock, account: account); return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
+    public func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void> {
+        await journal.run(scope: account ?? "@device", arguments: change, operationID: operationID) {
+            do {
+                if case .setDefault(let node) = change { return await nodes.setDefault(node, operationID: operationID) }
+                guard let account else { return .failure(.invalidInput) }
+                switch change {
+                case .revoke(let device):
+                    guard !device.isLocal else { return .failure(.invalidInput) }
+                    _ = try await gateway.call(.deviceRevoke, account: account, body: .object(["device_id": .string(device.id)]), operationID: operationID)
+                case .retention(let seconds):
+                    guard (3600...604800).contains(seconds) else { return .failure(.invalidInput) }
+                    _ = try await gateway.call(.accountConfigSet, account: account, body: .object(["offline_retention_secs": .number(Double(seconds))]), operationID: operationID)
+                case .manualRequests: _ = try await gateway.call(.contactRequestsPolicySet, account: account, body: .object(["contact_requests": .string("manual")]), operationID: operationID)
+                case .lock: _ = try await gateway.call(.accountLock, account: account, operationID: operationID)
+                case .setDefault: break
+                }
+                return .success(())
+            } catch { return .failure(AppFailure.map(error)) }
+        }
     }
-    public func retention(account: String, seconds: Int64, operationID: String) async -> RepositoryResult<Void> {
-        guard (3600...604800).contains(seconds) else { return .failure(.invalidInput) }
-        do { _ = try await gateway.call(.accountConfigSet, account: account, body: .object(["offline_retention_secs": .number(Double(seconds))]), operationID: operationID); return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
-    }
-    public func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void> {
-        do { _ = try await gateway.call(.contactRequestsPolicySet, account: account, body: .object(["contact_requests": .string("manual")]), operationID: operationID); return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
-    }
+    public func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .revoke(device), operationID: operationID) }
+    public func retention(account: String, seconds: Int64, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .retention(seconds), operationID: operationID) }
+    public func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .manualRequests, operationID: operationID) }
+    public func lock(account: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .lock, operationID: await pending(account: account)?.operationID ?? UUID().uuidString) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: SettingsUnavailable) -> AppFailure {
         switch capability {
-        case .openAccount: .notAvailable(AppDataStrings.text("copy.b72e06e9393e"))
-        case .pairing: .notAvailable(AppDataStrings.text("copy.70336657918f"))
-        case .connectedServices: .notAvailable(AppDataStrings.text("copy.cdf40b9785de"))
-        case .diagnosticExport: .notAvailable(AppDataStrings.text("copy.e1f1db374598"))
+        case .mobileBackup: .unavailableResource("settings.mobileBackup")
+        case .openAccount: .unavailableResource("copy.b72e06e9393e")
+        case .pairing: .unavailableResource("copy.70336657918f")
+        case .connectedServices: .unavailableResource("copy.cdf40b9785de")
+        case .diagnosticExport: .unavailableResource("copy.e1f1db374598")
         }
     }
 }
@@ -85,4 +99,16 @@ public struct UnavailableSettingsRepository: SettingsRepository {
     public func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { NativeSettingsRepository.refusal(capability) }
+}
+
+public extension SettingsRepository {
+    func pending(account: String?) async -> PendingSettingsMutation? { nil }
+    func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void> {
+        guard let account else { return .failure(.invalidInput) }
+        switch change { case .revoke(let device): return await revoke(account: account, device: device, operationID: operationID)
+        case .retention(let seconds): return await retention(account: account, seconds: seconds, operationID: operationID)
+        case .manualRequests: return await requireManualRequests(account: account, operationID: operationID)
+        case .lock: return await lock(account: account)
+        case .setDefault: return .failure(.unsupported) }
+    }
 }

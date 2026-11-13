@@ -54,7 +54,7 @@ public struct NativeTasksRepository: TasksRepository {
             guard Set(rows.map { ($0.approval ? "approval:" : "grant:") + $0.id }).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
         } catch { return .failure(AppFailure.map(error)) }
     }
-    public func unavailable() -> AppFailure { .notAvailable(AppDataStrings.text("tasks.unavailable")) }
+    public func unavailable() -> AppFailure { .unavailableResource("tasks.unavailable") }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     private static func record(_ row: JSONValue) throws -> TaskRecord {
         let version: UInt64?

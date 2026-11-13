@@ -18,6 +18,10 @@
 	<string>智能体配置需要专用 SDK 接口。尚未创建或更改智能体。高级配置由桌面客户端管理。</string>
 	<key>agents.goal</key>
 	<string>目标</string>
+	<key>agents.goalLimit</key>
+	<string>职责不得超过 256 个 UTF-8 字节。</string>
+	<key>agents.goalRequired</key>
+	<string>请输入职责。</string>
 	<key>agents.hide</key>
 	<string>隐藏智能体</string>
 	<key>agents.loading</key>
@@ -26,6 +30,10 @@
 	<string>管理智能体</string>
 	<key>agents.name</key>
 	<string>名称</string>
+	<key>agents.nameLimit</key>
+	<string>名称最多 40 个 Unicode 标量且不超过 256 个 UTF-8 字节。</string>
+	<key>agents.nameRequired</key>
+	<string>请输入名称。</string>
 	<key>agents.pause</key>
 	<string>暂停智能体</string>
 	<key>agents.profile</key>

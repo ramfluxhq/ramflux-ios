@@ -49,6 +49,23 @@ private actor ChatFake: ChatRepository {
         let attempts = await fake.attempts; #expect(attempts.count == 2); #expect(attempts.first?.0 == attempts.last?.0); #expect(attempts.last?.1 == "Original")
         returned.send(.conceal); b.send(.conceal)
     }
+    @Test func successfulBackgroundSendClearsOnlyItsRestoredDraftAndCannotResend() async {
+        for edited in [false, true] {
+            let gate = MutationGate(), fake = ChatFake(gate: gate); defer { gate.release() }
+            let original = ChatCoordinator(repository: fake, account: "a", conversation: "A")
+            original.send(.draftChanged("Original")); original.send(.send)
+            var entered = gate.entered.stream.makeAsyncIterator(); _ = await entered.next(); original.send(.conceal)
+            let b = ChatCoordinator(repository: fake, account: "a", conversation: "B"); b.send(.refresh); await b.viewModel.settle()
+            let returned = ChatCoordinator(repository: fake, account: "a", conversation: "A"); returned.send(.refresh); await returned.viewModel.settle()
+            #expect(returned.viewModel.state.draft == "Original"); #expect(returned.viewModel.state.pendingSend != nil)
+            if edited { returned.send(.draftChanged("Edited")) }
+            await fake.completeNext(); gate.release(); await original.viewModel.settle()
+            returned.send(.refresh); await returned.viewModel.settle()
+            #expect(returned.viewModel.state.pendingSend == nil); #expect(returned.viewModel.state.draft == (edited ? "Edited" : ""))
+            if !edited { returned.send(.send); await returned.viewModel.settle(); #expect(await fake.attempts.count == 1) }
+            returned.send(.conceal); b.send(.conceal)
+        }
+    }
     @Test func unknownSendPreservesDraftAndExplicitRetryKeepsExactOperationAndText() async {
         let fake = ChatFake(); let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
         model.send(.draftChanged("Original")); model.send(.send); await model.settle()

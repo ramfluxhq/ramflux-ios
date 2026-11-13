@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import AppData
 public struct ConversationsState: Equatable, Sendable {
+    public var accountID: String?
     public var rows: [ConversationRecord] = []
     public var loading = false
     public var failure: AppFailure?

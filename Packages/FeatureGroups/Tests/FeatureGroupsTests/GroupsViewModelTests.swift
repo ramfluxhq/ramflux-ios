@@ -11,12 +11,17 @@ private actor GroupsFake: GroupsRepository {
     private var updates: AsyncStream<RepositoryUpdate>.Continuation?
     private(set) var attempts: [PendingGroupMutation] = []
     var admin = true
+    var createPending = false
+    var readFailure: AppFailure?
+    func setReadFailure(_ value: AppFailure?) { readFailure = value }
+    func setCreatePending() { createPending = true }
     init(gate: MutationGate? = nil) { self.gate = gate }
     func setAdmin(_ value: Bool) { admin = value; updates?.yield(.invalidated) }
     func list(account: String) -> RepositoryResult<[GroupRecord]> { .success([GroupRecord(id: "g", name: "Research", epoch: 9, members: ["phone","peer-phone"])]) }
     func conversation(account: String, group: String) -> RepositoryResult<String> { .success("canonical-thread") }
     func detail(account: String, group: String) -> RepositoryResult<GroupDetail> {
-        .success(GroupDetail(group: GroupRecord(id: "g", name: "Research", epoch: 9, members: ["phone","peer-phone"]), roster: [GroupMemberRecord(principal: "owner", root: "root-own", device: "phone", role: admin ? "owner" : "member"), GroupMemberRecord(principal: "peer", root: "root-peer", device: "peer-phone", role: "member")], ownRoot: "root-own", ownDevice: "phone", authorized: true))
+        if let readFailure { return .failure(readFailure) }
+        return .success(GroupDetail(group: GroupRecord(id: "g", name: "Research", epoch: 9, members: ["phone","peer-phone"]), roster: [GroupMemberRecord(principal: "owner", root: "root-own", device: "phone", role: admin ? "owner" : "member"), GroupMemberRecord(principal: "peer", root: "root-peer", device: "peer-phone", role: "member")], ownRoot: "root-own", ownDevice: "phone", authorized: true))
     }
     func invitations(account: String) -> RepositoryResult<[GroupInvitation]> { .success([]) }
     func requests(account: String, group: String) -> RepositoryResult<[GroupRequestRecord]> { .success([]) }
@@ -30,12 +35,29 @@ private actor GroupsFake: GroupsRepository {
     func perform(_ mutation: GroupMutation, _ operationID: String) async -> RepositoryResult<GroupMutationOutcome> {
         attempts.append(PendingGroupMutation(mutation: mutation, operationID: operationID))
         if let gate { await gate.wait(); return .failure(.outcomeUnknown) }
+        if case .create = mutation { return .success(GroupMutationOutcome(groupID: "g", waitingForOwner: createPending)) }
         return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: true, requestID: "request"))
     }
     func observe(account: String) -> RepositoryObservation { let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); updates = pair.continuation; pair.continuation.yield(.invalidated); return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() }) }
     nonisolated func unavailable(_ capability: GroupUnavailable) -> AppFailure { .unsupported }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct GroupsViewModelTests {
+    @Test func authoritativeCreationResolvesCanonicalConversationOnceAndFailuresDoNotNavigate() async {
+        for kind in 0..<3 {
+            let fake = GroupsFake(); var events: [GroupsEvent] = []
+            if kind == 1 { await fake.setReadFailure(.offline) }
+            if kind == 2 { await fake.setCreatePending() }
+            let vm = GroupsViewModel(repository: fake, contacts: UnavailableContactsRepository(), account: "a", state: GroupsState(mode: .create), emit: { events.append($0) })
+            vm.send(.name("Research")); vm.send(.prepareCreate)
+            guard let confirmation = vm.state.confirmation else { Issue.record("No creation selected"); return }
+            vm.send(.confirm(confirmation.id)); await vm.settle()
+            let destinations = events.compactMap { event -> AppRoute? in if case .navigate(let route) = event { route } else { nil } }
+            #expect(destinations == (kind == 0 ? [.groupConversation("canonical-thread", title: "Research")] : []))
+            if kind == 1 { #expect(vm.state.failure == .offline) }
+            if kind == 2 { #expect(vm.state.outcome?.waitingForOwner == true) }
+            vm.send(.disappeared)
+        }
+    }
     @Test func groupNavigationUsesRepositoryCanonicalConversationAndKnownGroupOnly() async {
         var events: [GroupsEvent] = []
         let vm = GroupsViewModel(repository: GroupsFake(), contacts: UnavailableContactsRepository(), account: "a", emit: { events.append($0) })

@@ -18,7 +18,7 @@ import AppData
     public func send(_ action: OnboardingAction) {
         switch action {
         case .disappeared, .conceal, .cancel: cleanup(dismiss: action == .cancel); return
-        case .expired: cleanup(dismiss: false); state.failure = .notAvailable(FeatureOnboardingStrings.text("copy.d59626702d22")); return
+        case .expired: cleanup(dismiss: false); state.failure = .unavailableResource("FeatureOnboarding.copy.d59626702d22"); return
         default: break
         }
         guard !state.busy else { if case .submit(let input) = action { input.erase() }; return }
@@ -34,7 +34,7 @@ import AppData
         case .recover: state.stage = .recover
         case .link:
             state.stage = .link
-            state.failure = .notAvailable(FeatureOnboardingStrings.text("copy.5fca79c1258a"))
+            state.failure = .unavailableResource("FeatureOnboarding.copy.5fca79c1258a")
         case .customNode: state.stage = .address
         case .checkAddress:
             do { state.normalized = try NodeAddress(state.address); state.stage = .normalizedAddress }

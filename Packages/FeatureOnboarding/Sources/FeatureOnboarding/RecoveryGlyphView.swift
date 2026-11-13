@@ -10,19 +10,25 @@ import RFDesign
 @MainActor public final class RecoveryGlyphView: UIView {
     var ink = UIColor(RFTheme.light.text)
     var display: RecoveryDisplay?
+    private(set) var pointSize: CGFloat = 17
+    private(set) var fontName = ""
+    func present(display: RecoveryDisplay, label: String, ink: UIColor, fontName: String, pointSize: CGFloat) {
+        self.display = display; accessibilityLabel = label; self.ink = ink; self.fontName = fontName; self.pointSize = pointSize
+        invalidateIntrinsicContentSize(); setNeedsDisplay()
+    }
     init(display: RecoveryDisplay) {
         self.display = display; super.init(frame: .zero); backgroundColor = .clear
-        isAccessibilityElement = true; accessibilityLabel = FeatureOnboardingStrings.text("copy.043a01d16971")
+        isAccessibilityElement = true
     }
     public required init?(coder: NSCoder) { return nil }
     public override func draw(_ rect: CGRect) {
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.saveGState(); defer { context.restoreGState() }
         context.translateBy(x: 0, y: bounds.height); context.scaleBy(x: 1, y: -1)
-        let size = UIFont.preferredFont(forTextStyle: .body).pointSize
+        let size = pointSize
         let columns = bounds.width >= size * 20 ? 2 : 1
         let rows = 24 / columns
-        let font = CTFontCreateWithName(RFTheme.light.font_mono as CFString, size, nil)
+        let font = CTFontCreateWithName(fontName as CFString, size, nil)
         context.setFillColor(ink.cgColor)
         display?.withDrawingBytes { raw in
             var column = 0, word = 0

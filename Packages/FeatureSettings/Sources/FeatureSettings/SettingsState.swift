@@ -12,6 +12,7 @@ public struct SettingsState: Equatable, Sendable {
     public var busy = false
     public var attended = false
     public var failure: AppFailure?
+    public var pendingMutation: PendingSettingsMutation?
     public var unknownMutation = false
     public var pendingRevoke: DeviceRecord?
     public var backupIntent: BackupIntent?

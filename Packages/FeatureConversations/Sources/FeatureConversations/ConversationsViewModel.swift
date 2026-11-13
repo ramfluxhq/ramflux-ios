@@ -12,7 +12,7 @@ import AppData
     @ObservationIgnored private var observationID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
     @ObservationIgnored private var generation: UInt64 = 0
-    public init(repository: any ConversationsRepository, account: String, state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) { self.repository = repository; self.account = account; self.state = state; self.emit = emit }
+    public init(repository: any ConversationsRepository, account: String, state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) { self.repository = repository; self.account = account; var initial = state; initial.accountID = account; self.state = initial; self.emit = emit }
     public func send(_ action: ConversationsAction) {
         switch action {
         case .appeared:

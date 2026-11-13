@@ -11,10 +11,11 @@ public struct RFConversationRowModel: Sendable {
     public let timestamp: String
     public let unreadCount: UInt
     public let selected: Bool
+    public let unreadAccessibilityValue: String
     public init(id: String, title: String, preview: String, initial: String,
-                timestamp: String, unreadCount: UInt = 0, selected: Bool = false) {
+                timestamp: String, unreadCount: UInt = 0, selected: Bool = false, unreadAccessibilityValue: String = "") {
         self.id = id; self.title = title; self.preview = preview; self.initial = initial
-        self.timestamp = timestamp; self.unreadCount = unreadCount; self.selected = selected
+        self.timestamp = timestamp; self.unreadCount = unreadCount; self.selected = selected; self.unreadAccessibilityValue = unreadAccessibilityValue
     }
 }
 
@@ -56,6 +57,6 @@ public struct RFConversationRow: View {
                 .background(model.selected ? theme.selected : theme.bg)
                 .contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityElement(children: .combine)
-            .accessibilityValue(model.unreadCount > 0 ? String(localized: "Unread messages: \(model.unreadCount)") : "")
+            .accessibilityValue(model.unreadAccessibilityValue)
     }
 }

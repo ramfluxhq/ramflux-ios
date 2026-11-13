@@ -27,8 +27,8 @@ public struct NativeChatRepository: ChatRepository {
     private let updates: NativeUpdateSource
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
     public func unavailable(_ capability: ChatCapability) -> AppFailure {
-        switch capability { case .calls: .notAvailable(AppDataStrings.text("copy.8f3374ffa405")); case .details: .notAvailable(AppDataStrings.text("copy.98b57b0920ec")); case .revisions: .notAvailable(AppDataStrings.text("copy.90e302595fee"))
-        case .attachmentTransfer: .notAvailable(AppDataStrings.text("copy.0e3b0c4afad6")) }
+        switch capability { case .calls: .unavailableResource("copy.8f3374ffa405"); case .details: .unavailableResource("copy.98b57b0920ec"); case .revisions: .unavailableResource("copy.90e302595fee")
+        case .attachmentTransfer: .unavailableResource("copy.0e3b0c4afad6") }
     }
     public func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]> {
         do {
@@ -87,8 +87,8 @@ public struct NativeChatRepository: ChatRepository {
 public struct UnavailableChatRepository: ChatRepository {
     public init() {}
     public func unavailable(_ capability: ChatCapability) -> AppFailure {
-        switch capability { case .calls: .notAvailable(AppDataStrings.text("copy.8f3374ffa405")); case .details: .notAvailable(AppDataStrings.text("copy.98b57b0920ec")); case .revisions: .notAvailable(AppDataStrings.text("copy.90e302595fee"))
-        case .attachmentTransfer: .notAvailable(AppDataStrings.text("copy.0e3b0c4afad6")) }
+        switch capability { case .calls: .unavailableResource("copy.8f3374ffa405"); case .details: .unavailableResource("copy.98b57b0920ec"); case .revisions: .unavailableResource("copy.90e302595fee")
+        case .attachmentTransfer: .unavailableResource("copy.0e3b0c4afad6") }
     }
     public func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]> { .failure(.sdkUnavailable) }
     public func send(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<SendOutcome> { .failure(.sdkUnavailable) }

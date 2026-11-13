@@ -83,7 +83,7 @@ public struct GroupsScreen: View {
                 Button(FeatureGroupsStrings.text("groups.archive", locale: locale)) { onAction(.unavailable(.archive)) }
             }
         case .members:
-            if let detail = state.detail {
+            if state.detail != nil {
                 ForEach(state.memberRows) { row in
                     let member = row.member
                     VStack(alignment: .leading, spacing: theme.gap / 2) {

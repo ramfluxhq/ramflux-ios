@@ -13,6 +13,23 @@ import RamfluxCore
         #expect(await owner.snapshot(scope: "account")?.unresolved == true)
         #expect(await owner.run(scope: "account", arguments: "different", operationID: "fresh", operation: { .success("wrong") }) == .failure(.outcomeUnknown))
     }
+    @Test func nativeSettingsJournalOutlivesCancelledConfigurationWaiter() async {
+        let dispatched = AsyncStream<Void>.makeStream(), release = DispatchSemaphore(value: 0)
+        defer { release.signal(); dispatched.continuation.finish() }
+        let transport = ProxyTransport { request in
+            #expect(request.method == "account.config.set"); #expect(request.operationID?.rawValue == "settings-key")
+            #expect(request.body["offline_retention_secs"] == .number(3600)); dispatched.continuation.yield(())
+            guard release.wait(timeout: .now() + 5) == .success else { throw AppFailure.failed }; throw AppFailure.outcomeUnknown
+        }
+        let client = RamfluxClient(transport: transport)
+        let repository = NativeSettingsRepository(client: client, nodes: UnavailableNodeRepository(), updates: NativeUpdateSource(client: client))
+        let waiter = Task { await repository.retention(account: "a", seconds: 3600, operationID: "settings-key") }
+        var iterator = dispatched.stream.makeAsyncIterator(); _ = await iterator.next(); waiter.cancel()
+        #expect(await repository.pending(account: "a") == PendingSettingsMutation(change: .retention(3600), operationID: "settings-key"))
+        release.signal(); _ = await waiter.value
+        if case .failure(.outcomeUnknown) = await repository.requireManualRequests(account: "a", operationID: "fresh") {} else { Issue.record("Fresh settings action crossed unresolved fence") }
+        #expect(await repository.pending(account: "a")?.operationID == "settings-key"); #expect(transport.calls.withLock { $0.count == 1 })
+    }
     @Test func sendAndContactOwnersRetainExactAttemptsAfterCancelledWaiters() async {
         let dispatched = AsyncStream<Void>.makeStream(), release = DispatchSemaphore(value: 0)
         defer { release.signal(); release.signal(); dispatched.continuation.finish() }

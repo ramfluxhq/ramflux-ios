@@ -64,7 +64,7 @@ import AppData
                     self.state.pendingSend = nil
                     if self.state.draft == attempt.text { self.state.draft = "" }
                     self.emit(.messageSubmitted(outcome.messageID)); self.refresh()
-                } else { self.state.failure = .notAvailable(FeatureChatStrings.text("copy.8a7b78a5873c")) }
+                } else { self.state.failure = .unavailableResource("FeatureChat.copy.8a7b78a5873c") }
             case .failure(let error):
                 self.state.failure = error
                 if error != .outcomeUnknown && error != .offline { self.state.pendingSend = nil }
@@ -85,6 +85,7 @@ import AppData
                     self.state.failure = .outcomeUnknown
                 } else if case .success(let outcome) = retained.result {
                     self.state.lastSubmission = outcome; self.state.pendingSend = nil
+                    if outcome.state == .submitted, self.state.draft == retained.text { self.state.draft = "" }
                 }
             }
             switch result { case .success(let rows): self.state.messages = rows; case .failure(let error): self.state.failure = error; if error == .locked { self.state.messages = [] } }

@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import Testing
+import AppData
 @testable import FeatureAppShell
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
@@ -10,5 +11,13 @@ struct LocalizationTests {
         let chinese = FeatureAppShellStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureAppShellStrings.text(key, locale: Locale(identifier: "en-XA"))
         #expect(english != key); #expect(chinese != key); #expect(chinese != english); #expect(expanded.count > english.count)
+    }
+    @Test func unavailableTitleAndEveryReasonResolveWithTheScreenLocale() {
+        for reason in [UnavailableReason.nativeCoreMissing, .featureNotInstalled, .custodyProviderPending] {
+            let en = reason.message(locale: Locale(identifier: "en")), zh = reason.message(locale: Locale(identifier: "zh-CN")), pseudo = reason.message(locale: Locale(identifier: "en-XA"))
+            #expect(zh != en); #expect(pseudo.count > en.count)
+        }
+        let key = "copy.9882e82fed9b"
+        #expect(FeatureAppShellStrings.text(key, locale: Locale(identifier: "zh-CN")) != FeatureAppShellStrings.text(key, locale: Locale(identifier: "en")))
     }
 }

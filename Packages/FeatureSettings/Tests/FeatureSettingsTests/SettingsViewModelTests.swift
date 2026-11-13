@@ -47,17 +47,13 @@ private actor BackupFake: BackupRepository {
         #expect(vm.state.unknownMutation); vm.send(.confirmRevoke("peer")); await vm.settle()
         #expect(await fake.revoked == ["peer"]); vm.send(.disappeared); #expect(vm.state.unknownMutation)
     }
-    @Test func restoreRequiresHoldBoundToExactVerifiedJobAndSequence() async {
+    @Test func mobileBackupActionsCannotCreateImportInstallOrRevealAForm() async {
         let fake = BackupFake(), job = BackupRecord(id: "job", kind: "restore", state: "verified", sequence: 7, accountID: "archive")
         var state = SettingsState(route: .backup); state.jobs = [job]; state.attended = true
         let vm = model(SettingsFake(), backup: fake, state: state)
-        vm.send(.requestInstall("job")); vm.send(.submitBackup(SensitiveSubmission(values: ["passphrase": "test"])))
-        await vm.settle(); #expect(await fake.installs.isEmpty)
-        vm.send(.restoreHold("job", 6)); #expect(!vm.state.restoreHeld)
-        vm.send(.restoreHold("other", 7)); #expect(!vm.state.restoreHeld)
-        vm.send(.restoreHold("job", 7)); #expect(vm.state.restoreHeld)
+        vm.send(.createBackup); vm.send(.selectImport); vm.send(.requestInstall("job")); vm.send(.restoreHold("job", 7))
         vm.send(.submitBackup(SensitiveSubmission(values: ["passphrase": "test"]))); await vm.settle()
-        #expect(await fake.installs == [job]); vm.send(.disappeared); #expect(!vm.state.restoreHeld)
+        #expect(await fake.installs.isEmpty); #expect(vm.state.backupIntent == nil); #expect(!vm.state.importSelecting); #expect(!vm.state.restoreHeld); #expect(vm.state.failure == .unsupported); vm.send(.disappeared)
     }
     @Test func unavailableSettingsNeverInventDevicesOrCompletedBackups() async {
         let vm = SettingsViewModel(repository: UnavailableSettingsRepository(), backup: UnavailableBackupRepository(), nodes: UnavailableNodeRepository(), preferences: NativePreferencesRepository(suite: "settings-tests-" + UUID().uuidString), account: "account", state: SettingsState(route: .backup), emit: { _ in })

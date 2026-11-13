@@ -53,7 +53,7 @@ public struct AppShellScreen: View {
             if let account = state.session.activeAccountID { LabeledContent(FeatureAppShellStrings.text("copy.7e1b0d5641f2", locale: locale), value: account) }
             else { Text(FeatureAppShellStrings.text("copy.eab0ba7f342e", locale: locale)) }
         case .unavailable(let reason):
-            RFStateBlock(title: FeatureAppShellStrings.text("copy.9882e82fed9b", locale: locale), description: reason.message, kind: .empty, theme: theme) { EmptyView() }
+            RFStateBlock(title: FeatureAppShellStrings.text("copy.9882e82fed9b", locale: locale), description: reason.message(locale: locale), kind: .empty, theme: theme) { EmptyView() }
         case .failed(let failure): failureView(failure)
         case .stopped, .suspended: Text(FeatureAppShellStrings.text("copy.cf60a4dcdd09", locale: locale))
         }

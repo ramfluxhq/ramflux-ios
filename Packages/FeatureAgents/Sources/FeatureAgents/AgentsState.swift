@@ -4,6 +4,7 @@ import AppData
 public struct AgentsState: Equatable, Sendable {
     public var mode: AgentCapability = .directory
     public var draft = AgentDraft()
+    public var draftIssue: AgentDraftIssue?
     public var loading = false
     public var failure: AppFailure?
     public init(mode: AgentCapability = .directory) { self.mode = mode }

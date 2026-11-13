@@ -15,6 +15,7 @@ import RFDesign
     private var previous: [MessageRecord] = []
     private var source: UITableViewDiffableDataSource<Int, String>?
     private var revision: UInt64 = 0
+    var presentationRevision: UInt64 { revision }
     public override func viewDidLoad() {
         super.viewDidLoad()
         tableView.backgroundColor = .clear

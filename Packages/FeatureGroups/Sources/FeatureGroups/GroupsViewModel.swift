@@ -87,7 +87,20 @@ import AppData
             switch result {
             case .success(let outcome):
                 self.state.outcome = outcome; self.emit(.mutationAcknowledged(outcome.groupID))
-                if case .create = attempt.mutation { self.state.mode = .created(outcome.groupID) }
+                if case .create = attempt.mutation, !outcome.waitingForOwner, !outcome.expired {
+                    let detail = await repository.detail(account: account, group: outcome.groupID)
+                    guard !Task.isCancelled, self.epoch == current else { return }
+                    switch detail {
+                    case .success(let value):
+                        let destination = await repository.conversation(account: account, group: value.group.id)
+                        guard !Task.isCancelled, self.epoch == current else { return }
+                        switch destination {
+                        case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, title: value.group.name))); return
+                        case .failure(let failure): self.state.failure = failure; return
+                        }
+                    case .failure(let failure): self.state.failure = failure; return
+                    }
+                }
                 if case .invitation = attempt.mutation { self.state.mode = .list }
                 self.refresh()
             case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.authorityFresh = false; self.state.detail = nil; self.state.mode = .accessChanged }

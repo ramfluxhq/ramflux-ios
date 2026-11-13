@@ -18,6 +18,10 @@
 	<string>Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client.</string>
 	<key>agents.goal</key>
 	<string>Goal</string>
+	<key>agents.goalLimit</key>
+	<string>Responsibility must be at most 256 UTF-8 bytes.</string>
+	<key>agents.goalRequired</key>
+	<string>Enter a responsibility.</string>
 	<key>agents.hide</key>
 	<string>Hide Agent</string>
 	<key>agents.loading</key>
@@ -26,6 +30,10 @@
 	<string>Manage Agent</string>
 	<key>agents.name</key>
 	<string>Name</string>
+	<key>agents.nameLimit</key>
+	<string>Use at most 40 Unicode scalars and 256 UTF-8 bytes.</string>
+	<key>agents.nameRequired</key>
+	<string>Enter a name.</string>
 	<key>agents.pause</key>
 	<string>Pause Agent</string>
 	<key>agents.profile</key>

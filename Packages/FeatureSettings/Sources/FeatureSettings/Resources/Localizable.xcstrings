@@ -1249,6 +1249,38 @@
           }
         }
       }
+    },
+    "settings.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An earlier Settings action is unresolved."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "之前的设置操作结果尚未确定。"
+          }
+        }
+      }
+    },
+    "settings.reconcile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconcile original action"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核对原始操作"
+          }
+        }
+      }
     }
   }
 }

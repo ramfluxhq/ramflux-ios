@@ -58,7 +58,7 @@ public struct NativeContactsRepository: ContactsRepository {
         }
     }
     public func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> {
-        guard let root = contact.rootCommitment else { return .failure(.notAvailable(AppDataStrings.text("copy.e6aaf3412a3a"))) }
+        guard let root = contact.rootCommitment else { return .failure(.unavailableResource("copy.e6aaf3412a3a")) }
         do {
             let body = try await gateway.call(.contactVerificationStatus, account: account, body: .object(["contact_identity_commitment": .string(root)]))
             guard body["contact_identity_commitment"] == .string(root), let number = Self.number(body["safety_number"]) else { throw AppFailure.invalidData }
@@ -77,10 +77,10 @@ public struct NativeContactsRepository: ContactsRepository {
     public func unavailable(_ capability: ContactUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: ContactUnavailable) -> AppFailure {
         switch capability {
-        case .reporting: .notAvailable(AppDataStrings.text("copy.528e4d2bc7b7"))
-        case .batch: .notAvailable(AppDataStrings.text("copy.6dc7a42f5b47"))
-        case .replyWithoutAcceptance: .notAvailable(AppDataStrings.text("copy.e48183526bae"))
-        case .atomicSafetyVerification: .notAvailable(AppDataStrings.text("copy.25f5b958f6a6"))
+        case .reporting: .unavailableResource("copy.528e4d2bc7b7")
+        case .batch: .unavailableResource("copy.6dc7a42f5b47")
+        case .replyWithoutAcceptance: .unavailableResource("copy.e48183526bae")
+        case .atomicSafetyVerification: .unavailableResource("copy.25f5b958f6a6")
         }
     }
 }
