@@ -17,7 +17,7 @@
 	<key>agents.explanation</key>
 	<string>智能体配置需要专用 SDK 接口。尚未创建或更改智能体。高级配置由桌面客户端管理。</string>
 	<key>agents.goal</key>
-	<string>目标</string>
+	<string>职责</string>
 	<key>agents.goalLimit</key>
 	<string>职责不得超过 256 个 UTF-8 字节。</string>
 	<key>agents.goalRequired</key>

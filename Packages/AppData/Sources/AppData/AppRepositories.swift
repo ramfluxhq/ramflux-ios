@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 public struct AppRepositories: Sendable {
+    public let cards: any CardsRepository
     public let tasks: any TasksRepository
     public let agents: any AgentsRepository
     public let calls: any CallsRepository
@@ -15,7 +16,7 @@ public struct AppRepositories: Sendable {
     public let session: any SessionRepository
     public let nodes: any NodeRepository
     public let onboarding: any OnboardingRepository
-    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository()) {
-        self.session = session; self.nodes = nodes; self.onboarding = onboarding; self.conversations = conversations; self.chat = chat; self.contacts = contacts; self.settings = settings; self.backup = backup; self.preferences = preferences; self.groups = groups; self.calls = calls; self.microphone = microphone; self.agents = agents; self.tasks = tasks
+    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository(), cards: any CardsRepository = UnavailableCardsRepository()) {
+        self.session = session; self.nodes = nodes; self.onboarding = onboarding; self.conversations = conversations; self.chat = chat; self.contacts = contacts; self.settings = settings; self.backup = backup; self.preferences = preferences; self.groups = groups; self.calls = calls; self.microphone = microphone; self.agents = agents; self.tasks = tasks; self.cards = cards
     }
 }

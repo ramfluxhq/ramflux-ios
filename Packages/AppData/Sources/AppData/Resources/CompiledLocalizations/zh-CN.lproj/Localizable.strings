@@ -12,6 +12,8 @@
 	<string>此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。</string>
 	<key>calls.audioUnavailable</key>
 	<string>此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。</string>
+	<key>cards.unavailable</key>
+	<string>此设备暂不支持交互卡片。您可以继续使用消息和账户功能。</string>
 	<key>copy.04d7b4833927</key>
 	<string>消息</string>
 	<key>copy.0e3b0c4afad6</key>

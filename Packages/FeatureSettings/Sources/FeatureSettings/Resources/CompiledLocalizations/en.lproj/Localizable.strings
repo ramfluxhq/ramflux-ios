@@ -6,6 +6,8 @@
 	<string>%@ · %@</string>
 	<key>calls.title</key>
 	<string>Calls</string>
+	<key>cards.title</key>
+	<string>Interactive cards</string>
 	<key>copy.01a234cb80c4</key>
 	<string>Link new device</string>
 	<key>copy.0370bcb8f79e</key>

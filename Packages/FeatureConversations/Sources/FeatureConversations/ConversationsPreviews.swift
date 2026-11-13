@@ -4,7 +4,7 @@ import SwiftUI
 import AppData
 import RFDesign
 public enum ConversationsPreviews {
-    public static let states = [ConversationsState(), ConversationsState(loading: true), ConversationsState(failure: .offline), ConversationsState(rows: [ConversationRecord(id: "preview-thread", title: "Alex", preview: "See you tomorrow", unreadCount: 2)])]
+    public static let states: [ConversationsState] = [ConversationsState(), ConversationsState(loading: true), ConversationsState(failure: .offline), ConversationsState(rows: [ConversationRecord(id: "preview-thread", title: "Alex", preview: "See you tomorrow", unreadCount: 2)])].map { original in var state = original; state.accountID = "preview-account"; return state }
 }
 #Preview("Inbox") { ConversationsScreen(state: ConversationsPreviews.states[3], onAction: { _ in }) }
 

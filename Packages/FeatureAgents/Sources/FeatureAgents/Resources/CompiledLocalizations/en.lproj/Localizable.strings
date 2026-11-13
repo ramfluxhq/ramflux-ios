@@ -17,7 +17,7 @@
 	<key>agents.explanation</key>
 	<string>Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client.</string>
 	<key>agents.goal</key>
-	<string>Goal</string>
+	<string>Responsibility</string>
 	<key>agents.goalLimit</key>
 	<string>Responsibility must be at most 256 UTF-8 bytes.</string>
 	<key>agents.goalRequired</key>

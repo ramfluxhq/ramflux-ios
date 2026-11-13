@@ -1329,6 +1329,22 @@
           }
         }
       }
+    },
+    "cards.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interactive cards are not available on this device yet. You can continue using messages and your account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备暂不支持交互卡片。您可以继续使用消息和账户功能。"
+          }
+        }
+      }
     }
   }
 }

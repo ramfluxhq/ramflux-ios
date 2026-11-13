@@ -103,13 +103,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Goal"
+            "value": "Responsibility"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "目标"
+            "value": "职责"
           }
         }
       }

@@ -45,6 +45,7 @@ jobs:
           swift test --package-path Packages/FeatureCalls
           swift test --package-path Packages/FeatureAgents
           swift test --package-path Packages/FeatureTasks
+          swift test --package-path Packages/FeatureCards
       - name: Build iOS Simulator application
         run: xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
       - name: Design token tests

@@ -1281,6 +1281,22 @@
           }
         }
       }
+    },
+    "cards.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interactive cards"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交互卡片"
+          }
+        }
+      }
     }
   }
 }

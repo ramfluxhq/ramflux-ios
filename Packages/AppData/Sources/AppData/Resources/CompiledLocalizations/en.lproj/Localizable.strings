@@ -12,6 +12,8 @@
 	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
+	<key>cards.unavailable</key>
+	<string>Interactive cards are not available on this device yet. You can continue using messages and your account.</string>
 	<key>copy.04d7b4833927</key>
 	<string>Messages</string>
 	<key>copy.0e3b0c4afad6</key>

@@ -11,6 +11,8 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     CODE_SIGNING_ALLOWED: NO
 packages:
+  FeatureCards:
+    path: Packages/FeatureCards
   RamfluxCore:
     path: .
   FeatureTasks:
@@ -43,6 +45,7 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureCards
       - package: FeatureTasks
       - package: FeatureAgents
       - package: FeatureCalls
@@ -79,6 +82,7 @@ targets:
     platform: iOS
     sources: [AppTests]
     dependencies:
+      - package: FeatureCards
       - package: FeatureTasks
       - package: FeatureAgents
       - package: FeatureCalls
