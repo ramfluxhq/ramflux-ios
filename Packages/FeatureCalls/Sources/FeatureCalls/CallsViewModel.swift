@@ -41,7 +41,7 @@ import AppData
             guard !state.busy, let pending = state.pending, pending.operationID == operationID else { return }
             perform { [repository, account] in await repository.signal(account: account, attempt: pending) }
         case .openSettings: emit(.openSystemSettings)
-        case .settingsResult(let opened): if !opened { state.failure = .failed }
+        case .settingsResult(let opened): if !opened { state.failure = .localFailure }
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             let mode = state.mode; state = CallsState(mode: mode)
