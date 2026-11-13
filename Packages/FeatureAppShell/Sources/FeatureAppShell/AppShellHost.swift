@@ -7,12 +7,13 @@ import RFDesign
 /// Navigation adapter only; all asynchronous work belongs to AppShellViewModel.
 public struct AppShellHost: View {
     @Bindable public var coordinator: AppShellCoordinator
-    public init(coordinator: AppShellCoordinator) { self.coordinator = coordinator }
+    private let destination: (AppRoute) -> AnyView
+    public init(coordinator: AppShellCoordinator, destination: @escaping (AppRoute) -> AnyView = { _ in AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message)) }) { self.coordinator = coordinator; self.destination = destination }
     public var body: some View {
         NavigationStack(path: $coordinator.path) {
             AppShellScreen(state: coordinator.viewModel.state, onAction: coordinator.send)
                 .navigationDestination(for: AppRoute.self) { route in
-                    RFUnavailableView(title: title(route), message: UnavailableReason.featureNotInstalled.message)
+                    destination(route)
                 }
         }.sheet(item: $coordinator.sheet) { _ in
             AccountPickerScreen(state: coordinator.viewModel.state, onAction: coordinator.send)

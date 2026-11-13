@@ -11,9 +11,10 @@ public final class NativeCore: CoreTransport {
     private let state = Mutex(State())
     private let configuration: Data
     private let dataRoot: URL
+    private let custody: HostCustodyProvider?
     public let methods: Set<String>
     public let descriptorFingerprint: String
-    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil) throws {
+    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil, custody: HostCustodyProvider? = nil) throws {
         guard dataRoot.isFileURL, builtinNodes.count <= 64 else { throw BridgeError.invalidInput }
         #if os(iOS)
         guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
@@ -21,7 +22,7 @@ public final class NativeCore: CoreTransport {
             throw BridgeError.unsafeStoragePath
         }
         #endif
-        self.dataRoot = dataRoot
+        self.dataRoot = dataRoot; self.custody = custody
         configuration = try JSONValue.object(["data_root": .string(dataRoot.path), "builtin_nodes": .array(builtinNodes)]).encoded()
         var pointer: UnsafeMutablePointer<RamfluxBuffer>?
         let code = ramflux_v2_negotiate(2, 0, &pointer)
@@ -165,7 +166,10 @@ public final class NativeCore: CoreTransport {
             #if os(iOS)
             _ = try AppStorage.prepare(applicationSupport: dataRoot.deletingLastPathComponent())
             #endif
-            code = configuration.withUnsafeBytes { ramflux_v2_client_open($0.bindMemory(to: UInt8.self).baseAddress, $0.count, &handle) }
+            code = configuration.withUnsafeBytes { bytes in
+                if let custody { var table = custody.table(); return ramflux_v2_client_open_with_custody(bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count, &table, &handle) }
+                return ramflux_v2_client_open(bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count, &handle)
+            }
         } catch {
             state.withLock { $0.opening = false; $0.lifecycleBusy = false; $0.closing = false }
             throw error

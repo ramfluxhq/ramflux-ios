@@ -243,6 +243,9 @@ public extension ConversationProxy {
     func conversationMute(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.conversationMute, context: context, body: body, secrets: secrets)
     }
+    func conversationSend(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.conversationSend, context: context, body: body, secrets: secrets)
+    }
 }
 public protocol DaemonProxy: SDKProxyProtocol {}
 public extension DaemonProxy {

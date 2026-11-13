@@ -4,15 +4,20 @@ import Foundation
 import RamfluxCore
 public enum AppDataFactory {
     /// Source-only builds explicitly refuse account operations. No fixture is linked into the app.
-    public static func sessionRepository() -> any SessionRepository {
+    public static func sessionRepository() -> any SessionRepository { repositories().session }
+    public static func repositories() -> AppRepositories {
         #if RF_NATIVE_SDK
         do {
-            guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return UnavailableSessionRepository() }
+            guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return unavailable() }
             let root = support.appendingPathComponent("ramflux", isDirectory: true)
-            return NativeSessionRepository(client: RamfluxClient(transport: try NativeCore(dataRoot: root)), dataRoot: root)
-        } catch { return UnavailableSessionRepository() }
+            let client = RamfluxClient(transport: try NativeCore(dataRoot: root, custody: HostCustodyProvider()))
+            return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root), nodes: NativeNodeRepository(client: client), onboarding: NativeOnboardingRepository(client: client))
+        } catch { return unavailable() }
         #else
-        return UnavailableSessionRepository()
+        return unavailable()
         #endif
+    }
+    private static func unavailable() -> AppRepositories {
+        AppRepositories(session: UnavailableSessionRepository(), nodes: UnavailableNodeRepository(), onboarding: UnavailableOnboardingRepository())
     }
 }

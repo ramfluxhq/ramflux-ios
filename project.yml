@@ -13,6 +13,8 @@ settings:
 packages:
   FeatureAppShell:
     path: Packages/FeatureAppShell
+  FeatureOnboarding:
+    path: Packages/FeatureOnboarding
   RFDesign:
     path: Packages/RFDesign
   AppData:
@@ -23,6 +25,8 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureOnboarding
+      - package: RFDesign
       - package: FeatureAppShell
       - package: AppData
     settings:
@@ -48,8 +52,9 @@ targets:
     sources: [AppTests]
     dependencies:
       - target: Ramflux
-      - package: FeatureAppShell
+      - package: FeatureOnboarding
       - package: RFDesign
+      - package: FeatureAppShell
       - package: AppData
 schemes:
   Ramflux:

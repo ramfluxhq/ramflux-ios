@@ -20,6 +20,7 @@ public struct AppShellScreen: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: RFTheme.adaptive(scheme).gap) {
                             sessionStatus
+                            Button("Set up this phone") { onAction(.open(.onboarding)) }
                             Text(state.tab.title).font(RFTheme.adaptive(scheme).pageFont).accessibilityAddTraits(.isHeader)
                             RFStateBlock(title: state.tab.title, description: state.unavailableFeature.message, kind: .empty,
                                          theme: RFTheme.adaptive(scheme)) { EmptyView() }

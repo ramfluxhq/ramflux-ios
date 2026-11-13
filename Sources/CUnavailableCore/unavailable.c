@@ -29,3 +29,7 @@ RF_UNAVAILABLE void ramflux_v2_buffer_free(struct RamfluxBuffer *buffer) {
     for(size_t i=0;i<buffer->len;i++)bytes[i]=0;
     free(buffer->ptr);free(buffer);
 }
+
+RF_UNAVAILABLE int32_t ramflux_v2_client_open_with_custody(const uint8_t *json, size_t len, const struct RamfluxV2CustodyProvider *provider, uint64_t *out) {
+    (void)provider; return ramflux_v2_client_open(json,len,out);
+}
