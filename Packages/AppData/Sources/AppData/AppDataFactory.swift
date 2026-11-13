@@ -11,7 +11,7 @@ public enum AppDataFactory {
             guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return unavailable() }
             let root = support.appendingPathComponent("ramflux", isDirectory: true)
             let client = RamfluxClient(transport: try NativeCore(dataRoot: root, custody: HostCustodyProvider()))
-            return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root), nodes: NativeNodeRepository(client: client), onboarding: NativeOnboardingRepository(client: client))
+            return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root), nodes: NativeNodeRepository(client: client), onboarding: NativeOnboardingRepository(client: client), conversations: NativeConversationsRepository(client: client, updates: NativeUpdateSource(client: client)))
         } catch { return unavailable() }
         #else
         return unavailable()

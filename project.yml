@@ -13,6 +13,8 @@ settings:
 packages:
   FeatureAppShell:
     path: Packages/FeatureAppShell
+  FeatureConversations:
+    path: Packages/FeatureConversations
   FeatureOnboarding:
     path: Packages/FeatureOnboarding
   RFDesign:
@@ -25,6 +27,7 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureConversations
       - package: FeatureOnboarding
       - package: RFDesign
       - package: FeatureAppShell
@@ -52,6 +55,7 @@ targets:
     sources: [AppTests]
     dependencies:
       - target: Ramflux
+      - package: FeatureConversations
       - package: FeatureOnboarding
       - package: RFDesign
       - package: FeatureAppShell

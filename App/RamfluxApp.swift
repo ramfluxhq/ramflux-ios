@@ -4,6 +4,7 @@ import SwiftUI
 import FeatureAppShell
 import AppData
 import FeatureOnboarding
+import FeatureConversations
 import RFDesign
 
 @main struct RamfluxApp: App {
@@ -14,7 +15,10 @@ import RFDesign
     @AppStorage("appearance") private var appearance = "system"
     var body: some Scene {
         WindowGroup {
-            AppShellHost(coordinator: coordinator) { route in
+            AppShellHost(coordinator: coordinator, tabContent: { tab, account in
+                if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
+                return nil
+            }) { route in
                 switch route {
                 case .onboarding, .recoverAccount, .linkDevice: AnyView(OnboardingHost(coordinator: composition.onboarding))
                 default: AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message))

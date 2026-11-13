@@ -8,8 +8,9 @@ import RFDesign
 public struct AppShellScreen: View {
     @Environment(\.colorScheme) private var scheme
     public let state: AppShellState
+    private let featureContent: AnyView?
     public let onAction: (AppShellAction) -> Void
-    public init(state: AppShellState, onAction: @escaping (AppShellAction) -> Void) { self.state = state; self.onAction = onAction }
+    public init(state: AppShellState, onAction: @escaping (AppShellAction) -> Void, featureContent: AnyView? = nil) { self.state = state; self.onAction = onAction; self.featureContent = featureContent }
     public var body: some View {
         RFPage {
             if state.privacyShield { Text("Ramflux").font(RFTheme.adaptive(scheme).pageFont).accessibilityLabel("Ramflux is locked") }
@@ -17,15 +18,18 @@ public struct AppShellScreen: View {
                 VStack(spacing: 0) {
                     header
                     Divider()
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: RFTheme.adaptive(scheme).gap) {
-                            sessionStatus
-                            Button("Set up this phone") { onAction(.open(.onboarding)) }
-                            Text(state.tab.title).font(RFTheme.adaptive(scheme).pageFont).accessibilityAddTraits(.isHeader)
-                            RFStateBlock(title: state.tab.title, description: state.unavailableFeature.message, kind: .empty,
-                                         theme: RFTheme.adaptive(scheme)) { EmptyView() }
-                            if let failure = state.failure { failureView(failure) }
-                        }.padding().frame(maxWidth: RFTheme.adaptive(scheme).column_max, alignment: .leading).frame(maxWidth: .infinity)
+                    if let featureContent {
+                        featureContent.frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: RFTheme.adaptive(scheme).gap) {
+                                sessionStatus
+                                Button("Set up this phone") { onAction(.open(.onboarding)) }
+                                Text(state.tab.title).font(RFTheme.adaptive(scheme).pageFont).accessibilityAddTraits(.isHeader)
+                                RFStateBlock(title: state.tab.title, description: state.unavailableFeature.message, kind: .empty, theme: RFTheme.adaptive(scheme)) { EmptyView() }
+                                if let failure = state.failure { failureView(failure) }
+                            }.padding().frame(maxWidth: RFTheme.adaptive(scheme).column_max, alignment: .leading).frame(maxWidth: .infinity)
+                        }
                     }
                     Divider()
                     tabs

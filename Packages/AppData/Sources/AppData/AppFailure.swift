@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import RamfluxCore
 public enum AppFailure: Error, Sendable, Equatable {
-    case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput
+    case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case notAvailable(String), outcomeUnknown, failed
     public var title: String {
         switch self {
@@ -12,6 +12,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .locked: "Unlock this account"
         case .busy: "Please try again shortly"
         case .upgradeRequired: "An update is required"
+        case .resyncRequired: "Refresh your local records"
         case .invalidData: "Unable to read this information"
         case .invalidInput: "Check your input"
         case .outcomeUnknown: "Outcome not confirmed"
@@ -26,6 +27,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .locked: "Unlock this device before opening your local records."
         case .busy: "Another operation or account writer is still active."
         case .upgradeRequired: "Update Ramflux before continuing with this account."
+        case .resyncRequired: "An update gap occurred. Refresh to load current records and reopen updates."
         case .invalidData: "The service returned information this app cannot display."
         case .invalidInput: "Complete the required fields before continuing."
         case .notAvailable(let message): message
@@ -47,6 +49,7 @@ public enum AppFailure: Error, Sendable, Equatable {
             default: return .failed
             }
         }
+        if (error as? BridgeError) == .resyncRequired { return .resyncRequired }
         if error is UnavailableCapability { return .unsupported }
         return .failed
     }
