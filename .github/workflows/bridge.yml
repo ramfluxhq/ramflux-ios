@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   bridge:
-    runs-on: macos-15-arm64
+    runs-on: macos-15
     timeout-minutes: 15
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
@@ -14,6 +14,11 @@ jobs:
       run:
         working-directory: ios
     steps:
+      - name: Select pinned installed Xcode
+        run: |
+          sudo xcode-select --switch "$DEVELOPER_DIR"
+          xcodebuild -version
+          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
       - uses: actions/checkout@v4
         with:
           path: ios
