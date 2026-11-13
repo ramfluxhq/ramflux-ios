@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>agents.advanced</key>
+	<string>Advanced configuration · read only</string>
+	<key>agents.chat</key>
+	<string>Agent conversation</string>
+	<key>agents.collaboration</key>
+	<string>Collaboration</string>
+	<key>agents.create</key>
+	<string>Create Agent</string>
+	<key>agents.directory</key>
+	<string>Agent directory</string>
+	<key>agents.edit</key>
+	<string>Edit basics</string>
+	<key>agents.explanation</key>
+	<string>Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client.</string>
+	<key>agents.goal</key>
+	<string>Goal</string>
+	<key>agents.hide</key>
+	<string>Hide Agent</string>
+	<key>agents.loading</key>
+	<string>Checking Agent availability</string>
+	<key>agents.manage</key>
+	<string>Manage Agent</string>
+	<key>agents.name</key>
+	<string>Name</string>
+	<key>agents.pause</key>
+	<string>Pause Agent</string>
+	<key>agents.profile</key>
+	<string>Agent profile</string>
+	<key>agents.remove</key>
+	<string>Remove Agent</string>
+	<key>agents.retry</key>
+	<string>Retry</string>
+	<key>agents.title</key>
+	<string>Agents</string>
+</dict>
+</plist>

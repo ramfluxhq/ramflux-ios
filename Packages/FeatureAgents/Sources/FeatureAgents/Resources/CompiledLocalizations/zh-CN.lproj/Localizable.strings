@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>agents.advanced</key>
+	<string>高级配置 · 只读</string>
+	<key>agents.chat</key>
+	<string>智能体会话</string>
+	<key>agents.collaboration</key>
+	<string>协作</string>
+	<key>agents.create</key>
+	<string>创建智能体</string>
+	<key>agents.directory</key>
+	<string>智能体列表</string>
+	<key>agents.edit</key>
+	<string>编辑基本信息</string>
+	<key>agents.explanation</key>
+	<string>智能体配置需要专用 SDK 接口。尚未创建或更改智能体。高级配置由桌面客户端管理。</string>
+	<key>agents.goal</key>
+	<string>目标</string>
+	<key>agents.hide</key>
+	<string>隐藏智能体</string>
+	<key>agents.loading</key>
+	<string>正在检查智能体功能</string>
+	<key>agents.manage</key>
+	<string>管理智能体</string>
+	<key>agents.name</key>
+	<string>名称</string>
+	<key>agents.pause</key>
+	<string>暂停智能体</string>
+	<key>agents.profile</key>
+	<string>智能体资料</string>
+	<key>agents.remove</key>
+	<string>移除智能体</string>
+	<key>agents.retry</key>
+	<string>重试</string>
+	<key>agents.title</key>
+	<string>智能体</string>
+</dict>
+</plist>

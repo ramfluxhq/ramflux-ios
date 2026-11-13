@@ -11,6 +11,8 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     CODE_SIGNING_ALLOWED: NO
 packages:
+  FeatureAgents:
+    path: Packages/FeatureAgents
   FeatureCalls:
     path: Packages/FeatureCalls
   FeatureGroups:
@@ -37,6 +39,7 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureAgents
       - package: FeatureCalls
       - package: FeatureGroups
       - package: FeatureSettings
@@ -71,6 +74,7 @@ targets:
     platform: iOS
     sources: [AppTests]
     dependencies:
+      - package: FeatureAgents
       - package: FeatureCalls
       - package: FeatureGroups
       - target: Ramflux

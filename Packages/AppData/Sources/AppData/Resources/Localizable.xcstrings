@@ -1233,6 +1233,22 @@
           }
         }
       }
+    },
+    "agents.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。"
+          }
+        }
+      }
     }
   }
 }

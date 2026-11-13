@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>agents.unavailable</key>
+	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
 	<key>copy.04d7b4833927</key>

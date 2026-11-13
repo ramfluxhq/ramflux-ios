@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureAgents
 import FeatureCalls
 import FeatureGroups
 import RFDesign
@@ -23,6 +24,7 @@ import RFDesign
             RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
                 if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
                 if tab == .groups, let account { return AnyView(GroupsHost(coordinator: composition.groups(account: account))) }
+                if tab == .agents, let account { return AnyView(AgentsHost(coordinator: composition.agents(account: account))) }
                 if tab == .more { return AnyView(SettingsHost(coordinator: composition.settings(account: account, route: .settings))) }
                 return nil
             }) { route in
