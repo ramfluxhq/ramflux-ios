@@ -4,6 +4,7 @@ import AppData
 import FeatureAppShell
 import FeatureOnboarding
 import FeatureConversations
+import FeatureChat
 @MainActor final class AppComposition {
     let repositories: AppRepositories
     let shell: AppShellCoordinator
@@ -17,6 +18,13 @@ import FeatureConversations
         inbox?.1.send(.disappeared)
         let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account) { [weak self] route in self?.shell.send(.open(route)) }
         inbox = (account, coordinator); return coordinator
+    }
+    private var currentChat: (String, String, ChatCoordinator)?
+    func chat(account: String, conversation: String) -> ChatCoordinator {
+        if let currentChat, currentChat.0 == account, currentChat.1 == conversation { return currentChat.2 }
+        currentChat?.2.send(.disappeared)
+        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation)
+        currentChat = (account, conversation, coordinator); return coordinator
     }
     init() { let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session) }
 }

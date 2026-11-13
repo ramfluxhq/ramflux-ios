@@ -42,7 +42,7 @@ public enum AppFailure: Error, Sendable, Equatable {
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.code {
             case .unsupportedVersion, .schemaResetRequired: return .upgradeRequired
-            case .authenticationFailed: return .locked
+            case .authenticationFailed, .deviceRevoked, .permissionDenied, .custodyForkFenced: return .locked
             case .accountBusy, .rateLimited: return .busy
             case .transportUnavailable, .timeout, .closed: return .offline
             case .invalidArgument, .invalidCanonicalJSON: return .invalidInput

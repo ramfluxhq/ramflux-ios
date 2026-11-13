@@ -5,6 +5,7 @@ import FeatureAppShell
 import AppData
 import FeatureOnboarding
 import FeatureConversations
+import FeatureChat
 import RFDesign
 
 @main struct RamfluxApp: App {
@@ -20,6 +21,9 @@ import RFDesign
                 return nil
             }) { route in
                 switch route {
+                case .conversation(let id):
+                    if let account = coordinator.viewModel.state.session.activeAccountID { AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
+                    else { AnyView(RFUnavailableView(title: "Unlock your account", message: "Open this account before reading a conversation.")) }
                 case .onboarding, .recoverAccount, .linkDevice: AnyView(OnboardingHost(coordinator: composition.onboarding))
                 default: AnyView(RFUnavailableView(title: "Ramflux", message: UnavailableReason.featureNotInstalled.message))
                 }
