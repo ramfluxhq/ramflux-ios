@@ -919,13 +919,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check the account, group and target identity. Holding confirms only these displayed facts. The SDK still checks authority."
+            "value": "Check the account, group and target identity. Tap Confirm for these displayed facts. The SDK still checks authority."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请核对账户、群组和目标身份。长按仅确认这里显示的事实。SDK 仍会检查权限。"
+            "value": "请核对账户、群组和目标身份。轻点确认这里显示的事实。SDK 仍会检查权限。"
           }
         }
       }
@@ -1031,13 +1031,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hold to confirm this operation"
+            "value": "Confirm this operation"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "长按以确认此操作"
+            "value": "确认此操作"
           }
         }
       }

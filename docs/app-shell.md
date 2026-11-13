@@ -75,7 +75,7 @@ into a Swift String; spoken recovery-word accessibility is currently limited.
 
 Message sending uses the high-level conversation intent. An uncertain send retains
 its original operation key and text for explicit retry. Device revocation and verified
-archive installation require native 1.2-second holds bound to the selected facts.
+archive installation require host-drawn single-tap confirmation bound to the selected facts. Confirmation opens with Cancel focused for keyboard and accessibility. Hardware-key events cannot activate Confirm; its accessibility label names the action and target.
 Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
 archive sharing accepts regular files within private backup storage only.
 

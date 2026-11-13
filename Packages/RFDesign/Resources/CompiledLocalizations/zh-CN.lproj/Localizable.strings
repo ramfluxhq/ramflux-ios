@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>confirmation.action</key>
+	<string>确认：%@</string>
+	<key>confirmation.cancel</key>
+	<string>取消</string>
+	<key>confirmation.confirm</key>
+	<string>确认</string>
 	<key>copy.a2538eaa411f</key>
 	<string>确认（仅一次）</string>
 	<key>copy.c771af79a1fe</key>
@@ -10,8 +16,6 @@
 	<string>重试</string>
 	<key>copy.dc380888c4e2</key>
 	<string>正在加载</string>
-	<key>hold.duration.hint</key>
-	<string>请持续按住 1.2 秒</string>
 	<key>theme.dark</key>
 	<string>深色</string>
 	<key>theme.light</key>

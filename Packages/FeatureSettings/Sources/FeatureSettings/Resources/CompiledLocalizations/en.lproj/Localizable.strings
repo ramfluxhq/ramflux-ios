@@ -99,13 +99,13 @@
 	<key>copy.948d4afeba2b</key>
 	<string>Refresh reads actual SDK job status. A submitted job is not reported as completed.</string>
 	<key>copy.953e554960b1</key>
-	<string>Hold to revoke</string>
+	<string>Confirm revocation</string>
 	<key>copy.967bd624c2d5</key>
 	<string>Review restore</string>
 	<key>copy.a1bcb108941e</key>
 	<string>Complete secure input in the iOS app.</string>
 	<key>copy.a1ec4eb88afb</key>
-	<string>Touch and hold continuously for 1.2 seconds</string>
+	<string>Review the displayed facts, then tap Confirm</string>
 	<key>copy.a5032d26d61d</key>
 	<string>Cancel job</string>
 	<key>copy.a7ba6a12696a</key>
@@ -141,7 +141,7 @@
 	<key>copy.ececf6457703</key>
 	<string>Open or create an account</string>
 	<key>copy.eea8986208e1</key>
-	<string>Hold to confirm this restore</string>
+	<string>Confirm this restore</string>
 	<key>copy.ef187b43e1da</key>
 	<string>Network connection has not been confirmed</string>
 	<key>copy.f2c50525757d</key>

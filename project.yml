@@ -108,6 +108,9 @@ targets:
     type: bundle.unit-test
     platform: iOS
     sources: [AppTests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - package: FeatureCards
       - package: FeatureTasks

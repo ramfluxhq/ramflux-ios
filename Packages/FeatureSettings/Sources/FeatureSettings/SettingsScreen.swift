@@ -29,7 +29,7 @@ public struct SettingsScreen: View {
                     modalContent(modal)
                     if state.busy { ProgressView(FeatureSettingsStrings.text("copy.1d70139d93b4", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-                }.padding(theme.gap) } }.toolbar { Button(FeatureSettingsStrings.text("copy.19766ed6ccb2", locale: locale)) { onAction(.dismissModal) }.disabled(state.busy) } }.interactiveDismissDisabled(state.busy)
+                }.padding(theme.gap) } } }.interactiveDismissDisabled(state.busy)
             }
 
     }
@@ -110,7 +110,7 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("copy.e7e35e2c6b94", locale: locale)).font(theme.pageFont); Text(device.id).textSelection(.enabled)
             if let origin = device.webOrigin { Text(origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("copy.20cb3df08ed4", locale: locale))
-            RFHostHoldToConfirm(label: FeatureSettingsStrings.text("copy.953e554960b1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.confirmRevoke(device.id)) }.id(device.id)
+            RFHostConfirmationActions(summary: FeatureSettingsStrings.text("copy.548139b9e4bc", locale: locale) + " · " + device.id, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
         case .backup, .share: backupContent
         }
     }

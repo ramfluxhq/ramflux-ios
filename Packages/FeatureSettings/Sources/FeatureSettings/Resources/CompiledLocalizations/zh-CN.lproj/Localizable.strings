@@ -99,13 +99,13 @@
 	<key>copy.948d4afeba2b</key>
 	<string>刷新会读取 SDK 的实际任务状态。已提交的任务不会被显示为已完成。</string>
 	<key>copy.953e554960b1</key>
-	<string>长按以撤销</string>
+	<string>确认撤销</string>
 	<key>copy.967bd624c2d5</key>
 	<string>审核恢复操作</string>
 	<key>copy.a1bcb108941e</key>
 	<string>请在 iOS 应用中完成安全输入。</string>
 	<key>copy.a1ec4eb88afb</key>
-	<string>请持续按住 1.2 秒</string>
+	<string>核对所显示的事实，然后轻点确认</string>
 	<key>copy.a5032d26d61d</key>
 	<string>取消任务</string>
 	<key>copy.a7ba6a12696a</key>
@@ -141,7 +141,7 @@
 	<key>copy.ececf6457703</key>
 	<string>打开或创建账户</string>
 	<key>copy.eea8986208e1</key>
-	<string>长按以确认此次恢复</string>
+	<string>确认此次恢复</string>
 	<key>copy.ef187b43e1da</key>
 	<string>网络连接尚未确认</string>
 	<key>copy.f2c50525757d</key>

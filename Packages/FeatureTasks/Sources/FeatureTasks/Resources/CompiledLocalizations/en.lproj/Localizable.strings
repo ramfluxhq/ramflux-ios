@@ -17,7 +17,7 @@
 	<key>tasks.capability</key>
 	<string>Capability</string>
 	<key>tasks.confirm</key>
-	<string>Hold to confirm</string>
+	<string>Confirm</string>
 	<key>tasks.context</key>
 	<string>Tasks belong to a conversation. Select its actual local history.</string>
 	<key>tasks.conversation</key>

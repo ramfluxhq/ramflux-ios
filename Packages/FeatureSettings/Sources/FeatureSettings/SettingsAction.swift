@@ -6,7 +6,7 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case reconcileOriginal(String)
     case appeared, disappeared, refresh, open(AppRoute), lock, requestRevoke(String), cancelRevoke, confirmRevoke(String)
     case appearance(AppearanceMode), retention(Int64), saveRetention, manualRequests, unavailable(SettingsUnavailable)
-    case createBackup, selectImport, importSelected(URL), cancelImport, requestInstall(String), restoreHold(String, UInt64), dismissModal, submitBackup(SensitiveSubmission), cancelBackupForm
+    case createBackup, selectImport, importSelected(URL), cancelImport, requestInstall(String), requestRestore(String, UInt64), dismissModal, submitBackup(SensitiveSubmission), cancelBackupForm
     case cancelJob(String), share(String), closeShare, setDefault(String)
     public var description: String { "SettingsAction" }
 }

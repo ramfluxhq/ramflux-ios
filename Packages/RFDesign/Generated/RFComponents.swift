@@ -193,14 +193,6 @@ public struct RFApprovalFact: Identifiable, Sendable {
     } }
 }
 
-// Decorative progress only. The host owns hold timing, cancellation and confirmation.
-@MainActor public func RFHoldPresentation(label: String, progress: Double, danger: Bool = false, theme: RFTheme) -> some View {
-    let style = danger ? RFStyles.hold_presentation_danger(theme) : RFStyles.hold_presentation_default(theme)
-    let fraction = progress.isFinite ? min(1, max(0, progress)) : 0
-    return rfBox(style) { VStack { Text(label); ProgressView(value: fraction).tint(style.foreground) } }
-        .allowsHitTesting(false).accessibilityElement(children: .combine)
-}
-
 @MainActor public func RFQuoteExcerpt(sender: String, text: String, theme: RFTheme) -> some View {
     let style = RFStyles.quote_excerpt_default(theme)
     return rfBox(style) { VStack(alignment: .leading, spacing: style.gap) { Text(sender).bold(); Text(text).lineLimit(3) } }

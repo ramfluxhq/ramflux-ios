@@ -51,7 +51,7 @@ import AppData
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .createBackup, .selectImport, .importSelected, .requestInstall, .restoreHold, .cancelJob, .share:
+        case .createBackup, .selectImport, .importSelected, .requestInstall, .requestRestore, .cancelJob, .share:
             state.failure = repository.unavailable(.mobileBackup)
         case .submitBackup(let credentials): credentials.erase(); state.failure = repository.unavailable(.mobileBackup)
         case .cancelImport: state.importSelecting = false

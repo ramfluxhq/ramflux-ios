@@ -20,8 +20,7 @@ public struct TasksScreen: View {
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                 Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
-                RFHostHoldToConfirm(label: copy("confirm"), enabled: state.fresh && !state.busy && state.pending == nil) { onAction(.confirm(confirmation.id)) }.id(confirmation.id)
-                Button(copy("dismiss")) { onAction(.cancelConfirmation) }.disabled(state.busy)
+                RFHostConfirmationActions(summary: copy(confirmation.attempt.arguments.kind.rawValue) + " · " + confirmation.attempt.arguments.task.title + " · " + confirmation.attempt.arguments.task.id, enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
             }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
         }
     }

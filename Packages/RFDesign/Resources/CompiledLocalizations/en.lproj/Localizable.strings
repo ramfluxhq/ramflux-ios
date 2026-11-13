@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>confirmation.action</key>
+	<string>Confirm: %@</string>
+	<key>confirmation.cancel</key>
+	<string>Cancel</string>
+	<key>confirmation.confirm</key>
+	<string>Confirm</string>
 	<key>copy.a2538eaa411f</key>
 	<string>Confirm once</string>
 	<key>copy.c771af79a1fe</key>
@@ -10,8 +16,6 @@
 	<string>Try again</string>
 	<key>copy.dc380888c4e2</key>
 	<string>Loading</string>
-	<key>hold.duration.hint</key>
-	<string>Touch and hold continuously for 1.2 seconds</string>
 	<key>theme.dark</key>
 	<string>Dark</string>
 	<key>theme.light</key>

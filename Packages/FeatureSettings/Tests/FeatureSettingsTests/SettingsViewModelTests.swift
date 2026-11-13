@@ -51,7 +51,7 @@ private actor BackupFake: BackupRepository {
         let fake = BackupFake(), job = BackupRecord(id: "job", kind: "restore", state: "verified", sequence: 7, accountID: "archive")
         var state = SettingsState(route: .backup); state.jobs = [job]; state.attended = true
         let vm = model(SettingsFake(), backup: fake, state: state)
-        vm.send(.createBackup); vm.send(.selectImport); vm.send(.requestInstall("job")); vm.send(.restoreHold("job", 7))
+        vm.send(.createBackup); vm.send(.selectImport); vm.send(.requestInstall("job")); vm.send(.requestRestore("job", 7))
         vm.send(.submitBackup(SensitiveSubmission(values: ["passphrase": "test"]))); await vm.settle()
         #expect(await fake.installs.isEmpty); #expect(vm.state.backupIntent == nil); #expect(!vm.state.importSelecting); #expect(!vm.state.restoreHeld); #expect(vm.state.failure == .unsupported); vm.send(.disappeared)
     }

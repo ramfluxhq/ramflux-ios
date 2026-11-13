@@ -727,13 +727,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hold to revoke"
+            "value": "Confirm revocation"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "长按以撤销"
+            "value": "确认撤销"
           }
         }
       }
@@ -775,13 +775,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touch and hold continuously for 1.2 seconds"
+            "value": "Review the displayed facts, then tap Confirm"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请持续按住 1.2 秒"
+            "value": "核对所显示的事实，然后轻点确认"
           }
         }
       }
@@ -1063,13 +1063,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hold to confirm this restore"
+            "value": "Confirm this restore"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "长按以确认此次恢复"
+            "value": "确认此次恢复"
           }
         }
       }
