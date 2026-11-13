@@ -31,6 +31,7 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
             var result = attributes; result.font = font; return result
         }
         button.configuration = style
+        view.setNeedsLayout()
     }
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: RFConfirmationActionsControl, context: Context) -> CGSize? {
         let width = proposal.width ?? 320

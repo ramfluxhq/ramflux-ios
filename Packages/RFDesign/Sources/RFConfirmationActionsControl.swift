@@ -3,11 +3,11 @@
 #if os(iOS)
 import UIKit
 @MainActor final class RFConfirmationActionsControl: UIView {
-    let cancelButton = UIButton(type: .system)
+    let cancelButton = RFConfirmationCancelControl(type: .system)
     let confirmButton = RFConfirmationControl(type: .system)
     let stack = UIStackView()
     var cancelAction: () -> Void = {}
-    override var keyCommands: [UIKeyCommand]? { [UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(cancelled))] }
+    private var needsInitialFocus = false
     override var preferredFocusEnvironments: [any UIFocusEnvironment] { [cancelButton] }
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,17 +20,30 @@ import UIKit
             confirmButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
         ])
         cancelButton.addTarget(self, action: #selector(cancelled), for: .touchUpInside)
+        cancelButton.cancel = { [weak self] in self?.cancelled() }
         // The safe action is first for both native focus and accessibility navigation.
         accessibilityElements = [cancelButton, confirmButton]
     }
     required init?(coder: NSCoder) { nil }
-    @objc private func cancelled() { cancelAction() }
+    @objc private func cancelled() { if cancelButton.isEnabled { cancelAction() } }
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        if window != nil {
-            setNeedsFocusUpdate(); updateFocusIfNeeded()
-            UIAccessibility.post(notification: .screenChanged, argument: cancelButton)
+        needsInitialFocus = window != nil
+        setNeedsLayout()
+    }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard needsInitialFocus, let window, window.windowScene?.activationState == .foregroundActive,
+              !bounds.isEmpty, cancelButton.isEnabled else { return }
+        // First-responder transfer is effective even when another branch owns keyboard input.
+        // A setNeedsFocusUpdate() on this previously unfocused container is insufficient.
+        guard cancelButton.becomeFirstResponder() else { return }
+        needsInitialFocus = false
+        if let system = UIFocusSystem.focusSystem(for: window) {
+            system.requestFocusUpdate(to: cancelButton)
+            system.updateFocusIfNeeded()
         }
+        UIAccessibility.post(notification: .screenChanged, argument: cancelButton)
     }
 }
 #endif
