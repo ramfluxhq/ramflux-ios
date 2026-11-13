@@ -72,7 +72,8 @@ public struct NativeChatRepository: ChatRepository {
         do {
             let body = try await gateway.call(.conversationSend, account: account, body: .object(["conversation_id": .string(conversation), "text": .string(text)]), operationID: operationID)
             guard body["conversation_id"] == .string(conversation), let state = body["delivery_state"]?.string.flatMap(SendOutcome.State.init(rawValue:)) else { throw AppFailure.outcomeUnknown }
-            return .success(SendOutcome(messageID: try ProxyGateway.text(body, "message_id"), state: state))
+            guard let message = body["message_id"]?.string, !message.isEmpty, message.utf8.count <= 65_536 else { throw AppFailure.outcomeUnknown }
+            return .success(SendOutcome(messageID: message, state: state))
         } catch { return .failure(AppFailure.map(error)) }
         }
     }

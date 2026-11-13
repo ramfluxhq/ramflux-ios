@@ -7,7 +7,7 @@ This repository contains only the AGPL client. The Ramflux core SDK and protocol
 crates live in `ramfluxhq/ramflux`.
 
 Status: native shell, onboarding, conversations, UIKit chat, contacts/strangers,
-and settings/devices/backup modules over the C ABI bridge. See
+groups and settings/devices/backup modules over the C ABI bridge. See
 [application structure and build modes](docs/app-shell.md). Missing SDK
 capabilities are explicit unavailable states.
 

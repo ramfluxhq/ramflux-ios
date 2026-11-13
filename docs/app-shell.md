@@ -64,7 +64,7 @@ keys, message bodies or operation payloads are logged or exported by the shell.
 ## Feature modules
 
 `FeatureOnboarding`, `FeatureConversations`, `FeatureChat`, `FeatureContacts` and
-`FeatureSettings` each expose Screen, State, Action, Event, ViewModel and Coordinator
+`FeatureSettings` and `FeatureGroups` each expose Screen, State, Action, Event, ViewModel and Coordinator
 types. Screens render State and emit Action; ViewModels own cancellable asynchronous
 work. AppData owns repositories shared over one RamfluxClient and maps SDK responses
 into application records. One visible feature observes the native event subscription;

@@ -23,16 +23,19 @@ public actor RetainedMutation<Arguments: Equatable & Sendable, Value: Sendable> 
     }
     public func run(scope: String, arguments: Arguments, operationID: String,
                     operation: @escaping @Sendable () async -> RepositoryResult<Value>) async -> RepositoryResult<Value> {
+        var reconcilingUnknown = false
         if let old = entries[scope] {
             let unresolved = Snapshot(arguments: old.arguments, operationID: old.operationID, result: old.result).unresolved
             if unresolved {
                 guard old.arguments == arguments, old.operationID == operationID else { return .failure(.outcomeUnknown) }
                 if case nil = old.result { return await old.task.value }
+                reconcilingUnknown = true
             }
         }
         let task = Task { await operation() }
         entries[scope] = Entry(arguments: arguments, operationID: operationID, task: task)
-        let result = await task.value
+        var result = await task.value
+        if reconcilingUnknown, case .failure = result { result = .failure(.outcomeUnknown) }
         // An older waiter must never replace a newer attempt.
         if entries[scope]?.operationID == operationID { entries[scope]?.result = result }
         return result

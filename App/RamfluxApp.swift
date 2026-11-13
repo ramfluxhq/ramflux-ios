@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureGroups
 import RFDesign
 
 @main struct RamfluxApp: App {
@@ -20,10 +21,14 @@ import RFDesign
         WindowGroup {
             RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
                 if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
+                if tab == .groups, let account { return AnyView(GroupsHost(coordinator: composition.groups(account: account))) }
                 if tab == .more { return AnyView(SettingsHost(coordinator: composition.settings(account: account, route: .settings))) }
                 return nil
             }) { route in
                 switch route {
+                case .groupConversation(let id, let title):
+                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, isGroup: true, title: title))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }

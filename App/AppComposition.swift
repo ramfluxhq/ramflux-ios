@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeatureGroups
 import Observation
 @Observable @MainActor final class AppComposition {
     let repositories: AppRepositories
@@ -23,12 +24,12 @@ import Observation
         let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account) { [weak self] route in self?.shell.send(.open(route)) }
         inbox = (account, coordinator); return coordinator
     }
-    @ObservationIgnored private var currentChat: (String, String, ChatCoordinator)?
-    func chat(account: String, conversation: String) -> ChatCoordinator {
-        if let currentChat, currentChat.0 == account, currentChat.1 == conversation { return currentChat.2 }
-        currentChat?.2.send(.disappeared)
-        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation)
-        currentChat = (account, conversation, coordinator); return coordinator
+    @ObservationIgnored private var currentChat: (String, String, Bool, ChatCoordinator)?
+    func chat(account: String, conversation: String, isGroup: Bool = false, title: String? = nil) -> ChatCoordinator {
+        if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == isGroup { return currentChat.3 }
+        currentChat?.3.send(.disappeared)
+        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation, isGroup: isGroup, title: title)
+        currentChat = (account, conversation, isGroup, coordinator); return coordinator
     }
     @ObservationIgnored private var currentContacts: (String, ContactsMode, ContactsCoordinator)?
     func contacts(account: String, mode: ContactsMode) -> ContactsCoordinator {
@@ -36,6 +37,13 @@ import Observation
         currentContacts?.2.send(.disappeared)
         let coordinator = ContactsCoordinator(repository: repositories.contacts, account: account, mode: mode) { [weak self] route in self?.shell.send(.open(route)) }
         currentContacts = (account, mode, coordinator); return coordinator
+    }
+    @ObservationIgnored private var currentGroups: (String, GroupsCoordinator)?
+    func groups(account: String) -> GroupsCoordinator {
+        if let currentGroups, currentGroups.0 == account { return currentGroups.1 }
+        currentGroups?.1.send(.disappeared)
+        let coordinator = GroupsCoordinator(repository: repositories.groups, contacts: repositories.contacts, account: account) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
+        currentGroups = (account, coordinator); return coordinator
     }
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?

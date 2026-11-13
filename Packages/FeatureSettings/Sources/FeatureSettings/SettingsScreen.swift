@@ -120,7 +120,7 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("copy.e7e35e2c6b94", locale: locale)).font(theme.pageFont); Text(device.id).textSelection(.enabled)
             if let origin = device.webOrigin { Text(origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("copy.20cb3df08ed4", locale: locale))
-            HoldToConfirm(label: FeatureSettingsStrings.text("copy.953e554960b1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.confirmRevoke(device.id)) }
+            RFHostHoldToConfirm(label: FeatureSettingsStrings.text("copy.953e554960b1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.confirmRevoke(device.id)) }.id(device.id)
         case .share(let url):
             Text(FeatureSettingsStrings.text("copy.53e6cce56bee", locale: locale)).font(theme.pageFont)
             ShareLink(item: url) { Label(FeatureSettingsStrings.text("copy.cf211c6c4ba0", locale: locale), systemImage: "square.and.arrow.up") }
@@ -132,7 +132,7 @@ public struct SettingsScreen: View {
                 Text(FeatureSettingsStrings.text("copy.fbd0df19e20e", locale: locale)).font(theme.pageFont); Text(job.accountID ?? FeatureSettingsStrings.text("copy.72830405351a", locale: locale)).textSelection(.enabled)
                 Text(job.merge == true ? FeatureSettingsStrings.text("copy.8802d45c10a5", locale: locale) : FeatureSettingsStrings.text("copy.6491d8373952", locale: locale))
                 Text(FeatureSettingsStrings.text("copy.e58ff986d436", locale: locale))
-                HoldToConfirm(label: FeatureSettingsStrings.text("copy.eea8986208e1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.restoreHold(job.id, job.sequence)) }
+                RFHostHoldToConfirm(label: FeatureSettingsStrings.text("copy.eea8986208e1", locale: locale), enabled: !state.busy && !state.unknownMutation) { onAction(.restoreHold(job.id, job.sequence)) }.id(job.id + ":" + String(job.sequence))
             }
             #if os(iOS)
             RFSecretFields(labels: [("passphrase", FeatureSettingsStrings.text("copy.e7611f0537df", locale: locale))], enabled: !state.busy && !state.unknownMutation && (isInstall(intent) ? state.restoreHeld : true)) { onAction(.submitBackup(SensitiveSubmission(values: $0))) }.frame(minHeight: theme.composer_min * 3).id(intent.id)

@@ -4,9 +4,13 @@
 import UIKit
 import SwiftUI
 import AppData
+import RFDesign
 
 @MainActor public final class TimelineController: UITableViewController {
     public var onAction: (ChatAction) -> Void = { _ in }
+    private var theme: RFTheme = .light
+    private var locale: Locale = .current
+    private var isGroup = false
     private var entries: [String: MessageRecord] = [:]
     private var previous: [MessageRecord] = []
     private var source: UITableViewDiffableDataSource<Int, String>?
@@ -22,13 +26,15 @@ import AppData
         source = UITableViewDiffableDataSource(tableView: tableView) { [weak self] table, path, id in
             let cell = table.dequeueReusableCell(withIdentifier: "message", for: path)
             cell.backgroundColor = .clear; cell.selectionStyle = .none
-            if let record = self?.entries[id] { cell.contentConfiguration = UIHostingConfiguration { MessageBubble(message: record, onAction: { [weak self] action in self?.onAction(action) }) }.margins(.all, 0) }
+            if let record = self?.entries[id] { cell.contentConfiguration = UIHostingConfiguration { MessageBubble(message: record, isGroup: self?.isGroup ?? false, onAction: { [weak self] action in self?.onAction(action) }).environment(\.rfTheme, self?.theme ?? .light).environment(\.locale, self?.locale ?? .current) }.margins(.all, 0) }
             return cell
         }
     }
-    public func update(_ messages: [MessageRecord]) {
+    public func update(_ messages: [MessageRecord], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false) {
         loadViewIfNeeded()
-        guard previous != messages, let source else { return }
+        guard previous != messages || self.theme != theme || self.locale != locale || self.isGroup != isGroup, let source else { return }
+        let presentationChanged = self.theme != theme || self.locale != locale || self.isGroup != isGroup
+        self.theme = theme; self.locale = locale; self.isGroup = isGroup
         let nearBottom = previous.isEmpty || tableView.contentOffset.y + tableView.bounds.height >= tableView.contentSize.height - 60
         let anchor = tableView.indexPathsForVisibleRows?.sorted().first
         let anchorID = anchor.flatMap { source.itemIdentifier(for: $0) }
@@ -38,7 +44,7 @@ import AppData
         previous = messages
         var snapshot = NSDiffableDataSourceSnapshot<Int, String>()
         snapshot.appendSections([0]); snapshot.appendItems(messages.map(\.id), toSection: 0)
-        snapshot.reconfigureItems(messages.filter { old[$0.id] != nil && old[$0.id] != $0 }.map(\.id))
+        snapshot.reconfigureItems(messages.filter { old[$0.id] != nil && (presentationChanged || old[$0.id] != $0) }.map(\.id))
         revision &+= 1; let current = revision
         source.apply(snapshot, animatingDifferences: false) { [weak self] in
             guard let self, self.revision == current else { return }

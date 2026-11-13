@@ -11,6 +11,8 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     CODE_SIGNING_ALLOWED: NO
 packages:
+  FeatureGroups:
+    path: Packages/FeatureGroups
   FeatureAppShell:
     path: Packages/FeatureAppShell
   FeatureSettings:
@@ -33,6 +35,7 @@ targets:
     platform: iOS
     sources: [App]
     dependencies:
+      - package: FeatureGroups
       - package: FeatureSettings
       - package: FeatureContacts
       - package: FeatureChat
@@ -65,6 +68,7 @@ targets:
     platform: iOS
     sources: [AppTests]
     dependencies:
+      - package: FeatureGroups
       - target: Ramflux
       - package: FeatureSettings
       - package: FeatureContacts

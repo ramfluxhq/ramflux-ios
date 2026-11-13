@@ -15,6 +15,13 @@ struct ChatRepositoryTests {
         guard case .success(let messages) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Mapping failed"); return }
         #expect(messages.first?.kind == .text("Authenticated display text")); #expect(messages.dropFirst().first?.kind == .deleted); #expect(messages.dropFirst().first?.sender == ""); #expect(messages.last?.kind == .callHistory); #expect(messages.last?.isOwn == nil)
     }
+    @Test func malformedCommittedSendProjectionKeepsOriginalAttemptUnknown() async {
+        let transport = ProxyTransport { _ in .object(["conversation_id": .string("c"), "delivery_state": .string("submitted")]) }
+        let client = RamfluxClient(transport: transport), repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: client))
+        #expect(await repo.send(account: "a", conversation: "c", text: "Original", operationID: "stable") == .failure(.outcomeUnknown))
+        #expect(await repo.sendState(account: "a", conversation: "c")?.operationID == "stable")
+        #expect(await repo.sendState(account: "a", conversation: "c")?.unresolved == true)
+    }
     @Test func sendUsesOnlyConversationIntentAndStableCallerKeyNeverClientRouting() async {
         let transport = ProxyTransport { request in
             #expect(request.method == "conversation.send"); #expect(request.body["conversation_id"] == .string("c")); #expect(request.body["text"] == .string("Hello"))

@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
-import RFDesign
 /// Native continuous gesture; no card-controlled timer or confirmation callback.
-public struct HoldToConfirm: View {
+public struct RFHostHoldToConfirm: View {
     @Environment(\.locale) private var locale
     @Environment(\.scenePhase) private var phase
     @Environment(\.rfTheme) private var theme
@@ -18,7 +17,7 @@ public struct HoldToConfirm: View {
             .background(theme.danger_bg, in: .rect(cornerRadius: theme.radius_button))
             .onLongPressGesture(minimumDuration: 1.2, maximumDistance: 16) { if enabled && phase == .active { confirm() } }
             .id(epoch).allowsHitTesting(enabled && phase == .active)
-            .accessibilityElement().accessibilityLabel(label).accessibilityHint(FeatureSettingsStrings.text("copy.a1ec4eb88afb", locale: locale))
+            .accessibilityElement().accessibilityLabel(label).accessibilityHint(RFDesignStrings.text("hold.duration.hint", locale: locale))
             .accessibilityAddTraits(.isButton)
             .onChange(of: phase) { _, _ in epoch &+= 1 }
             .onDisappear { epoch &+= 1 }

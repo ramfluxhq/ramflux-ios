@@ -3,6 +3,6 @@
 import AppData
 @MainActor public final class ChatCoordinator {
     public let viewModel: ChatViewModel
-    public init(repository: any ChatRepository, account: String, conversation: String, onEvent: @escaping (ChatEvent) -> Void = { _ in }) { viewModel = ChatViewModel(repository: repository, account: account, conversation: conversation, emit: onEvent) }
+    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, title: String? = nil, onEvent: @escaping (ChatEvent) -> Void = { _ in }) { viewModel = ChatViewModel(repository: repository, account: account, conversation: conversation, isGroup: isGroup, title: title, emit: onEvent) }
     public func send(_ action: ChatAction) { viewModel.send(action) }
 }

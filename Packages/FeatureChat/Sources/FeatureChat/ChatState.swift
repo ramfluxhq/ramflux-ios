@@ -2,6 +2,8 @@
 // Copyright (c) 2026 Span Brain
 import AppData
 public struct ChatState: Equatable, Sendable {
+    public var isGroup = false
+    public var displayTitle = ""
     public var conversationID = ""
     public var messages: [MessageRecord] = []
     public var draft = ""

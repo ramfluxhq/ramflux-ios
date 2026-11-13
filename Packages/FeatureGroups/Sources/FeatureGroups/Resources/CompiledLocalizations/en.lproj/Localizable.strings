@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>groups.accept</key>
+	<string>Review acceptance</string>
+	<key>groups.accept.action</key>
+	<string>Accept invitation</string>
+	<key>groups.accessChanged</key>
+	<string>Access has changed</string>
+	<key>groups.accessChanged.message</key>
+	<string>The account service refused this operation. Refresh the group before continuing.</string>
+	<key>groups.account</key>
+	<string>Account</string>
+	<key>groups.acknowledged</key>
+	<string>Change acknowledged by the account service</string>
+	<key>groups.add</key>
+	<string>Add known contact</string>
+	<key>groups.add.action</key>
+	<string>Add member</string>
+	<key>groups.addNone</key>
+	<string>No contact with a current identity commitment is available.</string>
+	<key>groups.admin</key>
+	<string>Administrator</string>
+	<key>groups.applying</key>
+	<string>Applying operation</string>
+	<key>groups.archive</key>
+	<string>Archive group</string>
+	<key>groups.bot</key>
+	<string>Bot</string>
+	<key>groups.cancel</key>
+	<string>Cancel</string>
+	<key>groups.confirm</key>
+	<string>Hold to confirm this operation</string>
+	<key>groups.create</key>
+	<string>Create group</string>
+	<key>groups.created</key>
+	<string>Group creation acknowledged</string>
+	<key>groups.created.message</key>
+	<string>The account service committed the group. This does not confirm delivery to other devices.</string>
+	<key>groups.creator</key>
+	<string>Creator identity</string>
+	<key>groups.creatorOnly</key>
+	<string>The group starts with your account. Add contacts separately after creation.</string>
+	<key>groups.decline</key>
+	<string>Review decline</string>
+	<key>groups.decline.action</key>
+	<string>Decline invitation</string>
+	<key>groups.demote</key>
+	<string>Review member role</string>
+	<key>groups.detail</key>
+	<string>Group details</string>
+	<key>groups.device</key>
+	<string>Device</string>
+	<key>groups.empty.message</key>
+	<string>Create a group or review an invitation to get started.</string>
+	<key>groups.empty.title</key>
+	<string>No groups yet</string>
+	<key>groups.epoch</key>
+	<string>Group version</string>
+	<key>groups.expires</key>
+	<string>Expires</string>
+	<key>groups.filter</key>
+	<string>Filter groups</string>
+	<key>groups.history</key>
+	<string>Threads and posts</string>
+	<key>groups.historyPolicy</key>
+	<string>New-member history</string>
+	<key>groups.id</key>
+	<string>Group ID</string>
+	<key>groups.inactive</key>
+	<string>Excluded device</string>
+	<key>groups.invitation</key>
+	<string>Group invitation</string>
+	<key>groups.inviter</key>
+	<string>Inviter identity</string>
+	<key>groups.invites</key>
+	<string>Invitations</string>
+	<key>groups.lastConfirmed</key>
+	<string>This is the last confirmed group state. Refresh before applying changes.</string>
+	<key>groups.leave</key>
+	<string>Leave group</string>
+	<key>groups.loading</key>
+	<string>Loading groups</string>
+	<key>groups.manageUnavailable</key>
+	<string>Management unavailable</string>
+	<key>groups.manageUnavailable.message</key>
+	<string>No management change has been submitted. Refresh permissions or use a supported device.</string>
+	<key>groups.member</key>
+	<string>Member</string>
+	<key>groups.members</key>
+	<string>Members and permissions</string>
+	<key>groups.messages</key>
+	<string>Open group conversation</string>
+	<key>groups.name</key>
+	<string>Group name</string>
+	<key>groups.newRole</key>
+	<string>Requested role</string>
+	<key>groups.noRequests</key>
+	<string>No change requests</string>
+	<key>groups.owner</key>
+	<string>Owner</string>
+	<key>groups.pending</key>
+	<string>An earlier operation is unresolved. Reconcile the original attempt before starting another.</string>
+	<key>groups.permissions.info</key>
+	<string>Permissions come from the current signed group state. A request may still need its owner’s approval.</string>
+	<key>groups.principal</key>
+	<string>Principal</string>
+	<key>groups.promote</key>
+	<string>Review administrator role</string>
+	<key>groups.reconcile</key>
+	<string>Reconcile original operation</string>
+	<key>groups.refresh</key>
+	<string>Refresh</string>
+	<key>groups.remove</key>
+	<string>Review member removal</string>
+	<key>groups.remove.action</key>
+	<string>Remove member device</string>
+	<key>groups.rename</key>
+	<string>Review name change</string>
+	<key>groups.requestApplied</key>
+	<string>Applied</string>
+	<key>groups.requestExpired</key>
+	<string>Expired</string>
+	<key>groups.requestPending</key>
+	<string>Pending owner approval</string>
+	<key>groups.requestRefused</key>
+	<string>Not applied</string>
+	<key>groups.requestUnknown</key>
+	<string>Status unavailable</string>
+	<key>groups.requests</key>
+	<string>Change requests</string>
+	<key>groups.review</key>
+	<string>Review exact operation</string>
+	<key>groups.review.message</key>
+	<string>Check the account, group and target identity. Holding confirms only these displayed facts. The SDK still checks authority.</string>
+	<key>groups.reviewCreate</key>
+	<string>Review group creation</string>
+	<key>groups.root</key>
+	<string>Identity commitment</string>
+	<key>groups.title</key>
+	<string>Groups</string>
+	<key>groups.transfer</key>
+	<string>Transfer ownership</string>
+	<key>groups.unknownRole</key>
+	<string>Role unavailable</string>
+	<key>groups.waitingOwner</key>
+	<string>Waiting for the group owner</string>
+	<key>groups.waitingOwner.message</key>
+	<string>The request is retained by the SDK. Group permissions have not been changed here.</string>
+</dict>
+</plist>

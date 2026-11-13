@@ -6,6 +6,13 @@ import Testing
 import RamfluxCore
 @testable import AppData
 @Suite(.timeLimit(.minutes(1))) struct RetainedMutationTests {
+    @Test func retryRefusalDoesNotProveAnEarlierUnknownAttemptHadNoEffect() async {
+        let owner = RetainedMutation<String, String>()
+        #expect(await owner.run(scope: "account", arguments: "original", operationID: "key", operation: { .failure(.outcomeUnknown) }) == .failure(.outcomeUnknown))
+        #expect(await owner.run(scope: "account", arguments: "original", operationID: "key", operation: { .failure(.invalidInput) }) == .failure(.outcomeUnknown))
+        #expect(await owner.snapshot(scope: "account")?.unresolved == true)
+        #expect(await owner.run(scope: "account", arguments: "different", operationID: "fresh", operation: { .success("wrong") }) == .failure(.outcomeUnknown))
+    }
     @Test func sendAndContactOwnersRetainExactAttemptsAfterCancelledWaiters() async {
         let dispatched = AsyncStream<Void>.makeStream(), release = DispatchSemaphore(value: 0)
         defer { release.signal(); release.signal(); dispatched.continuation.finish() }

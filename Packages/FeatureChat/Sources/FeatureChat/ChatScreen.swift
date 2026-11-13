@@ -11,14 +11,14 @@ public struct ChatScreen: View {
     public init(state: ChatState, onAction: @escaping (ChatAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
-            RFChatHeader(id: state.conversationID, title: state.conversationID, subtitle: "", theme: theme, leading: { RFAvatar(initial: String(state.conversationID.prefix(1)), kind: .person, theme: theme) }, trailing: { HStack { Button(FeatureChatStrings.text("copy.d6e645b7d2b2", locale: locale), systemImage: "phone") { onAction(.callRequested) }; Button(FeatureChatStrings.text("copy.d47d7cb0e4f8", locale: locale), systemImage: "ellipsis") { onAction(.detailsRequested) } } })
+            RFChatHeader(id: state.conversationID, title: state.displayTitle, subtitle: "", kind: state.isGroup ? .channel : .default, theme: theme, leading: { RFAvatar(initial: String(state.displayTitle.prefix(1)), kind: state.isGroup ? .group : .person, theme: theme) }, trailing: { HStack { Button(FeatureChatStrings.text("copy.d6e645b7d2b2", locale: locale), systemImage: "phone") { onAction(.callRequested) }; Button(FeatureChatStrings.text("copy.d47d7cb0e4f8", locale: locale), systemImage: "ellipsis") { onAction(.detailsRequested) } } })
             if state.loading { ProgressView(FeatureChatStrings.text("copy.aa8730bbb4e3", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             if state.messages.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("copy.f42e0f66017d", locale: locale), message: FeatureChatStrings.text("copy.3b6e2ca67ca5", locale: locale)) }
             #if os(iOS)
-            ChatTimeline(messages: state.messages, onAction: onAction)
+            ChatTimeline(messages: state.messages, isGroup: state.isGroup, onAction: onAction)
             #else
-            ScrollView { LazyVStack { ForEach(state.messages) { MessageBubble(message: $0, onAction: onAction) } } }
+            ScrollView { LazyVStack { ForEach(state.messages) { MessageBubble(message: $0, isGroup: state.isGroup, onAction: onAction) } } }
             #endif
             if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("copy.a8a3813c2900", locale: locale) : FeatureChatStrings.text("copy.b486522010d5", locale: locale)).font(theme.captionFont) }
             if state.pendingSend != nil && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }

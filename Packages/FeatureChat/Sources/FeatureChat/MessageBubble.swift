@@ -6,21 +6,22 @@ import RFDesign
 public struct MessageBubble: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    public let isGroup: Bool
     public let message: MessageRecord
     public let onAction: (ChatAction) -> Void
-    public init(message: MessageRecord, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.message = message; self.onAction = onAction }
+    public init(message: MessageRecord, isGroup: Bool = false, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.isGroup = isGroup; self.message = message; self.onAction = onAction }
     public var body: some View {
         if message.kind == .callHistory { Label(FeatureChatStrings.text("copy.83ceae7197e5", locale: locale), systemImage: "phone").font(theme.captionFont).frame(maxWidth: .infinity).padding(theme.gap) } else {
         HStack {
-            if message.isOwn == true { Spacer(minLength: theme.gap * 2) }
-            RFMessageBubble(id: message.id, kind: message.isOwn == true ? .own : .peer, sender: message.sender, theme: theme,
+            if !isGroup && message.isOwn == true { Spacer(minLength: theme.gap * 2) }
+            RFMessageBubble(id: message.id, kind: !isGroup && message.isOwn == true ? .own : .peer, sender: message.sender, theme: theme,
                 content: { Text(text).textSelection(.enabled) }, quote: { EmptyView() }, attachment: {
                     ForEach(message.attachments) { attachment in Button { onAction(.unavailableAttachment) } label: { Label(attachment.name, systemImage: "doc") } }
                 }, footer: {
                     if let timestamp = message.timestamp, (0...253402300799).contains(timestamp) { Text(Date(timeIntervalSince1970: TimeInterval(timestamp)).formatted(.dateTime.hour().minute().locale(locale))).font(theme.captionFont) }
                     if let receipt = message.receipt { Text(receipt).font(theme.captionFont) }
                 })
-            if message.isOwn == false { Spacer(minLength: theme.gap * 2) }
+            if isGroup || message.isOwn == false { Spacer(minLength: theme.gap * 2) }
         }.padding(.horizontal, theme.gap).accessibilityElement(children: .combine)
             .contextMenu {
                 if message.kind != .deleted && message.kind != .callHistory {

@@ -40,7 +40,7 @@ for path in sorted(ROOT.glob('**/Localizable.xcstrings')):
         for locale in ['en', 'zh-CN']:
             if not values.get(locale, {}).get('stringUnit', {}).get('value'):
                 failures.append(f'{path.relative_to(ROOT)}:{key}: empty {locale}')
-for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'AppData', 'RFDesign']:
+for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'FeatureGroups', 'AppData', 'RFDesign']:
     if not (ROOT / 'Packages' / name / 'Tests' / (name + 'Tests') / 'LocalizationTests.swift').is_file():
         failures.append(f'{name}: missing locale-resolution test')
 if failures:
