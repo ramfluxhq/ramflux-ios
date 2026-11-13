@@ -1,0 +1,9 @@
+// swift-tools-version: 6.2
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (c) 2026 Span Brain
+import PackageDescription
+let package = Package(name: "RFDesign", platforms: [.iOS(.v18), .macOS(.v15)],
+    products: [.library(name: "RFDesign", targets: ["RFDesign"])], targets: [
+        .target(name: "RFDesign", path: ".", exclude: ["Generated/.pen-gen-manifest.json"], sources: ["Generated", "Sources"]),
+        .testTarget(name: "RFDesignTests", dependencies: ["RFDesign"]),
+    ], swiftLanguageModes: [.v6])
