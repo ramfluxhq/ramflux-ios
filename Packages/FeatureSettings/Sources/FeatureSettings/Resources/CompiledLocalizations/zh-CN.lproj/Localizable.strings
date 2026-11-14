@@ -162,6 +162,8 @@
 	<string>之前的设置操作结果尚未确定。</string>
 	<key>settings.reconcile</key>
 	<string>核对原始操作</string>
+	<key>settings.systemPermissions</key>
+	<string>系统权限</string>
 	<key>tasks.title</key>
 	<string>任务</string>
 </dict>

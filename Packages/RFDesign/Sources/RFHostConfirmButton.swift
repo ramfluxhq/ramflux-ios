@@ -6,10 +6,11 @@ struct RFHostConfirmButton: View {
     @Environment(\.locale) private var locale
     @State private var gate = RFConfirmationGate()
     let summary: String
+    let confirmLabel: String?
     let enabled: Bool
     let confirm: () -> Void
     var body: some View {
-        Button(RFDesignStrings.text("confirmation.confirm", locale: locale), role: .destructive) {
+        Button(confirmLabel ?? RFDesignStrings.text("confirmation.confirm", locale: locale), role: .destructive) {
             if gate.activate(.tap, enabled: enabled) { confirm() }
         }
         .accessibilityLabel(RFDesignStrings.format("confirmation.action", summary, locale: locale))

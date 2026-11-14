@@ -2,4 +2,4 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import AppData
-public enum OnboardingEvent: Equatable, Sendable { case completed(AccountRecord), dismissed, presentRecovery(UUID, RecoveryDisplay), revokeRecovery }
+public enum OnboardingEvent: Equatable, Sendable { case completed(AccountRecord), accountCreated(AccountRecord), dismissed, presentRecovery(UUID, RecoveryDisplay), revokeRecovery }

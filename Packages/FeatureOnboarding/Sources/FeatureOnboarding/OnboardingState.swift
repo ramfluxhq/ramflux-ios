@@ -22,6 +22,7 @@ public struct OnboardingState: Equatable, Sendable {
     public var positions: [Int] = []
     public var anchorChecked = false
     public var unlockingSavedAccount = false
+    public var creatingAccount = false
     public var confirmationConsumed = false
     public var completedAccount: AccountRecord?
     public init(stage: OnboardingStage = .welcome) { self.stage = stage }

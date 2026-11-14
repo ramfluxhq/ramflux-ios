@@ -30,9 +30,9 @@ import AppData
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil; state.reviewedNode = nil; state.expectedNodeKey = ""
         case .recoveryAccountChanged(let value): state.recoveryAccount = String(value.prefix(256))
         case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.canCreateAccount }) { state.selectedNodeID = id }
-        case .unlockExisting: state.unlockingSavedAccount = true; state.stage = .localUnlock
-        case .create: state.unlockingSavedAccount = false; state.stage = .create
-        case .recover: state.stage = .recover
+        case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.stage = .localUnlock
+        case .create: state.creatingAccount = true; state.unlockingSavedAccount = false; state.stage = .create
+        case .recover: state.creatingAccount = false; state.stage = .recover
         case .link:
             state.stage = .link
             state.failure = .unavailableResource("FeatureOnboarding.copy.5fca79c1258a")
@@ -88,7 +88,7 @@ import AppData
                 state.confirmationConsumed = true
                 run { [repository] in .confirmed(await repository.confirm(input)) }
             }
-        case .done: if let account = state.completedAccount { emit(.completed(account)) }
+        case .done: if let account = state.completedAccount { emit(state.creatingAccount ? .accountCreated(account) : .completed(account)) }
         default: break
         }
     }

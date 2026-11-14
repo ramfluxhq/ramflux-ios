@@ -47,7 +47,7 @@ for path in sorted(ROOT.glob('**/Localizable.xcstrings')):
                 signatures.append(Counter(re.findall(r'%(?:[0-9]+\$)?(?:ll|l)?[@dfiu]', value)))
         if signatures and any(value != signatures[0] for value in signatures):
             failures.append(f'{path.relative_to(ROOT)}:{key}: format placeholders differ')
-for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'FeatureGroups', 'FeatureCalls', 'FeatureAgents', 'FeatureTasks', 'FeatureCards', 'AppData', 'RFDesign']:
+for name in ['FeatureAppShell', 'FeatureOnboarding', 'FeatureConversations', 'FeatureChat', 'FeatureContacts', 'FeatureSettings', 'FeatureGroups', 'FeatureCalls', 'FeatureAgents', 'FeatureTasks', 'FeatureCards', 'FeaturePermissions', 'AppData', 'RFDesign']:
     if not (ROOT / 'Packages' / name / 'Tests' / (name + 'Tests') / 'LocalizationTests.swift').is_file():
         failures.append(f'{name}: missing locale-resolution test')
 if failures:

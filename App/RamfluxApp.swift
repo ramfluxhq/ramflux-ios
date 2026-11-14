@@ -8,6 +8,7 @@ import FeatureConversations
 import FeatureChat
 import FeatureContacts
 import FeatureSettings
+import FeaturePermissions
 import FeatureCards
 import FeatureTasks
 import FeatureAgents
@@ -24,13 +25,14 @@ import RFDesign
     var body: some Scene {
         WindowGroup {
             RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
-                if tab == .messages, let account { return AnyView(ConversationsHost(coordinator: composition.conversations(account: account))) }
+                if tab == .messages, let account { return AnyView(VStack(spacing: 0) { NotificationPermissionBanner(state: composition.permissions.viewModel.state, onAction: composition.permissions.send); ConversationsHost(coordinator: composition.conversations(account: account)) }) }
                 if tab == .groups, let account { return AnyView(GroupsHost(coordinator: composition.groups(account: account))) }
                 if tab == .agents, let account { return AnyView(AgentsHost(coordinator: composition.agents(account: account))) }
                 if tab == .more { return AnyView(SettingsHost(coordinator: composition.settings(account: account, route: .settings))) }
                 return nil
             }) { route in
                 switch route {
+                case .systemPermissions: return AnyView(PermissionsHost(coordinator: composition.permissions))
                 case .cards: return AnyView(CardsHost(coordinator: composition.cards))
                 case .tasks, .permissions:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
@@ -54,12 +56,13 @@ import RFDesign
                 }
             }
             }
-                .onAppear { composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
+                .background(PermissionsPresentationHost(coordinator: composition.permissions))
+                .onAppear { composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
                 .onChange(of: phase) { _, phase in
                     switch phase {
-                    case .active: composition.startPreferences(); coordinator.send(.sceneActive)
+                    case .active: composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
                     case .inactive: coordinator.send(.sceneInactive)
                     case .background: runtime.enterBackground(coordinator)
                     @unknown default: coordinator.send(.sceneInactive)

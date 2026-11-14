@@ -1,0 +1,838 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统权限"
+          }
+        }
+      }
+    },
+    "intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission status stays on this device. It is never synced or sent to the node. It refreshes when you return to Ramflux."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限状态仅保存在此设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。"
+          }
+        }
+      }
+    },
+    "openSettings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开系统设置"
+          }
+        }
+      }
+    },
+    "cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "continue": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        }
+      }
+    },
+    "loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading system permissions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在读取系统权限"
+          }
+        }
+      }
+    },
+    "promptBoundary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue opens the system prompt. Cancel does not ask for permission."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "轻点继续后由系统询问；轻点取消则不会询问。"
+          }
+        }
+      }
+    },
+    "denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This permission is unavailable or turned off. You can change it in system settings; Ramflux will not ask again automatically."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此权限不可用或已关闭。你可以在系统设置中更改；Ramflux 不会自动重复询问。"
+          }
+        }
+      }
+    },
+    "status.allowed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allowed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已允许"
+          }
+        }
+      }
+    },
+    "status.limited": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受限"
+          }
+        }
+      }
+    },
+    "status.denied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denied"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拒绝"
+          }
+        }
+      }
+    },
+    "status.notAsked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not asked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未询问"
+          }
+        }
+      }
+    },
+    "status.notRequired": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No permission needed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无需权限"
+          }
+        }
+      }
+    },
+    "status.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不可用"
+          }
+        }
+      }
+    },
+    "notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "notifications.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generic alerts only: no sender or message content. Limited means provisional or quiet delivery."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅显示通用提醒，不含发送者或消息内容。受限表示临时授权或静默送达。"
+          }
+        }
+      }
+    },
+    "notifications.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on notifications?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启通知？"
+          }
+        }
+      }
+    },
+    "notifications.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications alert you to new messages and calls."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知可以提醒你有新消息或来电。"
+          }
+        }
+      }
+    },
+    "notifications.scope": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An alert says only “New message”, without the sender or message content."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒只显示“新消息”，不包含发送者或消息内容。"
+          }
+        }
+      }
+    },
+    "notifications.without": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without notifications, messages still arrive while Ramflux is open, with no alert."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不开启通知，打开 Ramflux 时仍可接收消息，只是没有提醒。"
+          }
+        }
+      }
+    },
+    "notifications.needed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知已关闭"
+          }
+        }
+      }
+    },
+    "notifications.off": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are off. You will not be alerted to new messages."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知已关闭，你将无法收到新消息提醒。"
+          }
+        }
+      }
+    },
+    "microphone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风"
+          }
+        }
+      }
+    },
+    "microphone.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice media is unavailable in this version. Microphone permission will be requested only when voice calls are supported."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不提供语音媒体；支持语音通话后，仅在使用通话时申请麦克风权限。"
+          }
+        }
+      }
+    },
+    "microphone.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow microphone access?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许使用麦克风？"
+          }
+        }
+      }
+    },
+    "microphone.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone lets the other person hear you on a voice call."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风让对方在语音通话中听到你的声音。"
+          }
+        }
+      }
+    },
+    "microphone.scope": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It is used only during a call and stops when the call ends."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在通话时使用，挂断后停止。"
+          }
+        }
+      }
+    },
+    "microphone.without": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messaging and call history still work without microphone access."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不允许麦克风也可以继续收发消息和查看通话记录。"
+          }
+        }
+      }
+    },
+    "microphone.needed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access needed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要麦克风权限"
+          }
+        }
+      }
+    },
+    "camera": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机"
+          }
+        }
+      }
+    },
+    "camera.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asked only when taking a photo or scanning a QR code. No request is made for an unavailable feature."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在拍照或扫码时询问；功能尚不可用时不会申请权限。"
+          }
+        }
+      }
+    },
+    "camera.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow camera access?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许使用相机？"
+          }
+        }
+      }
+    },
+    "camera.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the camera to take a photo or scan a QR code."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用相机拍照或扫描二维码。"
+          }
+        }
+      }
+    },
+    "camera.scope": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera runs only while the camera or scanner is open."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在拍照或扫码界面打开时使用相机。"
+          }
+        }
+      }
+    },
+    "camera.without": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can enter a pairing code by hand or choose a photo using the system picker when those features are available."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相关功能可用时，你仍可手动输入配对码，或通过系统选择器选取照片。"
+          }
+        }
+      }
+    },
+    "camera.needed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access needed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要相机权限"
+          }
+        }
+      }
+    },
+    "photoAdd": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存到相册"
+          }
+        }
+      }
+    },
+    "photoAdd.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add-only access. Picking a photo does not require library access."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅添加权限；选择照片不需要读取整个图库的权限。"
+          }
+        }
+      }
+    },
+    "photoAdd.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save image to Photos?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将图片保存到相册？"
+          }
+        }
+      }
+    },
+    "photoAdd.why": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add the image you chose to your photo library."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将你选择的图片添加到相册。"
+          }
+        }
+      }
+    },
+    "photoAdd.scope": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add only: Ramflux cannot view your photo library."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅添加：Ramflux 无法查看你的图库。"
+          }
+        }
+      }
+    },
+    "photoAdd.without": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image stays in the chat. When sharing is available, you can also save it to Files."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "图片仍保留在聊天中；分享功能可用时，也可以将其保存到文件。"
+          }
+        }
+      }
+    },
+    "photoAdd.needed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot save to Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法保存到相册"
+          }
+        }
+      }
+    },
+    "incomingCalls": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incoming-call UI"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来电界面"
+          }
+        }
+      }
+    },
+    "incomingCalls.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CallKit is not connected yet. Voice calls remain unavailable; no incoming-call permission is requested."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CallKit 尚未接入；语音通话暂不可用，不会申请来电权限。"
+          }
+        }
+      }
+    },
+    "photoPicker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pick a photo"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择照片"
+          }
+        }
+      }
+    },
+    "photoPicker.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system photo picker grants access only to selected items, without library-wide permission. Attachment transfer is not available yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统照片选择器仅授权所选项目，无需整个图库权限。附件传输暂不可用。"
+          }
+        }
+      }
+    },
+    "files": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files and storage"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件与存储"
+          }
+        }
+      }
+    },
+    "files.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System document pickers and exporters need no storage permission. No broad storage access is requested."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统文档选择器和导出器无需存储权限；不会申请整个存储空间的访问权限。"
+          }
+        }
+      }
+    },
+    "background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background delivery"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台投递"
+          }
+        }
+      }
+    },
+    "background.detail": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote notifications are the only background mode. This row reflects system background refresh restrictions."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程通知是唯一的后台模式；此行显示系统后台刷新限制。"
+          }
+        }
+      }
+    },
+    "status.restricted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited by system"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受系统限制"
+          }
+        }
+      }
+    }
+  }
+}

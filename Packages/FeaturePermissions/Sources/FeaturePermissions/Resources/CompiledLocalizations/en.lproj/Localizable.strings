@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>background</key>
+	<string>Background delivery</string>
+	<key>background.detail</key>
+	<string>Remote notifications are the only background mode. This row reflects system background refresh restrictions.</string>
+	<key>camera</key>
+	<string>Camera</string>
+	<key>camera.detail</key>
+	<string>Asked only when taking a photo or scanning a QR code. No request is made for an unavailable feature.</string>
+	<key>camera.needed</key>
+	<string>Camera access needed</string>
+	<key>camera.scope</key>
+	<string>The camera runs only while the camera or scanner is open.</string>
+	<key>camera.title</key>
+	<string>Allow camera access?</string>
+	<key>camera.why</key>
+	<string>Use the camera to take a photo or scan a QR code.</string>
+	<key>camera.without</key>
+	<string>You can enter a pairing code by hand or choose a photo using the system picker when those features are available.</string>
+	<key>cancel</key>
+	<string>Cancel</string>
+	<key>continue</key>
+	<string>Continue</string>
+	<key>denied</key>
+	<string>This permission is unavailable or turned off. You can change it in system settings; Ramflux will not ask again automatically.</string>
+	<key>files</key>
+	<string>Files and storage</string>
+	<key>files.detail</key>
+	<string>System document pickers and exporters need no storage permission. No broad storage access is requested.</string>
+	<key>incomingCalls</key>
+	<string>Incoming-call UI</string>
+	<key>incomingCalls.detail</key>
+	<string>CallKit is not connected yet. Voice calls remain unavailable; no incoming-call permission is requested.</string>
+	<key>intro</key>
+	<string>Permission status stays on this device. It is never synced or sent to the node. It refreshes when you return to Ramflux.</string>
+	<key>loading</key>
+	<string>Reading system permissions</string>
+	<key>microphone</key>
+	<string>Microphone</string>
+	<key>microphone.detail</key>
+	<string>Voice media is unavailable in this version. Microphone permission will be requested only when voice calls are supported.</string>
+	<key>microphone.needed</key>
+	<string>Microphone access needed</string>
+	<key>microphone.scope</key>
+	<string>It is used only during a call and stops when the call ends.</string>
+	<key>microphone.title</key>
+	<string>Allow microphone access?</string>
+	<key>microphone.why</key>
+	<string>The microphone lets the other person hear you on a voice call.</string>
+	<key>microphone.without</key>
+	<string>Messaging and call history still work without microphone access.</string>
+	<key>notifications</key>
+	<string>Notifications</string>
+	<key>notifications.detail</key>
+	<string>Generic alerts only: no sender or message content. Limited means provisional or quiet delivery.</string>
+	<key>notifications.needed</key>
+	<string>Notifications are off</string>
+	<key>notifications.off</key>
+	<string>Notifications are off. You will not be alerted to new messages.</string>
+	<key>notifications.scope</key>
+	<string>An alert says only “New message”, without the sender or message content.</string>
+	<key>notifications.title</key>
+	<string>Turn on notifications?</string>
+	<key>notifications.why</key>
+	<string>Notifications alert you to new messages and calls.</string>
+	<key>notifications.without</key>
+	<string>Without notifications, messages still arrive while Ramflux is open, with no alert.</string>
+	<key>openSettings</key>
+	<string>Open Settings</string>
+	<key>photoAdd</key>
+	<string>Save to Photos</string>
+	<key>photoAdd.detail</key>
+	<string>Add-only access. Picking a photo does not require library access.</string>
+	<key>photoAdd.needed</key>
+	<string>Cannot save to Photos</string>
+	<key>photoAdd.scope</key>
+	<string>Add only: Ramflux cannot view your photo library.</string>
+	<key>photoAdd.title</key>
+	<string>Save image to Photos?</string>
+	<key>photoAdd.why</key>
+	<string>Add the image you chose to your photo library.</string>
+	<key>photoAdd.without</key>
+	<string>The image stays in the chat. When sharing is available, you can also save it to Files.</string>
+	<key>photoPicker</key>
+	<string>Pick a photo</string>
+	<key>photoPicker.detail</key>
+	<string>The system photo picker grants access only to selected items, without library-wide permission. Attachment transfer is not available yet.</string>
+	<key>promptBoundary</key>
+	<string>Continue opens the system prompt. Cancel does not ask for permission.</string>
+	<key>status.allowed</key>
+	<string>Allowed</string>
+	<key>status.denied</key>
+	<string>Denied</string>
+	<key>status.limited</key>
+	<string>Limited</string>
+	<key>status.notAsked</key>
+	<string>Not asked</string>
+	<key>status.notRequired</key>
+	<string>No permission needed</string>
+	<key>status.restricted</key>
+	<string>Limited by system</string>
+	<key>status.unavailable</key>
+	<string>Not available</string>
+	<key>title</key>
+	<string>Permissions</string>
+</dict>
+</plist>

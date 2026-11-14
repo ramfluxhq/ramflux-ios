@@ -10,6 +10,8 @@ settings:
     SWIFT_VERSION: '6.0'
     SWIFT_STRICT_CONCURRENCY: complete
 packages:
+  FeaturePermissions:
+    path: Packages/FeaturePermissions
   FeatureCards:
     path: Packages/FeatureCards
   RamfluxCore:
@@ -47,6 +49,7 @@ targets:
       path: App/Ramflux.entitlements
       properties:
         application-identifier: $(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)
+        aps-environment: $(RAMFLUX_APNS_ENVIRONMENT)
         keychain-access-groups: [$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)]
     preBuildScripts:
       - name: Require device signing team
@@ -57,6 +60,7 @@ targets:
             exit 1
           fi
     dependencies:
+      - package: FeaturePermissions
       - package: FeatureCards
       - package: FeatureTasks
       - package: FeatureAgents
@@ -73,6 +77,7 @@ targets:
     settings:
       configs:
         Debug:
+          RAMFLUX_APNS_ENVIRONMENT: development
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
@@ -80,6 +85,7 @@ targets:
           DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
           CODE_SIGN_STYLE: Automatic
         Release:
+          RAMFLUX_APNS_ENVIRONMENT: production
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
@@ -99,6 +105,10 @@ targets:
     info:
       path: build/App-Info.plist
       properties:
+        NSMicrophoneUsageDescription: Ramflux uses the microphone only during voice calls.
+        NSCameraUsageDescription: Ramflux uses the camera only while taking a photo or scanning a QR code.
+        NSPhotoLibraryAddUsageDescription: Ramflux can add images you choose to Photos, without viewing your library.
+        UIBackgroundModes: [remote-notification]
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, zh-CN]
         CFBundleURLTypes:
@@ -112,6 +122,7 @@ targets:
       base:
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
+      - package: FeaturePermissions
       - package: FeatureCards
       - package: FeatureTasks
       - package: FeatureAgents

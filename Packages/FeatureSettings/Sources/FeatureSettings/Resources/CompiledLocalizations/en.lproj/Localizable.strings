@@ -162,6 +162,8 @@
 	<string>An earlier Settings action is unresolved.</string>
 	<key>settings.reconcile</key>
 	<string>Reconcile original action</string>
+	<key>settings.systemPermissions</key>
+	<string>System permissions</string>
 	<key>tasks.title</key>
 	<string>Tasks</string>
 </dict>

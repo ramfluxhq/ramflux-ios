@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>background</key>
+	<string>后台投递</string>
+	<key>background.detail</key>
+	<string>远程通知是唯一的后台模式；此行显示系统后台刷新限制。</string>
+	<key>camera</key>
+	<string>相机</string>
+	<key>camera.detail</key>
+	<string>仅在拍照或扫码时询问；功能尚不可用时不会申请权限。</string>
+	<key>camera.needed</key>
+	<string>需要相机权限</string>
+	<key>camera.scope</key>
+	<string>仅在拍照或扫码界面打开时使用相机。</string>
+	<key>camera.title</key>
+	<string>允许使用相机？</string>
+	<key>camera.why</key>
+	<string>使用相机拍照或扫描二维码。</string>
+	<key>camera.without</key>
+	<string>相关功能可用时，你仍可手动输入配对码，或通过系统选择器选取照片。</string>
+	<key>cancel</key>
+	<string>取消</string>
+	<key>continue</key>
+	<string>继续</string>
+	<key>denied</key>
+	<string>此权限不可用或已关闭。你可以在系统设置中更改；Ramflux 不会自动重复询问。</string>
+	<key>files</key>
+	<string>文件与存储</string>
+	<key>files.detail</key>
+	<string>系统文档选择器和导出器无需存储权限；不会申请整个存储空间的访问权限。</string>
+	<key>incomingCalls</key>
+	<string>来电界面</string>
+	<key>incomingCalls.detail</key>
+	<string>CallKit 尚未接入；语音通话暂不可用，不会申请来电权限。</string>
+	<key>intro</key>
+	<string>权限状态仅保存在此设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。</string>
+	<key>loading</key>
+	<string>正在读取系统权限</string>
+	<key>microphone</key>
+	<string>麦克风</string>
+	<key>microphone.detail</key>
+	<string>此版本暂不提供语音媒体；支持语音通话后，仅在使用通话时申请麦克风权限。</string>
+	<key>microphone.needed</key>
+	<string>需要麦克风权限</string>
+	<key>microphone.scope</key>
+	<string>仅在通话时使用，挂断后停止。</string>
+	<key>microphone.title</key>
+	<string>允许使用麦克风？</string>
+	<key>microphone.why</key>
+	<string>麦克风让对方在语音通话中听到你的声音。</string>
+	<key>microphone.without</key>
+	<string>不允许麦克风也可以继续收发消息和查看通话记录。</string>
+	<key>notifications</key>
+	<string>通知</string>
+	<key>notifications.detail</key>
+	<string>仅显示通用提醒，不含发送者或消息内容。受限表示临时授权或静默送达。</string>
+	<key>notifications.needed</key>
+	<string>通知已关闭</string>
+	<key>notifications.off</key>
+	<string>通知已关闭，你将无法收到新消息提醒。</string>
+	<key>notifications.scope</key>
+	<string>提醒只显示“新消息”，不包含发送者或消息内容。</string>
+	<key>notifications.title</key>
+	<string>开启通知？</string>
+	<key>notifications.why</key>
+	<string>通知可以提醒你有新消息或来电。</string>
+	<key>notifications.without</key>
+	<string>不开启通知，打开 Ramflux 时仍可接收消息，只是没有提醒。</string>
+	<key>openSettings</key>
+	<string>打开系统设置</string>
+	<key>photoAdd</key>
+	<string>保存到相册</string>
+	<key>photoAdd.detail</key>
+	<string>仅添加权限；选择照片不需要读取整个图库的权限。</string>
+	<key>photoAdd.needed</key>
+	<string>无法保存到相册</string>
+	<key>photoAdd.scope</key>
+	<string>仅添加：Ramflux 无法查看你的图库。</string>
+	<key>photoAdd.title</key>
+	<string>将图片保存到相册？</string>
+	<key>photoAdd.why</key>
+	<string>将你选择的图片添加到相册。</string>
+	<key>photoAdd.without</key>
+	<string>图片仍保留在聊天中；分享功能可用时，也可以将其保存到文件。</string>
+	<key>photoPicker</key>
+	<string>选择照片</string>
+	<key>photoPicker.detail</key>
+	<string>系统照片选择器仅授权所选项目，无需整个图库权限。附件传输暂不可用。</string>
+	<key>promptBoundary</key>
+	<string>轻点继续后由系统询问；轻点取消则不会询问。</string>
+	<key>status.allowed</key>
+	<string>已允许</string>
+	<key>status.denied</key>
+	<string>已拒绝</string>
+	<key>status.limited</key>
+	<string>受限</string>
+	<key>status.notAsked</key>
+	<string>未询问</string>
+	<key>status.notRequired</key>
+	<string>无需权限</string>
+	<key>status.restricted</key>
+	<string>受系统限制</string>
+	<key>status.unavailable</key>
+	<string>暂不可用</string>
+	<key>title</key>
+	<string>系统权限</string>
+</dict>
+</plist>

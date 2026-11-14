@@ -5,7 +5,8 @@ import AppData
 @testable import FeatureOnboarding
 private actor FlowFake: OnboardingRepository, NodeRepository {
     let gate: MutationGate?
-    init(gate: MutationGate? = nil) { self.gate = gate }
+    private let confirmSucceeds: Bool
+    init(gate: MutationGate? = nil, confirmSucceeds: Bool = false) { self.gate = gate; self.confirmSucceeds = confirmSucceeds }
 
     private(set) var origins: [String] = []
     private(set) var saved: [NodeRecord] = []
@@ -18,8 +19,8 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     func begin(name: String, nodeID: String?) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "ceremony", expiresInMilliseconds: 60_000)) }
     func showPhrase() -> RepositoryResult<RecoveryDisplay> { .failure(.unsupported) }
     func hideAndChallenge() -> RepositoryResult<[Int]> { .success([3, 7, 11]) }
-    func confirmationUnresolved() async -> Bool { confirmations > 0 }
-    func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> { confirmations += 1; if let gate { await gate.wait() }; submission.erase(); return .failure(.outcomeUnknown) }
+    func confirmationUnresolved() async -> Bool { confirmations > 0 && !confirmSucceeds }
+    func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> { confirmations += 1; if let gate { await gate.wait() }; submission.erase(); return confirmSucceeds ? .success(AccountRecord(id: "new-account", displayName: "New account", isLocked: false)) : .failure(.outcomeUnknown) }
     func beginRecovery(accountID: String) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "recovery", expiresInMilliseconds: 60_000, anchor: "fingerprint")) }
     func confirmRecovery(anchor: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { confirmations += 1; submission.erase(); return .success(AccountRecord(id: "account", displayName: "Account", isLocked: false)) }
     func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { submission.erase(); return .failure(.locked) }
@@ -78,6 +79,33 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(await fake.saved.isEmpty)
         vm.send(.expectedNodeKeyChanged("changed")); #expect(vm.state.visibleNodeFingerprint == nil)
         vm.send(.saveNode); await vm.settle(); #expect(await fake.saved.isEmpty)
+    }
+    @Test func successfulCreationEmitsNotificationOfferOnlyAfterDone() async {
+        let fake = FlowFake(confirmSucceeds: true)
+        var state = OnboardingState()
+        state.nodes = [NodeRecord(id: "node", origin: "https://example.org", isConfirmed: true, pinSource: "operator")]
+        state.selectedNodeID = "node"
+        var events: [OnboardingEvent] = []
+        let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { events.append($0) })
+        vm.send(.create); vm.send(.nameChanged("New account")); vm.send(.beginCreation); await vm.settle()
+        #expect(events.isEmpty)
+        vm.send(.hidePhrase); await vm.settle(); vm.send(.continueUnlock)
+        vm.send(.submit(SensitiveSubmission(values: [:]))); await vm.settle()
+        #expect(vm.state.stage == .complete); #expect(!events.contains { if case .accountCreated = $0 { true } else { false } })
+        vm.send(.done)
+        #expect(events.contains { if case .accountCreated(let account) = $0 { account.id == "new-account" } else { false } })
+    }
+    @Test func notificationOfferEventIsOnlyForCreationNotUnlockOrRecovery() {
+        let fake = FlowFake()
+        for created in [false, true] {
+            var state = OnboardingState(stage: .complete); state.creatingAccount = created
+            let account = AccountRecord(id: "account", displayName: "Account", isLocked: false)
+            state.completedAccount = account
+            var events: [OnboardingEvent] = []
+            let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { events.append($0) })
+            vm.send(.done)
+            #expect(events == [created ? .accountCreated(account) : .completed(account)])
+        }
     }
     @Test func confirmationIsOneAttemptAndUnknownOutcomeDoesNotRetry() async {
         let fake = FlowFake(); var state = OnboardingState(stage: .localUnlock); state.positions = [3,7,11]

@@ -8,17 +8,18 @@ public struct RFHostConfirmationActions: View {
     @Environment(\.rfTheme) private var theme
     @FocusState private var cancelFocused: Bool
     @AccessibilityFocusState private var cancelAccessibilityFocused: Bool
+    public let confirmLabel: String?
     public let summary: String
     public let enabled: Bool
     public let cancelEnabled: Bool
     public let confirm: () -> Void
     public let cancel: () -> Void
-    public init(summary: String, enabled: Bool, cancelEnabled: Bool = true, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
-        self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.confirm = confirm; self.cancel = cancel
+    public init(summary: String, confirmLabel: String? = nil, enabled: Bool, cancelEnabled: Bool = true, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
+        self.confirmLabel = confirmLabel; self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.confirm = confirm; self.cancel = cancel
     }
     public var body: some View {
         #if os(iOS)
-        RFNativeConfirmationActions(summary: summary, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, confirm: confirm, cancel: cancel)
+        RFNativeConfirmationActions(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, confirm: confirm, cancel: cancel)
         #else
         VStack(spacing: theme.gap) {
             Button(RFDesignStrings.text("confirmation.cancel", locale: locale), role: .cancel, action: cancel)
@@ -26,7 +27,7 @@ public struct RFHostConfirmationActions: View {
                 .focused($cancelFocused)
                 .accessibilityFocused($cancelAccessibilityFocused)
                 .disabled(!cancelEnabled)
-            RFHostConfirmButton(summary: summary, enabled: enabled && phase == .active, confirm: confirm)
+            RFHostConfirmButton(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, confirm: confirm)
         }
         .defaultFocus($cancelFocused, true)
         .task { cancelFocused = true; cancelAccessibilityFocused = true }

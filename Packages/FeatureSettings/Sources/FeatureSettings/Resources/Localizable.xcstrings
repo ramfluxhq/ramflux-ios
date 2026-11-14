@@ -1297,6 +1297,22 @@
           }
         }
       }
+    },
+    "settings.systemPermissions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System permissions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统权限"
+          }
+        }
+      }
     }
   }
 }

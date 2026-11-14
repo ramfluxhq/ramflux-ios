@@ -7,6 +7,7 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     let summary: String
+    let confirmLabel: String?
     let enabled: Bool
     let cancelEnabled: Bool
     let confirm: () -> Void
@@ -23,7 +24,7 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
         button.confirm = confirm; button.isEnabled = enabled
         button.accessibilityLabel = RFDesignStrings.format("confirmation.action", summary, locale: locale)
         var style = UIButton.Configuration.filled()
-        style.title = RFDesignStrings.text("confirmation.confirm", locale: locale)
+        style.title = confirmLabel ?? RFDesignStrings.text("confirmation.confirm", locale: locale)
         style.baseForegroundColor = UIColor(theme.danger)
         style.baseBackgroundColor = UIColor(theme.danger_bg)
         let font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_body) ?? .preferredFont(forTextStyle: .body))

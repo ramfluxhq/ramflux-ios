@@ -39,7 +39,7 @@ public struct SettingsScreen: View {
     }
     private var title: String {
         switch state.route { case .devices, .device: FeatureSettingsStrings.text("copy.6f3cba5e5a8e", locale: locale); case .nodes, .node: FeatureSettingsStrings.text("copy.7ac362063b9f", locale: locale); case .appearance: FeatureSettingsStrings.text("copy.dfe87d5e5bba", locale: locale)
-        case .privacy: FeatureSettingsStrings.text("copy.54a57c3147c4", locale: locale); case .backup: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale); case .account: FeatureSettingsStrings.text("copy.e8e01909593a", locale: locale); case .about: FeatureSettingsStrings.text("copy.5548cdf42bc6", locale: locale); case .permissions: FeatureSettingsStrings.text("copy.5da7ca5ffda2", locale: locale); default: FeatureSettingsStrings.text("copy.74a883a037bc", locale: locale) }
+        case .privacy: FeatureSettingsStrings.text("copy.54a57c3147c4", locale: locale); case .backup: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale); case .account: FeatureSettingsStrings.text("copy.e8e01909593a", locale: locale); case .about: FeatureSettingsStrings.text("copy.5548cdf42bc6", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("copy.5da7ca5ffda2", locale: locale); default: FeatureSettingsStrings.text("copy.74a883a037bc", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.route {
@@ -98,7 +98,7 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("copy.902c4d2aff10", locale: locale))
             Button(FeatureSettingsStrings.text("copy.4d9b709adaef", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
         default:
-            ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .permissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }
+            ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .systemPermissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }
         }
     }
     @ViewBuilder private var backupContent: some View {
@@ -117,5 +117,5 @@ public struct SettingsScreen: View {
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
         RFListRow(id: id, title: title, subtitle: subtitle, theme: theme, leading: { EmptyView() }, trailing: { Image(systemName: "chevron.right").accessibilityHidden(true) }) { onAction(.open(route)) }
     }
-    private func label(_ route: AppRoute) -> String { switch route { case .cards: FeatureSettingsStrings.text("cards.title", locale: locale); case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .calls: FeatureSettingsStrings.text("calls.title", locale: locale); case .account: FeatureSettingsStrings.text("copy.e8e01909593a", locale: locale); case .devices: FeatureSettingsStrings.text("copy.6f3cba5e5a8e", locale: locale); case .nodes: FeatureSettingsStrings.text("copy.7ac362063b9f", locale: locale); case .appearance: FeatureSettingsStrings.text("copy.dfe87d5e5bba", locale: locale); case .privacy: FeatureSettingsStrings.text("copy.54a57c3147c4", locale: locale); case .backup: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale); case .permissions: FeatureSettingsStrings.text("copy.5da7ca5ffda2", locale: locale); default: FeatureSettingsStrings.text("copy.5548cdf42bc6", locale: locale) } }
+    private func label(_ route: AppRoute) -> String { switch route { case .cards: FeatureSettingsStrings.text("cards.title", locale: locale); case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .calls: FeatureSettingsStrings.text("calls.title", locale: locale); case .account: FeatureSettingsStrings.text("copy.e8e01909593a", locale: locale); case .devices: FeatureSettingsStrings.text("copy.6f3cba5e5a8e", locale: locale); case .nodes: FeatureSettingsStrings.text("copy.7ac362063b9f", locale: locale); case .appearance: FeatureSettingsStrings.text("copy.dfe87d5e5bba", locale: locale); case .privacy: FeatureSettingsStrings.text("copy.54a57c3147c4", locale: locale); case .backup: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("copy.5da7ca5ffda2", locale: locale); default: FeatureSettingsStrings.text("copy.5548cdf42bc6", locale: locale) } }
 }

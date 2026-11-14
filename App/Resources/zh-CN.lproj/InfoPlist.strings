@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Ramflux 仅在拍照或扫描二维码时使用相机。</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Ramflux 仅在语音通话期间使用麦克风。</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Ramflux 可将你选择的图片添加到相册，但无法查看你的图库。</string>
+</dict>
+</plist>
