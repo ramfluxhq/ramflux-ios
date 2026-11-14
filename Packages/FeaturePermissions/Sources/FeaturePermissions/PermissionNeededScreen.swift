@@ -12,12 +12,12 @@ public struct PermissionNeededScreen: View {
     public init(permission: DevicePermission, busy: Bool, onAction: @escaping (PermissionsAction) -> Void) { self.permission = permission; self.busy = busy; self.onAction = onAction }
     private func copy(_ key: String) -> String { FeaturePermissionsStrings.text(key, locale: locale) }
     public var body: some View {
-        RFPage { VStack(alignment: .leading, spacing: theme.gap) {
+        RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             Text(copy(permission.rawValue + ".needed")).font(theme.pageFont)
             Text(copy(permission.rawValue + ".without"))
             Text(copy("denied"))
             Button(copy("cancel"), role: .cancel) { onAction(.dismissNeeded) }.disabled(busy)
             Button(copy("openSettings")) { onAction(.openSettings) }.disabled(busy)
-        }.padding(theme.gap) }
+        }.padding(theme.gap).frame(maxWidth: .infinity, alignment: .leading) } }
     }
 }

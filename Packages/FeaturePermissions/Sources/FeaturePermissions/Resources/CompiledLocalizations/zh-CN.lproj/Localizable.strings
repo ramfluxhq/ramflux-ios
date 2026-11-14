@@ -25,7 +25,7 @@
 	<key>continue</key>
 	<string>继续</string>
 	<key>denied</key>
-	<string>此权限不可用或已关闭。你可以在系统设置中更改；Ramflux 不会自动重复询问。</string>
+	<string>此权限不可用或已关闭，Ramflux 不会自动重复询问。若系统设置停留在首页，请前往“设置 › App › Ramflux”，再选择需要更改的权限。</string>
 	<key>files</key>
 	<string>文件与存储</string>
 	<key>files.detail</key>

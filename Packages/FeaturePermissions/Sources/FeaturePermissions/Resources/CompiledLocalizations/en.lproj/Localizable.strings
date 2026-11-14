@@ -25,7 +25,7 @@
 	<key>continue</key>
 	<string>Continue</string>
 	<key>denied</key>
-	<string>This permission is unavailable or turned off. You can change it in system settings; Ramflux will not ask again automatically.</string>
+	<string>This permission is unavailable or turned off. Ramflux will not ask again automatically. If Settings opens at its main page, go to Settings › Apps › Ramflux and select the permission you want to change.</string>
 	<key>files</key>
 	<string>Files and storage</string>
 	<key>files.detail</key>

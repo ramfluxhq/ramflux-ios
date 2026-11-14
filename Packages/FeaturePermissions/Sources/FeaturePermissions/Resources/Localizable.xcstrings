@@ -119,16 +119,17 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This permission is unavailable or turned off. You can change it in system settings; Ramflux will not ask again automatically."
+            "value": "This permission is unavailable or turned off. Ramflux will not ask again automatically. If Settings opens at its main page, go to Settings › Apps › Ramflux and select the permission you want to change."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此权限不可用或已关闭。你可以在系统设置中更改；Ramflux 不会自动重复询问。"
+            "value": "此权限不可用或已关闭，Ramflux 不会自动重复询问。若系统设置停留在首页，请前往“设置 › App › Ramflux”，再选择需要更改的权限。"
           }
         }
-      }
+      },
+      "comment": "If the public Settings link opens at the root, direct the user to the per-app page on iOS 18 and later."
     },
     "status.allowed": {
       "localizations": {

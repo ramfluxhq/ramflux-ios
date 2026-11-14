@@ -56,3 +56,8 @@ The optional `LivePermissionProbeTests.testOptInRealSettingsDestination` accepts
 `RFSettingsProbe=app` or `notifications` and invokes the real native route from an
 active scene. It skips normal CI. Inspect the actual Settings destination when
 using it; URL acceptance alone is insufficient. Remove the probe preference afterward.
+
+On fresh simulators the public Settings routes can open the Settings root instead
+of the app page. The denied screen provides the manual Settings > Apps > Ramflux
+path in English and Simplified Chinese and scrolls for larger text. Cold navigation
+to the app and notification pages still requires physical-device verification.
