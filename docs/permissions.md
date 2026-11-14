@@ -35,7 +35,9 @@ tests, and permission screen captures in light/dark with en/zh-CN/expanded copy.
 The optional native `LivePermissionProbeTests` uses the real OS repository and
 host explanation/presenter. It skips in ordinary CI. On a fresh simulator authorization
 state, set the app's `RFPermissionProbe` defaults key to `notifications`, `camera` or
-`photoAdd`, run that named test and interact with its real explanation/system prompt.
+`photoAdd`, run the explanation/prompt test and interact with its real explanation/system prompt.
 The probe has a bounded deadline and records actual system status; it does not
-manufacture grants. Remove the defaults key afterward. Provisional/restricted enum
-mapping is tested without changing product request policy to force those OS states.
+manufacture grants. Remove the defaults key afterward. The separate `provisional` opt-in test uses the real OS provisional API on a fresh
+simulator and verifies the local Limited status. Production requests remain
+alert/sound/badge only. System-restricted enum mapping is tested without
+manufacturing device-management restrictions.

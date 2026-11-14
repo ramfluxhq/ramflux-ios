@@ -3,6 +3,7 @@
 import XCTest
 import SwiftUI
 import UIKit
+import UserNotifications
 import AppData
 import FeaturePermissions
 import RFDesign
@@ -19,6 +20,24 @@ import RFDesign
     func openSettings() async -> Bool { await native.openSettings() }
 }
 @MainActor final class LivePermissionProbeTests: XCTestCase {
+    func testOptInRealProvisionalNotificationStatus() async throws {
+        guard UserDefaults.standard.string(forKey: "RFPermissionProbe") == "provisional" else { throw XCTSkip("Opt-in isolated provisional authorization probe") }
+        let center = UNUserNotificationCenter.current()
+        let before = await center.notificationSettings()
+        guard before.authorizationStatus == .notDetermined else { throw XCTSkip("Requires fresh simulator notification authorization") }
+        // Test setup uses the real OS provisional API; production requests remain alert/sound/badge only.
+        let granted = try await center.requestAuthorization(options: [.provisional])
+        XCTAssertTrue(granted)
+        let settings = await center.notificationSettings()
+        XCTAssertEqual(settings.authorizationStatus, .provisional)
+        let native = NativeDevicePermissionsRepository()
+        let snapshot = await native.snapshot()
+        XCTAssertEqual(snapshot[.notifications], .limited)
+        let coordinator = PermissionsCoordinator(repository: native)
+        coordinator.send(.foreground); await coordinator.viewModel.settle()
+        XCTAssertEqual(coordinator.viewModel.state.snapshot[.notifications], .limited)
+        XCTAssertNil(coordinator.viewModel.state.explanation)
+    }
     func testOptInExplanationSystemPromptAndRealStatus() async throws {
         // Opt in via simulator defaults for this app; ordinary CI never interrupts snapshots with OS prompts.
         guard let name = UserDefaults.standard.string(forKey: "RFPermissionProbe"), let permission = DevicePermission(rawValue: name), [.notifications, .camera, .photoAdd].contains(permission) else { throw XCTSkip("Opt-in real OS permission probe") }
