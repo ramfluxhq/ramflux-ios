@@ -2,6 +2,28 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.composer.cancel</key>
+	<string>取消</string>
+	<key>chat.delete.everyone</key>
+	<string>为所有人删除</string>
+	<key>chat.delete.everyone.fact</key>
+	<string>这将为会话中的所有人移除该消息。</string>
+	<key>chat.delete.everyone.summary</key>
+	<string>为所有人删除</string>
+	<key>chat.edit.banner</key>
+	<string>正在编辑</string>
+	<key>chat.edited</key>
+	<string>已编辑</string>
+	<key>chat.reaction.add</key>
+	<string>添加表情</string>
+	<key>chat.reaction.remove</key>
+	<string>移除表情</string>
+	<key>chat.reaction.title</key>
+	<string>表情回应</string>
+	<key>chat.reply.banner</key>
+	<string>正在回复</string>
+	<key>chat.reply.quote</key>
+	<string>回复</string>
 	<key>copy.01fad993ff61</key>
 	<string>表情回应</string>
 	<key>copy.0e9161011702</key>

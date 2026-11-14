@@ -24,30 +24,123 @@ import AppData
         case .appeared: refresh(); observe()
         case .refresh: refresh(); observe()
         case .draftChanged(let text): if text.utf8.count <= 65_536 { state.draft = text }
-        case .send:
-            guard !state.loading else { return }
-            guard !state.sending, state.pendingSend == nil, !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-            let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft); state.pendingSend = attempt; submit(attempt)
-        case .retrySameSend: if !state.sending, let attempt = state.pendingSend { submit(attempt) }
-        case .requestDelete(let id): if state.messages.contains(where: { $0.id == id && $0.kind != .deleted && $0.kind != .callHistory }) { state.pendingDelete = id }
+        case .send: submitComposer()
+        case .retrySameSend: retryHeld()
+        case .beginReply(let id): beginReply(id)
+        case .beginEdit(let id): beginEdit(id)
+        case .cancelComposer: cancelComposer()
+        case .beginReact(let id):
+            guard visible(id) else { return }
+            state.reactionTarget = id; state.reactionRemove = false
+        case .reactionMode(let remove): state.reactionRemove = remove
+        case .chooseReaction(let token): react(token, remove: false)
+        case .removeReaction(let token): react(token, remove: true)
+        case .cancelReaction: state.reactionTarget = nil; state.reactionRemove = false
+        case .requestDelete(let id, let scope):
+            guard let message = state.messages.first(where: { $0.id == id }), visible(id), scope == .local || message.isOwn == true else { return }
+            state.pendingDelete = PendingMessageDelete(messageID: id, scope: scope)
         case .cancelDelete: state.pendingDelete = nil
-        case .confirmDelete:
-            guard !state.sending, let id = state.pendingDelete else { return }
-            state.sending = true; state.pendingDelete = nil; let current = epoch
-            mutation = Task { [weak self, repository, account, conversation] in
-                let result = await repository.delete(account: account, conversation: conversation, message: id, operationID: UUID().uuidString)
-                guard !Task.isCancelled, let self, self.epoch == current else { return }
-                self.state.sending = false
-                switch result { case .success: self.refresh(); case .failure(let error): self.state.failure = error }
-            }
-        case .unavailableRevision: state.failure = repository.unavailable(.revisions)
+        case .confirmDelete: confirmDelete()
         case .unavailableAttachment: state.failure = repository.unavailable(.attachmentTransfer)
         case .disappeared, .conceal:
             epoch &+= 1; readID &+= 1; watchID &+= 1; load?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             if state.sending, state.pendingSend != nil { state.failure = .outcomeUnknown }
             state.sending = false; state.loading = false; state.messages = []; state.pendingDelete = nil
+            state.composer = nil; state.reactionTarget = nil; state.reactionRemove = false; state.held = nil
             if action == .conceal { state.draft = "" }
         }
+    }
+    private func visible(_ id: String) -> Bool {
+        state.messages.contains { $0.id == id && $0.kind != .deleted && $0.kind != .callHistory }
+    }
+    private func busy() -> Bool { state.loading || state.sending || state.pendingSend != nil || state.held != nil }
+    private func beginReply(_ id: String) {
+        guard !busy(), let message = state.messages.first(where: { $0.id == id }), visible(id) else { return }
+        let preview = switch message.kind { case .text(let text): text; default: "" }
+        state.composer = .reply(messageID: id, preview: preview); state.reactionTarget = nil
+    }
+    private func beginEdit(_ id: String) {
+        guard !busy(), let message = state.messages.first(where: { $0.id == id }), message.isOwn == true, case .text(let text) = message.kind else { return }
+        state.composer = .edit(messageID: id, previousDraft: state.draft); state.draft = text; state.reactionTarget = nil
+    }
+    private func cancelComposer() {
+        guard state.held == nil else { return }
+        if case .edit(_, let previous) = state.composer { state.draft = previous }
+        state.composer = nil
+    }
+    private func submitComposer() {
+        guard !state.loading, !state.sending, state.pendingSend == nil, state.held == nil else { return }
+        guard !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        switch state.composer {
+        case .edit(let messageID, _):
+            let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft)
+            state.held = .revision(operationID: attempt.operationID, messageID: messageID, text: attempt.text, reply: false)
+            runHeld { [repository, account, conversation] in await repository.edit(account: account, conversation: conversation, message: messageID, text: attempt.text, operationID: attempt.operationID) }
+        case .reply(let messageID, _):
+            let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft)
+            state.held = .revision(operationID: attempt.operationID, messageID: messageID, text: attempt.text, reply: true)
+            runHeld { [repository, account, conversation] in await repository.reply(account: account, conversation: conversation, message: messageID, text: attempt.text, operationID: attempt.operationID) }
+        case nil:
+            let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft); state.pendingSend = attempt; submit(attempt)
+        }
+    }
+    private func retryHeld() {
+        guard !state.sending else { return }
+        if let attempt = state.pendingSend { submit(attempt); return }
+        guard let held = state.held else { return }
+        switch held {
+        case .revision(let operationID, let messageID, let text, let reply):
+            runHeld { [repository, account, conversation] in
+                reply ? await repository.reply(account: account, conversation: conversation, message: messageID, text: text, operationID: operationID)
+                    : await repository.edit(account: account, conversation: conversation, message: messageID, text: text, operationID: operationID)
+            }
+        case .reaction(let operationID, let messageID, let token, let remove):
+            runHeld { [repository, account, conversation] in await repository.react(account: account, conversation: conversation, message: messageID, token: token, remove: remove, operationID: operationID) }
+        case .deletion(let operationID, let messageID, let scope):
+            runHeld { [repository, account, conversation] in await repository.delete(account: account, conversation: conversation, message: messageID, scope: scope, operationID: operationID) }
+        }
+    }
+    private func react(_ token: String, remove: Bool) {
+        guard !busy(), let messageID = state.reactionTarget, ChatReactionPalette.tokens.contains(token) else { return }
+        let operationID = UUID().uuidString
+        state.reactionTarget = nil; state.reactionRemove = false
+        state.held = .reaction(operationID: operationID, messageID: messageID, token: token, remove: remove)
+        runHeld { [repository, account, conversation] in await repository.react(account: account, conversation: conversation, message: messageID, token: token, remove: remove, operationID: operationID) }
+    }
+    private func confirmDelete() {
+        guard !busy(), let pending = state.pendingDelete else { return }
+        let operationID = UUID().uuidString
+        state.pendingDelete = nil
+        state.held = .deletion(operationID: operationID, messageID: pending.messageID, scope: pending.scope)
+        runHeld { [repository, account, conversation] in await repository.delete(account: account, conversation: conversation, message: pending.messageID, scope: pending.scope, operationID: operationID) }
+    }
+    private func runHeld(_ work: @escaping @Sendable () async -> RepositoryResult<Void>) {
+        state.sending = true; state.failure = nil; let current = epoch; let held = state.held
+        mutation = Task { [weak self] in
+            let result = await work()
+            guard !Task.isCancelled, let self, self.epoch == current else { return }
+            self.state.sending = false
+            switch result {
+            case .success:
+                self.finish(held); self.refresh()
+            case .failure(let error):
+                self.state.failure = error
+                if error != .outcomeUnknown && error != .offline { self.state.held = nil }
+            }
+        }
+    }
+    private func finish(_ held: HeldMutation?) {
+        switch held {
+        case .revision(_, _, let text, let reply):
+            if reply {
+                if state.draft == text { state.draft = "" }
+                state.composer = nil
+            } else if case .edit(_, let previous) = state.composer {
+                state.draft = previous; state.composer = nil
+            }
+        default: break
+        }
+        state.held = nil
     }
     private func submit(_ attempt: FrozenSend) {
         state.sending = true; state.failure = nil; let current = epoch

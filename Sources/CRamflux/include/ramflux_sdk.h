@@ -20,9 +20,9 @@
  Version 1 host storage operations. References are opaque UTF-8, without a terminating NUL.
  */
 enum RamfluxV2CustodyOperation
-#ifdef __cplusplus
+#if defined(__cplusplus) || __STDC_VERSION__ >= 202311L
   : uint32_t
-#endif // __cplusplus
+#endif // defined(__cplusplus) || __STDC_VERSION__ >= 202311L
  {
   RAMFLUX_V2_CUSTODY_OPERATION_PREFLIGHT = 0,
   RAMFLUX_V2_CUSTODY_OPERATION_STORE_PRIMARY = 1,
@@ -34,13 +34,50 @@ enum RamfluxV2CustodyOperation
   RAMFLUX_V2_CUSTODY_OPERATION_LOAD_PROVISIONING = 7,
 };
 #ifndef __cplusplus
+#if __STDC_VERSION__ >= 202311L
+typedef enum RamfluxV2CustodyOperation RamfluxV2CustodyOperation;
+#else
 typedef uint32_t RamfluxV2CustodyOperation;
+#endif // __STDC_VERSION__ >= 202311L
+#endif // __cplusplus
+
+/*
+ Permanent numeric codes shared by every generated product adapter.
+ */
+enum GeneratedErrorCode
+#if defined(__cplusplus) || __STDC_VERSION__ >= 202311L
+  : int32_t
+#endif // defined(__cplusplus) || __STDC_VERSION__ >= 202311L
+ {
+  GENERATED_ERROR_CODE_INVALID_ARGUMENT = 1,
+  GENERATED_ERROR_CODE_INVALID_JSON = 2,
+  GENERATED_ERROR_CODE_PEER_UPGRADE_REQUIRED = 3,
+  GENERATED_ERROR_CODE_STORAGE_CAPACITY = 4,
+  GENERATED_ERROR_CODE_SCHEMA_RESET_REQUIRED = 5,
+  GENERATED_ERROR_CODE_RESYNC_REQUIRED = 6,
+  GENERATED_ERROR_CODE_EDIT_CONFLICT = 7,
+  GENERATED_ERROR_CODE_NOT_AUTHORIZED = 8,
+  GENERATED_ERROR_CODE_TARGET_NOT_FOUND = 9,
+  GENERATED_ERROR_CODE_TARGET_DELETED = 10,
+  GENERATED_ERROR_CODE_PAYLOAD_TOO_LARGE = 11,
+  GENERATED_ERROR_CODE_RATE_LIMITED = 12,
+  GENERATED_ERROR_CODE_EPHEMERAL_UNAVAILABLE = 13,
+  GENERATED_ERROR_CODE_CRYPTO_FAILURE = 14,
+  GENERATED_ERROR_CODE_NOT_CONNECTED = 15,
+  GENERATED_ERROR_CODE_INTERNAL = 16,
+};
+#ifndef __cplusplus
+#if __STDC_VERSION__ >= 202311L
+typedef enum GeneratedErrorCode GeneratedErrorCode;
+#else
+typedef int32_t GeneratedErrorCode;
+#endif // __STDC_VERSION__ >= 202311L
 #endif // __cplusplus
 
 enum RamfluxErrorCode
-#ifdef __cplusplus
+#if defined(__cplusplus) || __STDC_VERSION__ >= 202311L
   : int32_t
-#endif // __cplusplus
+#endif // defined(__cplusplus) || __STDC_VERSION__ >= 202311L
  {
   RAMFLUX_ERROR_CODE_OK = 0,
   RAMFLUX_ERROR_CODE_INVALID_ARGUMENT = 1,
@@ -71,16 +108,20 @@ enum RamfluxErrorCode
   RAMFLUX_ERROR_CODE_SCHEMA_RESET_REQUIRED = 23,
 };
 #ifndef __cplusplus
+#if __STDC_VERSION__ >= 202311L
+typedef enum RamfluxErrorCode RamfluxErrorCode;
+#else
 typedef int32_t RamfluxErrorCode;
+#endif // __STDC_VERSION__ >= 202311L
 #endif // __cplusplus
 
 /*
  Additional v2 transport statuses. Existing `RamfluxErrorCode` values 0..23 are unchanged.
  */
 enum RamfluxV2Status
-#ifdef __cplusplus
+#if defined(__cplusplus) || __STDC_VERSION__ >= 202311L
   : int32_t
-#endif // __cplusplus
+#endif // defined(__cplusplus) || __STDC_VERSION__ >= 202311L
  {
   /*
    No terminal completion or event is available. Poll again without resubmitting.
@@ -100,7 +141,11 @@ enum RamfluxV2Status
   RAMFLUX_V2_STATUS_RESYNC_REQUIRED = 27,
 };
 #ifndef __cplusplus
+#if __STDC_VERSION__ >= 202311L
+typedef enum RamfluxV2Status RamfluxV2Status;
+#else
 typedef int32_t RamfluxV2Status;
+#endif // __STDC_VERSION__ >= 202311L
 #endif // __cplusplus
 
 struct RamfluxClient {
@@ -238,7 +283,7 @@ int32_t ramflux_client_put_object(struct RamfluxClient *client,
 int32_t ramflux_v2_negotiate(uint32_t major, uint32_t min_minor, struct RamfluxBuffer **out);
 
 /*
- Open one supervisor on a dedicated thread. Config is `{data_root,builtin_nodes?,allow_raw_messages?}`.
+ Open one supervisor on a dedicated thread. Config is `{data_root,builtin_nodes?,allow_raw_messages?,allow_secret_exports?}`.
  This may block during startup; invoke off the UI thread. Output is zero on failure.
  */
 int32_t ramflux_v2_client_open(const uint8_t *config,
@@ -306,6 +351,7 @@ int32_t ramflux_v2_event_poll(uint64_t handle,
 /*
  Erase and release a v2 output buffer exactly once. Null is accepted.
  All v2 output buffers, including secret ceremony responses, must use this function.
+ Never use the v1 `ramflux_buffer_free`: it does not erase secret bytes.
  */
 void ramflux_v2_buffer_free(struct RamfluxBuffer *buffer);
 
@@ -331,6 +377,29 @@ int32_t ramflux_v2_conversation_project(const uint8_t *input_json,
 int32_t ramflux_v2_receipt_present(const uint8_t *input_json,
                                    size_t len,
                                    struct RamfluxBuffer **out);
+
+/*
+ Return the SDK-bundled public card trust package, signed descriptor and host presentation assets.
+ Hosts independently pin its manifest digest and policy in their signed application release.
+ The owned JSON output uses `ramflux_v2_buffer_free`; no account or renderer is opened.
+ */
+int32_t ramflux_v2_card_trust_package(struct RamfluxBuffer **out);
+
+/*
+ Decode and re-encode a generated message request through the shared adapter core.
+ */
+int32_t ramflux_message_request_adapt(const unsigned char *request_json,
+                                      size_t request_json_len,
+                                      struct RamfluxBuffer **out_request_json,
+                                      struct RamfluxBuffer **out_error_json);
+
+/*
+ Decode and re-encode a generated message update through the shared adapter core.
+ */
+int32_t ramflux_message_update_adapt(const unsigned char *update_json,
+                                     size_t update_json_len,
+                                     struct RamfluxBuffer **out_update_json,
+                                     struct RamfluxBuffer **out_error_json);
 
 #ifdef __cplusplus
 }  // extern "C"

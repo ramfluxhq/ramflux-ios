@@ -142,6 +142,70 @@
 	<string>此设备上的私有钥匙串提供程序不可用。</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@：%2$@</string>
+	<key>refusal.crypto_failure</key>
+	<string>无法保护这条消息。</string>
+	<key>refusal.crypto_failure.title</key>
+	<string>保护失败</string>
+	<key>refusal.edit_conflict</key>
+	<string>消息在保存编辑前已发生变化。</string>
+	<key>refusal.edit_conflict.title</key>
+	<string>编辑冲突</string>
+	<key>refusal.ephemeral_unavailable</key>
+	<string>此处无法使用阅后即焚。</string>
+	<key>refusal.ephemeral_unavailable.title</key>
+	<string>不可用</string>
+	<key>refusal.internal</key>
+	<string>出现问题，请重试。</string>
+	<key>refusal.internal.title</key>
+	<string>出现问题</string>
+	<key>refusal.invalid_argument</key>
+	<string>这条消息无法接受。</string>
+	<key>refusal.invalid_argument.title</key>
+	<string>消息未接受</string>
+	<key>refusal.invalid_json</key>
+	<string>这条消息无法读取。</string>
+	<key>refusal.invalid_json.title</key>
+	<string>消息未读取</string>
+	<key>refusal.not_authorized</key>
+	<string>你无法更改这条消息。</string>
+	<key>refusal.not_authorized.title</key>
+	<string>无权更改</string>
+	<key>refusal.not_connected</key>
+	<string>当前未连接。</string>
+	<key>refusal.not_connected.title</key>
+	<string>未连接</string>
+	<key>refusal.payload_too_large</key>
+	<string>这条消息过大。</string>
+	<key>refusal.payload_too_large.title</key>
+	<string>消息过大</string>
+	<key>refusal.peer_upgrade_required</key>
+	<string>对方需要更新应用后才能继续。</string>
+	<key>refusal.peer_upgrade_required.title</key>
+	<string>需要更新</string>
+	<key>refusal.rate_limited</key>
+	<string>尝试次数过多，请稍后再试。</string>
+	<key>refusal.rate_limited.title</key>
+	<string>尝试过多</string>
+	<key>refusal.resync_required</key>
+	<string>此会话需要重新同步。</string>
+	<key>refusal.resync_required.title</key>
+	<string>需要同步</string>
+	<key>refusal.schema_reset_required</key>
+	<string>此会话需要重置后才能继续。</string>
+	<key>refusal.schema_reset_required.title</key>
+	<string>需要重置</string>
+	<key>refusal.storage_capacity</key>
+	<string>没有足够的空间保存。</string>
+	<key>refusal.storage_capacity.title</key>
+	<string>空间不足</string>
+	<key>refusal.target_deleted</key>
+	<string>这条消息已被删除。</string>
+	<key>refusal.target_deleted.title</key>
+	<string>消息已删除</string>
+	<key>refusal.target_not_found</key>
+	<string>这条消息已不可用。</string>
+	<key>refusal.target_not_found.title</key>
+	<string>消息不可用</string>
 	<key>request.localFailure</key>
 	<string>本地系统操作未能完成。请保留当前状态；重新打开页面核对后再决定是否重试。</string>
 	<key>request.localStorage</key>

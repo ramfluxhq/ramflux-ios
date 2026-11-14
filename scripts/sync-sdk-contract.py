@@ -22,7 +22,7 @@ def swift_name(name):
     return parts[0] + "".join(part.title() for part in parts[1:])
 
 def validate_policy(policy):
-    if policy.get("abi_major") != 2 or policy.get("policy_version") != 1:
+    if policy.get("abi_major") != 2 or policy.get("policy_version") != 2:
         raise ValueError("unsupported SDK method policy")
     rows = policy.get("methods", [])
     if not rows or len(rows) > 4096:
@@ -38,7 +38,7 @@ def validate_policy(policy):
         names.add(name); swift_names.add(identifier)
         if not re.fullmatch(r"[a-z][a-z0-9_]*", row.get("capability", "")):
             raise ValueError("invalid capability")
-        if any(type(row.get(flag)) is not bool for flag in ["secret_input", "secret_output", "show_once"]):
+        if any(type(row.get(flag)) is not bool for flag in ["secret_input", "secret_output", "show_once", "key_export", "bridge_allowed"]):
             raise ValueError("missing SDK secret-handling policy")
         if row["show_once"] and not row["secret_output"]:
             raise ValueError("show_once must have secret output")
@@ -62,12 +62,19 @@ def generate(sdk, commit, update_pin=False, check=False):
     rows = validate_policy(policy)
     # Compare the committed JSON to its SDK Rust policy source, not a native secret list.
     policy_source = source("crates/ramflux-sdk/src/c_abi/v2/method_policy.rs").decode()
-    rust_rows = re.findall(r'"([a-z][a-z0-9_.]*)"\s*=>\s*\(\s*"([a-z][a-z0-9_]*)"\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*\)', policy_source)
-    expected = sorted([dict(name=n, capability=c, secret_input=i == "true", secret_output=o == "true", show_once=s == "true")
-                       for n, c, i, o, s in rust_rows], key=lambda row: row["name"])
+    rust_rows = re.findall(r'"([a-z][a-z0-9_.]*)"\s*=>\s*\(\s*"([a-z][a-z0-9_]*)"\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*\)', policy_source)
+    denied = set()
+    if "DENIED_METHODS" in policy_source:
+        denied = set(re.findall(r'"([a-z][a-z0-9_.]*)"', policy_source.split("DENIED_METHODS", 1)[1].split(";", 1)[0]))
+    expected = sorted([dict(name=n, capability=c, secret_input=i == "true", secret_output=o == "true", show_once=s == "true",
+                            key_export=k == "true", bridge_allowed=n not in denied and "itest" not in n)
+                       for n, c, i, o, s, k in rust_rows], key=lambda row: row["name"])
     if rows != expected or len(rows) != len(rust_rows):
         raise ValueError("SDK policy count/content differs from the source registry")
-    if not update_pin and recorded["operationCount"] != len(rows):
+    callable_rows = [row for row in rows if row["bridge_allowed"]]
+    if not callable_rows or any(row["name"] in {item["name"] for item in rows if not item["bridge_allowed"]} for row in callable_rows):
+        raise ValueError("invalid bridge inventory")
+    if not update_pin and recorded["operationCount"] != len(callable_rows):
         raise ValueError("operation count differs from recorded contract")
     method_table = source("crates/ramflux-sdk/src/bus/method_table.rs").decode().split("methods! {", 1)[1].split("#[cfg(test)]", 1)[0]
     reads = set()
@@ -79,21 +86,28 @@ def generate(sdk, commit, update_pin=False, check=False):
     reads.update(row["name"] for row in rows if row["name"].startswith(("account.create.", "account.custody.", "account.recover.")))
     lines = [LICENSE, "// Generated from the pinned SDK method policy. Do not edit.\n",
              "public enum SDKOperation: String, CaseIterable, Sendable {\n"]
-    for row in rows:
+    for row in callable_rows:
         lines.append(f'    case {swift_name(row["name"])} = "{row["name"]}"\n')
-    for property_name, flag in [("requiresSecureInput", "secret_input"), ("requiresSecureOutput", "secret_output"), ("showOnce", "show_once")]:
-        cases = ["." + swift_name(row["name"]) for row in rows if row[flag]]
-        lines.append(f'    public var {property_name}: Bool {{\n        switch self {{\n        case ' + ", ".join(cases) + ': true\n        default: false\n        }\n    }\n')
-    lines.append('    public var requiresOperationID: Bool {\n        switch self {\n        case ' + ", ".join("." + swift_name(row["name"]) for row in rows if row["name"] in reads) + ': false\n        default: true\n        }\n    }\n')
+    for property_name, flag in [("requiresSecureInput", "secret_input"), ("requiresSecureOutput", "secret_output"), ("showOnce", "show_once"), ("requiresKeyExport", "key_export")]:
+        cases = ["." + swift_name(row["name"]) for row in callable_rows if row[flag]]
+        if cases:
+            lines.append(f'    public var {property_name}: Bool {{\n        switch self {{\n        case ' + ", ".join(cases) + ': true\n        default: false\n        }\n    }\n')
+        else:
+            lines.append(f'    public var {property_name}: Bool {{ false }}\n')
+    read_cases = ["." + swift_name(row["name"]) for row in callable_rows if row["name"] in reads]
+    if read_cases:
+        lines.append('    public var requiresOperationID: Bool {\n        switch self {\n        case ' + ", ".join(read_cases) + ': false\n        default: true\n        }\n    }\n')
+    else:
+        lines.append('    public var requiresOperationID: Bool { true }\n')
     lines.append('    public var capability: String {\n        switch self {\n')
-    for row in rows:
+    for row in callable_rows:
         lines.append(f'        case .{swift_name(row["name"])}: "{row["capability"]}"\n')
     lines.append('        }\n    }\n}\n')
     proxies = [LICENSE, "// Generated forwarding APIs; SDK payload schemas remain authoritative.\n"]
-    for family in sorted({row["name"].split('.')[0] for row in rows}):
+    for family in sorted({row["name"].split('.')[0] for row in callable_rows}):
         title = family.upper() if family in ("a2i", "a2ui", "mcp") else family.title()
         proxies.append(f'public protocol {title}Proxy: SDKProxyProtocol {{}}\npublic extension {title}Proxy {{\n')
-        for row in [row for row in rows if row["name"].split('.')[0] == family]:
+        for row in [row for row in callable_rows if row["name"].split('.')[0] == family]:
             name = swift_name(row["name"])
             params = 'context: RequestContext, body: JSONValue = .object([:])'
             if row['secret_input']:
@@ -104,8 +118,8 @@ def generate(sdk, commit, update_pin=False, check=False):
             proxies.append(f'    func {name}({params}) async throws -> {output} {{\n        try await {method}({args})\n    }}\n')
         proxies.append('}\n')
     manifest = dict(sourceCommit=commit, headerSHA256=hashlib.sha256(header).hexdigest(),
-                    methodPolicySHA256=hashlib.sha256(policy_bytes).hexdigest(), operationCount=len(rows))
-    methods_json = json.dumps([row['name'] for row in rows], separators=(',', ':'))
+                    methodPolicySHA256=hashlib.sha256(policy_bytes).hexdigest(), operationCount=len(callable_rows))
+    methods_json = json.dumps([row['name'] for row in callable_rows], separators=(',', ':'))
     fixture = LICENSE + '#ifndef RF_GENERATED_METHODS_H\n#define RF_GENERATED_METHODS_H\n#define RF_FIXTURE_METHODS_JSON ' + json.dumps(methods_json) + '\n#define RF_FIXTURE_POLICY_JSON ' + json.dumps(json.dumps(json.loads(policy_bytes), separators=(',', ':'))) + '\n#endif\n'
     outputs = {
         'Sources/CRamflux/include/ramflux_sdk.h': b'// SPDX-License-Identifier: BSD-3-Clause\n// Copyright (c) 2026 Span Brain\n' + header,

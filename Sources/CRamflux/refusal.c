@@ -87,3 +87,37 @@ const char *rf_completion_refusal_reason(const struct RamfluxBuffer *buffer) {
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) if (equal(reason, allowed[i])) return allowed[i];
     return NULL;
 }
+static const char *allow_typed(struct span reason) {
+    static const char *const allowed[] = {
+        "invalid_argument", "invalid_json", "peer_upgrade_required", "storage_capacity",
+        "schema_reset_required", "resync_required", "edit_conflict", "not_authorized",
+        "target_not_found", "target_deleted", "payload_too_large", "rate_limited",
+        "ephemeral_unavailable", "crypto_failure", "not_connected", "internal"
+    };
+    for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) if (equal(reason, allowed[i])) return allowed[i];
+    return NULL;
+}
+static const char *named_string(struct span object, const char *name) {
+    struct span encoded, value;
+    if (!field(object, name, &encoded)) return NULL;
+    struct parser s = {encoded.p, encoded.n, 0};
+    if (!string(&s, &value) || s.i != s.n) return NULL;
+    return allow_typed(value);
+}
+const char *rf_completion_typed_name(const struct RamfluxBuffer *buffer) {
+    int32_t code = 0;
+    if (!buffer || !rf_completion_code(buffer, &code) || code == 0 || !buffer->ptr) return NULL;
+    struct parser whole = {buffer->ptr, buffer->len, 0};
+    if (!skip(&whole, 0)) return NULL;
+    ws(&whole); if (whole.i != whole.n) return NULL;
+    struct span root = {buffer->ptr, buffer->len}, response, nested;
+    if (!field(root, "response", &response)) return NULL;
+    if (field(response, "body", &nested)) {
+        const char *name = named_string(nested, "name");
+        if (name) return name;
+    }
+    if (!field(response, "error", &nested)) return NULL;
+    const char *name = named_string(nested, "name");
+    if (name) return name;
+    return named_string(nested, "code");
+}

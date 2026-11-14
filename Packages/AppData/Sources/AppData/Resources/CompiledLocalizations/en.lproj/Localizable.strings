@@ -142,6 +142,70 @@
 	<string>The private Keychain provider is unavailable on this device.</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@: %2$@</string>
+	<key>refusal.crypto_failure</key>
+	<string>This message could not be protected.</string>
+	<key>refusal.crypto_failure.title</key>
+	<string>Protection failed</string>
+	<key>refusal.edit_conflict</key>
+	<string>That message changed before the edit was saved.</string>
+	<key>refusal.edit_conflict.title</key>
+	<string>Edit conflict</string>
+	<key>refusal.ephemeral_unavailable</key>
+	<string>Disappearing messages are not available here.</string>
+	<key>refusal.ephemeral_unavailable.title</key>
+	<string>Not available</string>
+	<key>refusal.internal</key>
+	<string>Something went wrong. Try again.</string>
+	<key>refusal.internal.title</key>
+	<string>Something went wrong</string>
+	<key>refusal.invalid_argument</key>
+	<string>That message could not be accepted.</string>
+	<key>refusal.invalid_argument.title</key>
+	<string>Message not accepted</string>
+	<key>refusal.invalid_json</key>
+	<string>That message could not be read.</string>
+	<key>refusal.invalid_json.title</key>
+	<string>Message not read</string>
+	<key>refusal.not_authorized</key>
+	<string>You cannot change that message.</string>
+	<key>refusal.not_authorized.title</key>
+	<string>Not allowed</string>
+	<key>refusal.not_connected</key>
+	<string>You are not connected.</string>
+	<key>refusal.not_connected.title</key>
+	<string>Not connected</string>
+	<key>refusal.payload_too_large</key>
+	<string>That message is too large.</string>
+	<key>refusal.payload_too_large.title</key>
+	<string>Message too large</string>
+	<key>refusal.peer_upgrade_required</key>
+	<string>The other side needs a newer app before this can continue.</string>
+	<key>refusal.peer_upgrade_required.title</key>
+	<string>Update required</string>
+	<key>refusal.rate_limited</key>
+	<string>Too many attempts. Wait and try again.</string>
+	<key>refusal.rate_limited.title</key>
+	<string>Too many attempts</string>
+	<key>refusal.resync_required</key>
+	<string>This conversation needs to sync again.</string>
+	<key>refusal.resync_required.title</key>
+	<string>Sync required</string>
+	<key>refusal.schema_reset_required</key>
+	<string>This conversation needs a reset before it can continue.</string>
+	<key>refusal.schema_reset_required.title</key>
+	<string>Reset required</string>
+	<key>refusal.storage_capacity</key>
+	<string>There is not enough room to save this.</string>
+	<key>refusal.storage_capacity.title</key>
+	<string>Not enough room</string>
+	<key>refusal.target_deleted</key>
+	<string>That message was deleted.</string>
+	<key>refusal.target_deleted.title</key>
+	<string>Message deleted</string>
+	<key>refusal.target_not_found</key>
+	<string>That message is no longer available.</string>
+	<key>refusal.target_not_found.title</key>
+	<string>Message unavailable</string>
 	<key>request.localFailure</key>
 	<string>A local system operation could not complete. Keep the current state; reopen the screen to review it before retrying.</string>
 	<key>request.localStorage</key>

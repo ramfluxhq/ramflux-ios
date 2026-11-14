@@ -21,28 +21,62 @@ public struct ChatScreen: View {
             ScrollView { LazyVStack { ForEach(state.messages) { MessageBubble(message: $0, isGroup: state.isGroup, onAction: onAction) } } }
             #endif
             if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("copy.a8a3813c2900", locale: locale) : FeatureChatStrings.text("copy.b486522010d5", locale: locale)).font(theme.captionFont) }
-            if state.pendingSend != nil && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }
-            RFComposerShell(id: "chat-composer", theme: theme, mode: { EmptyView() }, quote: { EmptyView() }, attachment: {
+            if (state.pendingSend != nil || state.held != nil) && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }
+            RFComposerShell(id: "chat-composer", theme: theme, mode: { composerMode }, quote: { composerQuote }, attachment: {
                 Button(FeatureChatStrings.text("copy.d406ade2958c", locale: locale), systemImage: "paperclip") { onAction(.unavailableAttachment) }
             }, editor: {
                 #if os(iOS)
-                ChatComposer(text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }), enabled: !state.loading && !state.sending && state.pendingSend == nil) { onAction(.send) }.frame(minHeight: theme.composer_min, maxHeight: theme.composer_min * 3)
+                ChatComposer(text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }), enabled: composerEnabled) { onAction(.send) }.frame(minHeight: theme.composer_min, maxHeight: theme.composer_min * 3)
                 #else
                 TextField(FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale), text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }))
-                Button(FeatureChatStrings.text("copy.f6f4688ff23d", locale: locale)) { onAction(.send) }.disabled(state.loading || state.sending || state.pendingSend != nil)
+                Button(FeatureChatStrings.text("copy.f6f4688ff23d", locale: locale)) { onAction(.send) }.disabled(!composerEnabled)
                 #endif
             }, actions: { EmptyView() })
         } }.privacySensitive()
             .toolbar { Button(FeatureChatStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
             .sheet(isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
-                if let message = state.pendingDelete {
+                if let pending = state.pendingDelete {
+                    let fact = pending.scope == .everyone ? "chat.delete.everyone.fact" : "copy.4ef7d6d3a97d"
+                    let summary = pending.scope == .everyone ? "chat.delete.everyone.summary" : "copy.87e7176a7ce7"
                     RFPage { VStack(alignment: .leading, spacing: theme.gap) {
                         Text(FeatureChatStrings.text("copy.a45a93aaa69f", locale: locale)).font(theme.pageFont)
-                        Text(FeatureChatStrings.text("copy.4ef7d6d3a97d", locale: locale))
-                        Text(message).font(theme.captionFont)
-                        RFHostConfirmationActions(summary: FeatureChatStrings.text("copy.87e7176a7ce7", locale: locale) + " · " + message, enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(message)
+                        Text(FeatureChatStrings.text(fact, locale: locale))
+                        Text(pending.messageID).font(theme.captionFont)
+                        RFHostConfirmationActions(summary: FeatureChatStrings.text(summary, locale: locale) + " · " + pending.messageID, enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)
                     }.padding(theme.gap) }
                 }
             }
+            .sheet(isPresented: Binding(get: { state.reactionTarget != nil }, set: { if !$0 { onAction(.cancelReaction) } })) {
+                RFPage { VStack(alignment: .leading, spacing: theme.gap) {
+                    Text(FeatureChatStrings.text("chat.reaction.title", locale: locale)).font(theme.pageFont)
+                    Button(FeatureChatStrings.text(state.reactionRemove ? "chat.reaction.remove" : "chat.reaction.add", locale: locale)) { onAction(.reactionMode(!state.reactionRemove)) }
+                    ForEach(ChatReactionPalette.tokens, id: \.self) { token in
+                        Button(token) { onAction(state.reactionRemove ? .removeReaction(token) : .chooseReaction(token)) }
+                    }
+                    Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelReaction) }
+                }.padding(theme.gap) }
+            }
+    }
+    private var composerEnabled: Bool { !state.loading && !state.sending && state.pendingSend == nil && state.held == nil }
+    private var composerMode: some View {
+        Group {
+            if case .edit = state.composer {
+                HStack {
+                    Text(FeatureChatStrings.text("chat.edit.banner", locale: locale)).font(theme.captionFont)
+                    if state.held == nil { Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelComposer) } }
+                }
+            }
+        }
+    }
+    private var composerQuote: some View {
+        Group {
+            if case .reply(_, let preview) = state.composer {
+                HStack {
+                    Text(FeatureChatStrings.text("chat.reply.banner", locale: locale)).font(theme.captionFont)
+                    if !preview.isEmpty { Text(preview).font(theme.captionFont).lineLimit(2) }
+                    if state.held == nil { Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelComposer) } }
+                }
+            }
+        }
     }
 }

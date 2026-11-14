@@ -2,6 +2,28 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.composer.cancel</key>
+	<string>Cancel</string>
+	<key>chat.delete.everyone</key>
+	<string>Delete for everyone</string>
+	<key>chat.delete.everyone.fact</key>
+	<string>This removes the message for everyone in the conversation.</string>
+	<key>chat.delete.everyone.summary</key>
+	<string>Delete for everyone</string>
+	<key>chat.edit.banner</key>
+	<string>Editing</string>
+	<key>chat.edited</key>
+	<string>Edited</string>
+	<key>chat.reaction.add</key>
+	<string>Add reaction</string>
+	<key>chat.reaction.remove</key>
+	<string>Remove reaction</string>
+	<key>chat.reaction.title</key>
+	<string>Reaction</string>
+	<key>chat.reply.banner</key>
+	<string>Replying</string>
+	<key>chat.reply.quote</key>
+	<string>Reply</string>
 	<key>copy.01fad993ff61</key>
 	<string>React</string>
 	<key>copy.0e9161011702</key>

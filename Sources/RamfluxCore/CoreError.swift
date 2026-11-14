@@ -20,17 +20,19 @@ public struct CoreFailure: Error, Sendable, Equatable, CustomStringConvertible, 
     public let effect: Effect
     public let operationID: String?
     public let reasonCode: String?
+    /// Allowlisted generated error name. Never peer prose.
+    public let typedName: String?
     public let response: JSONValue?
     public let sealedResponse: SecretBytes?
     public var debugDescription: String { description }
     public var description: String { "CoreFailure(code: \(rawCode), effect: \(effect.rawValue))" }
-    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, response: JSONValue? = nil, sealedResponse: SecretBytes? = nil, writerReleaseConfirmed: Bool = false) {
+    public init(code: Int32, effect: Effect = .unknown, operationID: String? = nil, reasonCode: String? = nil, typedName: String? = nil, response: JSONValue? = nil, sealedResponse: SecretBytes? = nil, writerReleaseConfirmed: Bool = false) {
         self.writerReleaseConfirmed = writerReleaseConfirmed
-        rawCode = code; self.effect = effect; self.operationID = operationID; self.reasonCode = reasonCode; self.response = response; self.sealedResponse = sealedResponse
+        rawCode = code; self.effect = effect; self.operationID = operationID; self.reasonCode = reasonCode; self.typedName = typedName; self.response = response; self.sealedResponse = sealedResponse
     }
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.writerReleaseConfirmed == rhs.writerReleaseConfirmed && lhs.rawCode == rhs.rawCode && lhs.effect == rhs.effect && lhs.operationID == rhs.operationID
-            && lhs.reasonCode == rhs.reasonCode && lhs.response == rhs.response && lhs.sealedResponse === rhs.sealedResponse
+            && lhs.reasonCode == rhs.reasonCode && lhs.typedName == rhs.typedName && lhs.response == rhs.response && lhs.sealedResponse === rhs.sealedResponse
     }
 
 }

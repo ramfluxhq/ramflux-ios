@@ -43,17 +43,26 @@ public final class NativeCore: CoreTransport {
         guard advertised.count == names.count, Set(advertised).count == names.count,
               Set(advertised) == expected,
               let policy = metadata["method_policy"], policy["abi_major"] == .number(2),
-              policy["policy_version"] == .number(1), case .array(let rows) = policy["methods"],
-              rows.count == expected.count else { throw BridgeError.incompatibleABI }
+              policy["policy_version"] == .number(2), case .array(let rows) = policy["methods"] else { throw BridgeError.incompatibleABI }
         var seen = Set<String>()
+        var allowed = Set<String>()
         for row in rows {
             guard let name = row["name"]?.string, seen.insert(name).inserted,
-                  let operation = SDKOperation(rawValue: name),
+                  let bridgeAllowed = row["bridge_allowed"]?.bool,
+                  let keyExport = row["key_export"]?.bool else { throw BridgeError.incompatibleABI }
+            if !bridgeAllowed {
+                guard SDKOperation(rawValue: name) == nil else { throw BridgeError.incompatibleABI }
+                continue
+            }
+            guard let operation = SDKOperation(rawValue: name),
                   row["capability"] == .string(operation.capability),
                   row["secret_input"] == .bool(operation.requiresSecureInput),
                   row["secret_output"] == .bool(operation.requiresSecureOutput),
-                  row["show_once"] == .bool(operation.showOnce) else { throw BridgeError.incompatibleABI }
+                  row["show_once"] == .bool(operation.showOnce),
+                  keyExport == operation.requiresKeyExport else { throw BridgeError.incompatibleABI }
+            allowed.insert(name)
         }
+        guard allowed == expected else { throw BridgeError.incompatibleABI }
         methods = expected
     }
     func currentHandle() throws -> UInt64 {
@@ -99,9 +108,12 @@ public final class NativeCore: CoreTransport {
         let secret = try SecretBytes(copying: UnsafeRawBufferPointer(start: value.ptr, count: value.len), maximumBytes: CoreLimits.frameBytes)
         guard code == 0 else {
             let reason = rf_completion_refusal_reason(buffer).map { String(cString: $0) }
-            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, sealedResponse: secret)
+            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, typedName: typedName(buffer), sealedResponse: secret)
         }
         return secret
+    }
+    private func typedName(_ buffer: UnsafeMutablePointer<RamfluxBuffer>) -> String? {
+        rf_completion_typed_name(buffer).map { String(cString: $0) }
     }
     private func jsonCompletion(_ buffer: UnsafeMutablePointer<RamfluxBuffer>, request: CoreRequest) throws -> JSONValue {
         let terminal: JSONValue
@@ -113,7 +125,7 @@ public final class NativeCore: CoreTransport {
         if status != 0 {
             let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
             throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
-                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, response: terminal["response"])
+                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer), response: terminal["response"])
         }
         guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }
         return frame

@@ -14,6 +14,11 @@ struct OnboardingRefusalTests {
         }
         #expect(AppFailure.map(CoreFailure(code: 99, reasonCode: "private input")) == .sdkRefusal(99))
         #expect(AppFailure.map(CoreFailure(code: 16, operationID: "original", reasonCode: "vault_permission")) == .outcomeUnknown)
+        let refused = AppFailure.map(CoreFailure(code: 1, effect: .unknown, operationID: "original", typedName: "edit_conflict"))
+        #expect(refused == .typedRefusal("edit_conflict"))
+        #expect(refused.canRetry == false)
+        #expect(refused.message(locale: Locale(identifier: "en")) != refused.message(locale: Locale(identifier: "zh-CN")))
+        #expect(!refused.message(locale: Locale(identifier: "en")).contains("edit_conflict"))
     }
     @Test func localAndBridgeFailuresRemainTyped() throws {
         #expect(AppFailure.map(BridgeError.keychain(-34018)) == .vaultPermission)

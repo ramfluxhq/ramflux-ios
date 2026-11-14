@@ -82,7 +82,7 @@ explicitly erased on consume, erase and destruction. `SecretRequest` encodes
 secret strings/three-word confirmation answers directly into an erased bounded
 buffer. Use `SecretField.text` or `.words`; the generated Proxy APIs use the SDK-owned secret_input/secret_output/show_once
 policy. Sealed outputs use a one-shot byte accessor, and secret input is encoded
-into erased storage. A new method without explicit SDK policy fails generation. Negotiation also requires an exact match of method inventory, capability and all three secret/show-once flags with the pinned table; absent or mismatched policy throws incompatibleABI. AccountCeremony sequences show-once, hide, challenge,
+into erased storage. A new method without explicit SDK policy fails generation. Negotiation requires policy version 2 and an exact match of the advertised method inventory, capability, secret input, secret output, show-once, key-export and bridge-allowed flags with the pinned table. A bridge-allowed row must be advertised; a denied row such as daemon.stop must not be. Absent or mismatched policy throws incompatibleABI. The client config leaves allow_secret_exports and allow_raw_messages off. AccountCeremony sequences show-once, hide, challenge,
 and a single confirmation attempt; errors do not permit another confirmation.
 Creation and recovery must not interleave on one client connection.
 
@@ -110,9 +110,10 @@ suite does not establish them.
 
 ## Deferred capabilities
 
-SearchProxy, AgentConfigurationProxy, StrangerReportingProxy and
-MessageRevisionProxy define the application boundary. UnavailableFeatures returns
-explicit typed capability errors and performs no SDK call. Search, Agent
-configuration, stranger reporting/batch operations await their shared SDK modules.
-Edit/reaction/reply adapters await the message-unification SDK contract. There
-are no fake results, guessed wire methods, or preview fixtures in the product.
+SearchProxy, AgentConfigurationProxy and StrangerReportingProxy define the
+application boundary for contracts that are still absent. UnavailableFeatures
+returns explicit typed capability errors and performs no SDK call. Search, Agent
+configuration and stranger reporting/batch operations await their shared SDK
+modules. Conversation send, reply, edit, reaction and delete use the published
+conversation methods. There are no fake results, guessed wire methods, or
+preview fixtures in the product.

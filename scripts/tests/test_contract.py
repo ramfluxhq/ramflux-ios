@@ -13,8 +13,9 @@ contract = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(contract)
 
 def policy(*names):
-    return dict(abi_major=2, policy_version=1, methods=[dict(name=n, capability="account", secret_input=True,
-                                                        secret_output=True, show_once=False) for n in names])
+    return dict(abi_major=2, policy_version=2, methods=[dict(name=n, capability="account", secret_input=True,
+                                                        secret_output=True, show_once=False, key_export=False,
+                                                        bridge_allowed=True) for n in names])
 
 class PolicyTests(unittest.TestCase):
     def test_collision_is_refused(self):
@@ -67,7 +68,7 @@ class PolicyTests(unittest.TestCase):
             sources = {
                 contract.HEADER_PATH: b"/* generated fixture header */",
                 contract.POLICY_PATH: json.dumps(policy("account.new_method")).encode(),
-                "crates/ramflux-sdk/src/c_abi/v2/method_policy.rs": b'policies! { "account.new_method" => ("account", true, true, false), }',
+                "crates/ramflux-sdk/src/c_abi/v2/method_policy.rs": b'policies! { "account.new_method" => ("account", true, true, false, false), }',
                 "crates/ramflux-sdk/src/bus/method_table.rs": b'methods! { LocalRead(Always) => Reader: ["account.new_method"]; }',
             }
             def source_git(sdk, *args):

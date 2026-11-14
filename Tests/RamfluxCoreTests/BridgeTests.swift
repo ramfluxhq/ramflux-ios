@@ -40,7 +40,7 @@ struct BridgeTests {
         let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("docs/sdk-method-policy.json")
         var manifest = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
         let original = try #require(manifest["methods"] as? [[String: Any]])
-        for kind in 0..<7 {
+        for kind in 0..<10 {
             rf_fixture_reset()
             var rows = original
             switch kind {
@@ -50,9 +50,15 @@ struct BridgeTests {
             case 3: rows[0]["capability"] = "wrong"
             case 4: rows.removeLast()
             case 5: rows.append(original[0])
-            default: rows[0].removeValue(forKey: "secret_output")
+            case 6: rows[0].removeValue(forKey: "secret_output")
+            case 7: rows[0]["key_export"] = !(rows[0]["key_export"] as? Bool ?? false)
+            case 8: manifest["policy_version"] = 1
+            default:
+                if let index = rows.firstIndex(where: { $0["name"] as? String == "daemon.stop" }) { rows[index]["bridge_allowed"] = true }
+                else { rows.append(["name": "daemon.stop", "bridge_allowed": true, "capability": "daemon", "key_export": false, "secret_input": true, "secret_output": false, "show_once": false]) }
             }
             manifest["methods"] = rows
+            if kind != 8 { manifest["policy_version"] = 2 }
             let json = try JSONSerialization.data(withJSONObject: manifest)
             rf_fixture_set_policy(String(decoding: json, as: UTF8.self))
             #expect(throws: BridgeError.incompatibleABI) { try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root")) }
@@ -60,6 +66,45 @@ struct BridgeTests {
         }
         rf_fixture_reset(); rf_fixture_set_policy("{}")
         #expect(throws: BridgeError.incompatibleABI) { try NativeCore(dataRoot: URL(fileURLWithPath: "/unused-fixture-root")) }
+        #expect(SDKOperation(rawValue: "daemon.stop") == nil)
+        #expect(SDKOperation.conversationEdit.requiresKeyExport == false)
+    }
+    @Test func conversationActionsRoundTripThroughTheRealAbi() async throws {
+        rf_fixture_reset()
+        let (_, client) = try await open()
+        let proxy = SDKProxy(client: client)
+        let ctx = try context(mutation: true)
+        let cases: [(String, JSONValue)] = [
+            ("conversation.send", .object(["conversation_id": .string("c"), "text": .string("Hello")])),
+            ("conversation.reply", .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Reply")])),
+            ("conversation.edit", .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Edited")])),
+            ("conversation.react", .object(["conversation_id": .string("c"), "message_id": .string("m"), "token": .string("👍"), "remove": .bool(true)])),
+            ("conversation.delete", .object(["conversation_id": .string("c"), "message_id": .string("m"), "scope": .string("everyone")])),
+        ]
+        for (method, body) in cases {
+            let secret: SecretBytes
+            switch method {
+            case "conversation.send": secret = try await proxy.conversationSend(context: ctx, body: body)
+            case "conversation.reply": secret = try await proxy.conversationReply(context: ctx, body: body)
+            case "conversation.edit": secret = try await proxy.conversationEdit(context: ctx, body: body)
+            case "conversation.react": secret = try await proxy.conversationReact(context: ctx, body: body)
+            default: secret = try await proxy.conversationDelete(context: ctx, body: body)
+            }
+            secret.erase()
+            let request = try JSONValue.decode(requestBytes())
+            #expect(request["method"] == .string(method))
+            #expect(request["body"] == body)
+            #expect(request["operation_id"] == .string("stable-operation"))
+        }
+        rf_fixture_set_terminal(#"{"code":1,"response":{"kind":"error","method":"conversation.edit","error":{"code":"edit_conflict","message":"diagnostic prose"},"body":{"code":7,"name":"edit_conflict","message":"diagnostic prose"}}}"#)
+        do { _ = try await proxy.conversationEdit(context: ctx, body: .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Edited")])); Issue.record("Expected typed refusal") }
+        catch let failure as CoreFailure {
+            #expect(failure.typedName == "edit_conflict")
+            #expect(failure.effect == .unknown)
+            #expect(!String(describing: failure).contains("diagnostic prose"))
+            failure.sealedResponse?.erase()
+        }
+        try await client.close()
     }
     @Test func subscriptionSlotRemainsFencedUntilCloseAcknowledged() async throws {
         rf_fixture_reset(); let (core, client) = try await open()

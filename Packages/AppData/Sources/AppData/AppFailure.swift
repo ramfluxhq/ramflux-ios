@@ -6,7 +6,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     case nodeRequired, nodeKeyMismatch, vaultPermission, vaultLocked, vaultMissing, vaultCorrupt, vaultBusy, vaultUnavailable
     case sdkRefusal(Int32), onboardingProtocol, localStorage, localFailure
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
-    case unavailableResource(String), notAvailable(String), outcomeUnknown, failed
+    case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
@@ -24,6 +24,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .invalidInput: AppDataStrings.text("copy.29ea6afd1a52", locale: locale)
         case .outcomeUnknown: AppDataStrings.text("copy.b5e82d852d43", locale: locale)
         case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
+        case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -54,12 +55,17 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .notAvailable(let message): message
         case .outcomeUnknown: AppDataStrings.text("copy.1b6fe0889add", locale: locale)
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
+        case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         }
     }
-    public var canRetry: Bool { self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported }
+    public var canRetry: Bool {
+        if case .typedRefusal = self { return false }
+        return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
+    }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
+            if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission
@@ -100,5 +106,54 @@ public enum AppFailure: Error, Sendable, Equatable {
         if native.domain == NSCocoaErrorDomain { return .localStorage }
         if error is BridgeError { return .invalidData }
         return .localFailure
+    }
+    private static func knownRefusal(_ name: String) -> AppFailure? {
+        switch name {
+        case "invalid_argument", "invalid_json", "peer_upgrade_required", "storage_capacity", "schema_reset_required", "resync_required", "edit_conflict", "not_authorized", "target_not_found", "target_deleted", "payload_too_large", "rate_limited", "ephemeral_unavailable", "crypto_failure", "not_connected", "internal":
+            return .typedRefusal(name)
+        default: return nil
+        }
+    }
+    private static func refusalTitle(_ name: String) -> String {
+        switch name {
+        case "invalid_argument": "refusal.invalid_argument.title"
+        case "invalid_json": "refusal.invalid_json.title"
+        case "peer_upgrade_required": "refusal.peer_upgrade_required.title"
+        case "storage_capacity": "refusal.storage_capacity.title"
+        case "schema_reset_required": "refusal.schema_reset_required.title"
+        case "resync_required": "refusal.resync_required.title"
+        case "edit_conflict": "refusal.edit_conflict.title"
+        case "not_authorized": "refusal.not_authorized.title"
+        case "target_not_found": "refusal.target_not_found.title"
+        case "target_deleted": "refusal.target_deleted.title"
+        case "payload_too_large": "refusal.payload_too_large.title"
+        case "rate_limited": "refusal.rate_limited.title"
+        case "ephemeral_unavailable": "refusal.ephemeral_unavailable.title"
+        case "crypto_failure": "refusal.crypto_failure.title"
+        case "not_connected": "refusal.not_connected.title"
+        case "internal": "refusal.internal.title"
+        default: "request.refusal.title"
+        }
+    }
+    private static func refusalMessage(_ name: String) -> String {
+        switch name {
+        case "invalid_argument": "refusal.invalid_argument"
+        case "invalid_json": "refusal.invalid_json"
+        case "peer_upgrade_required": "refusal.peer_upgrade_required"
+        case "storage_capacity": "refusal.storage_capacity"
+        case "schema_reset_required": "refusal.schema_reset_required"
+        case "resync_required": "refusal.resync_required"
+        case "edit_conflict": "refusal.edit_conflict"
+        case "not_authorized": "refusal.not_authorized"
+        case "target_not_found": "refusal.target_not_found"
+        case "target_deleted": "refusal.target_deleted"
+        case "payload_too_large": "refusal.payload_too_large"
+        case "rate_limited": "refusal.rate_limited"
+        case "ephemeral_unavailable": "refusal.ephemeral_unavailable"
+        case "crypto_failure": "refusal.crypto_failure"
+        case "not_connected": "refusal.not_connected"
+        case "internal": "refusal.internal"
+        default: "request.localFailure"
+        }
     }
 }

@@ -79,9 +79,10 @@ archive installation require host-drawn single-tap confirmation bound to the sel
 Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
 archive sharing accepts regular files within private backup storage only.
 
-Local search, phone pairing, attachment transfer, revisions, stranger reporting and
+Local search, phone pairing, attachment transfer, stranger reporting and
 atomic safety-fingerprint verification are unavailable until their SDK/integration
-contracts exist. Open-account reachability is not inferred from automatic contact
+contracts exist. Message send, reply, edit, reaction and delete use the published
+conversation contract. Open-account reachability is not inferred from automatic contact
 request acceptance. No synthetic identity, routing, delivery or verification state
 is used as a substitute. Previews use isolated illustrative fixtures; production
 repositories do not.

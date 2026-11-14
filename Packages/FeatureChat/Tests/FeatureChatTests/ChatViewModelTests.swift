@@ -5,14 +5,21 @@ import AppData
 @testable import FeatureChat
 private actor ChatFake: ChatRepository {
     private(set) var attempts: [(String,String)] = []
-    private(set) var deletes: [String] = []
+    private(set) var deletes: [(String, MessageDeleteScope)] = []
+    private(set) var edits: [(String, String, String)] = []
+    private(set) var replies: [(String, String, String)] = []
+    private(set) var reactions: [(String, String, Bool, String)] = []
     let journal = RetainedMutation<String, SendOutcome>()
     let gate: MutationGate?
     init(gate: MutationGate? = nil) { self.gate = gate }
     var succeed = false
+    var rows = [MessageRecord(id: "m", sender: "peer", kind: .text("Message"), isOwn: false)]
+    var editResult: RepositoryResult<Void> = .success(())
+    func setRows(_ rows: [MessageRecord]) { self.rows = rows }
+    func setEditResult(_ result: RepositoryResult<Void>) { editResult = result }
     func completeNext() { succeed = true }
     nonisolated func unavailable(_ capability: ChatCapability) -> AppFailure { .unsupported }
-    func messages(account: String, conversation: String) -> RepositoryResult<[MessageRecord]> { .success([MessageRecord(id: "m", sender: "peer", kind: .text("Message"), isOwn: false)]) }
+    func messages(account: String, conversation: String) -> RepositoryResult<[MessageRecord]> { .success(rows) }
     func sendState(account: String, conversation: String) async -> PendingChatSend? {
         guard let row = await journal.snapshot(scope: account + conversation) else { return nil }
         return PendingChatSend(operationID: row.operationID, text: row.arguments, unresolved: row.unresolved, result: row.result)
@@ -24,7 +31,10 @@ private actor ChatFake: ChatRepository {
         attempts.append((operationID,text)); if attempts.count == 1, let gate { await gate.wait() }
         return succeed ? .success(SendOutcome(messageID: "m", state: .submitted)) : .failure(.outcomeUnknown)
     }
-    func delete(account: String, conversation: String, message: String, operationID: String) -> RepositoryResult<Void> { deletes.append(message); return .success(()) }
+    func edit(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { edits.append((message, text, operationID)); return editResult }
+    func reply(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { replies.append((message, text, operationID)); return .success(()) }
+    func react(account: String, conversation: String, message: String, token: String, remove: Bool, operationID: String) -> RepositoryResult<Void> { reactions.append((message, token, remove, operationID)); return .success(()) }
+    func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) -> RepositoryResult<Void> { deletes.append((message, scope)); return .success(()) }
     func observe(account: String) -> RepositoryObservation { {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
         return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() })
@@ -81,10 +91,50 @@ private actor ChatFake: ChatRepository {
     @Test func deletionRequiresKnownSelectionThenExplicitConfirmation() async {
         let fake = ChatFake(); let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
         model.send(.refresh); await model.settle()
-        model.send(.requestDelete("unknown")); model.send(.confirmDelete); await model.settle(); #expect(await fake.deletes.isEmpty)
-        model.send(.requestDelete("m")); #expect(await fake.deletes.isEmpty)
-        model.send(.confirmDelete); await model.settle(); #expect(await fake.deletes == ["m"])
+        model.send(.requestDelete("unknown", .local)); model.send(.confirmDelete); await model.settle(); #expect(await fake.deletes.isEmpty)
+        model.send(.requestDelete("m", .everyone)); model.send(.confirmDelete); await model.settle(); #expect(await fake.deletes.isEmpty)
+        model.send(.requestDelete("m", .local)); #expect(await fake.deletes.isEmpty)
+        model.send(.confirmDelete); await model.settle()
+        let deletes = await fake.deletes
+        #expect(deletes.count == 1); #expect(deletes.first?.0 == "m"); #expect(deletes.first?.1 == .local)
         model.send(.disappeared)
+    }
+    @Test func replyKeepsDraftAndEditRestoresItUnlessTheEditIsRefused() async {
+        let fake = ChatFake()
+        await fake.setRows([MessageRecord(id: "m", sender: "peer", kind: .text("Message"), isOwn: false), MessageRecord(id: "mine", sender: "", kind: .text("Hello"), isOwn: true)])
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.refresh); await model.settle()
+        model.send(.draftChanged("Draft")); model.send(.beginReply("m"))
+        #expect(model.state.draft == "Draft")
+        model.send(.send); await model.settle()
+        let replies = await fake.replies
+        #expect(replies.count == 1); #expect(replies.first?.0 == "m"); #expect(replies.first?.1 == "Draft")
+        #expect(model.state.composer == nil); #expect(model.state.draft.isEmpty)
+        model.send(.draftChanged("Draft")); model.send(.beginEdit("m")); #expect(model.state.draft == "Draft")
+        model.send(.beginEdit("mine")); #expect(model.state.draft == "Hello")
+        model.send(.draftChanged("Hello there")); await fake.setEditResult(.failure(.typedRefusal("edit_conflict")))
+        model.send(.send); await model.settle()
+        #expect(model.state.failure == .typedRefusal("edit_conflict"))
+        #expect(model.state.composer == .edit(messageID: "mine", previousDraft: "Draft"))
+        #expect(model.state.draft == "Hello there"); #expect(model.state.held == nil)
+        await fake.setEditResult(.failure(.outcomeUnknown))
+        model.send(.send); await model.settle()
+        let first = await fake.edits.last?.2
+        model.send(.retrySameSend); await model.settle()
+        let second = await fake.edits.last?.2
+        #expect(first == second); #expect(model.state.failure == .outcomeUnknown); #expect(model.state.composer != nil)
+        await fake.setEditResult(.success(()))
+        model.send(.retrySameSend); await model.settle()
+        #expect(model.state.draft == "Draft"); #expect(model.state.composer == nil)
+        model.send(.beginReact("m")); model.send(.chooseReaction("👍")); await model.settle()
+        model.send(.beginReact("mine")); model.send(.reactionMode(true)); model.send(.removeReaction("🎉")); await model.settle()
+        let reactions = await fake.reactions
+        #expect(reactions.count == 2)
+        #expect(reactions.first?.0 == "m"); #expect(reactions.first?.1 == "👍"); #expect(reactions.first?.2 == false)
+        #expect(reactions.last?.0 == "mine"); #expect(reactions.last?.1 == "🎉"); #expect(reactions.last?.2 == true)
+        model.send(.requestDelete("mine", .everyone)); model.send(.confirmDelete); await model.settle()
+        let removed = await fake.deletes
+        #expect(removed.count == 1); #expect(removed.first?.0 == "mine"); #expect(removed.first?.1 == .everyone)
     }
     @Test func unavailableSendNeverAppendsAFakeMessageOrClearsDraft() async {
         let model = ChatViewModel(repository: UnavailableChatRepository(), account: "a", conversation: "c", emit: { _ in })
