@@ -148,6 +148,32 @@ import AppData
         vm.send(.openSettings); vm.send(.dismissNeeded); vm.send(.foreground); await vm.settle()
         #expect(repo.settingsOpened == 0); #expect(vm.state.permissionNeeded == nil)
     }
+    @Test(arguments: [DevicePermission.notifications, .camera, .photoAdd])
+    func replacingPermissionNeedCancelsPendingSettings(original: DevicePermission) async {
+        let repo = PermissionsFake()
+        for permission: DevicePermission in [.notifications, .camera, .photoAdd] { repo.value.values[permission] = .denied }
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(original == .notifications ? .accountCreated("first") : .need(original)); await vm.settle()
+        #expect(vm.state.permissionNeeded == original)
+        vm.send(.openSettings); await vm.settle(); #expect(repo.settingsOpened == 0)
+        let replacement: DevicePermission = original == .camera ? .photoAdd : .camera
+        vm.send(.need(replacement)); await vm.settle()
+        #expect(vm.state.permissionNeeded == replacement)
+        vm.send(.foreground); await vm.settle()
+        #expect(repo.settingsDestinations.isEmpty); #expect(repo.requests.isEmpty)
+        vm.send(.openSettings); await vm.settle()
+        #expect(repo.settingsDestinations == [.app])
+        vm.send(.foreground); await vm.settle(); #expect(repo.settingsOpened == 1)
+    }
+    @Test func samePermissionNeedRetainsExplicitPendingSettingsIntent() async {
+        let repo = PermissionsFake(); repo.value.values[.camera] = .denied
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(.need(.camera)); await vm.settle(); vm.send(.openSettings)
+        vm.send(.need(.camera)); await vm.settle()
+        #expect(repo.settingsOpened == 0)
+        vm.send(.foreground); await vm.settle()
+        #expect(repo.settingsDestinations == [.app]); #expect(repo.requests.isEmpty)
+    }
     @Test func foregroundDuringDeferredSettingsAttemptIsNotLost() async {
         let repo = PermissionsFake(); repo.deferSettings = true
         let entered = AsyncStream<Void>.makeStream(), release = AsyncStream<Void>.makeStream()

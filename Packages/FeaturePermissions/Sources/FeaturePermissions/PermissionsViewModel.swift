@@ -71,6 +71,7 @@ import Observation
     private func need(_ permission: DevicePermission) {
         guard !state.busy, state.explanation == nil else { return }
         guard [.notifications, .camera, .photoAdd].contains(permission) else { state.failure = .unsupported; return }
+        if state.permissionNeeded != permission { settingsPending = nil }
         state.permissionNeeded = nil
         run { [repository] in .needed(permission, await repository.snapshot()) }
     }
