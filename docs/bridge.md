@@ -6,6 +6,7 @@ RamfluxCore is a Swift 6 package for macOS 15+ and iOS 18+. It has no UI, networ
 service, third-party Swift dependency, generated FFI language runtime, or second
 account implementation. `NativeCore` forwards through the SDK's C ABI v2 and
 existing supervisor. Application features consume the Proxy protocols.
+Native libraries use `CARGO_PROFILE_RELEASE_PANIC=unwind`; v2 refuses `panic=abort`.
 
 `SDKOperation.swift` and `OperationProxies.swift` contain names-only adapters for
 the SDK method inventory. Request bodies and complete response frames retain

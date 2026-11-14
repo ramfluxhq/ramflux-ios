@@ -16,6 +16,8 @@ python3 "$package_root/scripts/sync-sdk-contract.py" "$sdk_root" --commit "$sdk_
 output="$package_root/build"
 mkdir -p "$output"
 # Serial Cargo only. Never mutate the SDK checkout or enable fixture features.
+# C ABI v2 refuses panic=abort. Keep --release output paths and unwind panics.
+export CARGO_PROFILE_RELEASE_PANIC=unwind
 for target in aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-darwin; do
     (cd "$sdk_root" && cargo rustc --locked -p ramflux-sdk --lib --features c-abi \
         --target "$target" --release --crate-type staticlib)
