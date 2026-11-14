@@ -11,6 +11,7 @@ import Photos
     private let defaults: UserDefaults
     private var registrationRequested = false
     #if os(iOS)
+    private let settingsOpener = NativeDeviceSettingsOpener()
     private var registerNotification: @MainActor () -> Void = { UIApplication.shared.registerForRemoteNotifications() }
     init(defaults: UserDefaults, registerNotification: @escaping @MainActor () -> Void) {
         self.defaults = defaults; self.registerNotification = registerNotification
@@ -77,12 +78,11 @@ import Photos
         return .failure(.sdkUnavailable)
         #endif
     }
-    public func openSettings() async -> Bool {
+    public func openSettings(destination: DeviceSettingsDestination) async -> DeviceSettingsOpenResult {
         #if os(iOS)
-        guard let url = URL(string: UIApplication.openSettingsURLString) else { return false }
-        return await UIApplication.shared.open(url)
+        return await settingsOpener.open(destination)
         #else
-        return false
+        return .failed
         #endif
     }
     #if os(iOS)

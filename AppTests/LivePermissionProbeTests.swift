@@ -19,9 +19,17 @@ import RFDesign
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus> {
         let result = await native.request(permission); decisions.continuation.yield(result); return result
     }
-    func openSettings() async -> Bool { await native.openSettings() }
+    func openSettings(destination: DeviceSettingsDestination) async -> DeviceSettingsOpenResult { await native.openSettings(destination: destination) }
 }
 @MainActor final class LivePermissionProbeTests: XCTestCase {
+    func testOptInRealSettingsDestination() async throws {
+        guard let name = UserDefaults.standard.string(forKey: "RFSettingsProbe"), ["app", "notifications"].contains(name) else { throw XCTSkip("Opt-in real Settings navigation") }
+        let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first { $0.activationState == .foregroundActive })
+        XCTAssertEqual(scene.activationState, .foregroundActive)
+        let repository = NativeDevicePermissionsRepository()
+        let result = await repository.openSettings(destination: name == "notifications" ? .notifications : .app)
+        XCTAssertEqual(result, .opened)
+    }
     func testOptInRealProvisionalNotificationStatus() async throws {
         guard UserDefaults.standard.string(forKey: "RFPermissionProbe") == "provisional" else { throw XCTSkip("Opt-in isolated provisional authorization probe") }
         let center = UNUserNotificationCenter.current()

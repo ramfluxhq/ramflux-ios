@@ -14,6 +14,9 @@ public struct DevicePermissionsSnapshot: Equatable, Sendable {
     public init(values: [DevicePermission: DevicePermissionStatus] = [:]) { self.values = values }
     public subscript(_ permission: DevicePermission) -> DevicePermissionStatus { values[permission] ?? .unavailable }
 }
+public enum DeviceSettingsDestination: Equatable, Sendable { case app, notifications }
+/// An opened result means the system accepted the URL, not that the destination was inspected.
+public enum DeviceSettingsOpenResult: Equatable, Sendable { case opened, deferred, failed }
 /// Device-local OS authority. No SDK call, node upload or account-scoped synchronization.
 @MainActor public protocol DevicePermissionsRepository: AnyObject {
     /// Reads system status without requesting authorization or APNs registration.
@@ -23,5 +26,5 @@ public struct DevicePermissionsSnapshot: Equatable, Sendable {
     func consumeNotificationOffer(accountID: String)
     func registerForNotificationsIfAuthorized() async
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus>
-    func openSettings() async -> Bool
+    func openSettings(destination: DeviceSettingsDestination) async -> DeviceSettingsOpenResult
 }

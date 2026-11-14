@@ -11,13 +11,21 @@ import AppData
     var registrations = 0
     var next: DevicePermissionStatus = .allowed
     var settingsOpened = 0
+    var settingsDestinations: [DeviceSettingsDestination] = []
+    var deferSettings = false
+    var beforeSettingsReturn: (@MainActor () async -> Void)?
     var canOpen = true
     func snapshot() async -> DevicePermissionsSnapshot { value }
     func notificationOfferConsumed(accountID: String) -> Bool { offers += 1; return consumed.contains(accountID) }
     func consumeNotificationOffer(accountID: String) { consumed.insert(accountID) }
     func registerForNotificationsIfAuthorized() async { registrations += 1 }
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus> { requests.append(permission); value.values[permission] = next; return .success(next) }
-    func openSettings() async -> Bool { settingsOpened += 1; return canOpen }
+    func openSettings(destination: DeviceSettingsDestination) async -> DeviceSettingsOpenResult {
+        settingsOpened += 1; settingsDestinations.append(destination)
+        let result: DeviceSettingsOpenResult = deferSettings ? .deferred : (canOpen ? .opened : .failed)
+        await beforeSettingsReturn?()
+        return result
+    }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct PermissionsViewModelTests {
     @Test func launchAndForegroundNeverRequestOrOfferPermission() async {
@@ -81,6 +89,7 @@ import AppData
         vm.send(.need(.photoAdd)); await vm.settle(); vm.send(.confirmExplanation); vm.send(.explanationDismissed); await vm.settle()
         #expect(vm.state.permissionNeeded == .photoAdd); #expect(vm.state.snapshot[.photoAdd] == .denied)
         vm.send(.need(.photoAdd)); await vm.settle(); #expect(vm.state.explanation == nil); #expect(repo.requests == [.photoAdd])
+        vm.send(.foreground); await vm.settle()
         vm.send(.openSettings); await vm.settle(); #expect(repo.settingsOpened == 1)
         repo.value.values[.photoAdd] = .allowed; vm.send(.foreground); await vm.settle()
         #expect(vm.state.permissionNeeded == nil); #expect(vm.state.snapshot[.photoAdd] == .allowed)
@@ -106,9 +115,59 @@ import AppData
         }
         #expect(repo.requests.isEmpty); #expect(events.isEmpty)
     }
+    @Test func inactiveSettingsWaitForForegroundAndOpenOnce() async {
+        let repo = PermissionsFake(), vm = PermissionsViewModel(repository: repo)
+        vm.send(.openSettings); await vm.settle()
+        #expect(repo.settingsOpened == 0); #expect(vm.state.failure == nil)
+        vm.send(.sceneInactive); vm.send(.foreground); await vm.settle()
+        #expect(repo.settingsDestinations == [.app])
+        vm.send(.foreground); await vm.settle(); #expect(repo.settingsOpened == 1)
+    }
+    @Test func unavailableNativeSceneDefersUntilAnotherForeground() async {
+        let repo = PermissionsFake(); repo.deferSettings = true
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(.foreground); await vm.settle(); vm.send(.openSettings); await vm.settle()
+        #expect(repo.settingsOpened == 1); #expect(vm.state.failure == nil)
+        vm.send(.appeared); await vm.settle(); #expect(repo.settingsOpened == 1)
+        repo.deferSettings = false; vm.send(.foreground); await vm.settle()
+        #expect(repo.settingsOpened == 2)
+        vm.send(.foreground); await vm.settle(); #expect(repo.settingsOpened == 2)
+    }
+    @Test func deniedNotificationsUseTheirPublicSettingsDestination() async {
+        let repo = PermissionsFake(); repo.value.values[.notifications] = .denied
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(.foreground); await vm.settle(); vm.send(.accountCreated("first")); await vm.settle()
+        #expect(vm.state.permissionNeeded == .notifications)
+        vm.send(.openSettings); await vm.settle()
+        #expect(repo.settingsDestinations == [.notifications]); #expect(repo.requests.isEmpty)
+    }
+    @Test func cancellingDeferredNeededStateCancelsSettingsIntent() async {
+        let repo = PermissionsFake(); repo.value.values[.notifications] = .denied
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(.accountCreated("first")); await vm.settle()
+        vm.send(.openSettings); vm.send(.dismissNeeded); vm.send(.foreground); await vm.settle()
+        #expect(repo.settingsOpened == 0); #expect(vm.state.permissionNeeded == nil)
+    }
+    @Test func foregroundDuringDeferredSettingsAttemptIsNotLost() async {
+        let repo = PermissionsFake(); repo.deferSettings = true
+        let entered = AsyncStream<Void>.makeStream(), release = AsyncStream<Void>.makeStream()
+        repo.beforeSettingsReturn = {
+            entered.continuation.yield(())
+            var iterator = release.stream.makeAsyncIterator(); _ = await iterator.next()
+        }
+        let vm = PermissionsViewModel(repository: repo)
+        vm.send(.foreground); await vm.settle(); vm.send(.openSettings)
+        var iterator = entered.stream.makeAsyncIterator(); _ = await iterator.next()
+        vm.send(.sceneInactive); vm.send(.foreground)
+        repo.deferSettings = false; repo.beforeSettingsReturn = nil
+        release.continuation.yield(()); await vm.settle()
+        #expect(repo.settingsOpened == 2); #expect(vm.state.failure == nil)
+        entered.continuation.finish(); release.continuation.finish()
+    }
     @Test func failedSettingsLinkIsTyped() async {
         let repo = PermissionsFake(); repo.canOpen = false
         let vm = PermissionsViewModel(repository: repo)
+        vm.send(.foreground); await vm.settle()
         vm.send(.openSettings); await vm.settle(); #expect(vm.state.failure == .localFailure)
     }
 }

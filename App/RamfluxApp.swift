@@ -57,15 +57,15 @@ import RFDesign
             }
             }
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))
-                .onAppear { composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
+                .onAppear { composition.permissions.send(phase == .active ? .foreground : .sceneInactive); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
                 .onChange(of: phase) { _, phase in
                     switch phase {
                     case .active: composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
-                    case .inactive: coordinator.send(.sceneInactive)
-                    case .background: runtime.enterBackground(coordinator)
-                    @unknown default: coordinator.send(.sceneInactive)
+                    case .inactive: composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
+                    case .background: composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
+                    @unknown default: composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
         }

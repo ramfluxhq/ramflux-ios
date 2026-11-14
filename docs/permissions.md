@@ -17,6 +17,11 @@ This module does not prove APNs delivery or connect a new notification backend.
 
 Camera and add-only Photos intents use the same explanation boundary. A denied or
 restricted grant is not repeatedly requested; the UI offers the app's system settings.
+Settings navigation keeps the originating active window scene. A user request made
+while inactive is held until foreground activation; cancellation clears that intent.
+The notification-needed sheet uses the public notification-settings URL; the status
+page uses the public app-settings URL. A successful system completion confirms URL
+acceptance, not which Settings page was displayed.
 Foreground refresh reads changes made there. The settings list includes unavailable
 incoming-call support, current microphone status, picker/file access that needs no
 permission, and system background refresh restrictions. Microphone requests remain
@@ -46,3 +51,8 @@ manufacturing device-management restrictions.
 
 Push integration owns token forwarding and generic sender content. Media and pairing
 integration own the currently dormant camera/add-only Photos intent callers.
+
+The optional `LivePermissionProbeTests.testOptInRealSettingsDestination` accepts
+`RFSettingsProbe=app` or `notifications` and invokes the real native route from an
+active scene. It skips normal CI. Inspect the actual Settings destination when
+using it; URL acceptance alone is insufficient. Remove the probe preference afterward.
