@@ -83,7 +83,7 @@ explicitly erased on consume, erase and destruction. `SecretRequest` encodes
 secret strings/three-word confirmation answers directly into an erased bounded
 buffer. Use `SecretField.text` or `.words`; the generated Proxy APIs use the SDK-owned secret_input/secret_output/show_once
 policy. Sealed outputs use a one-shot byte accessor, and secret input is encoded
-into erased storage. A new method without explicit SDK policy fails generation. Negotiation requires policy version 2 and an exact match of the advertised method inventory, capability, secret input, secret output, show-once, key-export and bridge-allowed flags with the pinned table. A bridge-allowed row must be advertised; a denied row such as daemon.stop must not be. Absent or mismatched policy throws incompatibleABI. The client config leaves allow_secret_exports and allow_raw_messages off. AccountCeremony sequences show-once, hide, challenge,
+into erased storage. A new method without explicit SDK policy fails generation. Negotiation requires policy version 2 and an exact match of the advertised method inventory, capability, secret input, secret output, show-once, key-export and bridge-allowed flags with the pinned table. A bridge-allowed row must be advertised; a denied row such as daemon.stop must not be. Absent or mismatched policy throws incompatibleABI. The client config sets allow_secret_exports so account creation and custody show-once are admitted. That same flag admits the other key-export methods; this app does not call them. allow_raw_messages stays off. AccountCeremony sequences show-once, hide, challenge,
 and a single confirmation attempt; errors do not permit another confirmation.
 Creation and recovery must not interleave on one client connection.
 

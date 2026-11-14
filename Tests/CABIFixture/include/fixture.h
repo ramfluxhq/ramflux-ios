@@ -11,6 +11,7 @@ void rf_fixture_set_terminal(const char *json);
 void rf_fixture_set_event(const char *json);
 void rf_fixture_set_event_status(int status);
 size_t rf_fixture_copy_request(char *out, size_t capacity);
+size_t rf_fixture_copy_open_config(char *out, size_t capacity);
 int rf_fixture_submissions(void);
 int rf_fixture_cancellations(void);
 int rf_fixture_releases(void);

@@ -23,7 +23,13 @@ public final class NativeCore: CoreTransport {
         }
         #endif
         self.dataRoot = dataRoot; self.custody = custody
-        configuration = try JSONValue.object(["data_root": .string(dataRoot.path), "builtin_nodes": .array(builtinNodes)]).encoded()
+        // Show-once is a key-export method. The C ABI admits it only when the host opts in.
+        // Raw message submit stays disabled.
+        configuration = try JSONValue.object([
+            "data_root": .string(dataRoot.path),
+            "builtin_nodes": .array(builtinNodes),
+            "allow_secret_exports": .bool(true),
+        ]).encoded()
         var pointer: UnsafeMutablePointer<RamfluxBuffer>?
         let code = ramflux_v2_negotiate(2, 0, &pointer)
         guard code == 0 else { if let pointer { rf_buffer_wipe_free(pointer) }; throw CoreFailure(code: code, effect: .none) }

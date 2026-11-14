@@ -455,6 +455,17 @@ struct BridgeTests {
         #expect(rf_fixture_opens() == 3)
         try await lifecycle.close()
     }
+    @Test func openConfigAdmitsShowOnceAndLeavesRawMessagesDisabled() async throws {
+        rf_fixture_reset()
+        let (_, client) = try await open()
+        var bytes = [CChar](repeating: 0, count: 8192)
+        let count = rf_fixture_copy_open_config(&bytes, bytes.count)
+        let config = try JSONValue.decode(bytes.withUnsafeBytes { Data($0.prefix(count)) })
+        #expect(config["allow_secret_exports"] == .bool(true))
+        #expect(config["allow_raw_messages"] == nil)
+        #expect(config["data_root"]?.string == "/unused-fixture-root")
+        try await client.close()
+    }
     @Test func showOnceUsesSealedBytesAndHideErasesOnlyBridgeCopy() async throws {
         rf_fixture_reset(); let (core, client) = try await open()
         let ceremony = AccountCeremony(proxy: SDKProxy(client: client), kind: .creation)

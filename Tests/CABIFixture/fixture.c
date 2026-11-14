@@ -14,7 +14,8 @@
 #define MAX_OPS 256
 static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 static char request[CAP+1], terminal[CAP+1], event[CAP+1], methods[65536], policy[65536];
-static size_t request_len;
+static char open_config[8192];
+static size_t request_len, open_config_len;
 static int pending, close_code, open_code, event_status, submitted, cancellations, releases, buffers;
 static int opens, closes, resets, subscription_cancels, subscription_releases, secret_terminal;
 static int release_busy, ack_pending, ack_polls, client_releases, block_open, block_close, io_entered, io_waiting;
@@ -41,6 +42,7 @@ static void text_copy(char *dest,size_t cap,const char *src) { size_t n=strlen(s
 void rf_fixture_reset(void) {
     pthread_mutex_lock(&lock);
     test_zero(request,sizeof request);request_len=0;
+    test_zero(open_config,sizeof open_config);open_config_len=0;
     text_copy(terminal,sizeof terminal,"{\"code\":0,\"response\":{\"kind\":\"response\",\"body\":{}}}");
     text_copy(methods,sizeof methods,RF_FIXTURE_METHODS_JSON);
     text_copy(policy,sizeof policy,RF_FIXTURE_POLICY_JSON);
@@ -67,6 +69,11 @@ TEXT_SETTER(rf_fixture_set_event,event)
 TEXT_SETTER(rf_fixture_set_methods,methods)
 TEXT_SETTER(rf_fixture_set_policy,policy)
 size_t rf_fixture_copy_request(char *out,size_t cap) { pthread_mutex_lock(&lock);size_t n=request_len<cap?request_len:cap;memcpy(out,request,n);pthread_mutex_unlock(&lock);return n; }
+size_t rf_fixture_copy_open_config(char *out,size_t cap) { pthread_mutex_lock(&lock);size_t n=open_config_len<cap?open_config_len:cap;memcpy(out,open_config,n);pthread_mutex_unlock(&lock);return n; }
+static void remember_open_config(const uint8_t *config,size_t len) {
+    if(!config || len>=sizeof open_config) { open_config_len=0; return; }
+    memcpy(open_config,config,len);open_config[len]=0;open_config_len=len;
+}
 #define GETTER(name,value) int name(void) { pthread_mutex_lock(&lock);int v=value;pthread_mutex_unlock(&lock);return v; }
 GETTER(rf_fixture_ack_polls,ack_polls)
 GETTER(rf_fixture_io_entered,io_entered)
@@ -90,7 +97,7 @@ int32_t ramflux_v2_negotiate(uint32_t major,uint32_t minor,struct RamfluxBuffer 
     *out=output(json);free(json);pthread_mutex_unlock(&lock);return 0;
 }
 int32_t ramflux_v2_client_open(const uint8_t *config,size_t len,uint64_t *out) {
-    (void)config;(void)len;*out=0;pthread_mutex_lock(&lock);opens++;
+    *out=0;pthread_mutex_lock(&lock);remember_open_config(config,len);opens++;
     if(block_open)wait_io(&block_open);
     int code=open_code;open_code=0;
     if(!code) { live_client=++client_serial;*out=live_client; }
