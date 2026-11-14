@@ -7,11 +7,15 @@ import AppData
     var value = DevicePermissionsSnapshot(values: [.notifications: .notAsked, .camera: .notAsked, .photoAdd: .notAsked, .microphone: .notAsked])
     var requests: [DevicePermission] = []
     var offers = 0
+    var consumed: Set<String> = []
+    var registrations = 0
     var next: DevicePermissionStatus = .allowed
     var settingsOpened = 0
     var canOpen = true
     func snapshot() async -> DevicePermissionsSnapshot { value }
-    func claimNotificationOffer() -> Bool { offers += 1; return offers == 1 }
+    func notificationOfferConsumed(accountID: String) -> Bool { offers += 1; return consumed.contains(accountID) }
+    func consumeNotificationOffer(accountID: String) { consumed.insert(accountID) }
+    func registerForNotificationsIfAuthorized() async { registrations += 1 }
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus> { requests.append(permission); value.values[permission] = next; return .success(next) }
     func openSettings() async -> Bool { settingsOpened += 1; return canOpen }
 }
@@ -24,16 +28,42 @@ import AppData
     }
     @Test func creationOfferIsNotLostDuringForegroundRefresh() async {
         let repo = PermissionsFake(), vm = PermissionsViewModel(repository: repo)
-        vm.send(.foreground); vm.send(.accountCreated); await vm.settle()
+        vm.send(.foreground); vm.send(.accountCreated("new-account")); await vm.settle()
         #expect(vm.state.explanation == .notifications); #expect(repo.offers == 1); #expect(repo.requests.isEmpty)
     }
     @Test func creationOffersOnceAndCancelNeverShowsSystemPrompt() async {
         let repo = PermissionsFake(), vm = PermissionsViewModel(repository: repo)
-        vm.send(.accountCreated); await vm.settle(); #expect(vm.state.explanation == .notifications)
+        vm.send(.accountCreated("new-account")); await vm.settle(); #expect(vm.state.explanation == .notifications)
         #expect(repo.requests.isEmpty)
         vm.send(.cancelExplanation); vm.send(.explanationDismissed); await vm.settle()
         #expect(repo.requests.isEmpty); #expect(vm.state.explanation == nil)
-        vm.send(.accountCreated); await vm.settle(); #expect(vm.state.explanation == nil); #expect(repo.requests.isEmpty)
+        vm.send(.accountCreated("new-account")); await vm.settle(); #expect(vm.state.explanation == nil); #expect(repo.requests.isEmpty)
+    }
+    @Test func interruptedOfferRemainsEligibleAndResolvedOfferIsPerAccount() async {
+        let repo = PermissionsFake()
+        let interrupted = PermissionsViewModel(repository: repo)
+        interrupted.send(.accountCreated("first")); await interrupted.settle()
+        #expect(interrupted.state.explanation == .notifications); #expect(repo.consumed.isEmpty)
+        let restarted = PermissionsViewModel(repository: repo)
+        restarted.send(.accountCreated("first")); await restarted.settle()
+        #expect(restarted.state.explanation == .notifications)
+        restarted.send(.cancelExplanation); #expect(repo.consumed.isEmpty)
+        restarted.send(.explanationDismissed); await restarted.settle()
+        #expect(repo.consumed == ["first"]); #expect(repo.requests.isEmpty)
+        restarted.send(.accountCreated("second")); await restarted.settle()
+        #expect(restarted.state.explanation == .notifications); #expect(!repo.consumed.contains("second"))
+        restarted.send(.confirmExplanation); #expect(!repo.consumed.contains("second")); #expect(repo.requests.isEmpty)
+        restarted.send(.explanationDismissed); await restarted.settle()
+        #expect(repo.consumed == ["first", "second"]); #expect(repo.requests == [.notifications])
+        #expect(repo.registrations == 1)
+    }
+    @Test func readsDoNotRegisterAndForegroundIsExplicit() async {
+        let repo = PermissionsFake(), vm = PermissionsViewModel(repository: repo)
+        vm.send(.appeared); vm.send(.appeared); await vm.settle(); #expect(repo.registrations == 0)
+        vm.send(.appeared); vm.send(.foreground); await vm.settle(); #expect(repo.registrations == 1)
+        vm.send(.need(.camera)); await vm.settle()
+        vm.send(.confirmExplanation); vm.send(.explanationDismissed); await vm.settle()
+        #expect(repo.registrations == 1)
     }
     @Test func promptWaitsForActualSheetDismissalAndCannotBeRepeated() async {
         let repo = PermissionsFake(); var events: [PermissionsEvent] = []

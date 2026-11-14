@@ -4,13 +4,21 @@ import Foundation
 import Testing
 @testable import AppData
 @MainActor struct DevicePermissionsTests {
-    @Test func notificationOfferPersistsLocallyAcrossRepositoryInstances() throws {
+    @Test func notificationOfferIsConsumedExplicitlyAndScopedPerAccount() throws {
         let name = "permissions-test-" + UUID().uuidString
         let defaults = try #require(UserDefaults(suiteName: name))
         defer { defaults.removePersistentDomain(forName: name) }
+        // The legacy device-wide flag cannot identify which account saw an offer.
+        defaults.set(true, forKey: "device.notifications.explanation.v1")
         let first = NativeDevicePermissionsRepository(defaults: defaults)
-        #expect(first.claimNotificationOffer()); #expect(!first.claimNotificationOffer())
+        #expect(!first.notificationOfferConsumed(accountID: "first"))
+        let interrupted = NativeDevicePermissionsRepository(defaults: defaults)
+        #expect(!interrupted.notificationOfferConsumed(accountID: "first"))
+        first.consumeNotificationOffer(accountID: "first")
         let replacement = NativeDevicePermissionsRepository(defaults: defaults)
-        #expect(!replacement.claimNotificationOffer())
+        #expect(replacement.notificationOfferConsumed(accountID: "first"))
+        #expect(!replacement.notificationOfferConsumed(accountID: "second"))
+        replacement.consumeNotificationOffer(accountID: "second")
+        #expect(first.notificationOfferConsumed(accountID: "second"))
     }
 }

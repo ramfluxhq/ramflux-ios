@@ -20,7 +20,7 @@ import Observation
     let shell: AppShellCoordinator
     @ObservationIgnored lazy var devicePermissions = NativeDevicePermissionsRepository()
     @ObservationIgnored lazy var permissions = PermissionsCoordinator(repository: devicePermissions)
-    @ObservationIgnored lazy var onboarding = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, created: { [weak self] in self?.permissions.send(.accountCreated) }) { [weak self] account in
+    @ObservationIgnored lazy var onboarding = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, created: { [weak self] account in self?.permissions.send(.accountCreated(account.id)) }) { [weak self] account in
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }
     }

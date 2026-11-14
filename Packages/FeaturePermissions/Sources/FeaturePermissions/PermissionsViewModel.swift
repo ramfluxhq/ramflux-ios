@@ -10,14 +10,17 @@ import Observation
     @ObservationIgnored private var generation: UInt64 = 0
     @ObservationIgnored private var pending: DevicePermission?
     @ObservationIgnored private var refreshNeeded = false
-    @ObservationIgnored private var offerPending = false
+    @ObservationIgnored private var registrationNeeded = false
+    @ObservationIgnored private var offerPending: String?
+    @ObservationIgnored private var notificationOfferAccount: String?
     public init(repository: any DevicePermissionsRepository, emit: @escaping @MainActor (PermissionsEvent) -> Void = { _ in }) { self.repository = repository; self.emit = emit }
     public func send(_ action: PermissionsAction) {
         switch action {
-        case .appeared, .foreground: refresh()
+        case .appeared: refresh()
+        case .foreground: refresh(register: true)
         case .disappeared: break // App-scoped coordinator owns an in-flight system prompt across navigation.
-        case .accountCreated:
-            offerPending = true; offerIfIdle()
+        case .accountCreated(let accountID):
+            offerPending = accountID; offerIfIdle()
         case .need(let permission):
             guard permission != .notifications else { return } // Notifications have one post-creation offer only.
             need(permission)
@@ -28,9 +31,14 @@ import Observation
             guard state.explanation != nil else { return }
             pending = nil; state.explanation = nil
         case .explanationDismissed:
+            if let accountID = notificationOfferAccount {
+                repository.consumeNotificationOffer(accountID: accountID); notificationOfferAccount = nil
+            }
             guard let permission = pending else { offerIfIdle(); return }; pending = nil
             run { [repository] in
-                let result = await repository.request(permission), snapshot = await repository.snapshot()
+                let result = await repository.request(permission)
+                if permission == .notifications { await repository.registerForNotificationsIfAuthorized() }
+                let snapshot = await repository.snapshot()
                 return .requested(permission, result, snapshot)
             }
         case .openSettings:
@@ -40,9 +48,11 @@ import Observation
         }
     }
     private func offerIfIdle() {
-        guard offerPending, !state.busy, state.explanation == nil, state.permissionNeeded == nil, pending == nil else { return }
-        offerPending = false
-        if repository.claimNotificationOffer() { need(.notifications) }
+        guard let accountID = offerPending, !state.busy, state.explanation == nil, state.permissionNeeded == nil, pending == nil, notificationOfferAccount == nil else { return }
+        offerPending = nil
+        if !repository.notificationOfferConsumed(accountID: accountID) {
+            notificationOfferAccount = accountID; need(.notifications)
+        }
     }
     private func install(_ snapshot: DevicePermissionsSnapshot) {
         state.snapshot = snapshot
@@ -54,9 +64,12 @@ import Observation
         state.permissionNeeded = nil
         run { [repository] in .needed(permission, await repository.snapshot()) }
     }
-    private func refresh() {
-        guard !state.busy else { refreshNeeded = true; return }
-        run { [repository] in .snapshot(await repository.snapshot()) }
+    private func refresh(register: Bool = false) {
+        guard !state.busy else { refreshNeeded = true; registrationNeeded = registrationNeeded || register; return }
+        run { [repository] in
+            if register { await repository.registerForNotificationsIfAuthorized() }
+            return .snapshot(await repository.snapshot())
+        }
     }
     private enum Completion {
         case snapshot(DevicePermissionsSnapshot), needed(DevicePermission, DevicePermissionsSnapshot)
@@ -75,6 +88,7 @@ import Observation
                 if permission.isUsable(value[permission]) { self.emit(.ready(permission)) }
                 else if value[permission] == .notAsked { self.state.explanation = permission }
                 else { self.state.permissionNeeded = permission }
+                if permission == .notifications, self.state.explanation == nil { self.notificationOfferAccount = nil }
             case .requested(let permission, let result, let value):
                 self.install(value)
                 switch result {
@@ -84,8 +98,11 @@ import Observation
                 }
             case .settings(let opened): if !opened { self.state.failure = .localFailure }
             }
-            if self.offerPending { self.offerIfIdle() }
-            if !self.state.busy, self.refreshNeeded { self.refreshNeeded = false; self.refresh() }
+            if self.offerPending != nil { self.offerIfIdle() }
+            if !self.state.busy, self.refreshNeeded {
+                let register = self.registrationNeeded
+                self.refreshNeeded = false; self.registrationNeeded = false; self.refresh(register: register)
+            }
         }
     }
     public func settle() async { while true { let id = generation; await work?.value; if id == generation { return } } }

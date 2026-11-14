@@ -10,17 +10,29 @@ import Photos
 @MainActor public final class NativeDevicePermissionsRepository: DevicePermissionsRepository {
     private let defaults: UserDefaults
     private var registrationRequested = false
-    private static let offerKey = "device.notifications.explanation.v1"
+    #if os(iOS)
+    private var registerNotification: @MainActor () -> Void = { UIApplication.shared.registerForRemoteNotifications() }
+    init(defaults: UserDefaults, registerNotification: @escaping @MainActor () -> Void) {
+        self.defaults = defaults; self.registerNotification = registerNotification
+    }
+    #endif
+    private static let offerKey = "device.notifications.explanation.v2."
     public init(defaults: UserDefaults = .standard) { self.defaults = defaults }
-    public func claimNotificationOffer() -> Bool {
-        guard !defaults.bool(forKey: Self.offerKey) else { return false }
-        defaults.set(true, forKey: Self.offerKey)
-        return true
+    public func notificationOfferConsumed(accountID: String) -> Bool {
+        defaults.bool(forKey: Self.offerKey + accountID)
+    }
+    public func consumeNotificationOffer(accountID: String) {
+        defaults.set(true, forKey: Self.offerKey + accountID)
+    }
+    public func registerForNotificationsIfAuthorized() async {
+        #if os(iOS)
+        let status = Self.notificationStatus(await UNUserNotificationCenter.current().notificationSettings().authorizationStatus)
+        registerIfAllowed(status)
+        #endif
     }
     public func snapshot() async -> DevicePermissionsSnapshot {
         #if os(iOS)
         let notifications = Self.notificationStatus(await UNUserNotificationCenter.current().notificationSettings().authorizationStatus)
-        registerIfAllowed(notifications)
         let microphone: DevicePermissionStatus = switch AVAudioApplication.shared.recordPermission {
         case .undetermined: .notAsked
         case .denied: .denied
@@ -52,7 +64,6 @@ import Photos
             do {
                 _ = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
                 let result = Self.notificationStatus(await UNUserNotificationCenter.current().notificationSettings().authorizationStatus)
-                registerIfAllowed(result)
                 return .success(result)
             } catch { return .failure(.localFailure) }
         case .camera:
@@ -79,7 +90,7 @@ import Photos
         guard status == .allowed || status == .limited else { registrationRequested = false; return }
         guard !registrationRequested else { return }
         registrationRequested = true
-        UIApplication.shared.registerForRemoteNotifications()
+        registerNotification()
     }
     public static func notificationStatus(_ value: UNAuthorizationStatus) -> DevicePermissionStatus {
         switch value { case .notDetermined: .notAsked; case .denied: .denied; case .authorized: .allowed; case .provisional, .ephemeral: .limited; @unknown default: .unavailable }

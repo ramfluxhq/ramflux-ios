@@ -4,8 +4,21 @@ import XCTest
 import UserNotifications
 import AVFoundation
 import Photos
-import AppData
+@testable import AppData
 @MainActor final class DevicePermissionPlatformTests: XCTestCase {
+    func testStatusReadsNeverRegisterAndExplicitRegistrationChecksOSAuthority() async {
+        var registrations = 0
+        let repository = NativeDevicePermissionsRepository(defaults: .standard, registerNotification: { registrations += 1 })
+        let before = await repository.snapshot()
+        _ = await repository.snapshot()
+        XCTAssertEqual(registrations, 0)
+        await repository.registerForNotificationsIfAuthorized()
+        await repository.registerForNotificationsIfAuthorized()
+        let authorized = DevicePermission.notifications.isUsable(before[.notifications])
+        XCTAssertEqual(registrations, authorized ? 1 : 0)
+        _ = await repository.snapshot()
+        XCTAssertEqual(registrations, authorized ? 1 : 0)
+    }
     func testNativeAuthorizationEnumsKeepDeniedUndeterminedAndLimitedDistinct() {
         XCTAssertEqual(NativeDevicePermissionsRepository.notificationStatus(.notDetermined), .notAsked)
         XCTAssertEqual(NativeDevicePermissionsRepository.notificationStatus(.denied), .denied)

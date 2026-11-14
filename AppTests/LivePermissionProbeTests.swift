@@ -13,7 +13,9 @@ import RFDesign
     let decisions = AsyncStream<RepositoryResult<DevicePermissionStatus>>.makeStream(bufferingPolicy: .bufferingNewest(1))
     init(defaults: UserDefaults) { native = NativeDevicePermissionsRepository(defaults: defaults) }
     func snapshot() async -> DevicePermissionsSnapshot { await native.snapshot() }
-    func claimNotificationOffer() -> Bool { native.claimNotificationOffer() }
+    func notificationOfferConsumed(accountID: String) -> Bool { native.notificationOfferConsumed(accountID: accountID) }
+    func consumeNotificationOffer(accountID: String) { native.consumeNotificationOffer(accountID: accountID) }
+    func registerForNotificationsIfAuthorized() async { await native.registerForNotificationsIfAuthorized() }
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus> {
         let result = await native.request(permission); decisions.continuation.yield(result); return result
     }
@@ -57,7 +59,7 @@ import RFDesign
         defer { window.isHidden = true; window.rootViewController = nil }
         hosting.view.layoutIfNeeded()
         await coordinator.viewModel.settle()
-        coordinator.send(permission == .notifications ? .accountCreated : .need(permission))
+        coordinator.send(permission == .notifications ? .accountCreated("probe-account") : .need(permission))
         await coordinator.viewModel.settle()
         XCTAssertEqual(coordinator.viewModel.state.explanation, permission)
         let timeout = Task { do { try await Task.sleep(for: .seconds(90)) } catch { return }; repository.decisions.continuation.finish() }

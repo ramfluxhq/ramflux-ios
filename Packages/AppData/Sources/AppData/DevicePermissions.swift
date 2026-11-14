@@ -16,8 +16,12 @@ public struct DevicePermissionsSnapshot: Equatable, Sendable {
 }
 /// Device-local OS authority. No SDK call, node upload or account-scoped synchronization.
 @MainActor public protocol DevicePermissionsRepository: AnyObject {
+    /// Reads system status without requesting authorization or APNs registration.
     func snapshot() async -> DevicePermissionsSnapshot
-    func claimNotificationOffer() -> Bool
+    func notificationOfferConsumed(accountID: String) -> Bool
+    /// Call only after the account's explanation sheet resolves.
+    func consumeNotificationOffer(accountID: String)
+    func registerForNotificationsIfAuthorized() async
     func request(_ permission: DevicePermission) async -> RepositoryResult<DevicePermissionStatus>
     func openSettings() async -> Bool
 }

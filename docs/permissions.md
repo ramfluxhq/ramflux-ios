@@ -5,12 +5,14 @@ view model and coordinator. `NativeDevicePermissionsRepository` is the only call
 of OS authorization APIs. Status is not an SDK projection and is never sent to a node.
 
 Launch and foreground refresh read status without requesting authorization. A newly
-created account offers notifications once per installation/device preference store;
-unlock and recovery do not offer them. The marker is saved before showing the
-explanation. Cancel does not request permission. Continue dismisses the host sheet;
+created account offers notifications once per account in the local preference store;
+unlock and recovery do not offer them. The marker is saved only when the explanation
+sheet resolves, including cancellation. An interrupted sheet remains unconsumed.
+The legacy device-wide marker is ignored because it cannot identify an account. Cancel does not request permission. Continue dismisses the host sheet;
 only its dismissal event invokes the system request. Native status is read again
 after the decision. System-restricted sensors remain unavailable; they are distinct
-from usable provisional notifications or limited photo authorization. APNs registration occurs only after authorized/provisional status.
+from usable provisional notifications or limited photo authorization. Status reads have no registration side effects. Foreground and completed notification
+requests explicitly register for APNs only after a fresh authorized/provisional status check.
 This module does not prove APNs delivery or connect a new notification backend.
 
 Camera and add-only Photos intents use the same explanation boundary. A denied or
@@ -41,3 +43,6 @@ manufacture grants. Remove the defaults key afterward. The separate `provisional
 simulator and verifies the local Limited status. Production requests remain
 alert/sound/badge only. System-restricted enum mapping is tested without
 manufacturing device-management restrictions.
+
+Push integration owns token forwarding and generic sender content. Media and pairing
+integration own the currently dormant camera/add-only Photos intent callers.
