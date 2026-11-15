@@ -1,0 +1,20 @@
+# Subflow: bring an existing account to the unlocked app shell.
+# Env: PASSPHRASE (from the run command). No clearState here.
+- launchApp
+- runFlow:
+    when:
+      notVisible:
+        id: "app-shell"
+    commands:
+      - tapOn:
+          id: "Unlock saved account"
+      - tapOn:
+          id: "onboarding-secret-passphrase"
+      - inputText: ${PASSPHRASE}
+      - hideKeyboard
+      - tapOn:
+          id: "onboarding-submit"
+- extendedWaitUntil:
+    visible:
+      id: "app-shell"
+    timeout: 60000
