@@ -6,12 +6,15 @@ import RFDesign
 public struct ChatScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: ChatState
     public let onAction: (ChatAction) -> Void
     public init(state: ChatState, onAction: @escaping (ChatAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
-            RFChatHeader(id: state.conversationID, title: state.displayTitle, subtitle: "", kind: state.isGroup ? .channel : .default, theme: theme, leading: { RFAvatar(initial: String(state.displayTitle.prefix(1)), kind: state.isGroup ? .group : .person, theme: theme) }, trailing: { HStack { Button(FeatureChatStrings.text("copy.d6e645b7d2b2", locale: locale), systemImage: "phone") { onAction(.callRequested) }; Button(FeatureChatStrings.text("copy.d47d7cb0e4f8", locale: locale), systemImage: "ellipsis") { onAction(.detailsRequested) } } })
+            KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, tag: state.conversationID) {
+                KitAvatar(String(state.displayTitle.prefix(1)), size: 36, kind: state.isGroup ? .channel : .person, tag: state.conversationID + "-avatar")
+            }
             if state.loading { ProgressView(FeatureChatStrings.text("copy.aa8730bbb4e3", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             if state.messages.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("copy.f42e0f66017d", locale: locale), message: FeatureChatStrings.text("copy.3b6e2ca67ca5", locale: locale)) }
@@ -22,17 +25,21 @@ public struct ChatScreen: View {
             #endif
             if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("copy.a8a3813c2900", locale: locale) : FeatureChatStrings.text("copy.b486522010d5", locale: locale)).font(theme.captionFont) }
             if (state.pendingSend != nil || state.held != nil) && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }
-            RFComposerShell(id: "chat-composer", theme: theme, mode: { composerMode }, quote: { composerQuote }, attachment: {
-                Button(FeatureChatStrings.text("copy.d406ade2958c", locale: locale), systemImage: "paperclip") { onAction(.unavailableAttachment) }
-            }, editor: {
-                #if os(iOS)
-                ChatComposer(text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }), enabled: composerEnabled) { onAction(.send) }.frame(minHeight: theme.composer_min, maxHeight: theme.composer_min * 3)
-                #else
-                TextField(FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale), text: Binding(get: { state.draft }, set: { onAction(.draftChanged($0)) }))
-                Button(FeatureChatStrings.text("copy.f6f4688ff23d", locale: locale)) { onAction(.send) }.disabled(!composerEnabled)
-                #endif
-            }, actions: { EmptyView() })
+            KitComposer(
+                value: draft,
+                placeholder: FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale),
+                onSend: { if composerEnabled { onAction(.send) } },
+                onAttach: { onAction(.unavailableAttachment) },
+                sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                replyAuthor: replyAuthor,
+                replyExcerpt: replyExcerpt,
+                onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
+                tag: "chat-composer"
+            )
         } }.privacySensitive()
+            #if os(iOS)
+            .navigationBarBackButtonHidden(true)
+            #endif
             .toolbar { Button(FeatureChatStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
             .sheet(isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
                 if let pending = state.pendingDelete {
@@ -58,25 +65,23 @@ public struct ChatScreen: View {
             }
     }
     private var composerEnabled: Bool { !state.loading && !state.sending && state.pendingSend == nil && state.held == nil }
-    private var composerMode: some View {
-        Group {
-            if case .edit = state.composer {
-                HStack {
-                    Text(FeatureChatStrings.text("chat.edit.banner", locale: locale)).font(theme.captionFont)
-                    if state.held == nil { Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelComposer) } }
-                }
-            }
+    private var draft: Binding<String> {
+        Binding(get: { state.draft }, set: { onAction(.draftChanged(Self.boundedDraft($0))) })
+    }
+    private var replyAuthor: String? {
+        switch state.composer {
+        case .edit: FeatureChatStrings.text("chat.edit.banner", locale: locale)
+        case .reply: FeatureChatStrings.text("chat.reply.banner", locale: locale)
+        case nil: nil
         }
     }
-    private var composerQuote: some View {
-        Group {
-            if case .reply(_, let preview) = state.composer {
-                HStack {
-                    Text(FeatureChatStrings.text("chat.reply.banner", locale: locale)).font(theme.captionFont)
-                    if !preview.isEmpty { Text(preview).font(theme.captionFont).lineLimit(2) }
-                    if state.held == nil { Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelComposer) } }
-                }
-            }
-        }
+    private var replyExcerpt: String? {
+        if case .reply(_, let preview) = state.composer, !preview.isEmpty { return preview }
+        return nil
+    }
+    private static func boundedDraft(_ value: String) -> String {
+        var value = value
+        while value.utf8.count > 65_536, !value.isEmpty { value.removeLast() }
+        return value
     }
 }

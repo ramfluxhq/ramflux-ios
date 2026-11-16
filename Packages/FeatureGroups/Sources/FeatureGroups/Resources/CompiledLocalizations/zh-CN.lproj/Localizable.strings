@@ -53,9 +53,9 @@
 	<key>groups.device</key>
 	<string>设备</string>
 	<key>groups.empty.message</key>
-	<string>创建群组或审核邀请即可开始。</string>
+	<string>创建一个群组，或等待别人邀请你加入。</string>
 	<key>groups.empty.title</key>
-	<string>暂无群组</string>
+	<string>还没有群组</string>
 	<key>groups.epoch</key>
 	<string>群组版本</string>
 	<key>groups.expires</key>

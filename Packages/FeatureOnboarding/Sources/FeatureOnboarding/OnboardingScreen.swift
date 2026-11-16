@@ -119,6 +119,6 @@ public struct OnboardingScreen: View {
         action(FeatureOnboardingStrings.text("copy.2afe8ba12d97", locale: locale), .customNode)
     }
     private func action(_ title: String, _ action: OnboardingAction) -> some View {
-        RFActionButton(id: title, label: title, kind: .primary, disabled: state.busy, theme: theme) { onAction(action) }
+        KitButton(title, action: { onAction(action) }, kind: .primary, enabled: !state.busy, tag: title)
     }
 }

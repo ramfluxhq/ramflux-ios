@@ -6,6 +6,7 @@ import RFDesign
 public struct CallsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: CallsState
     public let onAction: (CallsAction) -> Void
     public init(state: CallsState, onAction: @escaping (CallsAction) -> Void) { self.state = state; self.onAction = onAction }
@@ -17,9 +18,7 @@ public struct CallsScreen: View {
     }
     private var regularBody: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: {
-                Button(copy("history")) { onAction(.mode(.history)) }
-            })
+            KitPageHeader(copy("title"), onBack: { dismiss() }, actionLabel: copy("history"), onAction: { onAction(.mode(.history)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: copy("refresh"), action: { onAction(.refresh) })], tag: "calls-header")
             if state.loading { ProgressView(copy("loading")) }
             if state.busy { ProgressView(copy("applying")) }
             if let failure = state.audioFailure { RFUnavailableView(title: copy("dial"), message: failure.message(locale: locale)) }
@@ -34,18 +33,17 @@ public struct CallsScreen: View {
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             Button(copy("permissions")) { onAction(.mode(.permissions)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-        .privacySensitive().toolbar { Button(copy("refresh"), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+        .privacySensitive().rfHidesNavigationBar()
     }
     @ViewBuilder private var content: some View {
         switch state.mode {
         case .history:
-            RFSearchField(id: "calls-filter", label: copy("filter"), value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), theme: theme)
+            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: copy("filter"), tag: "calls-filter")
             if state.visibleCalls.isEmpty && !state.loading && state.failure == nil {
-                RFStateBlock(title: copy("empty"), description: copy("empty.message"), kind: .empty, theme: theme) { EmptyView() }
+                RFUnavailableView(title: copy("empty"), message: copy("empty.message"))
             }
             ForEach(state.visibleCalls) { row in
-                RFListRow(id: row.id, title: row.peerID, subtitle: copy(row.direction.rawValue) + " · " + copy(row.phase.rawValue), theme: theme,
-                    leading: { Image(systemName: "phone") }, trailing: { Image(systemName: "chevron.right") }) { onAction(.mode(.detail(row.id))) }
+                KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: "phone", value: copy(row.direction.rawValue) + " · " + copy(row.phase.rawValue), tag: row.id)
             }
         case .dial(let conversation):
             LabeledContent(copy("conversation"), value: conversation)

@@ -337,6 +337,24 @@
           }
         }
       }
+    },
+    "agents.desktop": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create agents on your desktop" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "在桌面端创建智能体" } }
+      }
+    },
+    "agents.empty.title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No agents found" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "没有找到 Agent" } }
+      }
+    },
+    "agents.empty.message": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Try another name or keyword." } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "试试其他姓名或关键词。" } }
+      }
     }
   }
 }

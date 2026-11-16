@@ -77,7 +77,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无群组"
+            "value": "还没有群组"
           }
         }
       }
@@ -87,13 +87,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create a group or review an invitation to get started."
+            "value": "Create a group, or wait for someone to invite you."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "创建群组或审核邀请即可开始。"
+            "value": "创建一个群组，或等待别人邀请你加入。"
           }
         }
       }

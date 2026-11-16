@@ -6,19 +6,19 @@ import RFDesign
 public struct ContactsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: ContactsState
     public let onAction: (ContactsAction) -> Void
     public init(state: ContactsState, onAction: @escaping (ContactsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: title, subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { EmptyView() })
+            KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureContactsStrings.text("copy.0e9161011702", locale: locale), action: { onAction(.refresh) })], tag: "contacts-header")
             if state.pendingMutation != nil { Button(FeatureContactsStrings.text("copy.c3f72136e5bb", locale: locale)) { onAction(.retryPendingMutation) }.disabled(state.busy) }
             if state.loading { ProgressView(FeatureContactsStrings.text("copy.b25dcb116a99", locale: locale)) }
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-            .navigationTitle(title).privacySensitive()
-            .toolbar { Button(FeatureContactsStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+            .privacySensitive().rfHidesNavigationBar()
             .sheet(item: Binding(get: { state.pending }, set: { if $0 == nil { onAction(.cancelDecision) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {
                     Text(pending.request.name).font(theme.bodyFont.weight(.semibold))
@@ -37,12 +37,13 @@ public struct ContactsScreen: View {
         switch state.mode {
         case .contacts:
             HStack { Button(FeatureContactsStrings.text("copy.4ebdb8769377", locale: locale)) { onAction(.mode(.strangers)) }; Button(FeatureContactsStrings.text("copy.874d69d66eb2", locale: locale)) { onAction(.mode(.sent)) }; Spacer(); Button(FeatureContactsStrings.text("copy.9fd728c66c9a", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) } }
-            RFSearchField(id: "contact-filter", label: FeatureContactsStrings.text("copy.604bf8eb82d8", locale: locale), value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), theme: theme)
+            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: FeatureContactsStrings.text("copy.604bf8eb82d8", locale: locale), tag: "contact-filter")
             let filtered = state.visibleContacts
             if filtered.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("copy.0013e6984bf6", locale: locale), message: FeatureContactsStrings.text("copy.d6aa21ab75ee", locale: locale)) }
             ForEach(filtered) { contact in
-                RFListRow(id: contact.id, title: contact.displayName, subtitle: contact.subtitle, theme: theme,
-                    leading: { RFAvatar(initial: String(contact.displayName.prefix(1)), kind: .person, theme: theme) }, trailing: { Image(systemName: "chevron.right").accessibilityHidden(true) }) { onAction(.mode(.profile(contact.id))) }
+                KitConversationRow(contact.displayName, preview: contact.subtitle, time: "", tag: contact.id, action: { onAction(.mode(.profile(contact.id))) }) {
+                    KitAvatar(String(contact.displayName.prefix(1)), size: 44, kind: .person, tag: contact.id + "-avatar")
+                }
             }
         case .add:
             TextField(FeatureContactsStrings.text("copy.cc755b5f1b02", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput()
@@ -75,8 +76,7 @@ public struct ContactsScreen: View {
         }
     }
     private func requestRow(_ request: ContactRequestRecord) -> some View {
-        RFListRow(id: request.id, title: request.name, subtitle: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : request.principal,
-                  theme: theme, leading: { EmptyView() }, trailing: { Text(AppDataStrings.status(request.state, locale: locale)).font(theme.captionFont) }) { onAction(.mode(.request(request.id))) }
+        KitRow(request.name, action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : request.principal, tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
     }
     private func requestDetails(_ request: ContactRequestRecord) -> some View {
         VStack(alignment: .leading, spacing: theme.gap) {

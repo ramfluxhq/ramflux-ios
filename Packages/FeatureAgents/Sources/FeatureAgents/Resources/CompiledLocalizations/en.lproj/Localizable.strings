@@ -10,10 +10,16 @@
 	<string>Collaboration</string>
 	<key>agents.create</key>
 	<string>Create Agent</string>
+	<key>agents.desktop</key>
+	<string>Create agents on your desktop</string>
 	<key>agents.directory</key>
 	<string>Agent directory</string>
 	<key>agents.edit</key>
 	<string>Edit basics</string>
+	<key>agents.empty.message</key>
+	<string>Try another name or keyword.</string>
+	<key>agents.empty.title</key>
+	<string>No agents found</string>
 	<key>agents.explanation</key>
 	<string>Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client.</string>
 	<key>agents.goal</key>

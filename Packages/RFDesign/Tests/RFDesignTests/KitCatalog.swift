@@ -30,6 +30,9 @@ enum KitCatalog {
             var copy = item
             copy.name += "--dark"
             copy.dark = true
+            if copy.name == "page-header--default--dark" {
+                copy.body = AnyView(KitPageHeader("Luma 档案", onBack: {}, onInfo: {}))
+            }
             return copy
         }
         items += states()

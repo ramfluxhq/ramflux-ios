@@ -10,10 +10,16 @@
 	<string>协作</string>
 	<key>agents.create</key>
 	<string>创建智能体</string>
+	<key>agents.desktop</key>
+	<string>在桌面端创建智能体</string>
 	<key>agents.directory</key>
 	<string>智能体列表</string>
 	<key>agents.edit</key>
 	<string>编辑基本信息</string>
+	<key>agents.empty.message</key>
+	<string>试试其他姓名或关键词。</string>
+	<key>agents.empty.title</key>
+	<string>没有找到 Agent</string>
 	<key>agents.explanation</key>
 	<string>智能体配置需要专用 SDK 接口。尚未创建或更改智能体。高级配置由桌面客户端管理。</string>
 	<key>agents.goal</key>

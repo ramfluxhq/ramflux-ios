@@ -28,13 +28,20 @@ public struct RFUnavailableView: View {
     public init(title: String, message: String) { self.title = title; self.message = message }
     public var body: some View {
         RFPage {
-            RFStateBlock(title: title, description: message, kind: .empty, theme: theme) { EmptyView() }
+            RFStatusNote(title: title, message: message, icon: "messages-square")
                 .frame(maxWidth: theme.column_max)
         }
     }
 }
 
 public extension View {
+    @ViewBuilder func rfHidesNavigationBar() -> some View {
+        #if os(iOS)
+        self.toolbar(.hidden, for: .navigationBar)
+        #else
+        self
+        #endif
+    }
     @ViewBuilder func rfAddressInput() -> some View {
         #if os(iOS)
         self.textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)

@@ -29,6 +29,7 @@ jobs:
         run: |
           python3 scripts/check-ui-localization.py
           python3 scripts/export-localizations.py --check
+          python3 scripts/check-zh-font-glyphs.py
       - name: Generate project
         run: xcodegen generate
       - name: Check minimal OS permission declarations
@@ -59,7 +60,7 @@ jobs:
         run: |
           device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
           xcrun simctl bootstatus "$device_id" -b
-          xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -resultBundlePath build/ScreenSnapshots.xcresult test CODE_SIGNING_ALLOWED=NO
+          TEST_RUNNER_SHELL_CAPTURE_DIR=/tmp/shell-ios-captures xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -resultBundlePath build/ScreenSnapshots.xcresult test CODE_SIGNING_ALLOWED=NO
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -68,7 +69,7 @@ jobs:
           if-no-files-found: warn
   kit-evidence:
     runs-on: macos-15
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
@@ -90,9 +91,28 @@ jobs:
           test -n "$(find /tmp/kit-ios-captures -name '*.png' -print -quit)"
       - name: Compare captures with the design previews
         run: python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures "$GITHUB_WORKSPACE/kit-evidence-ci"
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Capture shell boards on the iOS simulator
+        timeout-minutes: 20
+        run: |
+          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          xcrun simctl bootstatus "$device_id" -b
+          TEST_RUNNER_SHELL_CAPTURE_DIR=/tmp/shell-ios-captures xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/shell-dd" test -only-testing:RamfluxTests/ShellBoardCaptureTests CODE_SIGNING_ALLOWED=NO
+          test -n "$(find /tmp/shell-ios-captures -name '*.png' -print -quit)"
+      - name: Compare shell captures with the design previews
+        run: python3 scripts/compare-kit-previews.py shell-previews /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: kit-evidence
           path: kit-evidence-ci
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shell-evidence
+          path: shell-evidence-ci
           if-no-files-found: error

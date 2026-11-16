@@ -6,13 +6,14 @@ import RFDesign
 public struct PermissionsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: PermissionsState
     public let onAction: (PermissionsAction) -> Void
     public init(state: PermissionsState, onAction: @escaping (PermissionsAction) -> Void) { self.state = state; self.onAction = onAction }
     private func copy(_ key: String) -> String { FeaturePermissionsStrings.text(key, locale: locale) }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { EmptyView() })
+            KitPageHeader(copy("title"), onBack: { dismiss() }, tag: "permissions-header")
             Text(copy("intro")).font(theme.captionFont)
             ForEach(DevicePermission.allCases) { permission in
                 VStack(alignment: .leading, spacing: theme.gap / 2) {
@@ -30,6 +31,6 @@ public struct PermissionsScreen: View {
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             Button(copy("openSettings")) { onAction(.openSettings) }.disabled(state.busy)
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-        .navigationTitle(copy("title"))
+        .rfHidesNavigationBar()
     }
 }

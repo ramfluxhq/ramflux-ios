@@ -12,19 +12,24 @@ public struct AgentsScreen: View {
     private func copy(_ key: String) -> String { FeatureAgentsStrings.text("agents." + key, locale: locale) }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { Button(copy("create")) { onAction(.mode(.create)) } })
-            Text(copy(state.mode.rawValue)).font(theme.pageFont)
+            KitPageHeader(copy("title"), large: true, latin: true, tag: "agents-header")
+            KitTipBar(copy("desktop"), icon: "info", tag: "agents-desktop")
             if state.loading { ProgressView(copy("loading")) }
-            if let failure = state.failure { RFUnavailableView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-            if state.mode == .create || state.mode == .edit || state.mode == .goal {
-                RFTextField(id: "agent-name", label: copy("name"), value: Binding(get: { state.draft.name }, set: { onAction(.name($0)) }), theme: theme)
-                RFTextField(id: "agent-goal", label: copy("goal"), value: Binding(get: { state.draft.goal }, set: { onAction(.goal($0)) }), theme: theme)
-                if let issue = state.draftIssue { Text(copy(issue.rawValue)).font(theme.captionFont).foregroundStyle(theme.danger) }
-                if state.mode == .create { Button(copy("create")) { onAction(.create) }.disabled(state.loading || state.draft.name.isEmpty) }
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+            if state.failure == nil && !state.loading {
+                VStack(alignment: .leading, spacing: theme.gap) {
+                    KitStatusHero(icon: "search-x", tag: "agents-empty")
+                    Text(copy("empty.title")).font(theme.bodyFont.weight(.semibold))
+                    Text(copy("empty.message")).font(theme.captionFont).foregroundStyle(theme.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .contain)
             }
             Text(copy("explanation")).font(theme.captionFont)
             if state.mode != .directory { Button(copy("directory")) { onAction(.mode(.directory)) } }
             Button(copy("retry")) { onAction(.retry) }.disabled(state.loading)
-        }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }.privacySensitive()
+        }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
+        .rfHidesNavigationBar()
+        .privacySensitive()
     }
 }

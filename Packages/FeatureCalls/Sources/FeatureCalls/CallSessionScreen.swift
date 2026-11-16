@@ -14,7 +14,7 @@ struct CallSessionScreen<Facts: View>: View {
     private func copy(_ key: String) -> String { FeatureCallsStrings.text("calls." + key, locale: locale) }
     var body: some View {
         RFPage { ScrollView { VStack(spacing: theme.gap) {
-            RFPageHeader(title: copy("dial"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { Button(copy("history")) { onAction(.mode(.history)) } })
+            KitPageHeader(copy("dial"), onBack: { onAction(.mode(.history)) }, actionLabel: copy("history"), onAction: { onAction(.mode(.history)) }, tag: "call-session-header")
             VStack(spacing: theme.gap) {
                 Text(String(row.peerID.prefix(1))).font(.custom(theme.font, size: theme.size_metric)).foregroundStyle(theme.on_avatar_person)
                     .frame(width: theme.row_conversation + theme.gap, height: theme.row_conversation + theme.gap).background(theme.avatar_person, in: Circle()).accessibilityHidden(true)

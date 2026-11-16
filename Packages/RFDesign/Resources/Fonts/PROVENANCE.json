@@ -3,7 +3,7 @@
   "HankenGrotesk.ttf.OFL.txt": "e02ccb89a86839b22feff7872ff5cc355cc0f58318d29eee20e2cf83a612f16d",
   "JetBrainsMono.ttf.OFL.txt": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d",
   "JetBrainsMono.ttf": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda",
-  "NotoSansSC.ttf": "ffb7830a5cd4a3024d270fa15f11b799427e2d37493499248a42a803c4bdad38",
-  "NotoSansSC.subset": "pyftsubset kept the variable wght axis (100-900) and the face names. Ranges: ASCII, Latin-1 and Latin Extended, general punctuation, symbols used by the UI, CJK radicals, kana, CJK punctuation, CJK Unified Ideographs U+4E00-U+9FFF, CJK compatibility ideographs, and fullwidth forms. CJK Extension A and the supplementary ideograph planes were dropped. Characters outside the subset use the platform fallback.",
+  "NotoSansSC.ttf": "b719c9e125cc7f8ba0cac095ed236768a3aeef45e4669787a5ba9c5e91ac3209",
+  "NotoSansSC.subset": "pyftsubset kept the variable wght axis (100-900), the face names, and every non-CJK glyph from the previous subset. CJK Unified Ideographs are limited to the characters used by the zh-CN catalogs. scripts/check-zh-font-glyphs.py fails the build when a zh-CN catalog character is missing. Characters outside the subset use the platform fallback.",
   "NotoSansSC.ttf.OFL.txt": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
 }

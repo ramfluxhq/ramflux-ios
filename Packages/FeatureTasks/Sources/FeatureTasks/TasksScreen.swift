@@ -7,6 +7,7 @@ import RFDesign
 public struct TasksScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: TasksState
     public let onAction: (TasksAction) -> Void
     public init(state: TasksState, onAction: @escaping (TasksAction) -> Void) { self.state = state; self.onAction = onAction }
@@ -16,7 +17,7 @@ public struct TasksScreen: View {
         Group {
             if case .detail = state.mode, let row = state.selected { TasksDetailScreen(state: state, row: row, onAction: onAction) }
             else { regularBody }
-        }.privacySensitive()
+        }.privacySensitive().rfHidesNavigationBar()
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                 Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
@@ -26,7 +27,7 @@ public struct TasksScreen: View {
     }
     private var regularBody: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: copy("title"), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { Button(copy("refresh")) { onAction(.refresh) } })
+            KitPageHeader(copy("title"), onBack: { dismiss() }, actionLabel: copy("refresh"), onAction: { onAction(.refresh) }, tag: "tasks-header")
             if state.loading || state.busy { ProgressView(copy("loading")) }
             if !state.fresh { Text(copy("stale")).font(theme.captionFont) }
             if let pending = state.pending { Text(copy("pending")); facts(pending); Button(copy("reconcile")) { onAction(.reconcile(pending.operationID)) }.disabled(state.busy) }
@@ -46,7 +47,7 @@ public struct TasksScreen: View {
         case .list(let conversation):
             Text(conversation).font(theme.captionFont)
             if state.rows.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
-            ForEach(state.rows) { row in RFListRow(id: row.id, title: row.title, subtitle: status(row.status), theme: theme, leading: { Image(systemName: "checklist") }, trailing: { Image(systemName: "chevron.right") }) { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) } }
+            ForEach(state.rows) { row in KitRow(row.title, action: { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) }, icon: "list-checks", value: status(row.status), tag: row.id) }
             if state.nextCursor != nil { Button(copy("more")) { onAction(.loadMore) }.disabled(state.loading || state.busy) }
         case .detail: EmptyView()
         case .permissions:

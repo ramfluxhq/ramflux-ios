@@ -53,7 +53,7 @@
 	<key>groups.device</key>
 	<string>Device</string>
 	<key>groups.empty.message</key>
-	<string>Create a group or review an invitation to get started.</string>
+	<string>Create a group, or wait for someone to invite you.</string>
 	<key>groups.empty.title</key>
 	<string>No groups yet</string>
 	<key>groups.epoch</key>

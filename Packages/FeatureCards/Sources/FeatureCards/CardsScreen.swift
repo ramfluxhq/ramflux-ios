@@ -6,15 +6,16 @@ import AppData
 public struct CardsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: CardsState
     public let onAction: (CardsAction) -> Void
     public init(state: CardsState, onAction: @escaping (CardsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: FeatureCardsStrings.text("cards.title", locale: locale), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { EmptyView() })
+            KitPageHeader(FeatureCardsStrings.text("cards.title", locale: locale), onBack: { dismiss() }, tag: "cards-header")
             RFUnavailableView(title: state.failure.title(locale: locale), message: state.failure.message(locale: locale))
             if state.checking { ProgressView(FeatureCardsStrings.text("cards.checking", locale: locale)) }
             Button(FeatureCardsStrings.text("cards.retry", locale: locale)) { onAction(.retry) }.disabled(state.checking)
-        }.padding(theme.gap).frame(maxWidth: theme.column_max).frame(maxWidth: .infinity) }
+        }.padding(theme.gap).frame(maxWidth: theme.column_max).frame(maxWidth: .infinity) }.rfHidesNavigationBar()
     }
 }

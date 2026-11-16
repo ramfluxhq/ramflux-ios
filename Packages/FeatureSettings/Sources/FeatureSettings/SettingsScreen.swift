@@ -7,12 +7,13 @@ import RFDesign
 public struct SettingsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public let state: SettingsState
     public let onAction: (SettingsAction) -> Void
     public init(state: SettingsState, onAction: @escaping (SettingsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            RFPageHeader(title: title, subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { EmptyView() })
+            KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureSettingsStrings.text("copy.0e9161011702", locale: locale), action: { onAction(.refresh) })], tag: "settings-header")
             if let pending = state.pendingMutation {
                 Text(FeatureSettingsStrings.text("settings.pending", locale: locale))
                 Text(pending.operationID).font(theme.captionFont)
@@ -22,8 +23,7 @@ public struct SettingsScreen: View {
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-            .navigationTitle(title).privacySensitive()
-            .toolbar { Button(FeatureSettingsStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+            .privacySensitive().rfHidesNavigationBar()
             .sheet(item: Binding(get: { modal }, set: { if $0 == nil { onAction(.dismissModal) } })) { modal in
                 NavigationStack { RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                     modalContent(modal)
@@ -118,7 +118,7 @@ public struct SettingsScreen: View {
         }
     }
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
-        RFListRow(id: id, title: title, subtitle: subtitle, theme: theme, leading: { EmptyView() }, trailing: { Image(systemName: "chevron.right").accessibilityHidden(true) }) { onAction(.open(route)) }
+        KitRow(title, action: { onAction(.open(route)) }, value: subtitle.isEmpty ? nil : subtitle, tag: id)
     }
     private func label(_ route: AppRoute) -> String { switch route { case .cards: FeatureSettingsStrings.text("cards.title", locale: locale); case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .calls: FeatureSettingsStrings.text("calls.title", locale: locale); case .account: FeatureSettingsStrings.text("copy.e8e01909593a", locale: locale); case .devices: FeatureSettingsStrings.text("copy.6f3cba5e5a8e", locale: locale); case .nodes: FeatureSettingsStrings.text("copy.7ac362063b9f", locale: locale); case .appearance: FeatureSettingsStrings.text("copy.dfe87d5e5bba", locale: locale); case .privacy: FeatureSettingsStrings.text("copy.54a57c3147c4", locale: locale); case .backup: FeatureSettingsStrings.text("copy.32c46f7c19e7", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("copy.5da7ca5ffda2", locale: locale); default: FeatureSettingsStrings.text("copy.5548cdf42bc6", locale: locale) } }
 }

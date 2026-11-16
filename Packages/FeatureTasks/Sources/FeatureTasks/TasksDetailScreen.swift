@@ -15,7 +15,7 @@ struct TasksDetailScreen: View {
     private var enabled: Bool { state.fresh && !state.loading && !state.busy && state.pending == nil && !row.pendingResolution }
     var body: some View {
         RFPage { VStack(spacing: 0) {
-            RFPageHeader(title: status(row.status), subtitle: "", theme: theme, leading: { EmptyView() }, trailing: { Button(copy("refresh")) { onAction(.refresh) } })
+            KitPageHeader(status(row.status), onBack: { onAction(.mode(.conversations)) }, actionLabel: copy("refresh"), onAction: { onAction(.refresh) }, tag: "task-detail-header")
             ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                 Text(row.title).font(.custom(theme.font, size: theme.size_title).weight(.semibold))
                 VStack(alignment: .leading, spacing: theme.gap) {
@@ -59,11 +59,7 @@ struct TasksDetailScreen: View {
         }
     }
     @ViewBuilder private var footerActions: some View {
-        RFActionButton(id: "task-cancel", label: copy("cancel"), kind: .secondary, disabled: !enabled, theme: theme) {
-            onAction(.prepare(row.status == "proposed" ? .decline : .cancel))
-        }
-        RFActionButton(id: "task-primary", label: copy(row.status == "proposed" ? "startProposed" : "pendingItems"), kind: .primary, disabled: !enabled, theme: theme) {
-            onAction(row.status == "proposed" ? .prepare(.accept) : .unavailable)
-        }
+        KitButton(copy("cancel"), action: { onAction(.prepare(row.status == "proposed" ? .decline : .cancel)) }, kind: .secondary, enabled: enabled, tag: "task-cancel")
+        KitButton(copy(row.status == "proposed" ? "startProposed" : "pendingItems"), action: { onAction(row.status == "proposed" ? .prepare(.accept) : .unavailable) }, kind: .primary, enabled: enabled, tag: "task-primary")
     }
 }
