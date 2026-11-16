@@ -10,9 +10,30 @@ public struct SendOutcome: Equatable, Sendable {
     public let state: State
     public init(messageID: String, state: State) { self.messageID = messageID; self.state = state }
 }
+public struct ChatMutationKey: Equatable, Sendable {
+    public enum Kind: String, Equatable, Sendable { case edit, reply, react, deletion }
+    public let kind: Kind
+    public let message: String
+    public let text: String
+    public let token: String
+    public let remove: Bool
+    public let scope: String
+    public init(kind: Kind, message: String, text: String = "", token: String = "", remove: Bool = false, scope: String = "") {
+        self.kind = kind; self.message = message; self.text = text; self.token = token; self.remove = remove; self.scope = scope
+    }
+}
+public struct PendingChatMutation: Equatable, Sendable {
+    public let operationID: String
+    public let key: ChatMutationKey
+    public let unresolved: Bool
+    public init(operationID: String, key: ChatMutationKey, unresolved: Bool) {
+        self.operationID = operationID; self.key = key; self.unresolved = unresolved
+    }
+}
 public protocol ChatRepository: Sendable {
     func unavailable(_ capability: ChatCapability) -> AppFailure
     func sendState(account: String, conversation: String) async -> PendingChatSend?
+    func mutationState(account: String, conversation: String) async -> PendingChatMutation?
     func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]>
     func send(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<SendOutcome>
     func edit(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void>
@@ -23,9 +44,14 @@ public protocol ChatRepository: Sendable {
 }
 public struct NativeChatRepository: ChatRepository {
     private let sends = RetainedMutation<String, SendOutcome>()
+    private let mutations = RetainedMutation<ChatMutationKey, Void>()
     public func sendState(account: String, conversation: String) async -> PendingChatSend? {
         guard let entry = await sends.snapshot(scope: account + "\u{0}" + conversation) else { return nil }
         return PendingChatSend(operationID: entry.operationID, text: entry.arguments, unresolved: entry.unresolved, result: entry.result)
+    }
+    public func mutationState(account: String, conversation: String) async -> PendingChatMutation? {
+        guard let entry = await mutations.snapshot(scope: Self.mutationScope(account, conversation)) else { return nil }
+        return PendingChatMutation(operationID: entry.operationID, key: entry.arguments, unresolved: entry.unresolved)
     }
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
@@ -77,15 +103,35 @@ public struct NativeChatRepository: ChatRepository {
         var body: [String: JSONValue] = ["conversation_id": .string(conversation), "message_id": .string(message)]
         if let text { body["text"] = .string(text) }
         for (key, value) in extra { body[key] = value }
-        do {
-            let result = try await gateway.call(operation, account: account, body: .object(body), operationID: operationID)
-            guard result["conversation_id"] == .string(conversation), let state = result["delivery_state"]?.string else { throw AppFailure.outcomeUnknown }
-            let target = result["target_message_id"]?.string ?? result["message_id"]?.string
-            guard target == message else { throw AppFailure.outcomeUnknown }
-            if state == "failed" { throw AppFailure.failed }
-            guard states.contains(state) else { throw AppFailure.outcomeUnknown }
-            return .success(())
-        } catch { return .failure(AppFailure.map(error)) }
+        let attempt = ChatMutationKey(kind: Self.kind(operation), message: message, text: text ?? "", token: extra["token"]?.string ?? "", remove: extra["remove"] == .bool(true), scope: extra["scope"]?.string ?? "")
+        let request = body
+        return await mutations.run(scope: Self.mutationScope(account, conversation), arguments: attempt, operationID: operationID) { [gateway] in
+            do {
+                let result = try await gateway.call(operation, account: account, body: .object(request), operationID: operationID)
+                guard result["conversation_id"] == .string(conversation), let state = result["delivery_state"]?.string else { throw AppFailure.outcomeUnknown }
+                let target = result["target_message_id"]?.string ?? result["message_id"]?.string
+                guard target == message else { throw AppFailure.outcomeUnknown }
+                if state == "failed" { throw Self.partial(result) ? AppFailure.outcomeUnknown : AppFailure.failed }
+                guard states.contains(state) else { throw AppFailure.outcomeUnknown }
+                return .success(())
+            } catch { return .failure(AppFailure.map(error)) }
+        }
+    }
+    private static func mutationScope(_ account: String, _ conversation: String) -> String { account + "\u{0}" + conversation + "\u{0}" + "mutation" }
+    private static func kind(_ operation: SDKOperation) -> ChatMutationKey.Kind {
+        switch operation {
+        case .conversationEdit: .edit
+        case .conversationReply: .reply
+        case .conversationReact: .react
+        default: .deletion
+        }
+    }
+    /// A failed delivery that already reached one recipient must stay retryable on the same key.
+    private static func partial(_ result: JSONValue) -> Bool {
+        guard case .array(let rows) = result["deliveries"] else { return false }
+        let submitted = rows.contains { $0["state"] == .string("submitted") }
+        let failed = rows.contains { $0["state"] == .string("failed") }
+        return submitted && failed
     }
     private static func usableText(_ text: String) -> Bool {
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && text.utf8.count <= 65_536
@@ -110,4 +156,7 @@ public struct UnavailableChatRepository: ChatRepository {
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
 }
 
-public extension ChatRepository { func sendState(account: String, conversation: String) async -> PendingChatSend? { nil } }
+public extension ChatRepository {
+    func sendState(account: String, conversation: String) async -> PendingChatSend? { nil }
+    func mutationState(account: String, conversation: String) async -> PendingChatMutation? { nil }
+}

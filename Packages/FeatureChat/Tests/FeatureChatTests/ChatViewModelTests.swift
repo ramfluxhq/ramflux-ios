@@ -32,7 +32,17 @@ private actor ChatFake: ChatRepository {
         return succeed ? .success(SendOutcome(messageID: "m", state: .submitted)) : .failure(.outcomeUnknown)
     }
     func edit(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { edits.append((message, text, operationID)); return editResult }
-    func reply(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { replies.append((message, text, operationID)); return .success(()) }
+    private var retainedReply: PendingChatMutation?
+    func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> {
+        replies.append((message, text, operationID))
+        if gate != nil, replies.count == 1 {
+            retainedReply = PendingChatMutation(operationID: operationID, key: ChatMutationKey(kind: .reply, message: message, text: text), unresolved: true)
+            await gate?.wait()
+            return .failure(.outcomeUnknown)
+        }
+        return .success(())
+    }
+    func mutationState(account: String, conversation: String) async -> PendingChatMutation? { retainedReply }
     func react(account: String, conversation: String, message: String, token: String, remove: Bool, operationID: String) -> RepositoryResult<Void> { reactions.append((message, token, remove, operationID)); return .success(()) }
     func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) -> RepositoryResult<Void> { deletes.append((message, scope)); return .success(()) }
     func observe(account: String) -> RepositoryObservation { {
@@ -58,6 +68,24 @@ private actor ChatFake: ChatRepository {
         await fake.completeNext(); returned.send(.retrySameSend); await returned.viewModel.settle()
         let attempts = await fake.attempts; #expect(attempts.count == 2); #expect(attempts.first?.0 == attempts.last?.0); #expect(attempts.last?.1 == "Original")
         returned.send(.conceal); b.send(.conceal)
+    }
+    @Test func partialReplySurvivesNavigationAndRetriesTheSameKey() async {
+        let gate = MutationGate(), fake = ChatFake(gate: gate)
+        defer { gate.release() }
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.refresh); await model.settle()
+        model.send(.beginReply("m")); model.send(.draftChanged("Reply text")); model.send(.send)
+        var entered = gate.entered.stream.makeAsyncIterator(); _ = await entered.next()
+        let operation = await fake.replies.first?.2
+        model.send(.conceal)
+        let returned = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        returned.send(.refresh); await returned.settle()
+        #expect(returned.state.held == .revision(operationID: operation ?? "", messageID: "m", text: "Reply text", reply: true))
+        gate.release(); await model.settle()
+        returned.send(.retrySameSend); await returned.settle()
+        let replies = await fake.replies
+        #expect(replies.count == 2); #expect(replies.first?.2 == replies.last?.2); #expect(replies.last?.1 == "Reply text")
+        returned.send(.conceal)
     }
     @Test func successfulBackgroundSendClearsOnlyItsRestoredDraftAndCannotResend() async {
         for edited in [false, true] {

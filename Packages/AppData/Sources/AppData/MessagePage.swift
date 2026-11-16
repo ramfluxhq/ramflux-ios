@@ -17,32 +17,12 @@ enum MessagePage {
     private static let hiddenKinds: Set<String> = ["edit", "reaction", "receipt", "delete", "typing", "service", "control", "surface", "task", "self_sync"]
 
     static func records(body: JSONValue, conversation: String) throws -> [MessageRecord] {
-        if body["schema"] == .string(readModel) { return try readModelPage(body, conversation) }
-        return try legacy(body, conversation)
+        guard body["schema"] == .string(readModel) else { throw AppFailure.invalidData }
+        return try readModelPage(body, conversation)
     }
 
     static func normalizeIdentifier(_ value: String) -> String {
         value.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
-    }
-
-    private static func legacy(_ body: JSONValue, _ conversation: String) throws -> [MessageRecord] {
-        let records = try ProxyGateway.rows(body, "messages").map { row -> MessageRecord in
-            let id = try ProxyGateway.text(row, "message_id")
-            guard row["conversation_id"] == .string(conversation) else { throw AppFailure.invalidData }
-            if row["kind"] == .string("call") {
-                return MessageRecord(id: id, sender: "", kind: .callHistory, isOwn: nil, timestamp: ProxyGateway.integer(row["created_at"]))
-            }
-            let own = row["is_own"]?.bool ?? (row["direction"] == .string("outgoing") ? true : nil)
-            if row["deleted"] == .bool(true) { return MessageRecord(id: id, sender: "", kind: .deleted, isOwn: own, timestamp: ProxyGateway.integer(row["created_at"])) }
-            let kind: MessageRecord.Kind
-            if let text = row["body_utf8"]?.string, text.utf8.count <= 65_536 { kind = .text(text) }
-            else { kind = .unsupported(AppDataStrings.text("copy.25c796d9c8f8")) }
-            let receipt = receiptText(row["receipts"], own: own)
-            let attachments = try attachments(row)
-            return MessageRecord(id: id, sender: row["sender_id"]?.string ?? "", kind: kind, isOwn: own, timestamp: ProxyGateway.integer(row["created_at"]), receipt: receipt, attachments: attachments)
-        }
-        guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }
-        return records
     }
 
     private static func readModelPage(_ body: JSONValue, _ conversation: String) throws -> [MessageRecord] {
@@ -66,7 +46,7 @@ enum MessagePage {
             let state = row["state"]?.string
             if hiddenKinds.contains(kindName) { continue }
             let own = row["is_own"]?.bool
-            let stamp = displayTime(ProxyGateway.integer(row["hlc"]))
+            let stamp = displayTime(ProxyGateway.integer(row["hlc_ms"]))
             let sender = row["author"]?["device_id"]?.string ?? row["author"]?["account_anchor"]?.string ?? ""
             if state == "tombstone" || (row["erasure"] != nil && row["erasure"] != .null) {
                 records.append(MessageRecord(id: id, sender: "", kind: .deleted, isOwn: own, timestamp: stamp))
@@ -130,13 +110,4 @@ enum MessagePage {
         return text.isEmpty ? nil : text
     }
 
-    private static func attachments(_ row: JSONValue) throws -> [AttachmentRecord] {
-        guard row["attachments"] != nil else { return [] }
-        let attachments = try ProxyGateway.rows(row, "attachments").map { item in
-            let object = try ProxyGateway.text(item, "object_id")
-            return AttachmentRecord(id: object, name: item["name"]?.string ?? object, mime: item["mime"]?.string)
-        }
-        guard Set(attachments.map(\.id)).count == attachments.count else { throw AppFailure.invalidData }
-        return attachments
-    }
 }

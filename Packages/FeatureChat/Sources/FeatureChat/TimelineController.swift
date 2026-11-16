@@ -32,6 +32,7 @@ import RFDesign
         }
     }
     public func update(_ messages: [MessageRecord], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false) {
+        let messages = TimelineProjection.chronological(messages)
         loadViewIfNeeded()
         guard previous != messages || self.theme != theme || self.locale != locale || self.isGroup != isGroup, let source else { return }
         let presentationChanged = self.theme != theme || self.locale != locale || self.isGroup != isGroup

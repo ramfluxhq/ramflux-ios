@@ -3,7 +3,7 @@
 import Testing
 import RamfluxCore
 @testable import AppData
-struct ConversationsRepositoryTests {
+@Suite(.timeLimit(.minutes(1))) struct ConversationsRepositoryTests {
     @Test func sealedDirectoryMappingDoesNotInventProfileOrUnreadAndRejectsDuplicates() async {
         let transport = ProxyTransport { _ in .object(["conversations": .array([
                 .object(["id": .string("thread"), "last_activity": .string("9007199254740993")]),
@@ -22,5 +22,15 @@ struct ConversationsRepositoryTests {
         let duplicate = ProxyTransport { _ in .object(["conversations": .array([.object(["id": .string("same")]), .object(["id": .string("same")])])]) }
         let invalid = NativeConversationsRepository(client: RamfluxClient(transport: duplicate), updates: updates)
         guard case .failure(.invalidData) = await invalid.list(account: "a") else { Issue.record("Duplicate IDs must refuse"); return }
+        let conflicts: [JSONValue] = [
+            .object(["conversations": .array([.object(["id": .string("same")]), .object(["id": .string("same"), "hidden": .bool(true)])])]),
+            .object(["conversations": .array([.object(["id": .string("same")]), .object(["id": .string("same"), "archived": .bool(true)])])]),
+            .object(["conversations": .array([.object(["id": .string("same"), "hidden": .bool(true)]), .object(["id": .string("same"), "hidden": .bool(true)])])]),
+        ]
+        for body in conflicts {
+            let transport = ProxyTransport { _ in body }
+            let repository = NativeConversationsRepository(client: RamfluxClient(transport: transport), updates: updates)
+            guard case .failure(.invalidData) = await repository.list(account: "a") else { Issue.record("Duplicate IDs must refuse before visibility filtering"); return }
+        }
     }
 }

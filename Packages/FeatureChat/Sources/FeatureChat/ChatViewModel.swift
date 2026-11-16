@@ -125,7 +125,11 @@ import AppData
                 self.finish(held); self.refresh()
             case .failure(let error):
                 self.state.failure = error
-                if error != .outcomeUnknown && error != .offline { self.state.held = nil }
+                if let pending = await self.repository.mutationState(account: self.account, conversation: self.conversation), pending.unresolved, let restored = Self.held(pending) {
+                    self.state.held = restored
+                } else if error != .outcomeUnknown && error != .offline {
+                    self.state.held = nil
+                }
             }
         }
     }
@@ -169,8 +173,13 @@ import AppData
         load = Task { [weak self, repository, account, conversation] in
             let result = await repository.messages(account: account, conversation: conversation)
             let retained = await repository.sendState(account: account, conversation: conversation)
+            let mutation = await repository.mutationState(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.readID == current else { return }
             self.state.loading = false
+            if let mutation, mutation.unresolved, let restored = Self.held(mutation) {
+                self.state.held = restored
+                self.state.failure = .outcomeUnknown
+            }
             if let retained {
                 if retained.unresolved {
                     self.state.pendingSend = FrozenSend(operationID: retained.operationID, text: retained.text)
@@ -198,5 +207,15 @@ import AppData
         }
     }
     public func settle() async { await mutation?.value; while true { let current = readID; await load?.value; if current == readID { return } } }
+    private static func held(_ pending: PendingChatMutation) -> HeldMutation? {
+        switch pending.key.kind {
+        case .edit: return .revision(operationID: pending.operationID, messageID: pending.key.message, text: pending.key.text, reply: false)
+        case .reply: return .revision(operationID: pending.operationID, messageID: pending.key.message, text: pending.key.text, reply: true)
+        case .react: return .reaction(operationID: pending.operationID, messageID: pending.key.message, token: pending.key.token, remove: pending.key.remove)
+        case .deletion:
+            guard let scope = MessageDeleteScope(rawValue: pending.key.scope) else { return nil }
+            return .deletion(operationID: pending.operationID, messageID: pending.key.message, scope: scope)
+        }
+    }
     deinit { load?.cancel(); mutation?.cancel(); observer?.cancel() }
 }
