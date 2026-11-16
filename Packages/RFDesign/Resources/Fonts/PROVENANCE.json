@@ -3,7 +3,7 @@
   "HankenGrotesk.ttf.OFL.txt": "e02ccb89a86839b22feff7872ff5cc355cc0f58318d29eee20e2cf83a612f16d",
   "JetBrainsMono.ttf.OFL.txt": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d",
   "JetBrainsMono.ttf": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda",
-  "NotoSansSC.ttf": "b719c9e125cc7f8ba0cac095ed236768a3aeef45e4669787a5ba9c5e91ac3209",
-  "NotoSansSC.subset": "pyftsubset kept the variable wght axis (100-900), the face names, and every non-CJK glyph from the previous subset. CJK Unified Ideographs are limited to the characters used by the zh-CN catalogs. scripts/check-zh-font-glyphs.py fails the build when a zh-CN catalog character is missing. Characters outside the subset use the platform fallback.",
+  "NotoSansSC.ttf": "b601f57846ecb90534c940d5965055cf8395f0d5db29fc8165447eb4df802824",
+  "NotoSansSC.subset": "pyftsubset of the Noto Sans SC variable font kept the wght axis (100-900), the face names, and every non-CJK glyph from the previous subset, including CJK punctuation and fullwidth forms. The horizontal header and USE_TYPO_METRICS bit match that previous face so line heights stay stable. CJK Unified Ideographs cover the 8105 characters of the 2013 Table of General Standard Chinese Characters (scripts/tongyong-8105.txt) plus every zh-CN catalog character. scripts/check-zh-font-glyphs.py fails the build when one of those characters is missing. Characters outside that set may use the platform fallback.",
   "NotoSansSC.ttf.OFL.txt": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
 }

@@ -5,6 +5,8 @@ import AppData
 @Observable @MainActor public final class AppShellCoordinator {
     public var path: [AppRoute] = []
     public var sheet: AppShellSheet?
+    public var shortcutOrder = ShellShortcuts.defaultOrder
+    public var shortcutHidden = ""
     private let repository: any SessionRepository
     @ObservationIgnored public lazy var viewModel = AppShellViewModel(repository: repository) { [weak self] event in self?.handle(event) }
     public init(repository: any SessionRepository) { self.repository = repository }

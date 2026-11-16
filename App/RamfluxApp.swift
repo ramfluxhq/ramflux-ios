@@ -28,7 +28,13 @@ import RFDesign
                 if tab == .messages, let account { return AnyView(VStack(spacing: 0) { NotificationPermissionBanner(state: composition.permissions.viewModel.state, onAction: composition.permissions.send); ConversationsHost(coordinator: composition.conversations(account: account)) }) }
                 if tab == .groups, let account { return AnyView(GroupsHost(coordinator: composition.groups(account: account))) }
                 if tab == .agents, let account { return AnyView(AgentsHost(coordinator: composition.agents(account: account))) }
-                if tab == .more { return AnyView(MoreHubScreen { coordinator.send($0) }) }
+                if tab == .more {
+                    return AnyView(MoreHubScreen(
+                        order: Binding(get: { coordinator.shortcutOrder }, set: { coordinator.shortcutOrder = $0 }),
+                        hidden: Binding(get: { coordinator.shortcutHidden }, set: { coordinator.shortcutHidden = $0 }),
+                        onAction: { coordinator.send($0) }
+                    ))
+                }
                 return nil
             }) { route in
                 switch route {
@@ -53,6 +59,12 @@ import RFDesign
                     } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.8a07f13cdb0d"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
                 case .notices: return AnyView(NoticesScreen())
+                case .shellNavigation:
+                    return AnyView(NavigationEditorScreen(
+                        order: Binding(get: { coordinator.shortcutOrder }, set: { coordinator.shortcutOrder = $0 }),
+                        hidden: Binding(get: { coordinator.shortcutHidden }, set: { coordinator.shortcutHidden = $0 }),
+                        onBack: { if !coordinator.path.isEmpty { coordinator.path.removeLast() } }
+                    ))
                 default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
                 }
             }

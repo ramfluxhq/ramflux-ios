@@ -14,6 +14,8 @@
 	<string>Create agents on your desktop</string>
 	<key>agents.directory</key>
 	<string>Agent directory</string>
+	<key>agents.directory.note</key>
+	<string>Collaboration settings and task status are shown separately.</string>
 	<key>agents.edit</key>
 	<string>Edit basics</string>
 	<key>agents.empty.message</key>
@@ -48,6 +50,8 @@
 	<string>Remove Agent</string>
 	<key>agents.retry</key>
 	<string>Retry</string>
+	<key>agents.search</key>
+	<string>Search by name…</string>
 	<key>agents.title</key>
 	<string>Agents</string>
 </dict>

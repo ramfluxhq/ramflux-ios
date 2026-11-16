@@ -21,6 +21,16 @@ from pathlib import Path
 
 SCALE = 2
 LIMIT = 2.0
+# Shell --content gate. A flat or tab-bar-only frame fails the variance floors.
+# The mean channel delta is against the preview composited on rf-bg. Kit compares
+# omit --content, so this threshold does not apply to component boards.
+CONTENT_STD_FLOOR = 8.0
+CONTENT_MID_STD_FLOOR = 6.0
+# Measured on real drawHierarchy boards against the same-theme preview.
+# Onboarding launch/welcome/start are catalog forms, so their mean sits at 59–76.
+# A theme-mismatched or placeholder frame sits above 150. Blank frames fail the
+# variance floors (middle-band std 0) even when the mean stays small.
+CONTENT_MEAN_LIMIT = 80.0
 LIGHT_BG = (0xFC, 0xFB, 0xF9)
 DARK_BG = (0x17, 0x17, 0x16)
 SKIP_PREFIXES = ("chart--", "radio--", "origin-display--")
@@ -49,7 +59,7 @@ def read_png(path):
         pos += 12 + length
         if kind == b"IHDR":
             width, height, bit, color = struct.unpack(">IIBB", chunk[:10])
-            if bit != 8 or color not in (2, 6):
+            if bit not in (8, 16) or color not in (2, 6):
                 raise SystemExit(f"unsupported png {path}")
         elif kind == b"IDAT":
             chunks.append(chunk)
@@ -57,7 +67,9 @@ def read_png(path):
             break
     raw = zlib.decompress(b"".join(chunks))
     channels = 4 if color == 6 else 3
-    stride = width * channels
+    # PNG filters address bytes. A 16-bit sample is two bytes.
+    bytes_per_pixel = channels * (bit // 8)
+    stride = width * bytes_per_pixel
     rows = []
     index = 0
     previous = bytearray(stride)
@@ -67,9 +79,9 @@ def read_png(path):
         row = bytearray(raw[index : index + stride])
         index += stride
         for column in range(stride):
-            left = row[column - channels] if column >= channels else 0
+            left = row[column - bytes_per_pixel] if column >= bytes_per_pixel else 0
             up = previous[column]
-            upper_left = previous[column - channels] if column >= channels else 0
+            upper_left = previous[column - bytes_per_pixel] if column >= bytes_per_pixel else 0
             if filter_type == 1:
                 row[column] = (row[column] + left) & 255
             elif filter_type == 2:
@@ -81,6 +93,8 @@ def read_png(path):
             elif filter_type != 0:
                 raise SystemExit(f"bad filter in {path}")
         previous = row
+        if bit == 16:
+            row = bytearray(row[offset] for offset in range(0, len(row), 2))
         rows.append(row)
     return width, height, channels, rows
 
@@ -181,12 +195,63 @@ def preview_for(previews, name):
     return None, False
 
 
+def luminance_std(rgb_rows):
+    height = len(rgb_rows)
+    if height == 0:
+        return 0.0, 0.0
+    y0 = height // 5
+    y1 = height - y0
+    total = total_sq = mid_total = mid_sq = 0.0
+    count = mid_count = 0
+    for y, row in enumerate(rgb_rows):
+        for x in range(0, len(row), 3):
+            lum = 0.2126 * row[x] + 0.7152 * row[x + 1] + 0.0722 * row[x + 2]
+            count += 1
+            total += lum
+            total_sq += lum * lum
+            if y0 <= y < y1:
+                mid_count += 1
+                mid_total += lum
+                mid_sq += lum * lum
+
+    def deviation(n, sum_value, sum_sq):
+        if n == 0:
+            return 0.0
+        mean = sum_value / n
+        return max(0.0, sum_sq / n - mean * mean) ** 0.5
+
+    return deviation(count, total, total_sq), deviation(mid_count, mid_total, mid_sq)
+
+
+def mean_channel_delta(capture_rows, preview_rows):
+    height = min(len(capture_rows), len(preview_rows))
+    if height == 0:
+        return 0.0
+    width = min(len(capture_rows[0]), len(preview_rows[0])) // 3
+    if width == 0:
+        return 0.0
+    total = 0.0
+    for y in range(height):
+        left = capture_rows[y]
+        right = preview_rows[y]
+        for x in range(width):
+            offset = x * 3
+            total += (
+                abs(left[offset] - right[offset])
+                + abs(left[offset + 1] - right[offset + 1])
+                + abs(left[offset + 2] - right[offset + 2])
+            ) / 3.0
+    return total / (width * height)
+
+
 def main():
-    if len(sys.argv) != 4:
-        raise SystemExit("usage: compare-kit-previews.py <previews-dir> <captures-dir> <output-dir>")
-    previews = Path(sys.argv[1])
-    captures = Path(sys.argv[2])
-    output = Path(sys.argv[3])
+    args = [arg for arg in sys.argv[1:] if arg != "--content"]
+    content = len(args) != len(sys.argv) - 1
+    if len(args) != 3:
+        raise SystemExit("usage: compare-kit-previews.py [--content] <previews-dir> <captures-dir> <output-dir>")
+    previews = Path(args[0])
+    captures = Path(args[1])
+    output = Path(args[2])
     output.mkdir(parents=True, exist_ok=True)
     over = 0
     seen = set()
@@ -233,6 +298,23 @@ def main():
         flag = "OVER" if fail_w or fail_h else "ok"
         if flag == "OVER":
             over += 1
+        if content:
+            cap_rgb = capture_rgb(capture_w, capture_h, capture_channels, capture_rows, bg)
+            std, mid = luminance_std(cap_rgb)
+            mad = mean_channel_delta(cap_rgb, scaled[2]) if scaled is not None else None
+            reasons = []
+            if std < CONTENT_STD_FLOOR or mid < CONTENT_MID_STD_FLOOR:
+                reasons.append(f"low-variance std={std:.1f} mid={mid:.1f}")
+            # A dark capture borrowed from a light preview cannot match that preview's pixels.
+            if mad is not None and not borrowed and mad > CONTENT_MEAN_LIMIT:
+                reasons.append(f"pixel-diff {mad:.1f}")
+            if reasons:
+                if flag != "OVER":
+                    over += 1
+                    flag = "OVER"
+                note = (note + "; " if note else "") + "; ".join(reasons)
+            mad_text = f"{mad:.1f}" if mad is not None else "n/a"
+            print(f"  content std={std:.1f} mid={mid:.1f} mean={mad_text}")
         dw_text = f"{delta_w:.1f}" if width_checked else "n/a"
         print(
             f"{name:48} {capture_w:4}x{capture_h:<4} {master_w:5g}x{master_h:<5g} "

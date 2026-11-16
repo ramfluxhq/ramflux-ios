@@ -50,6 +50,30 @@
 	<string>View tasks and pending items</string>
 	<key>shell.accounts.preview</key>
 	<string>Switch the account on this phone</string>
+	<key>shell.more.navigation</key>
+	<string>Edit navigation</string>
+	<key>shell.more.navigation.detail</key>
+	<string>Arrange shortcuts</string>
+	<key>shell.nav.add</key>
+	<string>Add shortcut</string>
+	<key>shell.nav.core</key>
+	<string>Messages, Groups and Agents can be reordered but not removed.</string>
+	<key>shell.nav.done</key>
+	<string>Done</string>
+	<key>shell.nav.down</key>
+	<string>Move down</string>
+	<key>shell.nav.lock</key>
+	<string>Locked</string>
+	<key>shell.nav.note</key>
+	<string>Changes apply immediately · Close when done</string>
+	<key>shell.nav.remove</key>
+	<string>Remove</string>
+	<key>shell.nav.restore</key>
+	<string>Restore defaults</string>
+	<key>shell.nav.title</key>
+	<string>Edit mobile navigation</string>
+	<key>shell.nav.up</key>
+	<string>Move up</string>
 	<key>shell.notices.preview</key>
 	<string>Font licenses bundled with this app</string>
 	<key>shell.notices.title</key>

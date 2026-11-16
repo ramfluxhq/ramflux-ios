@@ -14,6 +14,8 @@
 	<string>在桌面端创建智能体</string>
 	<key>agents.directory</key>
 	<string>智能体列表</string>
+	<key>agents.directory.note</key>
+	<string>协作设置与任务状态分别显示。</string>
 	<key>agents.edit</key>
 	<string>编辑基本信息</string>
 	<key>agents.empty.message</key>
@@ -48,6 +50,8 @@
 	<string>移除智能体</string>
 	<key>agents.retry</key>
 	<string>重试</string>
+	<key>agents.search</key>
+	<string>按名称搜索…</string>
 	<key>agents.title</key>
 	<string>智能体</string>
 </dict>

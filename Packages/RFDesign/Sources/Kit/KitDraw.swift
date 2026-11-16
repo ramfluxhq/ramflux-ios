@@ -296,3 +296,33 @@ struct KitIconHit: View {
         }
     }
 }
+
+public struct KitIconButton: View {
+    var icon: String
+    var label: String
+    var action: () -> Void
+    var enabled: Bool
+    var tag: String?
+    @Environment(\.rfTheme) private var theme
+
+    public init(_ icon: String, label: String, action: @escaping () -> Void, enabled: Bool = true, tag: String? = nil) {
+        self.icon = icon
+        self.label = label
+        self.action = action
+        self.enabled = enabled
+        self.tag = tag
+    }
+
+    public var body: some View {
+        let tint = enabled ? theme.text : theme.control
+        if enabled {
+            KitIconHit(icon: icon, size: KitMetrics.iconAction, tint: tint, label: label, tag: tag, action: action)
+        } else {
+            KitIcon(name: icon, size: KitMetrics.iconAction, tint: tint)
+                .frame(width: KitMetrics.iconButton, height: KitMetrics.iconButton)
+                .accessibilityElement()
+                .accessibilityLabel(label)
+                .kitTag(tag)
+        }
+    }
+}

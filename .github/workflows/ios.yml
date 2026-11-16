@@ -103,7 +103,7 @@ jobs:
           TEST_RUNNER_SHELL_CAPTURE_DIR=/tmp/shell-ios-captures xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/shell-dd" test -only-testing:RamfluxTests/ShellBoardCaptureTests CODE_SIGNING_ALLOWED=NO
           test -n "$(find /tmp/shell-ios-captures -name '*.png' -print -quit)"
       - name: Compare shell captures with the design previews
-        run: python3 scripts/compare-kit-previews.py shell-previews /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci"
+        run: python3 scripts/compare-kit-previews.py --content shell-previews /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

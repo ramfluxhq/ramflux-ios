@@ -50,6 +50,30 @@
 	<string>查看任务与待处理事项</string>
 	<key>shell.accounts.preview</key>
 	<string>切换本机账号</string>
+	<key>shell.more.navigation</key>
+	<string>编辑导航</string>
+	<key>shell.more.navigation.detail</key>
+	<string>整理快捷入口</string>
+	<key>shell.nav.add</key>
+	<string>添加快捷入口</string>
+	<key>shell.nav.core</key>
+	<string>消息、群组、Agent 可调整顺序，不能移除。</string>
+	<key>shell.nav.done</key>
+	<string>完成</string>
+	<key>shell.nav.down</key>
+	<string>下移</string>
+	<key>shell.nav.lock</key>
+	<string>已锁定</string>
+	<key>shell.nav.note</key>
+	<string>修改即时生效 · 完成后关闭</string>
+	<key>shell.nav.remove</key>
+	<string>移除</string>
+	<key>shell.nav.restore</key>
+	<string>恢复默认</string>
+	<key>shell.nav.title</key>
+	<string>编辑移动导航</string>
+	<key>shell.nav.up</key>
+	<string>上移</string>
 	<key>shell.notices.preview</key>
 	<string>本应用附带的字体许可</string>
 	<key>shell.notices.title</key>

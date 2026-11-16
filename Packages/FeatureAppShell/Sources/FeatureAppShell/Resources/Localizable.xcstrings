@@ -307,6 +307,78 @@
         "en": { "stringUnit": { "state": "translated", "value": "Open-source notices" } },
         "zh-CN": { "stringUnit": { "state": "translated", "value": "开源声明" } }
       }
+    },
+    "shell.more.navigation": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Edit navigation" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "编辑导航" } }
+      }
+    },
+    "shell.more.navigation.detail": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Arrange shortcuts" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "整理快捷入口" } }
+      }
+    },
+    "shell.nav.title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Edit mobile navigation" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "编辑移动导航" } }
+      }
+    },
+    "shell.nav.note": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Changes apply immediately · Close when done" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "修改即时生效 · 完成后关闭" } }
+      }
+    },
+    "shell.nav.add": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Add shortcut" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "添加快捷入口" } }
+      }
+    },
+    "shell.nav.core": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Messages, Groups and Agents can be reordered but not removed." } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "消息、群组、Agent 可调整顺序，不能移除。" } }
+      }
+    },
+    "shell.nav.restore": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Restore defaults" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "恢复默认" } }
+      }
+    },
+    "shell.nav.done": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Done" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "完成" } }
+      }
+    },
+    "shell.nav.up": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Move up" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "上移" } }
+      }
+    },
+    "shell.nav.down": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Move down" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "下移" } }
+      }
+    },
+    "shell.nav.remove": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Remove" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "移除" } }
+      }
+    },
+    "shell.nav.lock": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Locked" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "已锁定" } }
+      }
     }
   }
 }

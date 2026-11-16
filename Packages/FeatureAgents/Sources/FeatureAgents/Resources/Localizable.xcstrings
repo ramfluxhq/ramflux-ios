@@ -355,6 +355,18 @@
         "en": { "stringUnit": { "state": "translated", "value": "Try another name or keyword." } },
         "zh-CN": { "stringUnit": { "state": "translated", "value": "试试其他姓名或关键词。" } }
       }
+    },
+    "agents.search": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Search by name…" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "按名称搜索…" } }
+      }
+    },
+    "agents.directory.note": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Collaboration settings and task status are shown separately." } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "协作设置与任务状态分别显示。" } }
+      }
     }
   }
 }
