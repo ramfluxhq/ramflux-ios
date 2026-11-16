@@ -9,6 +9,7 @@ import AppKit
 #endif
 
 #if canImport(AppKit)
+@Suite(.timeLimit(.minutes(3)))
 @MainActor
 struct KitLayoutTests {
     @Test func primaryButtonMatchesTheMasterFrame() {

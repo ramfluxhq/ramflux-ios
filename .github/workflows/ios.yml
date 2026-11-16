@@ -52,7 +52,9 @@ jobs:
       - name: Build iOS Simulator application
         run: xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO
       - name: Design token tests
-        run: swift test --package-path Packages/RFDesign
+        run: |
+          python3 scripts/check-mobile-tokens.py design-tokens/mobile-kit-tokens.json
+          swift test --package-path Packages/RFDesign --skip captureKitBoards
       - name: Render every screen preview on iOS Simulator
         run: |
           device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
@@ -64,3 +66,33 @@ jobs:
           name: ios-screen-snapshots
           path: build/ScreenSnapshots.xcresult
           if-no-files-found: warn
+  kit-evidence:
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pinned Xcode
+        run: |
+          sudo xcode-select --switch "$DEVELOPER_DIR"
+          xcodebuild -version
+          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+      - name: Check design tokens against the spec
+        run: python3 scripts/check-mobile-tokens.py design-tokens/mobile-kit-tokens.json
+      - name: Capture kit boards on the iOS simulator
+        timeout-minutes: 20
+        run: |
+          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          xcrun simctl bootstatus "$device_id" -b
+          cd Packages/RFDesign
+          xcodebuild -scheme RFDesign -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/kit-dd" test -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
+          test -n "$(find /tmp/kit-ios-captures -name '*.png' -print -quit)"
+      - name: Compare captures with the design previews
+        run: python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures "$GITHUB_WORKSPACE/kit-evidence-ci"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kit-evidence
+          path: kit-evidence-ci
+          if-no-files-found: error

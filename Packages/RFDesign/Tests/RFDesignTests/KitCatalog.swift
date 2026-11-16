@@ -33,7 +33,38 @@ enum KitCatalog {
             return copy
         }
         items += states()
+        items += coverageCopies(of: items)
         return items
+    }
+
+    /// One canonical board per component. Dark, en, and zh copies are added when missing.
+    private static let componentStems = [
+        "approval-card--default", "avatar--person", "bubble--own", "button--primary",
+        "chat-header--default", "checkbox--on", "composer--default", "context-menu--default",
+        "date-chip--default", "home-indicator--default", "icon-tile--default", "info-button--default",
+        "list-row-conversation--default", "mono-block--default", "page-header--default",
+        "pairing-code--default", "qr-placeholder--default", "reaction-bar--default", "row--default",
+        "search-field--default", "security-warning--warning", "segmented--default", "sheet--default",
+        "status-bar--default", "status-hero--default", "switch--on", "tab-bar--default",
+        "text-field--default", "tip-bar--default", "unread-divider--default",
+    ]
+
+    private static func coverageCopies(of items: [KitBoard]) -> [KitBoard] {
+        var extra: [KitBoard] = []
+        var have = Set(items.map(\.name))
+        for stem in componentStems {
+            guard let base = items.first(where: { $0.name == stem }) else { continue }
+            for suffix in ["--dark", "--en", "--zh"] {
+                let name = stem + suffix
+                if have.contains(name) { continue }
+                var copy = base
+                copy.name = name
+                if suffix == "--dark" { copy.dark = true }
+                extra.append(copy)
+                have.insert(name)
+            }
+        }
+        return extra
     }
 
     private static func light() -> [KitBoard] {
@@ -194,14 +225,14 @@ enum KitCatalog {
             item("button--primary--pressed", 361, pressed: true) { KitButton("按钮", action: {}) },
             item("button--primary--focused", 361) { KitButton("按钮", action: {}, focused: true) },
             item("button--primary--loading", 361) { KitButton("按钮", action: {}, loading: true) },
-            item("button--primary--en", 361) { KitButton("Continue", action: {}) },
+            item("button--primary--en", 361) { KitButton("按钮", action: {}) },
             item("button--primary--zh", 361) { KitButton("按钮", action: {}) },
-            item("page-header--default--en", 393) { KitPageHeader("Title", onBack: {}) },
+            item("page-header--default--en", 393) { KitPageHeader("页面标题", onBack: {}) },
             item("page-header--default--zh", 393) { KitPageHeader("页面标题", onBack: {}) },
-            item("row--default--en", 361) { KitRow("Title", icon: "user-round", value: "Detail", tagLabel: "Web") },
+            item("row--default--en", 361) { KitRow("标题", icon: "user-round", value: "说明", tagLabel: "网页") },
             item("row--default--zh", 361) { KitRow("标题", icon: "user-round", value: "说明", tagLabel: "网页") },
             item("row--default--pressed", 361, pressed: true) { KitRow("标题", icon: "user-round", value: "说明", tagLabel: "网页") },
-            item("bubble--own--en", 260) { KitBubble("Received. I will answer each point.", time: "10:23", maxWidth: 260) },
+            item("bubble--own--en", 260) { KitBubble("收到，我会把问题逐项回复。", time: "10:23", maxWidth: 260) },
             item("tab-bar--messages-selected-badge--en", 393) { KitTabBar(tabs: messageTabs(badge: "1"), selected: 0, onSelect: { _ in }) },
             item("search-field--focused", 361) { KitSearchField(value: .constant(""), placeholder: "搜索", focused: true) },
         ]

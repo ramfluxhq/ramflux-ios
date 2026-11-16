@@ -168,6 +168,8 @@ def preview_for(previews, name):
     if direct.exists():
         return direct, False
     base = name
+    if base.endswith("--dark"):
+        base = base[: -len("--dark")]
     for suffix in STATE_SUFFIXES:
         if base.endswith(suffix):
             base = base[: -len(suffix)]
@@ -251,10 +253,11 @@ def main():
         over += 1
     lines.append("")
     lines.append("notes")
-    lines.append("Pushed page titles are 17/600. The page-header spec title token is 20. The ruling overrides that spec.")
+    lines.append("Pushed page titles are 20/600. Large titles are 32/700. Chat titles stay 17/600.")
     lines.append("The selected tab has no pill. Selection is icon and label color and weight.")
     lines.append("Chinese uses the bundled Noto Sans SC face.")
-    lines.append("en/zh samples may differ by up to 4 px because Latin and CJK metrics differ.")
+    lines.append("en/zh boards use the preview sample text. Height may differ by up to 4 px.")
+    lines.append("A dark board with no dark export is paired with the light preview.")
     lines.append("Icon geometry is Lucide. Pencil strokes are a reference, not the vector source.")
     lines.append("Radio, origin display and charts are not in this kit.")
     checklist = output / "checklist.tsv"

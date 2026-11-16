@@ -3,6 +3,7 @@
 import Testing
 import CoreText
 @testable import RFDesign
+@Suite(.timeLimit(.minutes(2)))
 struct FontTests {
     @Test func packagedFacesResolveToTheirOwnPostScriptNamesAndFiles() {
         #expect(DesignFonts.registered)

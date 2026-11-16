@@ -107,7 +107,7 @@ public struct KitPageHeader: View {
                 if !title.isEmpty {
                     KitLabel(
                         title,
-                        size: large ? theme.size_mobile_large_title : theme.size_mobile_body,
+                        size: large ? theme.size_mobile_large_title : theme.size_title,
                         weight: large ? .bold : .semibold,
                         color: theme.text,
                         line: large ? KitMetrics.lineTight : KitMetrics.lineTitle,
