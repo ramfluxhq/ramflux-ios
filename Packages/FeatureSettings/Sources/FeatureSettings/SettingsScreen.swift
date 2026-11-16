@@ -33,6 +33,8 @@ public struct SettingsScreen: View {
             }
 
     }
+    private static var appVersion: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "-" }
+    private static var appBuild: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-" }
     private var modal: SettingsModal? {
         if let device = state.pendingRevoke { return .revoke(device) }
         return nil
@@ -96,6 +98,7 @@ public struct SettingsScreen: View {
         case .about:
             Text(FeatureSettingsStrings.text("copy.28f2d4300544", locale: locale)).font(theme.pageFont); Text(FeatureSettingsStrings.text("copy.ab50f8bde1ab", locale: locale))
             Text(FeatureSettingsStrings.text("copy.902c4d2aff10", locale: locale))
+            Text(FeatureSettingsStrings.format("settings.version", Self.appVersion, Self.appBuild, locale: locale)).font(theme.captionFont).accessibilityIdentifier("about-version")
             Button(FeatureSettingsStrings.text("copy.4d9b709adaef", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
         default:
             ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .systemPermissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }

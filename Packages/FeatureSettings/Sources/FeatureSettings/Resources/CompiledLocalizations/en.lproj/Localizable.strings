@@ -164,6 +164,8 @@
 	<string>Reconcile original action</string>
 	<key>settings.systemPermissions</key>
 	<string>System permissions</string>
+	<key>settings.version</key>
+	<string>Version %1$@ (build %2$@)</string>
 	<key>tasks.title</key>
 	<string>Tasks</string>
 </dict>

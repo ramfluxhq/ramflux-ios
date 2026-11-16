@@ -2,6 +2,54 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "backup.jobSummary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        }
+      }
+    },
+    "calls.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
+    "cards.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interactive cards"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "交互卡片"
+          }
+        }
+      }
+    },
     "copy.01a234cb80c4": {
       "localizations": {
         "en": {
@@ -1202,54 +1250,6 @@
         }
       }
     },
-    "backup.jobSummary": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · %@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · %@"
-          }
-        }
-      }
-    },
-    "calls.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Calls"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "通话"
-          }
-        }
-      }
-    },
-    "tasks.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tasks"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "任务"
-          }
-        }
-      }
-    },
     "settings.pending": {
       "localizations": {
         "en": {
@@ -1282,22 +1282,6 @@
         }
       }
     },
-    "cards.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interactive cards"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交互卡片"
-          }
-        }
-      }
-    },
     "settings.systemPermissions": {
       "localizations": {
         "en": {
@@ -1310,6 +1294,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "系统权限"
+          }
+        }
+      }
+    },
+    "settings.version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %1$@ (build %2$@)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %1$@（构建 %2$@）"
+          }
+        }
+      }
+    },
+    "tasks.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasks"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务"
           }
         }
       }

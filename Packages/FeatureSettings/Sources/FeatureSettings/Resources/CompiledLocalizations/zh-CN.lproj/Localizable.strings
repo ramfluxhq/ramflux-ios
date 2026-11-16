@@ -164,6 +164,8 @@
 	<string>核对原始操作</string>
 	<key>settings.systemPermissions</key>
 	<string>系统权限</string>
+	<key>settings.version</key>
+	<string>版本 %1$@（构建 %2$@）</string>
 	<key>tasks.title</key>
 	<string>任务</string>
 </dict>
