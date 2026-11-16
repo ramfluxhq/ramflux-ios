@@ -216,6 +216,9 @@ final class ShellBoardCaptureTests: XCTestCase {
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
             throw ShellCaptureError("no window scene")
         }
+        let settled = expectation(description: "layout")
+        settled.assertForOverFulfill = false
+        controller.onLayout = { settled.fulfill() }
         let window = UIWindow(windowScene: scene)
         window.frame = bounds
         window.overrideUserInterfaceStyle = controller.overrideUserInterfaceStyle
@@ -226,12 +229,11 @@ final class ShellBoardCaptureTests: XCTestCase {
         controller.view.frame = bounds
         controller.view.setNeedsLayout()
         controller.view.layoutIfNeeded()
-        let settled = expectation(description: "layout")
-        DispatchQueue.main.async { settled.fulfill() }
-        // The full scheme renders every preview in this process first, so one
-        // turn of the main queue can take longer than a couple of seconds.
+        // Fulfilled from viewDidLayoutSubviews. 30s is the per-board deadline;
+        // the test allowance of 600s covers every board. The snapshot then
+        // waits for the screen update.
         wait(for: [settled], timeout: 30)
-        controller.view.layoutIfNeeded()
+        controller.onLayout = nil
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
@@ -248,6 +250,13 @@ final class ShellBoardCaptureTests: XCTestCase {
 }
 
 private final class CaptureController: UIHostingController<AnyView> {
+    var onLayout: (() -> Void)?
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        onLayout?()
+    }
+
     override var prefersStatusBarHidden: Bool { true }
 }
 
