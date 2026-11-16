@@ -182,7 +182,7 @@ public struct KitChatHeader<Avatar: View>: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if let onCall { KitIconHit(icon: "phone", size: KitMetrics.iconBack, tint: theme.text, label: "phone", action: onCall) }
+            if let onCall { KitIconHit(icon: "phone", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.call"), action: onCall) }
             if let onMore { KitIconHit(icon: "ellipsis", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.more"), action: onMore) }
         }
         .padding(.horizontal, KitMetrics.gutter)

@@ -162,6 +162,22 @@
         }
       }
     },
+    "kit.call": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
     "kit.info": {
       "localizations": {
         "en": {

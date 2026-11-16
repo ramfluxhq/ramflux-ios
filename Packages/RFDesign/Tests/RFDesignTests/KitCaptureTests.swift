@@ -35,6 +35,8 @@ struct KitCoverageTests {
     @Test func kitBackStringFollowsTheLocale() {
         #expect(RFDesignStrings.text("kit.back", locale: Locale(identifier: "en")) == "Back")
         #expect(RFDesignStrings.text("kit.back", locale: Locale(identifier: "zh-CN")) == "返回")
+        #expect(RFDesignStrings.text("kit.call", locale: Locale(identifier: "en")) == "Call")
+        #expect(RFDesignStrings.text("kit.call", locale: Locale(identifier: "zh-CN")) == "通话")
     }
 
     private static let componentStems = [

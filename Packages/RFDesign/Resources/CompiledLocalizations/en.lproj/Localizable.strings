@@ -18,6 +18,8 @@
 	<string>Loading</string>
 	<key>kit.back</key>
 	<string>Back</string>
+	<key>kit.call</key>
+	<string>Call</string>
 	<key>kit.clear</key>
 	<string>Clear</string>
 	<key>kit.close</key>
