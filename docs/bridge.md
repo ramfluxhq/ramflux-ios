@@ -111,10 +111,9 @@ suite does not establish them.
 
 ## Deferred capabilities
 
-SearchProxy, AgentConfigurationProxy and StrangerReportingProxy define the
-application boundary for contracts that are still absent. UnavailableFeatures
-returns explicit typed capability errors and performs no SDK call. Search, Agent
-configuration and stranger reporting/batch operations await their shared SDK
-modules. Conversation send, reply, edit, reaction and delete use the published
-conversation methods. There are no fake results, guessed wire methods, or
-preview fixtures in the product.
+Search methods are in the pinned inventory. SearchProxy stays a local refusal
+because this app has no search screen and does not invent a query result.
+Agent configuration and stranger reporting still have no published methods, so
+those proxies stay local refusals and perform no SDK call. Conversation send,
+reply, edit, reaction and delete use the published conversation methods. There
+are no fake results, guessed wire methods, or preview fixtures in the product.

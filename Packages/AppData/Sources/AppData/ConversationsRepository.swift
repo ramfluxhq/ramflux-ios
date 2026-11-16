@@ -12,13 +12,22 @@ public struct NativeConversationsRepository: ConversationsRepository {
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
     public func list(account: String) async -> RepositoryResult<[ConversationRecord]> {
         do {
-            let body = try await gateway.call(.conversationList, account: account)
-            let records = try ProxyGateway.rows(body, "conversations").filter { $0["is_archived"] != .bool(true) }.map { row in
-                let id = try ProxyGateway.text(row, "conversation_id")
-                return ConversationRecord(id: id, title: id, preview: "", lastActivity: ProxyGateway.integer(row["last_activity_at"]))
+            let body = try await gateway.call(.conversationDirectory, account: account)
+            let records = try ProxyGateway.rows(body, "conversations").compactMap { row -> ConversationRecord? in
+                if row["archived"] == .bool(true) || row["hidden"] == .bool(true) { return nil }
+                let id = try ProxyGateway.text(row, "id")
+                let title = row["title"]?.string.flatMap { $0.isEmpty ? nil : $0 } ?? id
+                return ConversationRecord(id: id, title: title, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]))
             }
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
         } catch { return .failure(AppFailure.map(error)) }
+    }
+    private static func count(_ value: JSONValue?) -> UInt? {
+        switch value {
+        case .number(let number): number >= 0 ? UInt(exactly: number) : nil
+        case .unsigned(let number): UInt(exactly: number)
+        default: nil
+        }
     }
     public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.unavailableResource("copy.6bf512f2eab9")) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }

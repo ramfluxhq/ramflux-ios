@@ -312,6 +312,30 @@ public extension DeviceProxy {
     func deviceSyncImport(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.deviceSyncImport, context: context, body: body, secrets: secrets)
     }
+    func deviceTransferAffirm(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferAffirm, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferBegin(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferBegin, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferCancel(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferCancel, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferConfirm(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferConfirm, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferJoin(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferJoin, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferPrepare(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferPrepare, context: context, body: body, secrets: secrets)
+    }
+    func deviceTransferStatus(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await performSecretResponse(.deviceTransferStatus, context: context, body: body)
+    }
+    func deviceTransferTailAbandon(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceTransferTailAbandon, context: context, body: body, secrets: secrets)
+    }
 }
 public protocol GrantProxy: SDKProxyProtocol {}
 public extension GrantProxy {

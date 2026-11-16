@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 
-/// Shared SDK capabilities which have no published implementation/contract in this binding.
+/// Feature boundaries this app does not call.
+/// Search methods exist on the pinned bridge. This type refuses them locally because there is no search screen.
+/// Agent configuration and stranger reporting have no published methods.
 /// These errors are local refusals; no request, operation key, or fixture result is fabricated.
 public enum UnavailableCapability: Error, Sendable, Equatable {
     case localSearch, agentConfiguration, strangerReporting, strangerBatchActions

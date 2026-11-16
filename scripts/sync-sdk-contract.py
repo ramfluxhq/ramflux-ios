@@ -13,6 +13,35 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 POLICY_PATH = "crates/ramflux-sdk/include/ramflux_sdk_methods.json"
 HEADER_PATH = "crates/ramflux-sdk/include/ramflux_sdk.h"
 LICENSE = "// SPDX-License-Identifier: AGPL-3.0-or-later\n// Copyright (c) 2026 Span Brain\n"
+# A discovery namespace: one or more lowercase segments, including contact.verify.cas.
+CAPABILITY = r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*"
+CORE_FIELDS = ("name", "capability", "secret_input", "secret_output", "show_once", "key_export", "bridge_allowed")
+CAS_FIELDS = {
+    "contract": "CONTACT_VERIFY_CAS_CONTRACT",
+    "request_type": "CONTACT_VERIFY_CAS_REQUEST_TYPE",
+    "response_type": "CONTACT_VERIFY_CAS_RESPONSE_TYPE",
+    "message_descriptor_blake3": "CONTACT_VERIFY_CAS_DESCRIPTOR",
+    "product_pin": "CONTACT_VERIFY_CAS_PRODUCT_PIN",
+}
+
+def cas_constants(source):
+    found = {}
+    for name in ("CONTACT_VERIFY_CAS_CAPABILITY", *CAS_FIELDS.values()):
+        match = re.search(rf'{name}: &str\s*=\s*"([^"]+)"', source)
+        if match:
+            found[name] = match.group(1)
+    return found
+
+def project_policy(row, constants):
+    extra = set(row) - set(CORE_FIELDS)
+    if row.get("name") == "contact.verify" and constants:
+        if extra != set(CAS_FIELDS) or row.get("capability") != constants.get("CONTACT_VERIFY_CAS_CAPABILITY"):
+            raise ValueError("contact verify metadata differs from the SDK source")
+        if any(row.get(field) != constants.get(constant) for field, constant in CAS_FIELDS.items()):
+            raise ValueError("contact verify metadata differs from the SDK source")
+    elif extra:
+        raise ValueError("unexpected method policy fields")
+    return {field: row[field] for field in CORE_FIELDS}
 
 def git(sdk, *args):
     return subprocess.check_output(["git", "-C", str(sdk), *args])
@@ -36,7 +65,7 @@ def validate_policy(policy):
         if name in names or identifier in swift_names:
             raise ValueError("duplicate method or Swift name collision")
         names.add(name); swift_names.add(identifier)
-        if not re.fullmatch(r"[a-z][a-z0-9_]*", row.get("capability", "")):
+        if not re.fullmatch(CAPABILITY, row.get("capability", "")):
             raise ValueError("invalid capability")
         if any(type(row.get(flag)) is not bool for flag in ["secret_input", "secret_output", "show_once", "key_export", "bridge_allowed"]):
             raise ValueError("missing SDK secret-handling policy")
@@ -62,14 +91,15 @@ def generate(sdk, commit, update_pin=False, check=False):
     rows = validate_policy(policy)
     # Compare the committed JSON to its SDK Rust policy source, not a native secret list.
     policy_source = source("crates/ramflux-sdk/src/c_abi/v2/method_policy.rs").decode()
-    rust_rows = re.findall(r'"([a-z][a-z0-9_.]*)"\s*=>\s*\(\s*"([a-z][a-z0-9_]*)"\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*\)', policy_source)
+    rust_rows = re.findall(r'"([a-z][a-z0-9_.]*)"\s*=>\s*\(\s*"(' + CAPABILITY + r')"\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*,\s*(true|false)\s*\)', policy_source)
     denied = set()
     if "DENIED_METHODS" in policy_source:
         denied = set(re.findall(r'"([a-z][a-z0-9_.]*)"', policy_source.split("DENIED_METHODS", 1)[1].split(";", 1)[0]))
     expected = sorted([dict(name=n, capability=c, secret_input=i == "true", secret_output=o == "true", show_once=s == "true",
                             key_export=k == "true", bridge_allowed=n not in denied and "itest" not in n)
                        for n, c, i, o, s, k in rust_rows], key=lambda row: row["name"])
-    if rows != expected or len(rows) != len(rust_rows):
+    projected = [project_policy(row, cas_constants(policy_source)) for row in rows]
+    if projected != expected or len(rows) != len(rust_rows):
         raise ValueError("SDK policy count/content differs from the source registry")
     callable_rows = [row for row in rows if row["bridge_allowed"]]
     if not callable_rows or any(row["name"] in {item["name"] for item in rows if not item["bridge_allowed"]} for row in callable_rows):
