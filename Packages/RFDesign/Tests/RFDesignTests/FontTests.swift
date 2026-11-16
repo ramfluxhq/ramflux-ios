@@ -10,4 +10,13 @@ struct FontTests {
         for face in DesignFonts.expectedFaces { #expect(CTFontCopyPostScriptName(CTFontCreateWithName(face as CFString, 17, nil)) as String == face) }
         #expect(RFTheme.light.font == DesignFonts.expectedFaces[0])
     }
+
+    @Test func bundledFontLicensesLoadInFull() {
+        let licenses = DesignFontLicenses.load()
+        #expect(licenses.map(\.name) == ["Hanken Grotesk", "JetBrains Mono", "Noto Sans SC"])
+        for license in licenses {
+            #expect(license.text.contains("SIL Open Font License"))
+            #expect(license.text.count > 200)
+        }
+    }
 }

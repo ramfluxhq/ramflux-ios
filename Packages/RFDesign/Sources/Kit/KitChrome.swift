@@ -18,11 +18,13 @@ public struct KitTab {
     public var label: String
     public var latin: Bool
     public var badge: String?
-    public init(icon: String, label: String, latin: Bool = false, badge: String? = nil) {
+    public var hitTag: String?
+    public init(icon: String, label: String, latin: Bool = false, badge: String? = nil, hitTag: String? = nil) {
         self.icon = icon
         self.label = label
         self.latin = latin
         self.badge = badge
+        self.hitTag = hitTag
     }
 }
 
@@ -215,7 +217,7 @@ public struct KitTabBar: View {
                 ForEach(Array(tabs.enumerated()), id: \.offset) { index, tab in
                     let on = index == selected
                     let tint = on ? theme.text : theme.secondary
-                    KitHit(enabled: true, label: tab.label, hitTag: tag.map { "\($0)-\(index)" }, action: { onSelect(index) }) {
+                    KitHit(enabled: true, label: tab.label, hitTag: tab.hitTag ?? tag.map { "\($0)-\(index)" }, selected: on, action: { onSelect(index) }) {
                         VStack(spacing: KitMetrics.tabGap) {
                             ZStack(alignment: .topTrailing) {
                                 KitIcon(name: tab.icon, size: KitMetrics.tabIcon, tint: tint)

@@ -228,6 +228,7 @@ struct KitHit<Content: View>: View {
     var enabled: Bool = true
     var label: String = ""
     var hitTag: String?
+    var selected: Bool = false
     var onPress: ((Bool) -> Void)?
     var action: () -> Void
     @ViewBuilder var content: () -> Content
@@ -242,7 +243,7 @@ struct KitHit<Content: View>: View {
                 .allowsHitTesting(enabled)
                 .accessibilityElement()
                 .accessibilityLabel(label)
-                .accessibilityAddTraits(.isButton)
+                .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
                 .accessibilityIdentifier(hitTag ?? "")
                 .kitTag(hitTag)
                 .preference(key: KitHits.self, value: hitTag.map { [$0: enabled] } ?? [:])

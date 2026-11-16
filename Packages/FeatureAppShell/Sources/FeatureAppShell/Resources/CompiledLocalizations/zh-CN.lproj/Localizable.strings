@@ -4,6 +4,14 @@
 <dict>
 	<key>account.add</key>
 	<string>添加账户</string>
+	<key>common.nav.contacts</key>
+	<string>联系人</string>
+	<key>common.nav.settings</key>
+	<string>设置</string>
+	<key>common.nav.tasks</key>
+	<string>任务</string>
+	<key>common.perm.title</key>
+	<string>权限与访问</string>
 	<key>copy.28f2d4300544</key>
 	<string>Ramflux</string>
 	<key>copy.446531641e6a</key>
@@ -32,5 +40,19 @@
 	<string>账户服务已停止</string>
 	<key>copy.eab0ba7f342e</key>
 	<string>选择账户，或设置此手机。</string>
+	<key>settings.more.hub.access.preview</key>
+	<string>本设备、群组角色和本次操作</string>
+	<key>settings.more.hub.contacts.preview</key>
+	<string>现有关系与安全号码</string>
+	<key>settings.more.hub.settings.preview</key>
+	<string>账号、服务和本机偏好</string>
+	<key>settings.more.hub.tasks.preview</key>
+	<string>查看任务与待处理事项</string>
+	<key>shell.accounts.preview</key>
+	<string>切换本机账号</string>
+	<key>shell.notices.preview</key>
+	<string>本应用附带的字体许可</string>
+	<key>shell.notices.title</key>
+	<string>开源声明</string>
 </dict>
 </plist>

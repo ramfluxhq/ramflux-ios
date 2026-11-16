@@ -241,6 +241,72 @@
           }
         }
       }
+    },
+    "common.nav.contacts": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Contacts" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "联系人" } }
+      }
+    },
+    "common.nav.settings": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Settings" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "设置" } }
+      }
+    },
+    "common.nav.tasks": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Tasks" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "任务" } }
+      }
+    },
+    "common.perm.title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Permissions and access" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "权限与访问" } }
+      }
+    },
+    "settings.more.hub.access.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This device, group roles and this action" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "本设备、群组角色和本次操作" } }
+      }
+    },
+    "settings.more.hub.contacts.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Existing relationships and safety numbers" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "现有关系与安全号码" } }
+      }
+    },
+    "settings.more.hub.settings.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Account, service and on-device preferences" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "账号、服务和本机偏好" } }
+      }
+    },
+    "settings.more.hub.tasks.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "View tasks and pending items" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "查看任务与待处理事项" } }
+      }
+    },
+    "shell.accounts.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Switch the account on this phone" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "切换本机账号" } }
+      }
+    },
+    "shell.notices.preview": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Font licenses bundled with this app" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "本应用附带的字体许可" } }
+      }
+    },
+    "shell.notices.title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Open-source notices" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "开源声明" } }
+      }
     }
   }
 }

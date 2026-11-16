@@ -4,6 +4,14 @@
 <dict>
 	<key>account.add</key>
 	<string>Add account</string>
+	<key>common.nav.contacts</key>
+	<string>Contacts</string>
+	<key>common.nav.settings</key>
+	<string>Settings</string>
+	<key>common.nav.tasks</key>
+	<string>Tasks</string>
+	<key>common.perm.title</key>
+	<string>Permissions and access</string>
 	<key>copy.28f2d4300544</key>
 	<string>Ramflux</string>
 	<key>copy.446531641e6a</key>
@@ -32,5 +40,19 @@
 	<string>Account services are stopped</string>
 	<key>copy.eab0ba7f342e</key>
 	<string>Choose an account or set up this phone when onboarding is available.</string>
+	<key>settings.more.hub.access.preview</key>
+	<string>This device, group roles and this action</string>
+	<key>settings.more.hub.contacts.preview</key>
+	<string>Existing relationships and safety numbers</string>
+	<key>settings.more.hub.settings.preview</key>
+	<string>Account, service and on-device preferences</string>
+	<key>settings.more.hub.tasks.preview</key>
+	<string>View tasks and pending items</string>
+	<key>shell.accounts.preview</key>
+	<string>Switch the account on this phone</string>
+	<key>shell.notices.preview</key>
+	<string>Font licenses bundled with this app</string>
+	<key>shell.notices.title</key>
+	<string>Open-source notices</string>
 </dict>
 </plist>

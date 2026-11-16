@@ -4,6 +4,7 @@ import Foundation
 import Testing
 import AppData
 @testable import FeatureAppShell
+@Suite(.timeLimit(.minutes(1)))
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
         let key = "copy.446531641e6a"
