@@ -90,7 +90,7 @@ public struct MoreHubScreen: View {
         VStack(spacing: 0) {
             KitPageHeader(AppTab.more.title(locale: locale), large: true, tag: "more-header")
             ScrollView {
-                VStack(spacing: 0) {
+                VStack(spacing: 12) {
                     ForEach(Array(MoreHub.items(order: order, hidden: hidden).enumerated()), id: \.offset) { _, item in
                         MoreHubRow(
                             title: FeatureAppShellStrings.text(item.titleKey, locale: locale),
@@ -101,6 +101,7 @@ public struct MoreHubScreen: View {
                         )
                     }
                 }
+                .padding(.top, 20)
             }
         }
         .shellHidesSystemBar()

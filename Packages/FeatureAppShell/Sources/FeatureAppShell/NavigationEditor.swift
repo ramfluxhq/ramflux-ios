@@ -29,8 +29,10 @@ public struct NavigationEditorScreen: View {
                         .font(theme.captionFont)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    ForEach(Array(visible.enumerated()), id: \.element) { index, id in
-                        editorRow(id, index: index, last: visible.count - 1)
+                    VStack(spacing: 12) {
+                        ForEach(Array(visible.enumerated()), id: \.element) { index, id in
+                            editorRow(id, index: index, last: visible.count - 1)
+                        }
                     }
                     KitButton(
                         copy("shell.nav.add"),
@@ -45,7 +47,7 @@ public struct NavigationEditorScreen: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(.horizontal, theme.gap)
-                .padding(.top, 12)
+                .padding(.top, 20)
                 .padding(.bottom, theme.gap)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -104,6 +106,7 @@ public struct NavigationEditorScreen: View {
                 )
             }
         }
+        .frame(height: 64)
         .accessibilityElement(children: .contain)
     }
 

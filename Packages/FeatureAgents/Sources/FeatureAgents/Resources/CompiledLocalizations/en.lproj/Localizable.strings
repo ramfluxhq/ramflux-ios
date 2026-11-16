@@ -36,6 +36,8 @@
 	<string>Checking Agent availability</string>
 	<key>agents.manage</key>
 	<string>Manage Agent</string>
+	<key>agents.multi</key>
+	<string>Start a multi-agent chat</string>
 	<key>agents.name</key>
 	<string>Name</string>
 	<key>agents.nameLimit</key>

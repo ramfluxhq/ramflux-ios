@@ -49,7 +49,7 @@ public struct OnboardingScreen: View {
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }
                 .padding(.horizontal, theme.gap)
-                .padding(.top, 8)
+                .padding(.top, 16)
                 .padding(.bottom, theme.gap)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

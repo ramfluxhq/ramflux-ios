@@ -362,6 +362,12 @@
         "zh-CN": { "stringUnit": { "state": "translated", "value": "按名称搜索…" } }
       }
     },
+    "agents.multi": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Start a multi-agent chat" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "发起多 Agent 会话" } }
+      }
+    },
     "agents.directory.note": {
       "localizations": {
         "en": { "stringUnit": { "state": "translated", "value": "Collaboration settings and task status are shown separately." } },

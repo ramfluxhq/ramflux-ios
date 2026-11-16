@@ -36,6 +36,8 @@
 	<string>正在检查智能体功能</string>
 	<key>agents.manage</key>
 	<string>管理智能体</string>
+	<key>agents.multi</key>
+	<string>发起多 Agent 会话</string>
 	<key>agents.name</key>
 	<string>名称</string>
 	<key>agents.nameLimit</key>

@@ -23,7 +23,8 @@ public struct ConversationsScreen: View {
             )
             KitSearchField(value: Binding(get: { state.query }, set: { onAction(.queryChanged($0)) }), placeholder: FeatureConversationsStrings.text("copy.ddf0602b21a7", locale: locale), tag: "message-search")
                 .padding(.horizontal, theme.gap)
-                .padding(.bottom, 4)
+                .padding(.top, 20)
+                .padding(.bottom, 12)
                 .onSubmit { onAction(.search) }
             if state.loading { ProgressView(FeatureConversationsStrings.text("copy.8d384c507b47", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) { onAction(.refresh) } }

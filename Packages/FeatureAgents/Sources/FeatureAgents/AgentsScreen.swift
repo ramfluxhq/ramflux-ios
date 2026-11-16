@@ -34,12 +34,15 @@ public struct AgentsScreen: View {
                             if shown.isEmpty {
                                 searchMiss.padding(.horizontal, theme.gap)
                             } else {
-                                ForEach(shown) { entry in
-                                    KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id) {
-                                        KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+                                VStack(spacing: 10) {
+                                    ForEach(shown) { entry in
+                                        KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id) {
+                                            KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+                                        }
                                     }
                                 }
-                                Text(copy("directory.note")).font(theme.captionFont).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap)
+                                Text(copy("directory.note")).font(theme.captionFont).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap).padding(.top, 12)
+                                multiAgentLink.padding(.top, 12)
                             }
                         } else if state.failure == nil && !state.loading {
                             KitTipBar(copy("desktop"), icon: "info", tag: "agents-desktop").padding(.horizontal, theme.gap)
@@ -58,6 +61,24 @@ public struct AgentsScreen: View {
         .rfHidesNavigationBar()
         .privacySensitive()
     }
+    private var multiAgentLink: some View {
+        Button(action: {}) {
+            HStack(spacing: 12) {
+                KitIcon(name: "users-round", size: 20, tint: theme.text)
+                Text(copy("multi"))
+                    .font(.custom(theme.font, size: theme.size_mobile_body).weight(.medium))
+                    .foregroundStyle(theme.text)
+            }
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 48)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, theme.gap)
+        .accessibilityIdentifier("agents-multi")
+    }
+
     private var searchMiss: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             KitStatusHero(icon: "search-x", tag: "agents-empty")

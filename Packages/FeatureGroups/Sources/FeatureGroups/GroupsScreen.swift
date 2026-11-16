@@ -10,23 +10,19 @@ public struct GroupsScreen: View {
     public let onAction: (GroupsAction) -> Void
     public init(state: GroupsState, onAction: @escaping (GroupsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
-        RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            KitPageHeader(title, large: state.mode == .list, onBack: state.mode == .list ? nil : { onAction(.mode(.list)) }, actionLabel: state.mode == .list ? FeatureGroupsStrings.text("groups.create", locale: locale) : nil, onAction: state.mode == .list ? { onAction(.mode(.create)) } : nil, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
-            if state.loading { ProgressView(FeatureGroupsStrings.text("groups.loading", locale: locale)) }
-            if let pending = state.pending {
-                RFHostFacts(title: FeatureGroupsStrings.text("groups.pending", locale: locale), origin: state.accountID, facts: facts(pending.mutation)) {
-                    Button(FeatureGroupsStrings.text("groups.reconcile", locale: locale)) { onAction(.reconcileOriginal(pending.operationID)) }.disabled(state.busy)
+        RFPage {
+            if state.mode == .list {
+                VStack(spacing: 0) {
+                    listHeader
+                    ScrollView { listBody.padding(.top, 20).padding(.horizontal, theme.gap).padding(.bottom, theme.gap) }
                 }
+            } else {
+                ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
+                    pushedHeader
+                    listBody
+                }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) }
             }
-            if let outcome = state.outcome {
-                Text(FeatureGroupsStrings.text(outcome.expired ? "groups.requestExpired" : outcome.waitingForOwner ? "groups.waitingOwner" : "groups.acknowledged", locale: locale)).font(theme.bodyFont.weight(.semibold))
-                Text(outcome.groupID).font(theme.captionFont).textSelection(.enabled)
-                if outcome.waitingForOwner || outcome.expired { Text(FeatureGroupsStrings.text("groups.waitingOwner.message", locale: locale)) }
-            }
-            if state.detail != nil && !state.authorityFresh { KitTipBar(FeatureGroupsStrings.text("groups.lastConfirmed", locale: locale), icon: "clock-3", tag: "groups-last-confirmed") }
-            content
-            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-        }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
+        }
         .privacySensitive().rfHidesNavigationBar()
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             NavigationStack { RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
@@ -41,6 +37,36 @@ public struct GroupsScreen: View {
             }.padding(theme.gap) } } }.interactiveDismissDisabled(state.busy)
         }
     }
+
+    private var listHeader: some View {
+        KitPageHeader(title, large: true, actionLabel: FeatureGroupsStrings.text("groups.create", locale: locale), onAction: { onAction(.mode(.create)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
+    }
+
+    private var pushedHeader: some View {
+        KitPageHeader(title, onBack: { onAction(.mode(.list)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
+    }
+
+    private var listBody: some View {
+        VStack(alignment: .leading, spacing: theme.gap) {
+            if state.loading { ProgressView(FeatureGroupsStrings.text("groups.loading", locale: locale)) }
+            if let pending = state.pending {
+                RFHostFacts(title: FeatureGroupsStrings.text("groups.pending", locale: locale), origin: state.accountID, facts: facts(pending.mutation)) {
+                    Button(FeatureGroupsStrings.text("groups.reconcile", locale: locale)) { onAction(.reconcileOriginal(pending.operationID)) }.disabled(state.busy)
+                }
+            }
+            if let outcome = state.outcome {
+                Text(FeatureGroupsStrings.text(outcome.expired ? "groups.requestExpired" : outcome.waitingForOwner ? "groups.waitingOwner" : "groups.acknowledged", locale: locale)).font(theme.bodyFont.weight(.semibold))
+                Text(outcome.groupID).font(theme.captionFont).textSelection(.enabled)
+                if outcome.waitingForOwner || outcome.expired { Text(FeatureGroupsStrings.text("groups.waitingOwner.message", locale: locale)) }
+            }
+            if state.detail != nil && !state.authorityFresh { KitTipBar(FeatureGroupsStrings.text("groups.lastConfirmed", locale: locale), icon: "clock-3", tag: "groups-last-confirmed") }
+            content
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+        }
+        .frame(maxWidth: theme.column_max, alignment: .leading)
+        .frame(maxWidth: .infinity)
+    }
+
     private var title: String {
         let key: String = switch state.mode { case .list: "groups.title"; case .create: "groups.create"; case .detail: "groups.detail"; case .members: "groups.members"; case .requests: "groups.requests"; case .invitation: "groups.invitation"; case .created: "groups.created"; case .managementUnavailable: "groups.manageUnavailable"; case .accessChanged: "groups.accessChanged" }
         return FeatureGroupsStrings.text(key, locale: locale)

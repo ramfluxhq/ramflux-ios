@@ -41,13 +41,19 @@ STRUCT_LIMIT = 2.0
 # KitTabBar's 8 pt top pad puts icons 4 px below the preview. A real miss
 # (the old ~24 px safe-area error) is still OVER.
 TAB_INK_LIMIT = 5.0
+# Row-pitch windows (y0, y1, x0, x1) for boards whose rows have a quiet gap.
+# The check compares the capture's median pitch with the preview's.
+PITCH_BAND = {
+    "MOB-G01": (120, 640, 16, 370),
+    "MOB-G03": (160, 560, 16, 370),
+    "MOB-D01": (180, 450, 16, 370),
+}
 # Accepted deviations. The checklist records the reason; they do not raise the mean limit.
 LISTED = {
     "MOB-B01.light": "listed: header keeps contacts and refresh; square-pen and the page-actions ellipsis are not drawn",
     "MOB-B01.dark": "listed: header keeps contacts and refresh; square-pen and the page-actions ellipsis are not drawn",
     "MOB-B01L.light": "listed: loading board is the shell chrome over a progress row",
     "MOB-B01X.light": "listed: failure board keeps the shell failure view",
-    "MOB-C01.light": "listed: tab root keeps the large title; the design header is a pushed title about 16 px higher",
     "MOB-D01.light": "listed: add is omitted (ruling 4); page-actions ellipsis has no destination; rows use the conversation row",
     "MOB-D01E.light": "listed: search-miss empty is the undesigned no-agents state; the tip is ruling 4",
     "MOB-G01.light": "listed: header ellipsis has no designed destination; accounts and notices have no board",
@@ -250,6 +256,28 @@ def band_std(row, x0, x1):
     return max(0.0, total_sq / count - mean * mean) ** 0.5
 
 
+def row_tops(rows, y0, y1, x0, x1, floor):
+    tops = []
+    quiet = 99
+    last = min(y1, len(rows))
+    for y in range(max(0, y0), last):
+        if band_std(rows[y], x0, x1) >= floor:
+            if quiet >= 10:
+                tops.append(y)
+            quiet = 0
+        else:
+            quiet += 1
+    return tops
+
+
+def median_pitch(tops):
+    deltas = [right - left for left, right in zip(tops, tops[1:]) if 40 <= right - left <= 120]
+    if not deltas:
+        return None
+    deltas.sort()
+    return deltas[len(deltas) // 2]
+
+
 def ink_top(rows, y0, y1, x0, x1, floor):
     last = min(y1, len(rows))
     for y in range(max(0, y0), last):
@@ -274,10 +302,18 @@ def structural_report(name, capture_rows, preview_rows, borrowed=False):
     if capture_title is not None and preview_title is not None:
         delta = capture_title - preview_title
         notes.append(f"title-ink {capture_title} vs {preview_title}")
-        # C01 keeps the large title on a board drawn with a pushed header.
         # A borrowed locale uses another language's preview, so glyph tops differ.
-        if not borrowed and not stem.startswith("MOB-C01") and abs(delta) > STRUCT_LIMIT:
+        if not borrowed and abs(delta) > STRUCT_LIMIT:
             reasons.append(f"title-y {capture_title} vs {preview_title}")
+    band = None if stem.startswith("MOB-D01E") else next((value for key, value in PITCH_BAND.items() if stem.startswith(key)), None)
+    if band is not None:
+        y0, y1, x0, x1 = band
+        capture_pitch = median_pitch(row_tops(capture_rows, y0, y1, x0, x1, 6.0))
+        preview_pitch = median_pitch(row_tops(preview_rows, y0, y1, x0, x1, 6.0))
+        if capture_pitch is not None and preview_pitch is not None:
+            notes.append(f"row-pitch {capture_pitch} vs {preview_pitch}")
+            if not borrowed and abs(capture_pitch - preview_pitch) > STRUCT_LIMIT:
+                reasons.append(f"row-pitch {capture_pitch} vs {preview_pitch}")
     tab_root = stem.startswith(("MOB-B", "MOB-C", "MOB-D")) or stem.startswith("MOB-G01")
     if tab_root:
         capture_tab = ink_top(capture_rows, 760, 830, 0, 393, 4.0)
