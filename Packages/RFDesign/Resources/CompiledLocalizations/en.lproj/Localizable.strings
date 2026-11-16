@@ -16,6 +16,22 @@
 	<string>Try again</string>
 	<key>copy.dc380888c4e2</key>
 	<string>Loading</string>
+	<key>kit.back</key>
+	<string>Back</string>
+	<key>kit.clear</key>
+	<string>Clear</string>
+	<key>kit.close</key>
+	<string>Close</string>
+	<key>kit.copy</key>
+	<string>Copy</string>
+	<key>kit.info</key>
+	<string>Info</string>
+	<key>kit.more</key>
+	<string>More</string>
+	<key>kit.search</key>
+	<string>Search</string>
+	<key>kit.send</key>
+	<string>Send</string>
 	<key>theme.dark</key>
 	<string>Dark</string>
 	<key>theme.light</key>

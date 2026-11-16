@@ -16,6 +16,22 @@
 	<string>重试</string>
 	<key>copy.dc380888c4e2</key>
 	<string>正在加载</string>
+	<key>kit.back</key>
+	<string>返回</string>
+	<key>kit.clear</key>
+	<string>清除</string>
+	<key>kit.close</key>
+	<string>关闭</string>
+	<key>kit.copy</key>
+	<string>复制</string>
+	<key>kit.info</key>
+	<string>信息</string>
+	<key>kit.more</key>
+	<string>更多</string>
+	<key>kit.search</key>
+	<string>搜索</string>
+	<key>kit.send</key>
+	<string>发送</string>
 	<key>theme.dark</key>
 	<string>深色</string>
 	<key>theme.light</key>
