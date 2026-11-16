@@ -32,6 +32,7 @@ public struct AppShellScreen: View {
                     }
                     KitTabBar(tabs: AppTab.allCases.map(kitTab), selected: selectedIndex, onSelect: select, tag: "shell-tabs")
                 }
+                .ignoresSafeArea(edges: .bottom)
             }
         }
         .privacySensitive()

@@ -26,11 +26,37 @@ LIMIT = 2.0
 # omit --content, so this threshold does not apply to component boards.
 CONTENT_STD_FLOOR = 8.0
 CONTENT_MID_STD_FLOOR = 6.0
-# Measured on real drawHierarchy boards against the same-theme preview.
-# Onboarding launch/welcome/start are catalog forms, so their mean sits at 59–76.
-# A theme-mismatched or placeholder frame sits above 150. Blank frames fail the
-# variance floors (middle-band std 0) even when the mean stays small.
-CONTENT_MEAN_LIMIT = 80.0
+# Same-theme mean on a drawn shell board. A theme swap sits above 150.
+# Catalog forms that are not the drawn board use the named exception limit.
+SHELL_MEAN_LIMIT = 20.0
+CATALOG_MEAN_LIMIT = 80.0
+CATALOG_STEMS = {
+    "MOB-S01.light",
+    "MOB-S02.light",
+    "MOB-S18.light",
+    "MOB-A01.light",
+    "MOB-A02.light",
+}
+STRUCT_LIMIT = 2.0
+# KitTabBar's 8 pt top pad puts icons 4 px below the preview. A real miss
+# (the old ~24 px safe-area error) is still OVER.
+TAB_INK_LIMIT = 5.0
+# Accepted deviations. The checklist records the reason; they do not raise the mean limit.
+LISTED = {
+    "MOB-B01.light": "listed: header keeps contacts and refresh; square-pen and the page-actions ellipsis are not drawn",
+    "MOB-B01.dark": "listed: header keeps contacts and refresh; square-pen and the page-actions ellipsis are not drawn",
+    "MOB-B01L.light": "listed: loading board is the shell chrome over a progress row",
+    "MOB-B01X.light": "listed: failure board keeps the shell failure view",
+    "MOB-C01.light": "listed: tab root keeps the large title; the design header is a pushed title about 16 px higher",
+    "MOB-D01.light": "listed: add is omitted (ruling 4); page-actions ellipsis has no destination; rows use the conversation row",
+    "MOB-D01E.light": "listed: search-miss empty is the undesigned no-agents state; the tip is ruling 4",
+    "MOB-G01.light": "listed: header ellipsis has no designed destination; accounts and notices have no board",
+    "MOB-S01.light": "listed: launch stays a catalog form (design gap)",
+    "MOB-S02.light": "listed: connection stays a catalog form (design gap, owner shell)",
+    "MOB-S18.light": "listed: welcome stays a catalog form (design gap); welcome continues to account creation (ruling 6)",
+    "MOB-A01.light": "listed: start stays a catalog form (design gap)",
+    "MOB-A02.light": "listed: local unlock stays a catalog form (design gap, owner shell)",
+}
 LIGHT_BG = (0xFC, 0xFB, 0xF9)
 DARK_BG = (0x17, 0x17, 0x16)
 SKIP_PREFIXES = ("chart--", "radio--", "origin-display--")
@@ -195,6 +221,88 @@ def preview_for(previews, name):
     return None, False
 
 
+def board_stem(name):
+    stem = name
+    for suffix in ("--en--dark", "--zh--dark", "--dark", "--en", "--zh"):
+        if stem.endswith(suffix):
+            return stem[: -len(suffix)]
+    return stem
+
+
+def content_mean_limit(name):
+    if board_stem(name) in CATALOG_STEMS:
+        return CATALOG_MEAN_LIMIT
+    return SHELL_MEAN_LIMIT
+
+
+def band_std(row, x0, x1):
+    start = max(0, x0) * 3
+    end = min(len(row) // 3, x1) * 3
+    count = (end - start) // 3
+    if count <= 0:
+        return 0.0
+    total = total_sq = 0.0
+    for offset in range(start, end, 3):
+        lum = 0.2126 * row[offset] + 0.7152 * row[offset + 1] + 0.0722 * row[offset + 2]
+        total += lum
+        total_sq += lum * lum
+    mean = total / count
+    return max(0.0, total_sq / count - mean * mean) ** 0.5
+
+
+def ink_top(rows, y0, y1, x0, x1, floor):
+    last = min(y1, len(rows))
+    for y in range(max(0, y0), last):
+        if band_std(rows[y], x0, x1) >= floor:
+            return y
+    return None
+
+
+def structural_report(name, capture_rows, preview_rows, borrowed=False):
+    """Return failure reasons and a measurement note.
+
+    Title and footer positions use the top of the ink, which tracks the frame.
+    The heaviest glyph row moves with the typeface and is not the layout check.
+    """
+    if preview_rows is None or board_stem(name) in CATALOG_STEMS:
+        return [], ""
+    stem = board_stem(name)
+    reasons = []
+    notes = []
+    capture_title = ink_top(capture_rows, 55, 130, 16, 240, 6.0)
+    preview_title = ink_top(preview_rows, 55, 130, 16, 240, 6.0)
+    if capture_title is not None and preview_title is not None:
+        delta = capture_title - preview_title
+        notes.append(f"title-ink {capture_title} vs {preview_title}")
+        # C01 keeps the large title on a board drawn with a pushed header.
+        # A borrowed locale uses another language's preview, so glyph tops differ.
+        if not borrowed and not stem.startswith("MOB-C01") and abs(delta) > STRUCT_LIMIT:
+            reasons.append(f"title-y {capture_title} vs {preview_title}")
+    tab_root = stem.startswith(("MOB-B", "MOB-C", "MOB-D")) or stem.startswith("MOB-G01")
+    if tab_root:
+        capture_tab = ink_top(capture_rows, 760, 830, 0, 393, 4.0)
+        preview_tab = ink_top(preview_rows, 760, 830, 0, 393, 4.0)
+        if capture_tab is not None and preview_tab is not None:
+            delta = capture_tab - preview_tab
+            notes.append(f"tab-ink {capture_tab} vs {preview_tab}")
+            if abs(delta) > TAB_INK_LIMIT:
+                reasons.append(f"tab-y {capture_tab} vs {preview_tab}")
+            elif abs(delta) > STRUCT_LIMIT:
+                notes.append("tab icons follow the kit tab bar 8 pt pad")
+    if stem.startswith(("MOB-G03", "MOB-N01")):
+        capture_footer = ink_top(capture_rows, 740, 820, 40, 353, 4.0)
+        preview_footer = ink_top(preview_rows, 740, 820, 40, 353, 4.0)
+        if capture_footer is not None and preview_footer is not None:
+            notes.append(f"footer-ink {capture_footer} vs {preview_footer}")
+            if abs(capture_footer - preview_footer) > STRUCT_LIMIT:
+                reasons.append(f"footer-y {capture_footer} vs {preview_footer}")
+        # Buttons that run into the home-indicator band are clipped.
+        clipped = ink_top(capture_rows, 812, 832, 40, 353, 8.0)
+        if clipped is not None:
+            reasons.append(f"footer-clipped y={clipped}")
+    return reasons, "; ".join(notes)
+
+
 def luminance_std(rgb_rows):
     height = len(rgb_rows)
     if height == 0:
@@ -306,15 +414,24 @@ def main():
             if std < CONTENT_STD_FLOOR or mid < CONTENT_MID_STD_FLOOR:
                 reasons.append(f"low-variance std={std:.1f} mid={mid:.1f}")
             # A dark capture borrowed from a light preview cannot match that preview's pixels.
-            if mad is not None and not borrowed and mad > CONTENT_MEAN_LIMIT:
-                reasons.append(f"pixel-diff {mad:.1f}")
+            limit = content_mean_limit(name)
+            if mad is not None and not borrowed and mad > limit:
+                reasons.append(f"pixel-diff {mad:.1f}>{limit:.0f}")
+            preview_rgb = scaled[2] if scaled is not None else None
+            structure, measured = structural_report(name, cap_rgb, preview_rgb, borrowed)
+            reasons.extend(structure)
+            if measured:
+                note = (note + "; " if note else "") + measured
+            listed = LISTED.get(board_stem(name))
+            if listed:
+                note = (note + "; " if note else "") + listed
             if reasons:
                 if flag != "OVER":
                     over += 1
                     flag = "OVER"
                 note = (note + "; " if note else "") + "; ".join(reasons)
             mad_text = f"{mad:.1f}" if mad is not None else "n/a"
-            print(f"  content std={std:.1f} mid={mid:.1f} mean={mad_text}")
+            print(f"  content std={std:.1f} mid={mid:.1f} mean={mad_text} limit={limit:.0f}")
         dw_text = f"{delta_w:.1f}" if width_checked else "n/a"
         print(
             f"{name:48} {capture_w:4}x{capture_h:<4} {master_w:5g}x{master_h:<5g} "

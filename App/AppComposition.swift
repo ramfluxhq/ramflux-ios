@@ -28,7 +28,8 @@ import Observation
     func conversations(account: String) -> ConversationsCoordinator {
         if let inbox, inbox.0 == account { return inbox.1 }
         inbox?.1.send(.disappeared)
-        let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account) { [weak self] route in self?.shell.send(.open(route)) }
+        let title = shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? ""
+        let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account, accountTitle: title) { [weak self] route in self?.shell.send(.open(route)) }
         inbox = (account, coordinator); return coordinator
     }
     @ObservationIgnored private var currentChat: (String, String, Bool, ChatCoordinator)?

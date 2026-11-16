@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Span Brain
-"""Fail when a zh-CN catalog character or a general-standard character is missing."""
+"""Fail when a zh-CN catalog character or a general-standard character is missing.
+
+scripts/tongyong-8105.txt is the 2013 Table of General Standard Chinese
+Characters (通用规范汉字表, State Council of the PRC, Guo Fa [2013] No. 23,
+promulgated 2013-06-05). Levels 1, 2 and 3, in that order, come from
+https://github.com/shengdoushi/common-standard-chinese-characters-table.
+The file is one character per line. A comment line would be checked as a glyph.
+"""
 import json
 import struct
 import sys

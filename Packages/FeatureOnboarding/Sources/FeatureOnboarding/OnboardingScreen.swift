@@ -11,6 +11,13 @@ public struct OnboardingScreen: View {
     public let onAction: (OnboardingAction) -> Void
     public init(state: OnboardingState, onAction: @escaping (OnboardingAction) -> Void, securePresentation: AnyView? = nil) { self.state = state; self.onAction = onAction; self.securePresentation = securePresentation }
     public var body: some View {
+        Group {
+            if state.stage == .create { createAccount } else { catalog }
+        }
+        .privacySensitive()
+        .accessibilityIdentifier(state.stage.board)
+    }
+    private var catalog: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             Text(FeatureOnboardingStrings.text("copy.28f2d4300544", locale: locale)).font(theme.captionFont)
             Text(state.stage.title(locale: locale)).font(theme.pageFont).accessibilityAddTraits(.isHeader)
@@ -19,8 +26,70 @@ public struct OnboardingScreen: View {
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             Button(FeatureOnboardingStrings.text("copy.c17bac18b5a6", locale: locale)) { onAction(.cancel) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
-            .privacySensitive().accessibilityIdentifier(state.stage.board)
     }
+    private var createAccount: some View {
+        let ready = !state.busy && !state.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedNode?.canCreateAccount == true
+        return VStack(spacing: 0) {
+            KitPageHeader(copy("onboarding.n01.header"), onBack: { onAction(.cancel) }, tag: "n01-header")
+            ScrollView {
+                VStack(alignment: .leading, spacing: theme.gap) {
+                    KitTextField(
+                        value: Binding(get: { state.name }, set: { onAction(.nameChanged($0)) }),
+                        label: copy("onboarding.n01.name"),
+                        note: copy("onboarding.n01.name.note"),
+                        enabled: !state.busy,
+                        tag: "n01-name"
+                    )
+                    Text(copy("onboarding.n01.node"))
+                        .font(.custom(theme.font, size: theme.size_secondary).weight(.semibold))
+                        .foregroundStyle(theme.secondary)
+                    nodeCard
+                    KitTipBar(copy("onboarding.n01.phrase"), icon: "pencil-line", tag: "n01-phrase")
+                    if state.busy { ProgressView(FeatureOnboardingStrings.text("copy.650cfe3a448f", locale: locale)) }
+                    if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+                }
+                .padding(.horizontal, theme.gap)
+                .padding(.top, 8)
+                .padding(.bottom, theme.gap)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            KitButton(copy("onboarding.n01.create"), action: { onAction(.beginCreation) }, enabled: ready, tag: "n01-create")
+                .padding(.horizontal, theme.gap)
+                .padding(.bottom, 8)
+        }
+        .font(theme.bodyFont)
+        .foregroundStyle(theme.text)
+        .tint(theme.primary)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(theme.nav.ignoresSafeArea())
+    }
+    private var selectedNode: NodeRecord? { state.nodes.first { $0.id == state.selectedNodeID } }
+    @ViewBuilder private var nodeCard: some View {
+        if let node = selectedNode, node.canCreateAccount {
+            HStack(spacing: KitMetrics.rowGap) {
+                KitIconTile(icon: "server")
+                VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
+                    Text(node.isDefault ? copy("onboarding.n01.node.official") : node.origin)
+                        .font(.custom(theme.font, size: theme.size_mobile_body))
+                        .foregroundStyle(theme.text)
+                    Text(copy("onboarding.n01.node.selected"))
+                        .font(.custom(theme.font, size: theme.size_secondary))
+                        .foregroundStyle(theme.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                KitIcon(name: "chevron-right", size: KitMetrics.chevron, tint: theme.control)
+                    .opacity(KitMetrics.disabledAlpha)
+            }
+            .padding(.horizontal, KitMetrics.gutter)
+            .frame(maxWidth: .infinity)
+            .frame(height: KitMetrics.row)
+            .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_card))
+            .accessibilityIdentifier("n01-node")
+        } else {
+            nodeChoices
+        }
+    }
+    private func copy(_ key: String) -> String { FeatureOnboardingStrings.text(key, locale: locale) }
     @ViewBuilder private var content: some View {
         switch state.stage {
         case .welcome, .launch, .start:
@@ -28,10 +97,7 @@ public struct OnboardingScreen: View {
             action(FeatureOnboardingStrings.text("copy.8b8843897868", locale: locale), .unlockExisting); action(FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale), .create); action(FeatureOnboardingStrings.text("copy.cb4bd1634dfb", locale: locale), .recover)
             action(FeatureOnboardingStrings.text("copy.5dfe7b2bb38d", locale: locale), .link); action(FeatureOnboardingStrings.text("copy.8e9aff1d599c", locale: locale), .customNode)
         case .create:
-            TextField(FeatureOnboardingStrings.text("copy.2b7f6a84de91", locale: locale), text: Binding(get: { state.name }, set: { onAction(.nameChanged($0)) })).textFieldStyle(.roundedBorder)
-            Text(FeatureOnboardingStrings.text("copy.aa242a674642", locale: locale))
-            nodeChoices
-            action(FeatureOnboardingStrings.text("copy.458db8c2c8c1", locale: locale), .beginCreation)
+            EmptyView()
         case .address, .connection, .defaultNode:
             TextField(FeatureOnboardingStrings.text("copy.c9aadf9cd263", locale: locale), text: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }))
                 .textFieldStyle(.roundedBorder).rfAddressInput()

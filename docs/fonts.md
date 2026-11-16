@@ -8,8 +8,11 @@ Noto Sans SC is a glyph subset of the upstream variable file. The wght axis
 (100-900) and the face names stay. The non-CJK ranges from the earlier subset
 stay (ASCII, Latin, punctuation, kana, CJK punctuation, compatibility
 ideographs, and fullwidth forms). CJK Unified Ideographs cover the 8105
-characters of the 2013 Table of General Standard Chinese Characters, listed in
-scripts/tongyong-8105.txt, plus every zh-CN catalog character.
+characters of the 2013 Table of General Standard Chinese Characters
+(通用规范汉字表, State Council of the PRC, 国发〔2013〕23号, promulgated
+2013-06-05), listed in scripts/tongyong-8105.txt, plus every zh-CN catalog
+character. The list is levels 1, 2 and 3, in that order, from
+https://github.com/shengdoushi/common-standard-chinese-characters-table.
 scripts/check-zh-font-glyphs.py fails when one of those characters is missing.
 Characters outside that set may use the platform fallback. PROVENANCE.json
 records the subset method.

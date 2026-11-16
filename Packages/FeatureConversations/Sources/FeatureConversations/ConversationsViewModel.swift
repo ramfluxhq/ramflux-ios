@@ -6,13 +6,23 @@ import AppData
     public private(set) var state: ConversationsState
     private let repository: any ConversationsRepository
     private let account: String
+    private let accountTitle: String
     private let emit: (ConversationsEvent) -> Void
     @ObservationIgnored private var work: Task<Void, Never>?
     @ObservationIgnored private var observer: Task<Void, Never>?
     @ObservationIgnored private var observationID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
     @ObservationIgnored private var generation: UInt64 = 0
-    public init(repository: any ConversationsRepository, account: String, state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) { self.repository = repository; self.account = account; var initial = state; initial.accountID = account; self.state = initial; self.emit = emit }
+    public init(repository: any ConversationsRepository, account: String, accountTitle: String = "", state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) {
+        self.repository = repository
+        self.account = account
+        self.accountTitle = accountTitle
+        var initial = state
+        initial.accountID = account
+        if initial.accountTitle.isEmpty { initial.accountTitle = accountTitle }
+        self.state = initial
+        self.emit = emit
+    }
     public func send(_ action: ConversationsAction) {
         switch action {
         case .appeared:
@@ -35,7 +45,10 @@ import AppData
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
             observationID &+= 1; pendingRefresh = false
-            generation &+= 1; work?.cancel(); observer?.cancel(); observer = nil; state = ConversationsState()
+            generation &+= 1; work?.cancel(); observer?.cancel(); observer = nil
+            state = ConversationsState()
+            state.accountID = account
+            state.accountTitle = accountTitle
         }
     }
     private func reload(search: Bool) {

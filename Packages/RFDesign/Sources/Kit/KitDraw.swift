@@ -64,11 +64,16 @@ func kitPath(_ ops: [KitIconOp]) -> Path {
     return path
 }
 
-struct KitIcon: View {
+public struct KitIcon: View {
     var name: String
     var size: CGFloat
     var tint: Color
-    var body: some View {
+    public init(name: String, size: CGFloat, tint: Color) {
+        self.name = name
+        self.size = size
+        self.tint = tint
+    }
+    public var body: some View {
         Canvas { context, _ in
             guard let paths = KitIconPaths.glyphs[name] else { return }
             let scale = size / 24

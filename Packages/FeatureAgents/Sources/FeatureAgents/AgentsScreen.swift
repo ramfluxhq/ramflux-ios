@@ -18,32 +18,43 @@ public struct AgentsScreen: View {
         return state.entries.filter { $0.name.localizedStandardContains(needle) }
     }
     public var body: some View {
-        RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            KitPageHeader(AppTab.agents.title(locale: locale), large: true, latin: true, tag: "agents-header")
-            KitTipBar(copy("desktop"), icon: "info", tag: "agents-desktop")
-            if state.loading { ProgressView(copy("loading")) }
-            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-            if showingDirectory {
-                KitSearchField(value: $query, placeholder: copy("search"), tag: "agents-search")
-                if shown.isEmpty {
-                    searchMiss
-                } else {
-                    ForEach(shown) { entry in
-                        KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id) {
-                            KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+        RFPage {
+            VStack(spacing: 0) {
+                KitPageHeader(AppTab.agents.title(locale: locale), large: true, latin: true, tag: "agents-header")
+                ScrollView {
+                    VStack(alignment: .leading, spacing: theme.gap) {
+                        if state.loading { ProgressView(copy("loading")).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, theme.gap) }
+                        if let failure = state.failure {
+                            RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale))
+                                .padding(.horizontal, theme.gap)
+                        }
+                        if showingDirectory {
+                            KitSearchField(value: $query, placeholder: copy("search"), tag: "agents-search")
+                                .padding(.horizontal, theme.gap)
+                            if shown.isEmpty {
+                                searchMiss.padding(.horizontal, theme.gap)
+                            } else {
+                                ForEach(shown) { entry in
+                                    KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id) {
+                                        KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+                                    }
+                                }
+                                Text(copy("directory.note")).font(theme.captionFont).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap)
+                            }
+                        } else if state.failure == nil && !state.loading {
+                            KitTipBar(copy("desktop"), icon: "info", tag: "agents-desktop").padding(.horizontal, theme.gap)
+                            searchMiss.padding(.horizontal, theme.gap)
+                            Text(copy("explanation")).font(theme.captionFont).padding(.horizontal, theme.gap)
+                            if state.mode != .directory { Button(copy("directory")) { onAction(.mode(.directory)) }.padding(.horizontal, theme.gap) }
+                            Button(copy("retry")) { onAction(.retry) }.disabled(state.loading).padding(.horizontal, theme.gap)
                         }
                     }
-                    Text(copy("directory.note")).font(theme.captionFont).foregroundStyle(theme.secondary)
+                    .padding(.vertical, theme.gap)
+                    .frame(maxWidth: theme.column_max, alignment: .leading)
+                    .frame(maxWidth: .infinity)
                 }
-            } else if state.failure == nil && !state.loading {
-                searchMiss
             }
-            if !showingDirectory {
-                Text(copy("explanation")).font(theme.captionFont)
-                if state.mode != .directory { Button(copy("directory")) { onAction(.mode(.directory)) } }
-                Button(copy("retry")) { onAction(.retry) }.disabled(state.loading)
-            }
-        }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
+        }
         .rfHidesNavigationBar()
         .privacySensitive()
     }

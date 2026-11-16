@@ -154,6 +154,22 @@
 	<string>Operator public key</string>
 	<key>node.reviewFingerprint</key>
 	<string>Review fingerprint</string>
+	<key>onboarding.n01.create</key>
+	<string>Create the account</string>
+	<key>onboarding.n01.header</key>
+	<string>Create an account</string>
+	<key>onboarding.n01.name</key>
+	<string>Display name</string>
+	<key>onboarding.n01.name.note</key>
+	<string>This name is shown for the new account. You can change it later.</string>
+	<key>onboarding.n01.node</key>
+	<string>Node</string>
+	<key>onboarding.n01.node.official</key>
+	<string>Ramflux official node</string>
+	<key>onboarding.n01.node.selected</key>
+	<string>Selected node</string>
+	<key>onboarding.n01.phrase</key>
+	<string>The recovery phrase is created on this phone and shown only once. Have pen and paper ready.</string>
 	<key>recovery.word.position</key>
 	<string>Word %@</string>
 </dict>

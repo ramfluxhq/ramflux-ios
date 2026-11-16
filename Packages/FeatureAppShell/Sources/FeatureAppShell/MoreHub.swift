@@ -92,12 +92,12 @@ public struct MoreHubScreen: View {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(Array(MoreHub.items(order: order, hidden: hidden).enumerated()), id: \.offset) { _, item in
-                        KitRow(
-                            FeatureAppShellStrings.text(item.titleKey, locale: locale),
-                            action: { open(item) },
+                        MoreHubRow(
+                            title: FeatureAppShellStrings.text(item.titleKey, locale: locale),
+                            summary: FeatureAppShellStrings.text(item.previewKey, locale: locale),
                             icon: item.icon,
-                            value: FeatureAppShellStrings.text(item.previewKey, locale: locale),
-                            tag: item.tag
+                            tag: item.tag,
+                            action: { open(item) }
                         )
                     }
                 }
@@ -113,6 +113,46 @@ public struct MoreHubScreen: View {
         case .navigation: onAction(.open(.shellNavigation))
         case .route(let route): onAction(.open(route))
         }
+    }
+}
+
+/// G01 rows are hand-built: 70 high, a 44 circle, a 22 glyph, and a 16 chevron.
+/// KitRow stays 58 with a 30 tile so the kit evidence frame does not move.
+private struct MoreHubRow: View {
+    var title: String
+    var summary: String
+    var icon: String
+    var tag: String
+    var action: () -> Void
+    @Environment(\.rfTheme) private var theme
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: KitMetrics.rowGap) {
+                KitIcon(name: icon, size: 22, tint: theme.text)
+                    .frame(width: 44, height: 44)
+                    .background(theme.surface, in: Circle())
+                VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
+                    Text(title)
+                        .font(.custom(theme.font, size: theme.size_mobile_body).weight(.semibold))
+                        .foregroundStyle(theme.text)
+                    if !summary.isEmpty {
+                        Text(summary)
+                            .font(.custom(theme.font, size: theme.size_body))
+                            .foregroundStyle(theme.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                KitIcon(name: "chevron-right", size: KitMetrics.glyph16, tint: theme.control)
+            }
+            .padding(.horizontal, KitMetrics.gutter)
+            .frame(maxWidth: .infinity)
+            .frame(height: 70)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(tag)
+        .accessibilityLabel(title)
     }
 }
 

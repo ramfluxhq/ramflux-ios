@@ -70,7 +70,7 @@ final class ShellBoardCaptureTests: XCTestCase {
         let expected = Self.boards.flatMap { shots(for: $0, zh: zh, en: en) }
         XCTAssertEqual(expected.count, 84)
         for shot in expected {
-            let data = try png(view(for: shot.name), scheme: shot.scheme, locale: shot.locale)
+            let data = try png(view(for: shot.name), scheme: shot.scheme, locale: shot.locale, reservesHome: reservesHome(shot.name))
             if data.isEmpty { XCTFail("empty capture \(shot.name)"); return }
             try data.write(to: root.appendingPathComponent(shot.name + ".png"))
         }
@@ -162,18 +162,54 @@ final class ShellBoardCaptureTests: XCTestCase {
     }
 
     private func stage(_ stage: OnboardingStage) -> some View {
-        OnboardingScreen(state: OnboardingState(stage: stage), onAction: { _ in })
+        var state = OnboardingState(stage: stage)
+        if stage == .create {
+            state.name = "林澈"
+            let node = NodeRecord(
+                id: "official",
+                origin: "https://node.ramflux.example",
+                isDefault: true,
+                enabled: true,
+                isConfirmed: true,
+                pinSource: "builtin"
+            )
+            state.nodes = [node]
+            state.selectedNodeID = node.id
+        }
+        return OnboardingScreen(state: state, onAction: { _ in })
     }
 
-    private func png(_ view: some View, scheme: ColorScheme, locale: Locale) throws -> Data {
+    /// Boards without a tab bar keep 34 pt clear of the home indicator. Tab roots
+    /// already fill that band with the 83 pt bar.
+    private func reservesHome(_ name: String) -> Bool {
+        let stem = name
+            .replacingOccurrences(of: "--en--dark", with: "")
+            .replacingOccurrences(of: "--zh--dark", with: "")
+            .replacingOccurrences(of: "--dark", with: "")
+            .replacingOccurrences(of: "--en", with: "")
+            .replacingOccurrences(of: "--zh", with: "")
+        return stem.hasPrefix("MOB-G03") || stem.hasPrefix("MOB-S") || stem.hasPrefix("MOB-A") || stem.hasPrefix("MOB-N")
+    }
+
+    private func png(_ view: some View, scheme: ColorScheme, locale: Locale, reservesHome: Bool) throws -> Data {
         let theme: RFTheme = scheme == .dark ? .dark : .light
-        let framed = view
-            .environment(\.colorScheme, scheme)
-            .environment(\.locale, locale)
-            .environment(\.rfTheme, theme)
-            .frame(width: 393, height: 852)
-            .background(theme.bg)
+        let framed = VStack(spacing: 0) {
+            KitStatusBar(time: "9:41", tag: "capture-status")
+            view
+                .padding(.bottom, reservesHome ? 34 : 0)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .overlay(alignment: .bottom) {
+            KitHomeIndicator(tag: "capture-home").padding(.bottom, 12).allowsHitTesting(false)
+        }
+        .environment(\.colorScheme, scheme)
+        .environment(\.locale, locale)
+        .environment(\.rfTheme, theme)
+        .ignoresSafeArea()
+        .frame(width: 393, height: 852)
+        .background(theme.bg)
         let controller = CaptureController(rootView: AnyView(framed))
+        controller.safeAreaRegions = []
         controller.view.backgroundColor = UIColor(theme.bg)
         controller.overrideUserInterfaceStyle = scheme == .dark ? .dark : .light
         let bounds = CGRect(x: 0, y: 0, width: 393, height: 852)

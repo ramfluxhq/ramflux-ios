@@ -44,8 +44,11 @@ public struct NavigationEditorScreen: View {
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(theme.gap)
+                .padding(.horizontal, theme.gap)
+                .padding(.top, 12)
+                .padding(.bottom, theme.gap)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             HStack(spacing: theme.gap) {
                 KitButton(
                     copy("shell.nav.restore"),
@@ -58,10 +61,13 @@ public struct NavigationEditorScreen: View {
                 )
                 KitButton(copy("shell.nav.done"), action: onBack, tag: "shell-nav-done")
             }
-            .padding(theme.gap)
+            .padding(.horizontal, theme.gap)
+            .frame(maxWidth: .infinity)
+            .frame(height: 74)
             .background(theme.bg)
         }
-        .background(theme.bg)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(theme.bg.ignoresSafeArea())
         .shellHidesSystemBar()
         .accessibilityIdentifier("shell-navigation-editor")
     }

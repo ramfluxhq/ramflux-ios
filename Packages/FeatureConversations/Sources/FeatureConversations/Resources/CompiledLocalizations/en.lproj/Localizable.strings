@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>conversations.account.current</key>
+	<string>Current account</string>
 	<key>copy.04d7b4833927</key>
 	<string>Messages</string>
 	<key>copy.0d60084f056e</key>

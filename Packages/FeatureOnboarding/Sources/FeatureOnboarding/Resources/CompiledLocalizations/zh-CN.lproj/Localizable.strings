@@ -154,6 +154,22 @@
 	<string>运营方公钥</string>
 	<key>node.reviewFingerprint</key>
 	<string>核对指纹</string>
+	<key>onboarding.n01.create</key>
+	<string>创建账号</string>
+	<key>onboarding.n01.header</key>
+	<string>创建账号</string>
+	<key>onboarding.n01.name</key>
+	<string>显示名称</string>
+	<key>onboarding.n01.name.note</key>
+	<string>此名称用于新账号，之后可以修改。</string>
+	<key>onboarding.n01.node</key>
+	<string>节点</string>
+	<key>onboarding.n01.node.official</key>
+	<string>Ramflux 官方节点</string>
+	<key>onboarding.n01.node.selected</key>
+	<string>已选择的节点</string>
+	<key>onboarding.n01.phrase</key>
+	<string>恢复短语在这部手机上生成，并且只显示一次。请先准备好纸和笔。</string>
 	<key>recovery.word.position</key>
 	<string>第 %@ 个词</string>
 </dict>

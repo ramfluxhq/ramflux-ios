@@ -2,6 +2,12 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "conversations.account.current": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Current account" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "当前账号" } }
+      }
+    },
     "copy.04d7b4833927": {
       "localizations": {
         "en": {

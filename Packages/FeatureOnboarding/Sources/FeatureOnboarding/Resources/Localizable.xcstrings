@@ -2,6 +2,54 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "onboarding.n01.header": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create an account" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "创建账号" } }
+      }
+    },
+    "onboarding.n01.create": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Create the account" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "创建账号" } }
+      }
+    },
+    "onboarding.n01.name": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Display name" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "显示名称" } }
+      }
+    },
+    "onboarding.n01.name.note": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This name is shown for the new account. You can change it later." } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "此名称用于新账号，之后可以修改。" } }
+      }
+    },
+    "onboarding.n01.node": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Node" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "节点" } }
+      }
+    },
+    "onboarding.n01.node.official": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ramflux official node" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "Ramflux 官方节点" } }
+      }
+    },
+    "onboarding.n01.node.selected": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Selected node" } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "已选择的节点" } }
+      }
+    },
+    "onboarding.n01.phrase": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "The recovery phrase is created on this phone and shown only once. Have pen and paper ready." } },
+        "zh-CN": { "stringUnit": { "state": "translated", "value": "恢复短语在这部手机上生成，并且只显示一次。请先准备好纸和笔。" } }
+      }
+    },
     "copy.0234cae2e221": {
       "localizations": {
         "en": {

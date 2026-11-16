@@ -3,6 +3,10 @@
 import AppData
 public struct ConversationsState: Equatable, Sendable {
     public var accountID: String?
+    /// Display name shown under the title. Never the account id.
+    public var accountTitle = ""
+    public var strangersDetail = ""
+    public var strangersUnread: UInt?
     public var rows: [ConversationRecord] = []
     public var loading = false
     public var failure: AppFailure?
