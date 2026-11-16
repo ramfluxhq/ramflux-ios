@@ -228,7 +228,9 @@ final class ShellBoardCaptureTests: XCTestCase {
         controller.view.layoutIfNeeded()
         let settled = expectation(description: "layout")
         DispatchQueue.main.async { settled.fulfill() }
-        wait(for: [settled], timeout: 2)
+        // The full scheme renders every preview in this process first, so one
+        // turn of the main queue can take longer than a couple of seconds.
+        wait(for: [settled], timeout: 30)
         controller.view.layoutIfNeeded()
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
