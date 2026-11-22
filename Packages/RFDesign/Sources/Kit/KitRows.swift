@@ -169,7 +169,7 @@ public struct KitConversationRow<Avatar: View>: View {
             avatar
             VStack(alignment: .leading, spacing: KitMetrics.summaryGap) {
                 HStack(spacing: KitMetrics.bubbleGap) {
-                    KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                    KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
                     if muted { KitIcon(name: "bell-off", size: KitMetrics.metaIcon, tint: theme.secondary) }
                     Spacer(minLength: KitMetrics.bubbleGap)
                     if !time.isEmpty {
@@ -179,9 +179,9 @@ public struct KitConversationRow<Avatar: View>: View {
                 HStack(spacing: KitMetrics.bubbleGap) {
                     if read { KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: theme.secondary) }
                     if let sender, !sender.isEmpty {
-                        KitLabel(sender, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody)
+                        KitLabel(RFUntrustedText(sender, kind: .identity).text, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody)
                     }
-                    KitLabel(preview, size: theme.size_body, weight: .regular, color: theme.secondary, line: KitMetrics.lineBody)
+                    KitLabel(RFUntrustedText(preview, kind: .messageBody).text, size: theme.size_body, weight: .regular, color: theme.secondary, line: KitMetrics.lineBody)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let badge, !badge.isEmpty {
                         KitLabel(badge, size: theme.size_meta, weight: .semibold, color: theme.on_badge, line: KitMetrics.lineTitle)

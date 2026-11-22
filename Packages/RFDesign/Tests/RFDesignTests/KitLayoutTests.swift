@@ -235,6 +235,29 @@ struct KitLayoutTests {
         #expect(rtlTrailing > rtlLeading, "rtl knob \(rtlTrailing) track \(rtlLeading)")
     }
 
+    /// "1 22222222": in left-to-right order the gap between the groups is near the left edge.
+    /// Reversed group order would put it near the right edge. SwiftUI currently resolves a
+    /// digits-only paragraph left to right even without the isolate, so this guards the view;
+    /// BidiTests proves the isolate itself against a forced right-to-left paragraph.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func identifierGroupsStayLeftToRight(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 200, direction: direction) {
+            KitIdentifierText("1 22222222").fixedSize()
+        }
+        var inked: [Bool] = []
+        for x in 0..<200 {
+            var dark = false
+            for y in stride(from: 2, to: 20, by: 1) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { dark = true; break }
+            inked.append(dark)
+        }
+        guard let first = inked.firstIndex(of: true), let last = inked.lastIndex(of: true) else {
+            Issue.record("no ink")
+            return
+        }
+        let gap = (first...last).first { !inked[$0] && $0 > first } ?? last
+        #expect(CGFloat(gap - first) < CGFloat(last - first) * 0.3, "gap at \(gap) in \(first)...\(last) \(direction)")
+    }
+
     @Test func bundledWeightsSelectTheAxis() {
         for weight in [CGFloat(400), 500, 600, 700] {
             let font = kitCTFont(size: 17, weight: weight, role: .ui)

@@ -268,8 +268,11 @@ func kitBodyScale(_ typeSize: DynamicTypeSize) -> CGFloat {
     return points / 17
 }
 
-/// Letter-spacing breaks the joining of cursive scripts. It applies only to ASCII text (Latin identifiers).
-func kitTrackingAllowed(_ text: String) -> Bool { text.unicodeScalars.allSatisfy(\.isASCII) }
+/// Letter-spacing breaks the joining of cursive scripts. It applies only to ASCII text (Latin
+/// identifiers); invisible format characters such as directional isolates do not count.
+func kitTrackingAllowed(_ text: String) -> Bool {
+    text.unicodeScalars.allSatisfy { $0.isASCII || $0.properties.generalCategory == .format }
+}
 
 /// A single run of Kit text at a design size. The size follows Dynamic Type, the face follows the
 /// text's script, and lines grow to the face's natural height.

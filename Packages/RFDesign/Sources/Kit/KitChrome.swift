@@ -177,7 +177,7 @@ public struct KitChatHeader<Avatar: View>: View {
             KitIconHit(icon: "chevron-left", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.back"), tag: tag.map { $0 + "-back" }, action: onBack)
             avatar
             VStack(alignment: .leading, spacing: 0) {
-                KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
                 if let subtitle, !subtitle.isEmpty {
                     KitLabel(subtitle, size: theme.size_meta, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                 }

@@ -67,7 +67,7 @@ public struct KitBubble: View {
             if kind == .incoming && (!(sender ?? "").isEmpty || !(agentTag ?? "").isEmpty) {
                 HStack(spacing: KitMetrics.headerGap) {
                     if let sender, !sender.isEmpty {
-                        KitLabel(sender, size: theme.size_secondary, weight: .semibold, color: theme.text, line: KitMetrics.lineSecondary)
+                        KitLabel(RFUntrustedText(sender, kind: .identity).text, size: theme.size_secondary, weight: .semibold, color: theme.text, line: KitMetrics.lineSecondary)
                     }
                     if let agentTag, !agentTag.isEmpty {
                         KitLabel(agentTag, size: theme.size_mobile_caption, weight: .semibold, color: theme.secondary, line: KitMetrics.lineTitle, role: .latin)
@@ -129,7 +129,7 @@ public struct KitBubble: View {
                 .frame(width: KitMetrics.fileTile, height: KitMetrics.fileTile)
                 .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_md))
             VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                KitLabel(fileName ?? "", size: theme.size_body, weight: .medium, color: theme.text, line: KitMetrics.lineBody)
+                KitFileName(fileName ?? "")
                 HStack(spacing: KitMetrics.headerGap) {
                     if let fileMeta, !fileMeta.isEmpty {
                         KitLabel(fileMeta, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin, tracking: 1)

@@ -236,7 +236,7 @@ public struct KitMonoBlock: View {
     }
     public var body: some View {
         HStack(spacing: KitMetrics.bubbleGap) {
-            KitLabel(value, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody, role: .mono, lines: nil)
+            KitIdentifierText(value)
                 .frame(maxWidth: .infinity, alignment: .leading)
             KitIconHit(icon: "copy", size: KitMetrics.iconInfo, tint: theme.secondary, label: RFDesignStrings.text("kit.copy"), action: onCopy)
         }
@@ -256,7 +256,8 @@ public struct KitPairingCode: View {
     @Environment(\.rfTheme) private var theme
     public init(_ code: String, tag: String? = nil) { self.code = code; self.tag = tag }
     public var body: some View {
-        KitLabel(code, size: KitMetrics.pairingSize, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle, role: .mono, tracking: KitMetrics.pairingTrack)
+        KitIdentifierText(code, style: .code)
+            .padding(.horizontal, KitMetrics.gutter)
             .frame(maxWidth: .infinity, minHeight: KitMetrics.pairing)
             .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             .kitTag(tag)
