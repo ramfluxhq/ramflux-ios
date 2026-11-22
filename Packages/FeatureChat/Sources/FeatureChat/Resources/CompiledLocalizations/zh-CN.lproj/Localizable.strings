@@ -186,6 +186,8 @@
 	<string>正在加载更早的消息</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>以下为未读消息</string>
+	<key>chat.typing</key>
+	<string>正在输入…</string>
 	<key>common.action.refresh</key>
 	<string>刷新</string>
 	<key>common.action.reply</key>

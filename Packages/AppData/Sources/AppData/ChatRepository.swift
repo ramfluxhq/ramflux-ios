@@ -97,12 +97,16 @@ public protocol ChatRepository: Sendable {
     func forward(account: String, text: String, attachments: [AttachmentRecord], to conversation: String, groupID: String?, operationID: String) async -> RepositoryResult<[SendOutcome]>
     func mediaUsage(account: String) async -> MediaUsage
     func observe(account: String) async -> RepositoryObservation
+    /// Typing updates of peers in the conversation from `message.transient`; finishes at once
+    /// when no transient source is connected.
+    func typing(account: String, conversation: String) async -> AsyncStream<TypingEvent>
 }
 public struct NativeChatRepository: ChatRepository {
     private let sends = RetainedMutation<String, SendOutcome>()
     private let mutations = RetainedMutation<ChatMutationKey, Void>()
     private let queue: ChatOutbox
     private let background: any MediaBackgroundAssertion
+    private let transients: (any ChatTransientSource)?
     private let devices = OwnDeviceCache()
     private let media: ChatMediaEngine
     public func sendState(account: String, conversation: String) async -> PendingChatSend? {
@@ -115,12 +119,12 @@ public struct NativeChatRepository: ChatRepository {
     }
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
-    public init(client: RamfluxClient, updates: NativeUpdateSource) { self.init(client: client, updates: updates, mediaRoot: nil, vaultKeys: KeychainChatVaultKeys()) }
+    public init(client: RamfluxClient, updates: NativeUpdateSource, transients: (any ChatTransientSource)? = nil) { self.init(client: client, updates: updates, mediaRoot: nil, vaultKeys: KeychainChatVaultKeys(), transients: transients) }
     /// Without `vaultKeys` unsent state stays in process memory (tests).
-    init(client: RamfluxClient, updates: NativeUpdateSource, mediaRoot: URL?, vaultRoot: URL? = nil, vaultKeys: (any ChatVaultKeys)? = nil, background: any MediaBackgroundAssertion = MediaBackgroundTransfer.system,
+    init(client: RamfluxClient, updates: NativeUpdateSource, mediaRoot: URL?, vaultRoot: URL? = nil, vaultKeys: (any ChatVaultKeys)? = nil, background: any MediaBackgroundAssertion = MediaBackgroundTransfer.system, transients: (any ChatTransientSource)? = nil,
          pause: @escaping @Sendable (Int) async throws -> Void = { try await Task.sleep(for: .milliseconds($0)) }) {
         let gateway = ProxyGateway(proxy: SDKProxy(client: client))
-        self.gateway = gateway; self.updates = updates; self.background = background
+        self.gateway = gateway; self.updates = updates; self.background = background; self.transients = transients
         let store = MediaStore(base: mediaRoot)
         media = ChatMediaEngine(gateway: gateway, store: store, pause: pause)
         queue = ChatOutbox(vault: vaultKeys.map { ChatVault(base: vaultRoot, keys: $0, outbox: { store.outbox($0) }) })
@@ -357,6 +361,19 @@ public struct NativeChatRepository: ChatRepository {
         await mutate(.conversationDelete, account: account, conversation: conversation, message: message, operationID: operationID, text: nil, extra: ["scope": .string(scope.rawValue)], states: ["submitted", "local"])
     }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
+    public func typing(account: String, conversation: String) async -> AsyncStream<TypingEvent> {
+        guard let transients else { return AsyncStream { $0.finish() } }
+        let frames = await transients.transients(account: account)
+        return AsyncStream(bufferingPolicy: .bufferingNewest(8)) { continuation in
+            let task = Task {
+                for await body in frames {
+                    if let event = TypingEvent.parse(body), event.conversationID == conversation { continuation.yield(event) }
+                }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
 
     private func mutate(_ operation: SDKOperation, account: String, conversation: String, message: String, operationID: String, text: String?, extra: [String: JSONValue], states: Set<String>) async -> RepositoryResult<Void> {
         guard Self.identity(conversation), Self.identity(message), Self.identity(operationID) else { return .failure(.invalidInput) }
@@ -449,6 +466,7 @@ public extension ChatRepository {
     func resumeAfterUnlock(account: String) async -> [SendOutcome] { [] }
     func sealForLock(account: String) async {}
     func purgeAccount(account: String) async {}
+    func typing(account: String, conversation: String) async -> AsyncStream<TypingEvent> { AsyncStream { $0.finish() } }
     func shareCopy(account: String, file: URL, name: String) async -> URL? { nil }
     func removeShareCopy(account: String) async {}
     func forward(account: String, text: String, attachments: [AttachmentRecord], to conversation: String, groupID: String?, operationID: String) async -> RepositoryResult<[SendOutcome]> { .failure(unavailable(.attachmentTransfer)) }

@@ -23,6 +23,9 @@ import AppData
     @ObservationIgnored private var outboxTask: Task<Void, Never>?
     @ObservationIgnored private var detailsTask: Task<Void, Never>?
     @ObservationIgnored var galleryTask: Task<Void, Never>?
+    @ObservationIgnored var typingTask: Task<Void, Never>?
+    @ObservationIgnored var typingExpiry: Task<Void, Never>?
+    @ObservationIgnored var typingPeers: [String: Int64] = [:]
     @ObservationIgnored var galleryCursor: MessageCursor?
     @ObservationIgnored private var sideTasks: [Task<Void, Never>] = []
     @ObservationIgnored var epoch: UInt64 = 0
@@ -42,7 +45,7 @@ import AppData
     public func send(_ action: ChatAction) {
         switch action {
         case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
-        case .appeared: restoreDraft(); reload(); observe()
+        case .appeared: restoreDraft(); reload(); observe(); followTyping()
         case .refresh: reload(); observe()
         case .loadOlder: loadOlder()
         case .jumpToLatest: reload()
@@ -103,7 +106,7 @@ import AppData
             state.composer = nil; state.reactionTarget = nil; state.reactionRemove = false; state.held = nil; state.actionTarget = nil; state.details = nil
             state.olderAvailable = false; state.detached = false
             // Concealed UI keeps no message text; the draft stays in the repository's memory store.
-            stopMedia(conceal: action == .conceal)
+            stopMedia(conceal: action == .conceal); stopTyping()
             if action == .conceal { state.draft = "" }
         }
     }

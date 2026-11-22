@@ -141,6 +141,12 @@ actor ChatFake: ChatRepository {
     func revokeMedia(account: String, message: String) -> RepositoryResult<Void> { revokes.append(message); return .success(()) }
     func draft(account: String, conversation: String) async -> String { await queue.draft(account, conversation) }
     func saveDraft(account: String, conversation: String, text: String) async { await queue.saveDraft(account, conversation, text: text) }
+    private var typingFeeds: [AsyncStream<TypingEvent>.Continuation] = []
+    func typing(account: String, conversation: String) -> AsyncStream<TypingEvent> {
+        let pair = AsyncStream<TypingEvent>.makeStream(); typingFeeds.append(pair.continuation); return pair.stream
+    }
+    func emitTyping(_ event: TypingEvent) { for feed in typingFeeds { feed.yield(event) } }
+    var typingSubscribers: Int { typingFeeds.count }
     private var listeners: [AsyncStream<RepositoryUpdate>.Continuation] = []
     func observe(account: String) -> RepositoryObservation {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))

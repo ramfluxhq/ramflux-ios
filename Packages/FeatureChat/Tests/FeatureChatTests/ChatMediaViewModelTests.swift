@@ -5,6 +5,7 @@ import Foundation
 import ImageIO
 import CoreGraphics
 import UniformTypeIdentifiers
+import Synchronization
 @testable import AppData
 @testable import FeatureChat
 
@@ -300,5 +301,25 @@ private func tinyPNG() throws -> URL {
         storage.send(.clearConfirmed); await storage.settle(); #expect(storage.state.usage?.originals == 4_096)
         storage.send(.clearRequested); storage.send(.clearConfirmed); await storage.settle()
         #expect(storage.state.usage == MediaUsage(originals: 0, outbox: 10))
+    }
+
+    @Test func peersTypingShowsUntilStopOrExpiryAndOwnDevicesAreIgnored() async throws {
+        let mine = MessageRecord(id: "o", sender: "me", kind: .text("hi"), isOwn: true, timestamp: 1, authorAnchor: "me-anchor", order: MessageOrder(milliseconds: 1))
+        let fake = ChatFake(history: [mine])
+        let clock = Mutex(Date(timeIntervalSince1970: 1_000))
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", now: { clock.withLock { $0 } }, emit: { _ in })
+        model.send(.appeared); await model.settle()
+        for _ in 0..<100 where await fake.typingSubscribers == 0 { try await Task.sleep(for: .milliseconds(5)) }
+        await fake.emitTyping(TypingEvent(conversationID: "c", author: "me-anchor", active: true, expiresAt: 1_010))
+        try await Task.sleep(for: .milliseconds(20)); #expect(!model.state.peerTyping)
+        await fake.emitTyping(TypingEvent(conversationID: "c", author: "peer", active: true, expiresAt: 1_010))
+        try await settleMedia(model, fake) { model.state.peerTyping }
+        #expect(model.state.peerTyping)
+        await fake.emitTyping(TypingEvent(conversationID: "c", author: "peer", active: false, expiresAt: 1_010))
+        try await settleMedia(model, fake) { !model.state.peerTyping }
+        #expect(!model.state.peerTyping)
+        await fake.emitTyping(TypingEvent(conversationID: "c", author: "peer", active: true, expiresAt: 999))
+        try await Task.sleep(for: .milliseconds(20)); #expect(!model.state.peerTyping)
+        model.send(.disappeared); #expect(!model.state.peerTyping)
     }
 }

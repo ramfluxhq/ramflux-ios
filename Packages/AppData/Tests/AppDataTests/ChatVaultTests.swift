@@ -234,3 +234,40 @@ final class RecordingAssertion: MediaBackgroundAssertion {
         #expect(assertion.log.withLock { $0 } == ["ramflux.media.upload", "end", "ramflux.media.download", "end"])
     }
 }
+
+/// A stand-in for the shared event source's `message.transient` feed.
+final class FakeTransients: ChatTransientSource {
+    let bodies: [JSONValue]
+    init(_ bodies: [JSONValue]) { self.bodies = bodies }
+    func transients(account: String) async -> AsyncStream<JSONValue> {
+        AsyncStream { continuation in for body in bodies { continuation.yield(body) }; continuation.finish() }
+    }
+}
+
+@Suite struct ChatTypingTests {
+    static func body(conversation: String, author: String, active: Bool, expires: String = "1767258010", group: Bool = false) -> JSONValue {
+        var identity: [String: JSONValue] = ["id": .string("aWQ"), "conversationId": .string(conversation), "author": .object(["accountAnchor": .string(author), "deviceId": .string("d"), "deviceEpoch": .string("1")])]
+        if group { identity["groupId"] = .string("g") }
+        var typing: [String: JSONValue] = ["expiresAt": .string(expires)]
+        if active { typing["active"] = .bool(true) }
+        return .object(["accountId": .string("a"), "identity": .object(identity), "content": .object(["typing": .object(typing)])])
+    }
+
+    @Test func transientTypingBodiesAreParsedAndFilteredByConversation() async {
+        #expect(TypingEvent.parse(Self.body(conversation: "c", author: "peer", active: true)) == TypingEvent(conversationID: "c", author: "peer", active: true, expiresAt: 1_767_258_010))
+        #expect(TypingEvent.parse(Self.body(conversation: "c", author: "peer", active: false))?.active == false)
+        #expect(TypingEvent.parse(Self.body(conversation: "c", author: "peer", active: true, group: true)) == nil)
+        #expect(TypingEvent.parse(Self.body(conversation: "c", author: "peer", active: true, expires: "0")) == nil)
+        #expect(TypingEvent.parse(.object(["content": .object(["text": .string("x")])])) == nil)
+        let source = FakeTransients([Self.body(conversation: "other", author: "x", active: true), Self.body(conversation: "c", author: "peer", active: true), .object([:])])
+        let transport = ProxyTransport { _ in .null }
+        let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: nil, transients: source, pause: { _ in })
+        var events: [TypingEvent] = []
+        for await event in await repo.typing(account: "a", conversation: "c") { events.append(event) }
+        #expect(events.map(\.author) == ["peer"])
+        let silent = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: nil, pause: { _ in })
+        var none = 0
+        for await _ in await silent.typing(account: "a", conversation: "c") { none += 1 }
+        #expect(none == 0)
+    }
+}

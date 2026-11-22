@@ -71,6 +71,8 @@ public struct ChatState: Equatable, Sendable {
     /// True when the window dropped newer rows while paging back; "Jump to latest" reloads.
     public var detached = false
     public var draft = ""
+    /// A peer is typing (from `message.transient`).
+    public var peerTyping = false
     public var loading = false
     public var sending = false
     /// The last flush could not reach the account service; queued sends wait for it.

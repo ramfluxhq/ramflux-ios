@@ -186,6 +186,8 @@
 	<string>Loading earlier messages</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>Unread messages below</string>
+	<key>chat.typing</key>
+	<string>Typing…</string>
 	<key>common.action.refresh</key>
 	<string>Refresh</string>
 	<key>common.action.reply</key>

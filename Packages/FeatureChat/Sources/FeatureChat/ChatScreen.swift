@@ -36,6 +36,7 @@ public struct ChatScreen: View {
                         .rfFont(.caption).padding(theme.gap).background(theme.surface, in: Capsule()).padding(theme.gap)
                 }
             }
+            if state.peerTyping { Text(FeatureChatStrings.text("chat.typing", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, KitMetrics.gutter) }
             if state.staging { ProgressView(FeatureChatStrings.text("chat.media.preparing", locale: locale)).rfFont(.caption).padding(.horizontal, KitMetrics.gutter) }
             if state.held != nil && !state.sending { Button(FeatureChatStrings.text("chat.send.retry", locale: locale)) { onAction(.retrySameSend) } }
             KitComposer(

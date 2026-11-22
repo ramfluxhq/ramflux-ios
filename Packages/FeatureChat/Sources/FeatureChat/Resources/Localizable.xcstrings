@@ -1736,6 +1736,23 @@
           }
         }
       }
+    },
+    "chat.typing": {
+      "comment": "Line above the composer while the other person is typing.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typing…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在输入…"
+          }
+        }
+      }
     }
   }
 }
