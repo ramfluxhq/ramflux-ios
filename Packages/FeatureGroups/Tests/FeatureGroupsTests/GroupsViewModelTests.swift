@@ -75,8 +75,8 @@ private actor GroupsFake: GroupsRepository {
         vm.send(.confirm(selected.id)); await vm.settle()
         #expect(await fake.attempts.count == 1); #expect(vm.state.outcome?.waitingForOwner == true)
         #expect(vm.state.detail?.roster.first(where: { $0.root == "root-peer" })?.role == "member")
-        vm.send(.filter("missing")); #expect(vm.state.visibleGroups.isEmpty)
-        vm.send(.filter("Research")); #expect(vm.state.visibleGroups.map(\.id) == ["g"])
+        vm.send(.filter("missing")); await vm.settle(); #expect(vm.state.visibleGroups.isEmpty)
+        vm.send(.filter("Research")); await vm.settle(); #expect(vm.state.visibleGroups.map(\.id) == ["g"])
         vm.send(.mode(.detail("unknown"))); #expect(vm.state.mode == .members("g")); vm.send(.disappeared)
     }
     @Test func cancelledWaiterAndCoordinatorReplacementKeepOriginalMutationIdentity() async {

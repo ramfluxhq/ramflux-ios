@@ -4,6 +4,8 @@ import Foundation
 import RamfluxCore
 public protocol GroupsRepository: Sendable {
     func list(account: String) async -> RepositoryResult<[GroupRecord]>
+    /// One page of groups whose name or id contains `query` (empty matches all).
+    func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>>
     func conversation(account: String, group: String) async -> RepositoryResult<String>
     func detail(account: String, group: String) async -> RepositoryResult<GroupDetail>
     func invitations(account: String) async -> RepositoryResult<[GroupInvitation]>
@@ -18,7 +20,13 @@ public struct NativeGroupsRepository: GroupsRepository {
     private let updates: NativeUpdateSource
     private let creationPins = GroupCreationPins()
     private let mutations = RetainedMutation<GroupMutation, GroupMutationOutcome>()
+    /// `group.list` is unpaged in the SDK; this pages its snapshot.
+    private let pager = SnapshotPager<GroupRecord>()
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
+    public func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>> {
+        let query = String(query.prefix(256))
+        return await pager.page(cursor: cursor, limit: limit, read: { await self.list(account: account) }, include: { GroupRecord.matches($0, query) })
+    }
     public func list(account: String) async -> RepositoryResult<[GroupRecord]> {
         do {
             let rows = try ProxyGateway.rows(await gateway.call(.groupList, account: account), "groups").map(Self.record)
@@ -157,4 +165,21 @@ public struct UnavailableGroupsRepository: GroupsRepository {
     public func mutate(account: String, mutation: GroupMutation, operationID: String) async -> RepositoryResult<GroupMutationOutcome> { .failure(.sdkUnavailable) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: GroupUnavailable) -> AppFailure { NativeGroupsRepository.refusal(capability) }
+}
+
+public extension GroupsRepository {
+    /// Stateless fallback for repositories without a pager: re-reads the list and pages it by offset.
+    func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>> {
+        switch await list(account: account) {
+        case .failure(let failure): return .failure(failure)
+        case .success(let rows):
+            let matching = rows.filter { GroupRecord.matches($0, query) }
+            let start = min(cursor.flatMap(Int.init) ?? 0, matching.count), end = min(start + max(1, limit), matching.count)
+            return .success(RowPage(rows: Array(matching[start..<end]), nextCursor: end < matching.count ? String(end) : nil))
+        }
+    }
+}
+public extension GroupRecord {
+    /// Case-insensitive match of the name (or the id of an unnamed group); an empty query matches every group.
+    static func matches(_ group: GroupRecord, _ query: String) -> Bool { query.isEmpty || (group.name ?? group.id).localizedCaseInsensitiveContains(query) }
 }

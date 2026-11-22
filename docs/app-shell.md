@@ -118,6 +118,11 @@ block, unblock and remove (`contact.block`, `contact.unblock`, `contact.remove` 
 selected by `link_id`) behind host-drawn confirmation. Marking a safety number verified reads
 `contact.verification.status` and passes its `expected` snapshot to `contact.verify`, a
 compare-and-set, so a number that changed after the user compared it is not recorded as verified.
+The group list reads `group.list` through the same snapshot pager and window, filtered in the data
+layer. `group.members` returns the whole roster in one response, so the members screen renders a
+growing window of projected rows (50 more per scroll step) over the roster held by the detail; the
+add-member picker pages contacts through `contactsPage`. The SDK has no `group.leave`: a non-owner's
+`group.member.remove` is staged as a change request to the owner, so leaving stays unavailable.
 Local search, phone pairing, attachment transfer, replying to a stranger without accepting,
 stranger reporting and batch request actions are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published

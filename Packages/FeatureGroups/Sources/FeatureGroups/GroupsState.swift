@@ -12,6 +12,9 @@ public struct GroupsState: Equatable, Sendable {
     public var detail: GroupDetail?
     public var requests: [GroupRequestRecord] = []
     public var contacts: [ContactRecord] = []
+    public var canLoadMore = false
+    public var canLoadMoreMembers = false
+    public var canLoadMoreContacts = false
     public var query = ""
     public var name = ""
     public var loading = false

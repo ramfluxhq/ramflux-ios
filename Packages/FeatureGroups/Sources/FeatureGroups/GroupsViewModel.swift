@@ -17,6 +17,9 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
+    @ObservationIgnored private var groupWindow = RowWindow<GroupRecord>()
+    @ObservationIgnored private var memberWindow = RowWindow<GroupMemberRow>()
+    @ObservationIgnored private var contactWindow = RowWindow<ContactRecord>()
     public init(repository: any GroupsRepository, contacts: any ContactsRepository, account: String, state: GroupsState = GroupsState(), emit: @escaping (GroupsEvent) -> Void) { self.repository = repository; self.contacts = contacts; self.account = account; var initial = state; initial.accountID = account; self.state = initial; self.emit = emit }
     public func send(_ action: GroupsAction) {
         switch action {
@@ -29,12 +32,16 @@ import AppData
                 switch result { case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, title: row.name))); case .failure(let failure): self.state.failure = failure }
             }
         case .appeared, .refresh: refresh(); observe()
-        case .filter(let query): state.query = String(query.prefix(256)); projectRows()
+        case .filter(let query):
+            let value = String(query.prefix(256)); guard value != state.query else { return }
+            state.query = value; reloadGroups()
+        case .loadMore: loadMore(contacts: false)
+        case .loadMoreContacts: loadMore(contacts: true)
         case .name(let value): if value.utf8.count <= 512 { state.name = value }
         case .mode(let mode):
             guard !state.busy else { return }
             switch mode {
-            case .detail(let id), .members(let id), .requests(let id), .created(let id): guard state.groups.contains(where: { $0.id == id }) else { return }
+            case .detail(let id), .members(let id), .requests(let id), .created(let id): guard state.groups.contains(where: { $0.id == id }) || state.detail?.group.id == id else { return }
             case .invitation(let id): guard state.invitations.contains(where: { $0.id == id }) else { return }
             default: break
             }
@@ -68,6 +75,7 @@ import AppData
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); navigation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
+            groupWindow = RowWindow(); memberWindow = RowWindow(); contactWindow = RowWindow()
             state = GroupsState()
         }
     }
@@ -111,30 +119,79 @@ import AppData
         guard !state.busy else { pendingRefresh = true; return }
         state.accountID = account; readID &+= 1; let id = readID, mode = state.mode; read?.cancel(); state.loading = true; state.authorityFresh = false; state.confirmation = nil; projectRows()
         let selected: String? = switch mode { case .detail(let id), .members(let id), .requests(let id), .created(let id): id; default: nil }
+        let query = state.query
         read = Task { [weak self, repository, contacts, account] in
             let pending = await repository.pending(account: account)
-            let groups = await repository.list(account: account), invitations = await repository.invitations(account: account)
+            let groups = await RowWindow.first({ cursor, limit in await repository.page(account: account, query: query, cursor: cursor, limit: limit) })
+            let invitations = await repository.invitations(account: account)
             let detail: RepositoryResult<GroupDetail>? = if let selected { await repository.detail(account: account, group: selected) } else { nil }
             let requests: RepositoryResult<[GroupRequestRecord]>? = if let selected { await repository.requests(account: account, group: selected) } else { nil }
-            let people: RepositoryResult<[ContactRecord]>? = if case .members = mode { await contacts.contacts(account: account) } else { nil }
+            let people: RepositoryResult<RowWindow<ContactRecord>>? = if case .members = mode { await RowWindow.first({ cursor, limit in await contacts.contactsPage(account: account, query: "", cursor: cursor, limit: limit) }) } else { nil }
             guard !Task.isCancelled, let self, self.readID == id else { return }
             self.state.loading = false; self.state.pending = pending
-            switch groups { case .success(let rows): self.state.groups = rows; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.groups = [] } }
+            switch groups { case .success(let window): self.groupWindow = window; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.groupWindow = RowWindow() } }
             switch invitations { case .success(let rows): self.state.invitations = rows; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.invitations = [] } }
             if let detail { switch detail { case .success(let value): self.state.detail = value; self.state.authorityFresh = true
                 case .failure(let failure): self.state.detail = nil; self.state.failure = failure; if failure == .locked { self.state.mode = .accessChanged } } }
             if let requests { switch requests { case .success(let rows): self.state.requests = rows; case .failure(let failure): self.state.failure = failure; self.state.requests = [] } }
-            if let people { switch people { case .success(let rows): self.state.contacts = rows; case .failure(let failure): self.state.contacts = []; self.state.failure = failure } }
+            if let people { switch people { case .success(let window): self.contactWindow = window; case .failure(let failure): self.contactWindow = RowWindow(); self.state.failure = failure } }
             self.projectRows()
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }
     }
+    /// Re-reads only the group window (a filter change); the detail and the other lists stay.
+    private func reloadGroups() {
+        guard !state.busy else { return }
+        readID &+= 1; let id = readID, query = state.query; read?.cancel(); state.loading = true
+        read = Task { [weak self, repository, account] in
+            let groups = await RowWindow.first({ cursor, limit in await repository.page(account: account, query: query, cursor: cursor, limit: limit) })
+            guard !Task.isCancelled, let self, self.readID == id else { return }
+            self.state.loading = false
+            switch groups { case .success(let window): self.groupWindow = window; case .failure(let failure): self.state.failure = failure }
+            self.projectRows()
+            if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
+        }
+    }
+    private func loadMore(contacts loadContacts: Bool) {
+        guard !state.loading, !state.busy else { return }
+        let query = state.query, mode = state.mode, groups = groupWindow, people = contactWindow
+        switch mode {
+        case .list: guard groups.canLoadAfter else { return }
+        case .members: guard loadContacts ? people.canLoadAfter : memberWindow.canLoadAfter else { return }
+        default: return
+        }
+        if case .members = mode, !loadContacts { memberWindow = Self.memberWindow(state.detail, canManage: state.canManage, holding: memberWindow.count + memberWindow.pageSize); projectRows(); return }
+        readID &+= 1; let id = readID
+        read = Task { [weak self, repository, contacts, account] in
+            if mode == .list {
+                let next = await groups.after { cursor, limit in await repository.page(account: account, query: query, cursor: cursor, limit: limit) }
+                guard !Task.isCancelled, let self, self.readID == id else { return }
+                switch next { case .success(let window): self.groupWindow = window; case .failure(let failure): if failure == .resyncRequired { self.refresh(); return }; self.state.failure = failure }
+            } else {
+                let next = await people.after { cursor, limit in await contacts.contactsPage(account: account, query: "", cursor: cursor, limit: limit) }
+                guard !Task.isCancelled, let self, self.readID == id else { return }
+                switch next { case .success(let window): self.contactWindow = window; case .failure(let failure): if failure == .resyncRequired { self.refresh(); return }; self.state.failure = failure }
+            }
+            self?.projectRows()
+        }
+    }
+    /// The roster arrives whole in one `group.members` response (the SDK does not page it); the screen
+    /// renders a growing window of its projected rows, `holding` rows at most.
+    nonisolated static func memberWindow(_ detail: GroupDetail?, canManage: Bool, holding: Int) -> RowWindow<GroupMemberRow> {
+        guard let detail else { return RowWindow() }
+        let count = min(max(holding, RowWindow<GroupMemberRow>.defaultPageSize), detail.roster.count)
+        let rows = detail.roster.prefix(count).map { member in
+            GroupMemberRow(member: member, canManage: canManage && member.isActive && member.root != nil && member.role != "owner" && !(member.root == detail.ownRoot && member.device == detail.ownDevice))
+        }
+        return RowWindow(rows: rows, hasMore: count < detail.roster.count, maxRows: max(count, RowWindow<GroupMemberRow>.defaultMaxRows))
+    }
+    /// Copies the held windows into the state. The group filter runs in the data layer; only the held
+    /// window (at most a few hundred rows) is touched here.
     private func projectRows() {
-        state.visibleGroups = state.groups.filter { state.query.isEmpty || ($0.name ?? $0.id).localizedCaseInsensitiveContains(state.query) }
-        state.eligibleContacts = state.contacts.filter { $0.rootCommitment?.isEmpty == false }
-        state.memberRows = state.detail.map { detail in detail.roster.map { member in
-            GroupMemberRow(member: member, canManage: state.canManage && member.isActive && member.root != nil && member.role != "owner" && !(member.root == detail.ownRoot && member.device == detail.ownDevice))
-        } } ?? []
+        state.groups = groupWindow.rows; state.visibleGroups = state.groups; state.canLoadMore = groupWindow.canLoadAfter
+        state.contacts = contactWindow.rows; state.eligibleContacts = state.contacts.filter { $0.rootCommitment?.isEmpty == false }; state.canLoadMoreContacts = contactWindow.canLoadAfter
+        memberWindow = Self.memberWindow(state.detail, canManage: state.canManage, holding: memberWindow.count)
+        state.memberRows = memberWindow.rows; state.canLoadMoreMembers = memberWindow.canLoadAfter
     }
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let id = watchID

@@ -35,6 +35,12 @@ public struct RowWindow<Row: Identifiable & Sendable & Equatable>: Sendable, Equ
     public init(pageSize: Int = Self.defaultPageSize, maxRows: Int = Self.defaultMaxRows) {
         self.pageSize = max(1, pageSize); self.maxRows = max(self.pageSize * 2, maxRows)
     }
+    /// A window over rows already in memory (a list the SDK returns whole): one page, and whether more
+    /// rows exist beyond it. `after` and `before` leave it unchanged; the owner rebuilds it to grow it.
+    public init(rows: [Row], hasMore: Bool, maxRows: Int = Self.defaultMaxRows) {
+        self.init(pageSize: Self.defaultPageSize, maxRows: maxRows)
+        starts = [nil]; pages = [rows]; reachedEnd = !hasMore
+    }
     public var rows: [Row] { pages.flatMap { $0 } }
     public var isEmpty: Bool { pages.allSatisfy(\.isEmpty) }
     public var count: Int { pages.reduce(0) { $0 + $1.count } }
