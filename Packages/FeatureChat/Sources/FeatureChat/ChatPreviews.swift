@@ -37,7 +37,7 @@ public enum ChatPreviews {
         var state = ChatState(messages: [photo("p6", name: "Quarterly report.pdf", mime: "application/pdf"), photo("p5", own: true), photo("p4"), photo("p3", ratio: (3, 4)), photo("p2", ratio: (16, 9)), photo("p1")])
         state.conversationID = "preview-media"; state.displayTitle = "Alex"
         state.media = ["p1#0": .idle, "p2#0": .downloading, "p3#0": .blockedByPolicy, "p4#0": .expired, "p5#0": .removed, "p6#0": .idle]
-        state.mediaSend = MediaSendState(operationID: "s", items: [], failure: .typedRefusal("recipient_limit"))
+        state.outbox = [OutboxEntry(operationID: "s", text: "", created: 1_767_258_000, state: .failed(.typedRefusal("recipient_limit")), media: [MediaUpload(file: URL(fileURLWithPath: "/dev/null"), fileName: "IMG_20260101_101600.jpg", mime: "image/jpeg")])]
         return state
     }()
 

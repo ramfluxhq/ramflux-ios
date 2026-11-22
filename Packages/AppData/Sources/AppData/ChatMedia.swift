@@ -86,3 +86,16 @@ enum MediaRefusal {
         }
     }
 }
+
+/// File names for sending and sharing: control and directional characters and path separators
+/// removed, no leading dot, at most 255 bytes, never empty.
+public enum MediaFileName {
+    public static func sanitized(_ name: String) -> String {
+        var clean = String(String.UnicodeScalarView(name.unicodeScalars.filter {
+            !CharacterSet.controlCharacters.contains($0) && !(0x202A...0x202E).contains($0.value) && !(0x2066...0x2069).contains($0.value) && $0 != "/" && $0 != "\\" && $0 != ":"
+        }))
+        while clean.hasPrefix(".") { clean.removeFirst() }
+        while clean.utf8.count > 255 { clean.removeFirst() }
+        return clean.isEmpty ? "file" : clean
+    }
+}

@@ -79,7 +79,7 @@ import AppData
             state.pendingDelete = PendingMessageDelete(messageID: id, scope: scope)
         case .cancelDelete: state.pendingDelete = nil
         case .confirmDelete: confirmDelete()
-        case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .retryMediaSend, .discardMediaSend, .permissionResolved, .photoSaved:
+        case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo:
             handleMedia(action)
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil
@@ -161,7 +161,7 @@ import AppData
             await self.mirrorOutbox(admitted)
         }
     }
-    private func mirrorOutbox(_ admitted: [SendOutcome]) async {
+    func mirrorOutbox(_ admitted: [SendOutcome]) async {
         let current = epoch
         let entries = await repository.outbox(account: account, conversation: conversation)
         guard epoch == current else { return }
@@ -181,7 +181,7 @@ import AppData
         case .reaction(let operationID, let messageID, let token, let remove):
             runHeld { [repository, account, conversation] in await repository.react(account: account, conversation: conversation, message: messageID, token: token, remove: remove, operationID: operationID) }
         case .deletion(let operationID, let messageID, let scope):
-            runHeld { [repository, account, conversation] in await repository.delete(account: account, conversation: conversation, message: messageID, scope: scope, operationID: operationID) }
+            runDeletion(operationID: operationID, messageID: messageID, scope: scope)
         }
     }
     private func react(_ token: String, remove: Bool) {
@@ -198,10 +198,15 @@ import AppData
         state.held = .deletion(operationID: operationID, messageID: pending.messageID, scope: pending.scope)
         // Erase for everyone also retires the attachment grants on the relay until the SDK does
         // it itself (request R7); a failed revoke leaves the grants to expire after 24 hours.
-        let revoke = pending.scope == .everyone && state.messages.contains { $0.id == pending.messageID && !$0.attachments.isEmpty }
+        runDeletion(operationID: operationID, messageID: pending.messageID, scope: pending.scope)
+    }
+    /// Erase for everyone of a message with media also revokes its grants, on the first attempt
+    /// and on every retry; a revoke that fails is kept by the repository and retried later.
+    private func runDeletion(operationID: String, messageID: String, scope: MessageDeleteScope) {
+        let revoke = scope == .everyone && state.messages.contains { $0.id == messageID && !$0.attachments.isEmpty }
         runHeld { [repository, account, conversation] in
-            let result = await repository.delete(account: account, conversation: conversation, message: pending.messageID, scope: pending.scope, operationID: operationID)
-            if case .success = result, revoke { _ = await repository.revokeMedia(account: account, message: pending.messageID) }
+            let result = await repository.delete(account: account, conversation: conversation, message: messageID, scope: scope, operationID: operationID)
+            if case .success = result, revoke { _ = await repository.revokeMedia(account: account, message: messageID) }
             return result
         }
     }

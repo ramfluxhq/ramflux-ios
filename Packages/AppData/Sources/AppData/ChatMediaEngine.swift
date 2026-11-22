@@ -16,6 +16,8 @@ struct MediaStore: Sendable {
     func accountRoot(_ account: String) -> URL { base.appendingPathComponent(Self.hash(account), isDirectory: true) }
     func originals(_ account: String) -> URL { accountRoot(account).appendingPathComponent("originals", isDirectory: true) }
     func outbox(_ account: String) -> URL { accountRoot(account).appendingPathComponent("outbox", isDirectory: true) }
+    /// Transient copies for the share sheet, removed when the sheet closes.
+    func share(_ account: String) -> URL { accountRoot(account).appendingPathComponent("share", isDirectory: true) }
     func file(_ account: String, message: String, index: Int) -> URL {
         originals(account).appendingPathComponent(Self.hash(MessagePage.normalizeIdentifier(message)) + "-" + String(index))
     }
@@ -96,6 +98,8 @@ actor ChatMediaEngine {
     }
 
     func cancel(_ account: String, _ attachment: AttachmentRecord) { imports[key(account, attachment)]?.cancel() }
+    /// Cancels every running import of the account (account purge).
+    func cancelAll(_ account: String) { for (key, task) in imports where key.hasPrefix(account + "\u{0}") { task.cancel() } }
 
     private func runImport(_ account: String, _ attachment: AttachmentRecord) async -> MediaTransferState {
         await acquire(); defer { release() }
@@ -184,6 +188,9 @@ actor ChatMediaEngine {
         guard let generation = MessagePage.unsigned(begun["generation"]) else { throw AppFailure.invalidData }
         // A retry whose bytes the SDK already holds streams nothing again.
         guard begun["state"] == .string("accepting") else { return prepareID }
+        // A resumed prepare (after a crash or relaunch) continues after the bytes the SDK has
+        // accepted; those are only hashed again, because the digest covers the whole file.
+        let accepted = MessagePage.unsigned(begun["accepted_through"]) ?? 0
         let handle = try FileHandle(forReadingFrom: item.file)
         defer { try? handle.close() }
         var digest = MediaDigest()
@@ -191,10 +198,15 @@ actor ChatMediaEngine {
         while let data = try handle.read(upToCount: Self.chunk), !data.isEmpty {
             try Task.checkCancellation()
             digest.update(data)
-            _ = try await gateway.call(.attachmentPrepareChunk, account: account, body: .object([
-                "prepare_id": .string(prepareID), "generation": .unsigned(generation), "offset": .unsigned(offset), "data_base64": .string(data.base64EncodedString()),
-            ]), operationID: operationID + ":c" + String(offset))
-            offset += UInt64(data.count)
+            let end = offset + UInt64(data.count)
+            if end > accepted {
+                let skip = Int(accepted > offset ? accepted - offset : 0)
+                let start = offset + UInt64(skip)
+                _ = try await gateway.call(.attachmentPrepareChunk, account: account, body: .object([
+                    "prepare_id": .string(prepareID), "generation": .unsigned(generation), "offset": .unsigned(start), "data_base64": .string(data.dropFirst(skip).base64EncodedString()),
+                ]), operationID: operationID + ":c" + String(start))
+            }
+            offset = end
         }
         _ = try await gateway.call(.attachmentPrepareFinish, account: account, body: .object([
             "prepare_id": .string(prepareID), "generation": .unsigned(generation), "plaintext_length": .unsigned(offset), "plaintext_digest": .string(digest.hex()),

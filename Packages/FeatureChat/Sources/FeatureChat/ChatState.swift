@@ -33,13 +33,6 @@ public struct PickedMedia: Equatable, Sendable {
     public let name: String
     public init(url: URL, kind: Kind, name: String) { self.url = url; self.kind = kind; self.name = name }
 }
-/// An attachment send in progress or failed; a retry reuses the operation and staged files.
-public struct MediaSendState: Equatable, Sendable {
-    public let operationID: String
-    public let items: [MediaUpload]
-    public var failure: AppFailure?
-    public init(operationID: String, items: [MediaUpload], failure: AppFailure? = nil) { self.operationID = operationID; self.items = items; self.failure = failure }
-}
 /// What the full-screen viewer or Quick Look shows.
 public struct MediaPreview: Equatable, Sendable {
     /// Decided from the stored bytes, never from the declared type.
@@ -88,7 +81,10 @@ public struct ChatState: Equatable, Sendable {
     public var attachSheet = false
     /// True after the camera permission is granted; the screen presents the system camera.
     public var cameraActive = false
-    public var mediaSend: MediaSendState?
+    /// True while picked media is normalised and staged in the outbox.
+    public var staging = false
+    /// A temporary copy under the original file name while the share sheet is open.
+    public var shareFile: URL?
     /// The result of the last "save to Photos"; nil when nothing to report.
     public var photoSaved: Bool?
     public init(messages: [MessageRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.messages = messages; self.loading = loading; self.failure = failure }

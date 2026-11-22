@@ -113,16 +113,17 @@ private func tinyPNG() throws -> URL {
         let picked = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try Data("report body".utf8).write(to: picked)
         model.send(.attachPicked([PickedMedia(url: picked, kind: .file, name: "re\u{202E}port.pdf")]))
-        try await settleMedia(model, fake) { model.state.mediaSend?.failure != nil }
+        try await settleMedia(model, fake) { model.state.outbox.first?.state == .queued }
         #expect(!FileManager.default.fileExists(atPath: picked.path))
         let first = await fake.mediaSends
         #expect(first.count == 1); #expect(first[0].1.first?.fileName == "report.pdf")
         #expect(first[0].1.first?.file.path.hasPrefix(fake.outboxDirectory.path) == true)
         #expect(try Data(contentsOf: try #require(first[0].1.first?.file)) == Data("report body".utf8))
-        #expect(model.state.mediaSend?.failure == .offline)
+        #expect(model.state.offline); #expect(model.state.outbox.first?.media.count == 1)
+        // The queued media send is resumed with its original key when the chat appears again.
         await fake.setMediaSendResult(.success(SendOutcome(messageID: "media-event", state: .submitted)))
-        model.send(.retryMediaSend)
-        try await settleMedia(model, fake) { model.state.mediaSend == nil }
+        model.send(.refresh)
+        try await settleMedia(model, fake) { model.state.outbox.isEmpty }
         let sends = await fake.mediaSends
         #expect(sends.count == 2); #expect(sends[0].0 == sends[1].0)
         model.send(.disappeared)
@@ -137,6 +138,71 @@ private func tinyPNG() throws -> URL {
         model.send(.attachPicked([PickedMedia(url: notPhoto, kind: .photo, name: "")]))
         try await settleMedia(model, fake) { model.state.failure != nil }
         #expect(model.state.failure == .invalidInput); #expect(await fake.mediaSends.isEmpty)
+        model.send(.disappeared)
+    }
+
+    @Test func shareUsesATemporaryCopyUnderTheOriginalNameAndRemovesIt() async throws {
+        let stored = try tinyPNG()
+        defer { try? FileManager.default.removeItem(at: stored) }
+        let fake = ChatFake(history: [photoMessage("mine", own: true)])
+        await fake.setStored("mine#0", stored)
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared)
+        try await settleMedia(model, fake) { model.state.media["mine#0"] == .ready(stored) }
+        model.send(.shareMedia("mine#0"))
+        try await settleMedia(model, fake) { model.state.shareFile != nil }
+        #expect(model.state.shareFile?.lastPathComponent == "p.jpg")
+        #expect(await fake.shared.map(\.0) == [stored])
+        model.send(.shareFinished); await model.settle()
+        try await settleMedia(model, fake) { true }
+        for _ in 0..<100 where await fake.shareRemovals == 0 { try await Task.sleep(for: .milliseconds(5)) }
+        #expect(model.state.shareFile == nil); #expect(await fake.shareRemovals == 1)
+        model.send(.disappeared)
+    }
+
+    @Test func forwardAsksTheHostForATargetAndResendsTextAndMedia() async throws {
+        var events: [ChatEvent] = []
+        var message = photoMessage("m1")
+        message = MessageRecord(id: "m1", sender: "peer", kind: .text("caption"), isOwn: false, timestamp: 1, attachments: message.attachments, authorAnchor: "peer-anchor", order: MessageOrder(milliseconds: 1_000))
+        let fake = ChatFake(history: [message])
+        await fake.setDetails(.success(ChatDetails(muted: false)))
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { events.append($0) })
+        model.send(.appeared); await model.settle()
+        model.send(.forwardRequested("m1"))
+        #expect(events.last == .chooseForwardTarget(messageID: "m1"))
+        model.send(.forwardTo(messageID: "m1", conversation: "g", isGroup: true))
+        try await settleMedia(model, fake) { events.contains(.messageSubmitted("forwarded")) }
+        let forwards = await fake.forwards
+        #expect(forwards.count == 1); #expect(forwards.first?.0 == "caption"); #expect(forwards.first?.1.map(\.id) == ["m1#0"]); #expect(forwards.first?.2 == "g"); #expect(forwards.first?.3 == "g")
+        model.send(.disappeared)
+    }
+
+    @Test func retryingAFailedEraseForEveryoneRevokesTheMediaAgain() async throws {
+        let fake = ChatFake(history: [photoMessage("mine", own: true)])
+        await fake.setDeleteResult(.failure(.offline))
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        model.send(.requestDelete("mine", .everyone)); model.send(.confirmDelete); await model.settle()
+        #expect(model.state.held != nil); #expect(await fake.revokes.isEmpty)
+        await fake.setDeleteResult(.success(()))
+        model.send(.retrySameSend); await model.settle()
+        #expect(await fake.revokes == ["mine"]); #expect(model.state.held == nil)
+        model.send(.disappeared)
+    }
+
+    @Test func animatedImagesAreSentWithoutMetadataBlocks() async throws {
+        let fake = ChatFake()
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        let header: [UInt8] = Array("GIF89a".utf8) + [1, 0, 1, 0, 0x80, 0, 0] + [0, 0, 0, 255, 255, 255]
+        let comment: [UInt8] = [0x21, 0xFE, 4] + Array("here".utf8) + [0]
+        let frame: [UInt8] = [0x2C, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 2, 0x4C, 0x01, 0, 0x3B]
+        let picked = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data(header + comment + frame).write(to: picked)
+        model.send(.attachPicked([PickedMedia(url: picked, kind: .photo, name: "anim.gif")]))
+        try await settleMedia(model, fake) { !model.state.outbox.isEmpty }
+        let sent = try #require(await fake.mediaSends.first?.1.first)
+        #expect(sent.mime == "image/gif"); #expect(try Data(contentsOf: sent.file) == Data(header + frame))
         model.send(.disappeared)
     }
 }

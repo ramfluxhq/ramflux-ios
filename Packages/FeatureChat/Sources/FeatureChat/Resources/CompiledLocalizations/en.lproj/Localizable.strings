@@ -78,6 +78,8 @@
 	<string>The other person needs to update Ramflux to receive attachments.</string>
 	<key>chat.media.photo</key>
 	<string>Photo</string>
+	<key>chat.media.preparing</key>
+	<string>Preparing attachments…</string>
 	<key>chat.media.recipientLimit</key>
 	<string>This group is too large for attachments.</string>
 	<key>chat.media.removed</key>
@@ -88,8 +90,6 @@
 	<string>Could not save to Photos</string>
 	<key>chat.media.saved</key>
 	<string>Saved to Photos</string>
-	<key>chat.media.sending</key>
-	<string>Sending attachment</string>
 	<key>chat.media.share</key>
 	<string>Share</string>
 	<key>chat.media.show</key>
@@ -116,6 +116,8 @@
 	<string>Message deleted</string>
 	<key>chat.message.edit</key>
 	<string>Edit</string>
+	<key>chat.message.forward</key>
+	<string>Forward</string>
 	<key>chat.message.react</key>
 	<string>React</string>
 	<key>chat.offline.banner</key>

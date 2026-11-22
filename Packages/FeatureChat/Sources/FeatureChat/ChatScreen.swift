@@ -36,7 +36,7 @@ public struct ChatScreen: View {
                         .rfFont(.caption).padding(theme.gap).background(theme.surface, in: Capsule()).padding(theme.gap)
                 }
             }
-            if let pending = state.mediaSend { MediaSendRow(pending: pending, onAction: onAction) }
+            if state.staging { ProgressView(FeatureChatStrings.text("chat.media.preparing", locale: locale)).rfFont(.caption).padding(.horizontal, KitMetrics.gutter) }
             if state.held != nil && !state.sending { Button(FeatureChatStrings.text("chat.send.retry", locale: locale)) { onAction(.retrySameSend) } }
             KitComposer(
                 value: draft,
@@ -44,7 +44,7 @@ public struct ChatScreen: View {
                 onSend: { if composerEnabled { onAction(.send) } },
                 onAttach: { onAction(.attachRequested) },
                 sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                attachEnabled: state.mediaSend == nil,
+                attachEnabled: !state.staging,
                 replyAuthor: replyAuthor,
                 replyExcerpt: replyExcerpt,
                 onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
@@ -89,6 +89,9 @@ public struct ChatScreen: View {
             #if os(iOS)
             .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
                 if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
+            }
+            .sheet(isPresented: Binding(get: { state.shareFile != nil }, set: { if !$0 { onAction(.shareFinished) } })) {
+                if let file = state.shareFile { ShareSheet(file: file) { onAction(.shareFinished) }.ignoresSafeArea() }
             }
             .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }
             #endif
@@ -152,6 +155,9 @@ struct ChatActionsOverlay: View {
             if message.isOwn == true {
                 list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.edit", locale: locale), icon: "pencil"), run: { onAction(.beginEdit(message.id)) }))
             }
+        }
+        if message.kind != .deleted, !message.attachments.isEmpty || { if case .text(let text) = message.kind { !text.isEmpty } else { false } }() {
+            list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.forward", locale: locale), icon: "forward"), run: { onAction(.forwardRequested(message.id)) }))
         }
         list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.deleteMine", locale: locale), icon: "trash-2", danger: true, groupBefore: true), run: { onAction(.requestDelete(message.id, .local)) }))
         if message.isOwn == true {

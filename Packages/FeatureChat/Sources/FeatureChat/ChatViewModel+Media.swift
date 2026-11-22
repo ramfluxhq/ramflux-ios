@@ -37,11 +37,15 @@ extension ChatViewModel {
             }
         case .photoSaved(let saved): state.photoSaved = saved
         case .attachPicked(let picked): state.attachSheet = false; state.cameraActive = false; stage(picked)
-        case .retryMediaSend: if let pending = state.mediaSend { upload(pending) }
-        case .discardMediaSend:
-            guard let pending = state.mediaSend, pending.failure != nil else { return }
-            for item in pending.items { try? FileManager.default.removeItem(at: item.file) }
-            state.mediaSend = nil
+        case .shareMedia(let id): share(id)
+        case .shareFinished:
+            state.shareFile = nil
+            Task { [repository, account] in await repository.removeShareCopy(account: account) }
+        case .forwardRequested(let id):
+            state.actionTarget = nil
+            guard let message = state.messages.first(where: { $0.id == id }), message.kind != .deleted, message.kind != .callHistory else { return }
+            emit(.chooseForwardTarget(messageID: id))
+        case .forwardTo(let id, let target, let isGroup): forward(id, to: target, isGroup: isGroup)
         default: break
         }
     }
@@ -49,7 +53,8 @@ extension ChatViewModel {
     func stopMedia(conceal: Bool) {
         for task in mediaTasks.values { task.cancel() }
         mediaTasks = [:]; trust = nil; pendingSave = nil
-        state.media = [:]; state.revealed = []; state.preview = nil; state.attachSheet = false; state.cameraActive = false; state.photoSaved = nil
+        state.media = [:]; state.revealed = []; state.preview = nil; state.attachSheet = false; state.cameraActive = false; state.photoSaved = nil; state.staging = false
+        if state.shareFile != nil { state.shareFile = nil; Task { [repository, account] in await repository.removeShareCopy(account: account) } }
         if conceal { ImagePipeline.shared.purge() }
     }
 
@@ -140,14 +145,15 @@ extension ChatViewModel {
     /// Photos are normalised (metadata stripped, 2,560 px, JPEG 0.82); files keep their exact
     /// bytes. Both are staged in the protected outbox before anything reaches the SDK.
     private func stage(_ picked: [PickedMedia]) {
-        guard !picked.isEmpty, state.mediaSend == nil else { for item in picked { try? FileManager.default.removeItem(at: item.url) }; return }
+        guard !picked.isEmpty, mediaTasks["send"] == nil else { for item in picked { try? FileManager.default.removeItem(at: item.url) }; return }
         let current = epoch
         let operationID = UUID().uuidString
+        state.staging = true
         mediaTasks["send"] = Task { [weak self, repository, account] in
             guard let outbox = await repository.mediaOutbox(account: account) else {
                 for item in picked { try? FileManager.default.removeItem(at: item.url) }
                 guard let self, self.epoch == current else { return }
-                self.state.failure = repository.unavailable(.attachmentTransfer); self.mediaTasks["send"] = nil
+                self.state.failure = repository.unavailable(.attachmentTransfer); self.mediaTasks["send"] = nil; self.state.staging = false
                 return
             }
             let staged = await Task.detached { () -> Result<[MediaUpload], AppFailure> in
@@ -157,10 +163,12 @@ extension ChatViewModel {
                     do {
                         switch item.kind {
                         case .photo where MediaSniffer.format(of: item.url) == .gif:
-                            // Animated images keep their bytes (no re-encode), capped at 15 MB.
+                            // Animated images are not re-encoded (15 MB cap): metadata blocks are
+                            // removed and every frame is kept byte for byte.
                             guard ((try? item.url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? .max) <= 15 * 1_048_576 else { throw ImageNormalizer.Failure.tooLarge }
+                            guard let clean = GIFSanitizer.strip(try Data(contentsOf: item.url)) else { throw ImageNormalizer.Failure.notAnImage }
                             let target = outbox.appendingPathComponent(UUID().uuidString)
-                            try FileManager.default.copyItem(at: item.url, to: target)
+                            try clean.write(to: target, options: .atomic)
                             uploads.append(MediaUpload(file: target, fileName: ImageNormalizer.generatedName(ext: "gif"), mime: "image/gif"))
                         case .photo:
                             let result = try ImageNormalizer.normalize(source: item.url, into: outbox)
@@ -187,34 +195,60 @@ extension ChatViewModel {
                 if case .success(let uploads) = staged { for upload in uploads { try? FileManager.default.removeItem(at: upload.file) } }
                 return
             }
-            self.mediaTasks["send"] = nil
+            self.mediaTasks["send"] = nil; self.state.staging = false
             switch staged {
-            case .success(let uploads): self.upload(MediaSendState(operationID: operationID, items: uploads))
+            case .success(let uploads): self.enqueueMedia(uploads, caption: "", operationID: operationID)
             case .failure(let error): self.state.failure = error
             }
         }
     }
 
-    private func upload(_ pending: MediaSendState) {
-        guard mediaTasks["send"] == nil else { return }
-        var sending = pending; sending.failure = nil
-        state.mediaSend = sending
+    /// Queues staged files as one send in the persistent outbox; it is drawn as a local row with
+    /// per-item state and resumed with the same operation id after a relaunch.
+    func enqueueMedia(_ uploads: [MediaUpload], caption: String, operationID: String) {
         let current = epoch
-        let caption = ""
-        mediaTasks["send"] = Task { [weak self, repository, account, conversation] in
-            let groupID = await MainActor.run { self?.state.isGroup == true ? conversation : nil }
-            let result = await repository.sendMedia(account: account, conversation: conversation, groupID: groupID, caption: caption, items: pending.items, operationID: pending.operationID)
+        let groupID = state.isGroup ? conversation : nil
+        mediaTasks["queue:" + operationID] = Task { [weak self, repository, account, conversation] in
+            let result = await repository.enqueueMedia(account: account, conversation: conversation, groupID: groupID, caption: caption, items: uploads, operationID: operationID)
+            if case .failure = result { for upload in uploads { try? FileManager.default.removeItem(at: upload.file) } }
             guard let self, self.epoch == current else { return }
-            self.mediaTasks["send"] = nil
+            self.mediaTasks["queue:" + operationID] = nil
             switch result {
-            case .success(let outcome) where outcome.state == .submitted:
-                self.state.mediaSend = nil
-                self.emit(.messageSubmitted(outcome.messageID))
-                self.send(.refresh)
-            case .success:
-                self.state.mediaSend?.failure = .unavailableResource("chat.send.deliveryFailed")
-            case .failure(let error):
-                self.state.mediaSend?.failure = error
+            case .success(let admitted): await self.mirrorOutbox(admitted)
+            case .failure(let error): self.state.failure = error
+            }
+        }
+    }
+
+    /// Opens the share sheet with a temporary copy named after the original file (sanitised).
+    private func share(_ id: String) {
+        guard case .ready(let url)? = state.media[id], let item = attachment(id) else { return }
+        let current = epoch
+        mediaTasks["share"] = Task { [weak self, repository, account] in
+            let copy = await repository.shareCopy(account: account, file: url, name: item.name)
+            guard let self, self.epoch == current else { if copy != nil { await repository.removeShareCopy(account: account) }; return }
+            self.mediaTasks["share"] = nil
+            if let copy { self.state.shareFile = copy } else { self.state.failure = .localStorage }
+        }
+    }
+
+    /// Re-sends a message's text and media to another conversation through the SDK (new
+    /// upload and keys); the target's outbox resumes it if the connection is down.
+    private func forward(_ id: String, to target: String, isGroup: Bool) {
+        guard let message = state.messages.first(where: { $0.id == id }), message.kind != .deleted, !target.isEmpty else { return }
+        let text = if case .text(let body) = message.kind { body } else { "" }
+        guard !message.attachments.isEmpty || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let current = epoch
+        let operationID = UUID().uuidString
+        mediaTasks["forward:" + operationID] = Task { [weak self, repository, account] in
+            let result = await repository.forward(account: account, text: text, attachments: message.attachments, to: target, groupID: isGroup ? target : nil, operationID: operationID)
+            guard let self, self.epoch == current else { return }
+            self.mediaTasks["forward:" + operationID] = nil
+            switch result {
+            case .success(let admitted):
+                for outcome in admitted { self.emit(.messageSubmitted(outcome.messageID)) }
+                if target == self.conversation { await self.mirrorOutbox([]) }
+            case .failure(let error): self.state.failure = error
             }
         }
     }
@@ -233,11 +267,7 @@ extension ChatViewModel {
 /// File names and declared types for files sent as they are.
 enum ChatFileNames {
     /// Control and directional characters removed, at most 255 bytes, never empty.
-    static func sendable(_ name: String) -> String {
-        var clean = String(String.UnicodeScalarView(name.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) && !(0x202A...0x202E).contains($0.value) && !(0x2066...0x2069).contains($0.value) && $0 != "/" }))
-        while clean.utf8.count > 255 { clean.removeFirst() }
-        return clean.isEmpty ? "file" : clean
-    }
+    static func sendable(_ name: String) -> String { MediaFileName.sanitized(name) }
     static func mime(for file: URL, name: String) -> String {
         switch MediaSniffer.format(of: file) {
         case .jpeg: "image/jpeg"

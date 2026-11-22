@@ -107,15 +107,20 @@ struct OutboxBubble: View {
     @Environment(\.rfTheme) private var theme
     var body: some View {
         VStack(alignment: .trailing, spacing: theme.gap / 2) {
-            HStack(alignment: .center, spacing: theme.gap) {
-                if failed { KitIcon(name: "circle-alert", size: KitMetrics.iconInfo, tint: theme.danger).accessibilityHidden(true) }
-                KitBubble(entry.text, kind: .own, time: failed ? nil : FeatureChatStrings.text(entry.state == .sending ? "chat.outbox.sending" : "chat.outbox.pending", locale: locale), pending: !failed, failed: failed, tag: "outbox-" + entry.operationID)
+            if !entry.media.isEmpty { OutboxMediaTiles(entry: entry) }
+            if !entry.text.isEmpty || entry.media.isEmpty {
+                HStack(alignment: .center, spacing: theme.gap) {
+                    if failed { KitIcon(name: "circle-alert", size: KitMetrics.iconInfo, tint: theme.danger).accessibilityHidden(true) }
+                    KitBubble(entry.text, kind: .own, time: failed ? nil : FeatureChatStrings.text(entry.state == .sending ? "chat.outbox.sending" : "chat.outbox.pending", locale: locale), pending: !failed, failed: failed, tag: "outbox-" + entry.operationID)
+                }
             }
             if case .failed(let failure) = entry.state {
                 HStack(spacing: theme.gap) {
-                    Text(FeatureChatStrings.text("chat.outbox.failed", locale: locale)).rfFont(.caption).foregroundStyle(theme.danger)
-                    Button(FeatureChatStrings.text("chat.outbox.retry", locale: locale)) { onAction(.retryOutbox(entry.operationID)) }
-                        .rfFont(.caption).foregroundStyle(theme.danger).buttonStyle(.plain)
+                    Text(entry.media.isEmpty ? FeatureChatStrings.text("chat.outbox.failed", locale: locale) : ChatMediaText.sendFailure(failure, locale: locale)).rfFont(.caption).foregroundStyle(theme.danger)
+                    if failure != .localStorage {
+                        Button(FeatureChatStrings.text("chat.outbox.retry", locale: locale)) { onAction(.retryOutbox(entry.operationID)) }
+                            .rfFont(.caption).foregroundStyle(theme.danger).buttonStyle(.plain)
+                    }
                     Menu {
                         Text(failure.message(locale: locale))
                         Button(FeatureChatStrings.text("chat.outbox.discard", locale: locale), role: .destructive) { onAction(.discardOutbox(entry.operationID)) }
@@ -131,6 +136,38 @@ struct OutboxBubble: View {
         .accessibilityElement(children: .contain)
     }
     private var failed: Bool { if case .failed = entry.state { true } else { false } }
+}
+
+/// The staged items of an unadmitted media send, each with its state: a clock while queued, an
+/// indeterminate ring while sending (the SDK reports no upload bytes), an alert when failed.
+struct OutboxMediaTiles: View {
+    let entry: OutboxEntry
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    var body: some View {
+        HStack(spacing: theme.gap / 2) {
+            ForEach(Array(entry.media.prefix(4).enumerated()), id: \.offset) { index, item in
+                ZStack {
+                    if item.mime.hasPrefix("image/") { PipelineImage(source: .file(item.file), maxPixel: ChatMediaText.tilePixels) } else { theme.surface }
+                    if index == 3 && entry.media.count > 4 {
+                        Text(verbatim: "+" + (entry.media.count - 3).formatted(.number.locale(locale))).rfFont(.page).foregroundStyle(theme.text)
+                    }
+                }
+                .frame(width: ChatMediaText.tileSide, height: ChatMediaText.tileSide)
+                .clipShape(RoundedRectangle(cornerRadius: theme.radius_md))
+                .overlay(alignment: .bottomTrailing) { badge.padding(theme.gap / 2) }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(FeatureChatStrings.format("chat.outbox.media", entry.media.count, locale: locale)))
+    }
+    @ViewBuilder private var badge: some View {
+        switch entry.state {
+        case .queued: KitIcon(name: "clock-3", size: KitMetrics.iconInfo, tint: theme.text).padding(2).background(theme.overlay, in: Circle())
+        case .sending: ProgressView().controlSize(.small).padding(2).background(theme.overlay, in: Circle())
+        case .failed: KitIcon(name: "circle-alert", size: KitMetrics.iconInfo, tint: theme.danger).padding(2).background(theme.overlay, in: Circle())
+        }
+    }
 }
 
 /// Display text for an attachment's type and size; sizes use the locale's byte formatter.

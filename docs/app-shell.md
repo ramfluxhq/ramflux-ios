@@ -87,7 +87,18 @@ archive installation require host-drawn single-tap confirmation bound to the sel
 Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
 archive sharing accepts regular files within private backup storage only.
 
-Local search, phone pairing, attachment transfer, stranger reporting and
+Unsent chat state (queued and failed sends with their original operation ids, staged
+media references, composer drafts and erase-for-everyone revokes still to retry) is
+kept per account in one AES-GCM sealed file under Application Support/RamfluxChat,
+written atomically with complete file protection and excluded from backup. The key
+is a per-account keychain item (`org.ramflux.chat.vault`, this device only). The
+repository restores it on first use after unlock and resumes queued sends with the
+same keys; admitted and discarded entries leave the file, and the account purge
+erases the file, the key, staged files and stored media. Staged media lives in the
+account media outbox (complete-unless-open, excluded from backup). Shared files are
+temporary copies under the sanitised original name, removed when the sheet closes.
+
+Local search, phone pairing, stranger reporting and
 atomic safety-fingerprint verification are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published
 conversation contract. Open-account reachability is not inferred from automatic contact

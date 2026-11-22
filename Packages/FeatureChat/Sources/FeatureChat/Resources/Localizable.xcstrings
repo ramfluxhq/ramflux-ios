@@ -1053,23 +1053,6 @@
         }
       }
     },
-    "chat.media.sending": {
-      "comment": "Line under the timeline while photos or files are uploaded and sent.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sending attachment"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在发送附件"
-          }
-        }
-      }
-    },
     "chat.media.share": {
       "comment": "Viewer action that opens the system share sheet for the photo.",
       "localizations": {
@@ -1287,6 +1270,75 @@
           "stringUnit": {
             "state": "translated",
             "value": "视频"
+          }
+        }
+      }
+    },
+    "chat.message.forward": {
+      "comment": "Menu action on a message that sends its text and attachments again to another conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转发"
+          }
+        }
+      }
+    },
+    "chat.media.preparing": {
+      "comment": "Progress line while picked photos, videos or files are prepared (compressed, metadata removed) before they are queued.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing attachments…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备附件…"
+          }
+        }
+      }
+    },
+    "chat.outbox.media": {
+      "comment": "Accessibility label of an unsent media message; the number is how many attachments it has.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unsent message with %lld attachment"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unsent message with %lld attachments"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "未发送的消息，含 %lld 个附件"
+                }
+              }
+            }
           }
         }
       }

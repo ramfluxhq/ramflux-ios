@@ -6,4 +6,7 @@ public enum ChatEvent: Equatable, Sendable {
     /// The chat needs a device permission (camera, add-only Photos). The host runs the shared
     /// explanation flow and answers with `ChatAction.permissionResolved`.
     case requestPermission(DevicePermission)
+    /// The user wants to forward a message. The host presents its conversation picker and
+    /// answers with `ChatAction.forwardTo`.
+    case chooseForwardTarget(messageID: String)
 }

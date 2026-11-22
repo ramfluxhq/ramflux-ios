@@ -23,7 +23,6 @@ actor ChatFake: ChatRepository {
     private(set) var muted: [Bool] = []
     let sends = RetainedMutation<String, SendOutcome>()
     let queue = ChatOutbox()
-    let drafts = ChatDrafts()
     let gate: MutationGate?
     var online = false
     var history: [MessageRecord]
@@ -62,18 +61,30 @@ actor ChatFake: ChatRepository {
         attempts.append((operationID, text)); if attempts.count == 1, let gate { await gate.wait() }
         return online ? .success(SendOutcome(messageID: "event-" + operationID, state: .submitted)) : .failure(.offline)
     }
-    func outbox(account: String, conversation: String) async -> [OutboxEntry] { await queue.entries(account + conversation) }
+    func outbox(account: String, conversation: String) async -> [OutboxEntry] { await queue.entries(account, conversation) }
     func enqueue(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<[SendOutcome]> {
-        await queue.enqueue(account + conversation, entry: OutboxEntry(operationID: operationID, text: text, created: 0, state: .queued))
+        await queue.enqueue(account, conversation, entry: OutboxEntry(operationID: operationID, text: text, created: 0, state: .queued))
+        return .success(await flushOutbox(account: account, conversation: conversation))
+    }
+    func enqueueMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<[SendOutcome]> {
+        await queue.enqueue(account, conversation, entry: OutboxEntry(operationID: operationID, text: caption, created: 0, state: .queued, groupID: groupID, media: items))
         return .success(await flushOutbox(account: account, conversation: conversation))
     }
     func flushOutbox(account: String, conversation: String) async -> [SendOutcome] {
-        await queue.flush(account + conversation) { entry in await self.send(account: account, conversation: conversation, text: entry.text, operationID: entry.operationID) }
+        await queue.flush(account, conversation) { entry in
+            if entry.media.isEmpty { return await self.send(account: account, conversation: conversation, text: entry.text, operationID: entry.operationID) }
+            return await self.recordMedia(entry)
+        }
     }
+    private func recordMedia(_ entry: OutboxEntry) -> RepositoryResult<SendOutcome> { mediaSends.append((entry.operationID, entry.media)); captions.append(entry.text); return mediaSendResult }
     func retryOutbox(account: String, conversation: String, operationID: String) async -> [SendOutcome] {
-        await queue.requeue(account + conversation, operationID: operationID); return await flushOutbox(account: account, conversation: conversation)
+        await queue.requeue(account, conversation, operationID: operationID); return await flushOutbox(account: account, conversation: conversation)
     }
-    func discardOutbox(account: String, conversation: String, operationID: String) async -> Bool { await queue.discard(account + conversation, operationID: operationID) }
+    func discardOutbox(account: String, conversation: String, operationID: String) async -> Bool {
+        guard let entry = await queue.discard(account, conversation, operationID: operationID) else { return false }
+        for item in entry.media { try? FileManager.default.removeItem(at: item.file) }
+        return true
+    }
     func edit(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { edits.append((message, text, operationID)); return editResult }
     private var retainedReply: PendingChatMutation?
     func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> {
@@ -87,7 +98,9 @@ actor ChatFake: ChatRepository {
     }
     func mutationState(account: String, conversation: String) async -> PendingChatMutation? { retainedReply }
     func react(account: String, conversation: String, message: String, token: String, remove: Bool, operationID: String) -> RepositoryResult<Void> { reactions.append((message, token, remove, operationID)); return .success(()) }
-    func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) -> RepositoryResult<Void> { deletes.append((message, scope)); return .success(()) }
+    var deleteResult: RepositoryResult<Void> = .success(())
+    func setDeleteResult(_ result: RepositoryResult<Void>) { deleteResult = result }
+    func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) -> RepositoryResult<Void> { deletes.append((message, scope)); return deleteResult }
     func markRead(account: String, conversation: String, message: String) -> RepositoryResult<Void> { reads.append(message); return .success(()) }
     func setTyping(account: String, conversation: String, active: Bool) -> RepositoryResult<Void> { typing.append(active); return .success(()) }
     func details(account: String, conversation: String, peerAnchor: String?) -> RepositoryResult<ChatDetails> { detailResult }
@@ -95,6 +108,10 @@ actor ChatFake: ChatRepository {
     private(set) var downloads: [String] = []
     private(set) var revokes: [String] = []
     private(set) var mediaSends: [(String, [MediaUpload])] = []
+    private(set) var captions: [String] = []
+    private(set) var forwards: [(String, [AttachmentRecord], String, String?)] = []
+    private(set) var shared: [(URL, String)] = []
+    private(set) var shareRemovals = 0
     var stored: [String: URL] = [:]
     var downloadResult: MediaTransferState?
     var mediaSendResult: RepositoryResult<SendOutcome> = .success(SendOutcome(messageID: "media-event", state: .submitted))
@@ -109,12 +126,14 @@ actor ChatFake: ChatRepository {
         return downloadResult ?? .ready(FileManager.default.temporaryDirectory.appendingPathComponent(attachment.id))
     }
     func mediaOutbox(account: String) -> URL? { try? FileManager.default.createDirectory(at: outboxDirectory, withIntermediateDirectories: true); return outboxDirectory }
-    func sendMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) -> RepositoryResult<SendOutcome> {
-        mediaSends.append((operationID, items)); return mediaSendResult
+    func shareCopy(account: String, file: URL, name: String) -> URL? { shared.append((file, name)); return file.deletingLastPathComponent().appendingPathComponent(name) }
+    func removeShareCopy(account: String) { shareRemovals += 1 }
+    func forward(account: String, text: String, attachments: [AttachmentRecord], to conversation: String, groupID: String?, operationID: String) -> RepositoryResult<[SendOutcome]> {
+        forwards.append((text, attachments, conversation, groupID)); return .success([SendOutcome(messageID: "forwarded", state: .submitted)])
     }
     func revokeMedia(account: String, message: String) -> RepositoryResult<Void> { revokes.append(message); return .success(()) }
-    func draft(account: String, conversation: String) async -> String { await drafts.draft(account + conversation) }
-    func saveDraft(account: String, conversation: String, text: String) async { await drafts.save(account + conversation, text: text) }
+    func draft(account: String, conversation: String) async -> String { await queue.draft(account, conversation) }
+    func saveDraft(account: String, conversation: String, text: String) async { await queue.saveDraft(account, conversation, text: text) }
     private var listeners: [AsyncStream<RepositoryUpdate>.Continuation] = []
     func observe(account: String) -> RepositoryObservation {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))

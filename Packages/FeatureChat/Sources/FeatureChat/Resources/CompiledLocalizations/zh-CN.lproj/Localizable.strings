@@ -78,6 +78,8 @@
 	<string>对方需要更新 Ramflux 才能接收附件。</string>
 	<key>chat.media.photo</key>
 	<string>照片</string>
+	<key>chat.media.preparing</key>
+	<string>正在准备附件…</string>
 	<key>chat.media.recipientLimit</key>
 	<string>此群组过大，暂不支持发送附件。</string>
 	<key>chat.media.removed</key>
@@ -88,8 +90,6 @@
 	<string>无法存储到照片</string>
 	<key>chat.media.saved</key>
 	<string>已存储到照片</string>
-	<key>chat.media.sending</key>
-	<string>正在发送附件</string>
 	<key>chat.media.share</key>
 	<string>分享</string>
 	<key>chat.media.show</key>
@@ -116,6 +116,8 @@
 	<string>消息已删除</string>
 	<key>chat.message.edit</key>
 	<string>编辑</string>
+	<key>chat.message.forward</key>
+	<string>转发</string>
 	<key>chat.message.react</key>
 	<string>表情回应</string>
 	<key>chat.offline.banner</key>

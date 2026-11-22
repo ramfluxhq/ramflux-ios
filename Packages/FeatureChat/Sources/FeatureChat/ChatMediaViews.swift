@@ -106,28 +106,6 @@ struct PipelineImage: View {
     }
 }
 
-/// The in-flight or failed attachment send, drawn under the timeline.
-struct MediaSendRow: View {
-    let pending: MediaSendState
-    let onAction: (ChatAction) -> Void
-    @Environment(\.locale) private var locale
-    @Environment(\.rfTheme) private var theme
-    var body: some View {
-        HStack(spacing: theme.gap) {
-            if let failure = pending.failure {
-                KitIcon(name: "circle-alert", size: KitMetrics.iconInfo, tint: theme.danger)
-                Text(ChatMediaText.sendFailure(failure, locale: locale)).rfFont(.caption).frame(maxWidth: .infinity, alignment: .leading)
-                if failure.canRetry || failure == .offline { Button(FeatureChatStrings.text("chat.outbox.retry", locale: locale)) { onAction(.retryMediaSend) }.rfFont(.caption) }
-                Button(FeatureChatStrings.text("chat.outbox.discard", locale: locale), role: .destructive) { onAction(.discardMediaSend) }.rfFont(.caption)
-            } else {
-                ProgressView()
-                Text(FeatureChatStrings.text("chat.media.sending", locale: locale)).rfFont(.caption).frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap / 2)
-    }
-}
-
 /// Full-screen viewer: pinch and double-tap zoom, drag down to dismiss, close, share and save.
 struct MediaViewer: View {
     let preview: MediaPreview
@@ -175,7 +153,7 @@ struct MediaViewer: View {
                 HStack {
                     Button(FeatureChatStrings.text("chat.details.close", locale: locale)) { onAction(.closePreview) }
                     Spacer()
-                    ShareLink(item: preview.file) { Label(FeatureChatStrings.text("chat.media.share", locale: locale), systemImage: "square.and.arrow.up") }
+                    Button { onAction(.shareMedia(preview.attachmentID)) } label: { Label(FeatureChatStrings.text("chat.media.share", locale: locale), systemImage: "square.and.arrow.up") }
                     Button { onAction(.saveToPhotos(preview.attachmentID)) } label: { Label(FeatureChatStrings.text("chat.media.save", locale: locale), systemImage: "square.and.arrow.down") }
                 }
                 .labelStyle(.iconOnly).foregroundStyle(.white).padding(KitMetrics.gutter)
@@ -351,6 +329,9 @@ struct CameraCapture: UIViewControllerRepresentable {
 /// Display text for media states, sizes and accessibility.
 enum ChatMediaText {
     static let boxWidth: CGFloat = 240
+    /// Side of a staged item tile in an unsent media row.
+    static let tileSide: CGFloat = 64
+    static let tilePixels = 192
     static let bubblePixels = 720
     static let viewerPixels = 2_560
     static func size(_ attachment: AttachmentRecord, locale: Locale) -> String? {
@@ -389,3 +370,24 @@ enum ChatMediaText {
         }
     }
 }
+
+#if os(iOS)
+/// The system share sheet for one temporary file; `onFinish` runs when the sheet completes or is
+/// dismissed so the copy is removed.
+struct ShareSheet: UIViewControllerRepresentable {
+    let file: URL
+    let onFinish: () -> Void
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        let controller = UIActivityViewController(activityItems: [file], applicationActivities: nil)
+        controller.completionWithItemsHandler = { _, _, _, _ in onFinish() }
+        return controller
+    }
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
+}
+#else
+struct ShareSheet: View {
+    let file: URL
+    let onFinish: () -> Void
+    var body: some View { ShareLink(item: file).onDisappear(perform: onFinish) }
+}
+#endif

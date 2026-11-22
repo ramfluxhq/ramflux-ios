@@ -105,8 +105,9 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         let file = outbox.appendingPathComponent("staged-1")
         try bytes.write(to: file)
         let outside = root.appendingPathComponent("elsewhere"); try bytes.write(to: outside)
-        #expect(await repo.sendMedia(account: "a", conversation: "c", groupID: nil, caption: "Caption", items: [MediaUpload(file: outside, fileName: "x", mime: "image/jpeg")], operationID: "send-op") == .failure(.invalidInput))
-        #expect(await repo.sendMedia(account: "a", conversation: "c", groupID: nil, caption: "Caption", items: [MediaUpload(file: file, fileName: "IMG_1.jpg", mime: "image/jpeg")], operationID: "send-op") == .success(SendOutcome(messageID: "event", state: .submitted)))
+        #expect(await repo.enqueueMedia(account: "a", conversation: "c", groupID: nil, caption: "Caption", items: [MediaUpload(file: outside, fileName: "x", mime: "image/jpeg")], operationID: "send-op") == .failure(.invalidInput))
+        #expect(await repo.enqueueMedia(account: "a", conversation: "c", groupID: nil, caption: "Caption", items: [MediaUpload(file: file, fileName: "IMG_1.jpg", mime: "image/jpeg")], operationID: "send-op") == .success([SendOutcome(messageID: "event", state: .submitted)]))
+        #expect(await repo.outbox(account: "a", conversation: "c").isEmpty)
         #expect(received.withLock { $0 } == bytes)
         #expect(!FileManager.default.fileExists(atPath: file.path))
     }
@@ -120,7 +121,12 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: root, pause: { _ in })
         let outbox = try #require(await repo.mediaOutbox(account: "a"))
         let file = outbox.appendingPathComponent("f"); try Data([1]).write(to: file)
-        #expect(await repo.sendMedia(account: "a", conversation: "c", groupID: "g", caption: "", items: [MediaUpload(file: file, fileName: "a.bin", mime: "application/octet-stream")], operationID: "op") == .failure(.typedRefusal("recipient_limit")))
+        #expect(await repo.enqueueMedia(account: "a", conversation: "c", groupID: "g", caption: "", items: [MediaUpload(file: file, fileName: "a.bin", mime: "application/octet-stream")], operationID: "op") == .success([]))
+        #expect(await repo.outbox(account: "a", conversation: "c").first?.state == .failed(.typedRefusal("recipient_limit")))
+        // A definite refusal keeps the staged file until the user discards the entry.
+        #expect(FileManager.default.fileExists(atPath: file.path))
+        #expect(await repo.discardOutbox(account: "a", conversation: "c", operationID: "op"))
+        #expect(!FileManager.default.fileExists(atPath: file.path))
     }
 
     @Test func revokeRetiresGrantsAndErasedRowsDropLocalCopies() async throws {

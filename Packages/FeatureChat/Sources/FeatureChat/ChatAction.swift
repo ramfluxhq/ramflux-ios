@@ -11,7 +11,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case requestDelete(String, MessageDeleteScope), cancelDelete, confirmDelete
     case detailsRequested, closeDetails, setMuted(Bool), openSafetyNumber
     case mediaTapped(String), revealMedia(String), cancelMedia(String), closePreview, saveToPhotos(String)
-    case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia]), retryMediaSend, discardMediaSend
+    case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia])
+    case shareMedia(String), shareFinished, forwardRequested(String), forwardTo(messageID: String, conversation: String, isGroup: Bool)
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
     public var description: String { "ChatAction" }
 }
