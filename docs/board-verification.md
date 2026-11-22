@@ -98,6 +98,27 @@ proves that an identical capture passes, a one-pixel edge shift passes, a moved
 element or a colour change fails with its offset measured, and expected entries
 behave as described below.
 
+## Kit comparison
+
+Kit components are compared separately with the Kit design previews:
+
+```sh
+cd Packages/RFDesign
+TEST_RUNNER_KIT_CAPTURE_DIR=/tmp/kit-ios-captures xcodebuild -scheme RFDesign \
+  -destination 'platform=iOS Simulator,name=iPhone 17' test \
+  -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
+cd ../..
+python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures kit-evidence-out
+```
+
+`Packages/RFDesign/kit-masters.json` records the master frame where a preview
+export is a board instance rather than the component frame. A capture edge more
+than 2 pt from the master is OVER. One OVER is open: `row--tag` captures at
+361x76 against a 58 pt master. The export shows the value wrapping to two lines,
+so the single-line 58 pt master does not describe this content, but the
+transparent 92 pt export does not show the row frame; the master is corrected
+once design states the two-line row height.
+
 ## Expected deviations
 
 `shell-previews/expected-deviations.json` records, per reference, a reviewed
@@ -113,6 +134,11 @@ wave-2 work list.
 - `--write-expected <file>` writes a draft from the current captures, keeping
   existing reasons. A draft is only committed after every reason is reviewed
   against the pairs; an entry is never widened to hide a new difference.
+
+Entries were re-reviewed after the chat foundations (scalable Kit text,
+system-text message bubbles, per-script faces) were stacked on the board
+verification work: each changed reference was compared pair by pair and its
+reason extended with what moved and why; no rectangle was accepted in bulk.
 
 The expected file was recorded from Xcode 27.2 and the iOS 27.2 simulator.
 Text rendering can differ between Xcode versions; CI is pinned to Xcode 26.2,

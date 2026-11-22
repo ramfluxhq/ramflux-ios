@@ -31,7 +31,7 @@ the Kit for times and for Kit masters that reproduce the design.
 | Text | Face |
 |---|---|
 | Latin and Simplified Chinese UI text | Noto Sans SC subset, as the design specifies |
-| Latin role (times, the Agents label) | Hanken Grotesk |
+| Latin role (message times inside the Kit; Kit masters that reproduce the design's Latin labels) | Hanken Grotesk |
 | UI text in a Latin-script locale whose exemplar letters the Noto Sans SC subset lacks (French œ, Turkish ğ ı ş, Vietnamese) | Hanken Grotesk for all UI text of that locale, so one screen keeps one face |
 | Identifiers and code | JetBrains Mono |
 | Text with a letter no bundled face draws: Arabic, Hebrew, Cyrillic, Greek, Hangul, Devanagari, Thai, ideographs outside the subset | System font |

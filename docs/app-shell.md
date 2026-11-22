@@ -75,8 +75,10 @@ into application records. One visible feature observes the native event subscrip
 replacement stops and joins the previous subscription before resetting and reloading
 the projection. UIKit owns the message timeline (a `UITableViewController` whose cells host
 SwiftUI `MessageBubble`s) and the secure input editors. The composer is the
-SwiftUI `KitComposer`, a single-line `TextField`; the UIKit `ComposerView` in
-FeatureChat is not referenced by any screen. Recovery output is painted from erasable bytes rather than decoded
+SwiftUI `KitComposer`, a `TextField` that grows vertically. Message text is system
+text (`KitMessageText`): selectable, with detected links, and running in the
+direction of its own content, while the bubble side follows sender and own
+messages. Recovery output is painted from erasable bytes rather than decoded
 into a Swift String; spoken recovery-word accessibility is currently limited.
 
 Message sending uses the high-level conversation intent. An uncertain send retains
@@ -123,6 +125,18 @@ translator comment and localised text assembled with `+` or a literal separator
 fail. Keys are readable hierarchical names (`feature.screen.element[.state]`); a
 hashed `copy.<hash>` key in a catalog or a Swift source always fails. Existing
 debt is listed in `scripts/localization-baseline.json`, which may only shrink.
+Text that combines catalog copy with values is one catalog format composed by
+`CatalogLookup.sentence` (`RFSentence`) with typed arguments: peer-controlled
+text (names, group names, titles, origins) is stripped of directional controls
+and isolated (FSI ... PDI), identifiers keep Western digits inside a
+left-to-right isolate, and lists use the locale's list format. These string
+rules (`RFBidi`, `RFUntrustedText`, `RFFileName`, `RFIdentifier`,
+`RFSentence`) live in RFLocalization so AppData applies them when it builds a
+display string without depending on RFDesign. On screen, peer text shown on its
+own uses `Text(untrusted:)`, compared identifiers (safety numbers, fingerprints,
+device ids, principals) use `KitIdentifierText`, which the UI copy check
+enforces for safety numbers, fingerprints and device ids, and screen fonts come
+only from `rfFont` (see [fonts](fonts.md)).
 Captures run over English, Chinese, the expanded pseudo-locale `en-XA` and
 Arabic (right to left, English fallback copy) in both themes.
 
