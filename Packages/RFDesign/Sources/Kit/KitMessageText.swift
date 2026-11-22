@@ -9,23 +9,27 @@ import SwiftUI
 /// The base direction comes from the content (`RFBidi.contentDirection`), not the UI language:
 /// an Arabic message reads and aligns right to left in an English UI and an English message
 /// left to right in an Arabic UI. Text with no strong character keeps the surrounding direction.
-/// Directional overrides, embeddings and isolates in the message are removed first. This view
-/// and `KitIdentifierText` are the only Kit views that set a layout direction.
+/// Directional overrides, embeddings and isolates in the message are removed first. This view,
+/// `KitIdentifierText` and `KitFileName` are the only Kit views that set a layout direction.
 public struct KitMessageText: View {
     var text: String
     var size: CGFloat?
     var color: Color?
     var lines: Int?
+    var fillsWidth: Bool
     @Environment(\.rfTheme) private var theme
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.locale) private var locale
     @Environment(\.layoutDirection) private var layoutDirection
 
-    public init(_ text: String, size: CGFloat? = nil, color: Color? = nil, lines: Int? = nil) {
+    /// - Parameter fillsWidth: true fills the offered width (bubble body); false hugs the text
+    ///   (reply excerpts). Either way the text aligns by its own direction.
+    public init(_ text: String, size: CGFloat? = nil, color: Color? = nil, lines: Int? = nil, fillsWidth: Bool = true) {
         self.text = text
         self.size = size
         self.color = color
         self.lines = lines
+        self.fillsWidth = fillsWidth
     }
 
     public var body: some View {
@@ -41,17 +45,17 @@ public struct KitMessageText: View {
             .lineLimit(lines)
             .multilineTextAlignment(.leading)
             .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: fillsWidth ? .infinity : nil, alignment: .leading)
             .environment(\.layoutDirection, Self.direction(of: clean, surrounding: layoutDirection))
     }
 
     /// The direction the message is laid out in.
-    public static func direction(of text: String, surrounding: LayoutDirection) -> LayoutDirection {
+    nonisolated public static func direction(of text: String, surrounding: LayoutDirection) -> LayoutDirection {
         RFBidi.contentDirection(of: RFUntrustedText(text, kind: .messageBody).text) ?? surrounding
     }
 
     /// Detected web links become underlined link runs.
-    static func linked(_ text: String) -> AttributedString {
+    nonisolated static func linked(_ text: String) -> AttributedString {
         var attributed = AttributedString(text)
         guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return attributed }
         let whole = NSRange(text.startIndex..<text.endIndex, in: text)

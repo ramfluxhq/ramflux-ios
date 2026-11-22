@@ -22,6 +22,7 @@ public struct KitComposer: View {
     var tag: String?
     @Environment(\.rfTheme) private var theme
     @Environment(\.kitCapturing) private var capturing
+    @Environment(\.layoutDirection) private var layoutDirection
 
     public init(
         value: Binding<String>,
@@ -133,10 +134,14 @@ public struct KitComposer: View {
                         KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
-                        TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
+                        // The draft grows to a few lines. The placeholder and an empty draft start at the
+                        // leading edge; typed text aligns by its own direction, like a sent message.
+                        TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary), axis: .vertical)
+                            .lineLimit(1...KitMetrics.composerLines)
                             .textFieldStyle(.plain)
                             .modifier(KitFieldFont(size: theme.size_mobile_body))
                             .foregroundStyle(theme.text)
+                            .multilineTextAlignment(KitMessageText.direction(of: value, surrounding: layoutDirection) == layoutDirection ? .leading : .trailing)
                     }
                     KitHit(enabled: sendActive, label: RFDesignStrings.text("kit.send"), hitTag: tag.map { $0 + "-send" }, action: onSend) {
                         KitIcon(name: "arrow-up", size: KitMetrics.sendIcon, tint: sendActive ? theme.on_accent : theme.control)

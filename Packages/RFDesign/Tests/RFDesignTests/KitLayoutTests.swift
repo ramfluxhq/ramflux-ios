@@ -285,6 +285,23 @@ struct KitLayoutTests {
         if expectRight { #expect(first > 150 && last > 280, "ink \(first)...\(last)") } else { #expect(first < 20 && last < 150, "ink \(first)...\(last)") }
     }
 
+    /// A one-letter stem and a wide extension ("i.wwwwwwwww"): the dense ink is the extension. A
+    /// Latin stem keeps "stem.ext" order in a right-to-left UI (dense ink on the right); an Arabic
+    /// stem reads from the right in either UI direction (dense ink on the left).
+    @Test(arguments: [("i.wwwwwwwww", LayoutDirection.rightToLeft, true), ("i.wwwwwwwww", .leftToRight, true), ("م.wwwwwwwww", .leftToRight, false), ("م.wwwwwwwww", .rightToLeft, false)])
+    func fileNameRowFollowsTheStemDirection(_ name: String, _ direction: LayoutDirection, _ extensionOnRight: Bool) throws {
+        let rep = try render(width: 300, direction: direction) { KitFileName(name, color: .black).fixedSize() }
+        var inked: [Int] = []
+        for x in 0..<300 {
+            for y in stride(from: 4, to: 18, by: 1) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { inked.append(x); break }
+        }
+        guard let first = inked.first, let last = inked.last else { Issue.record("no ink"); return }
+        let third = Double(last - first) / 3
+        let left = inked.filter { Double($0 - first) < third }.count
+        let right = inked.filter { Double(last - $0) < third }.count
+        #expect((right > left) == extensionOnRight, "left \(left) right \(right) \(direction)")
+    }
+
     @Test func messageLinksAreDetected() {
         let attributed = KitMessageText.linked("see https://example.org/a and mail")
         let links = attributed.runs.compactMap(\.link)

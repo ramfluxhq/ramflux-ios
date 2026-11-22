@@ -4,6 +4,8 @@
 <dict>
 	<key>chat.composer.cancel</key>
 	<string>Cancel</string>
+	<key>chat.delete.confirmSummary</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.delete.everyone</key>
 	<string>Delete for everyone</string>
 	<key>chat.delete.everyone.fact</key>
@@ -24,6 +26,8 @@
 	<string>Replying</string>
 	<key>chat.reply.quote</key>
 	<string>Reply</string>
+	<key>chat.timeline.unreadDivider</key>
+	<string>Unread messages below</string>
 	<key>copy.01fad993ff61</key>
 	<string>React</string>
 	<key>copy.0e9161011702</key>
@@ -66,7 +70,5 @@
 	<string>No messages yet</string>
 	<key>copy.f67cb7740d52</key>
 	<string>Delete from my devices</string>
-	<key>copy.f6f4688ff23d</key>
-	<string>Send</string>
 </dict>
 </plist>

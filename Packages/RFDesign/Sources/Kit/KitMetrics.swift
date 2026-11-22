@@ -64,6 +64,8 @@ public enum KitMetrics {
     public static let segmentedPad: CGFloat = 2
     public static let composerPad: CGFloat = 8
     public static let composerRow: CGFloat = 44
+    /// Lines the draft grows to before it scrolls.
+    public static let composerLines = 6
     public static let capsuleRadius: CGFloat = 20
     public static let capsulePadStart: CGFloat = 16
     public static let capsulePad: CGFloat = 6

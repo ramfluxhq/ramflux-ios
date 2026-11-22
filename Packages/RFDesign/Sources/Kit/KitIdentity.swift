@@ -57,14 +57,16 @@ public struct KitIdentifierText: View {
 /// An untrusted file name whose extension stays visible and cannot be disguised.
 ///
 /// Directional controls are removed, the stem truncates in the middle, and the extension is a
-/// separate left-to-right label that never truncates. The dot sits between stem and extension
-/// in either layout direction.
+/// separate left-to-right label that never truncates. The row runs in the stem's own direction,
+/// so a Latin name reads "report.pdf" in a right-to-left UI and an Arabic name keeps the dot
+/// between stem and extension in either UI direction.
 public struct KitFileName: View {
     var name: RFFileName
     var size: CGFloat?
     var weight: Font.Weight
     var color: Color?
     @Environment(\.rfTheme) private var theme
+    @Environment(\.layoutDirection) private var layoutDirection
 
     public init(_ raw: String, size: CGFloat? = nil, weight: Font.Weight = .medium, color: Color? = nil) {
         self.name = RFFileName(raw)
@@ -87,6 +89,7 @@ public struct KitFileName: View {
                     .layoutPriority(1)
             }
         }
+        .environment(\.layoutDirection, RFBidi.contentDirection(of: name.stem) ?? layoutDirection)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: name.fileExtension.map { name.stem + "." + $0 } ?? name.stem))
     }

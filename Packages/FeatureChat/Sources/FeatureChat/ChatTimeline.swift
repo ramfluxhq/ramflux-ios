@@ -12,8 +12,9 @@ public struct ChatTimeline: UIViewControllerRepresentable {
     public let isGroup: Bool
     public let onAction: (ChatAction) -> Void
     public let messages: [MessageRecord]
-    public init(messages: [MessageRecord], isGroup: Bool = false, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.isGroup = isGroup; self.messages = messages; self.onAction = onAction }
+    public let unreadAnchorID: String?
+    public init(messages: [MessageRecord], isGroup: Bool = false, unreadAnchorID: String? = nil, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.isGroup = isGroup; self.messages = messages; self.unreadAnchorID = unreadAnchorID; self.onAction = onAction }
     public func makeUIViewController(context: Context) -> TimelineController { TimelineController() }
-    public func updateUIViewController(_ controller: TimelineController, context: Context) { controller.onAction = onAction; controller.update(messages, theme: theme, locale: locale, isGroup: isGroup) }
+    public func updateUIViewController(_ controller: TimelineController, context: Context) { controller.onAction = onAction; controller.update(messages, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID) }
 }
 #endif

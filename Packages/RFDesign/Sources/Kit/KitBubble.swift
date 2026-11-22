@@ -21,6 +21,7 @@ public struct KitBubble: View {
     var maxWidth: CGFloat?
     var tag: String?
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     public init(
         _ bodyText: String,
@@ -92,24 +93,33 @@ public struct KitBubble: View {
             if kind == .file {
                 fileRow(meta: meta)
             } else {
-                HStack(alignment: .bottom, spacing: KitMetrics.headerGap) {
+                // At accessibility text sizes the meta cluster moves under the text (trailing), so a
+                // narrow bubble does not squeeze the message into a one-word column.
+                let layout = typeSize.isAccessibilitySize
+                    ? AnyLayout(VStackLayout(alignment: .trailing, spacing: KitMetrics.bubbleGap))
+                    : AnyLayout(HStackLayout(alignment: .bottom, spacing: KitMetrics.headerGap))
+                layout {
                     KitMessageText(bodyText, color: ink)
-                    HStack(spacing: KitMetrics.replyRadius) {
-                        if let edited, !edited.isEmpty {
-                            KitLabel(edited, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
-                        }
-                        if let time, !time.isEmpty {
-                            KitLabel(time, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
-                        }
-                        if pending { KitIcon(name: "clock-3", size: KitMetrics.metaIcon, tint: meta) }
-                        if own && !pending && (read || !(time ?? "").isEmpty) {
-                            KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
-                        }
-                    }
-                    .fixedSize()
+                    metaCluster(own: own, ink: ink, meta: meta)
                 }
             }
         }
+    }
+
+    private func metaCluster(own: Bool, ink: Color, meta: Color) -> some View {
+        HStack(spacing: KitMetrics.replyRadius) {
+            if let edited, !edited.isEmpty {
+                KitLabel(edited, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
+            }
+            if let time, !time.isEmpty {
+                KitLabel(time, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
+            }
+            if pending { KitIcon(name: "clock-3", size: KitMetrics.metaIcon, tint: meta) }
+            if own && !pending && (read || !(time ?? "").isEmpty) {
+                KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
+            }
+        }
+        .fixedSize()
     }
 
     private var bubbleShape: UnevenRoundedRectangle {

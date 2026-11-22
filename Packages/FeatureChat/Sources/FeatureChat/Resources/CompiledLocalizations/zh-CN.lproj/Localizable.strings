@@ -4,6 +4,8 @@
 <dict>
 	<key>chat.composer.cancel</key>
 	<string>取消</string>
+	<key>chat.delete.confirmSummary</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.delete.everyone</key>
 	<string>为所有人删除</string>
 	<key>chat.delete.everyone.fact</key>
@@ -24,6 +26,8 @@
 	<string>正在回复</string>
 	<key>chat.reply.quote</key>
 	<string>回复</string>
+	<key>chat.timeline.unreadDivider</key>
+	<string>以下为未读消息</string>
 	<key>copy.01fad993ff61</key>
 	<string>表情回应</string>
 	<key>copy.0e9161011702</key>
@@ -66,7 +70,5 @@
 	<string>暂无消息</string>
 	<key>copy.f67cb7740d52</key>
 	<string>从我的设备中删除</string>
-	<key>copy.f6f4688ff23d</key>
-	<string>发送</string>
 </dict>
 </plist>

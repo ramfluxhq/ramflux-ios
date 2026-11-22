@@ -338,22 +338,6 @@
         }
       }
     },
-    "copy.f6f4688ff23d": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发送"
-          }
-        }
-      }
-    },
     "chat.delete.everyone": {
       "localizations": {
         "en": {
@@ -526,6 +510,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "回复"
+          }
+        }
+      }
+    },
+    "chat.timeline.unreadDivider": {
+      "comment": "Divider in the chat timeline above the first unread message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread messages below"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下为未读消息"
+          }
+        }
+      }
+    },
+    "chat.delete.confirmSummary": {
+      "comment": "Delete confirmation summary. %1$@ is the action summary, %2$@ is the message id shown left to right.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
           }
         }
       }
