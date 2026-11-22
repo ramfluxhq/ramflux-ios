@@ -118,10 +118,11 @@ The UI copy check rejects literal presentation labels and is language-agnostic:
 the shipped locales are the locales present in the catalogs, so adding a
 language is a resources-only change. Every key needs its English entry and every
 shipped locale, plural variations must have exactly the CLDR categories of their
-language (`scripts/cldr-plural-categories.json`), and new `copy.<hash>` keys,
-new keys without a translator comment and localised text assembled with `+` or
-a literal separator fail. Existing debt is listed in
-`scripts/localization-baseline.json`, which may only shrink.
+language (`scripts/cldr-plural-categories.json`), and new keys without a
+translator comment and localised text assembled with `+` or a literal separator
+fail. Keys are readable hierarchical names (`feature.screen.element[.state]`); a
+hashed `copy.<hash>` key in a catalog or a Swift source always fails. Existing
+debt is listed in `scripts/localization-baseline.json`, which may only shrink.
 Captures run over English, Chinese, the expanded pseudo-locale `en-XA` and
 Arabic (right to left, English fallback copy) in both themes.
 

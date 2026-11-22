@@ -58,9 +58,9 @@ public struct NativeChatRepository: ChatRepository {
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
     public func unavailable(_ capability: ChatCapability) -> AppFailure {
         switch capability {
-        case .calls: .unavailableResource("copy.8f3374ffa405")
-        case .details: .unavailableResource("copy.98b57b0920ec")
-        case .attachmentTransfer: .unavailableResource("copy.0e3b0c4afad6")
+        case .calls: .unavailableResource("chat.unavailable.calls")
+        case .details: .unavailableResource("chat.unavailable.details")
+        case .attachmentTransfer: .unavailableResource("chat.unavailable.attachmentTransfer")
         }
     }
     public func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]> {
@@ -142,9 +142,9 @@ public struct UnavailableChatRepository: ChatRepository {
     public init() {}
     public func unavailable(_ capability: ChatCapability) -> AppFailure {
         switch capability {
-        case .calls: .unavailableResource("copy.8f3374ffa405")
-        case .details: .unavailableResource("copy.98b57b0920ec")
-        case .attachmentTransfer: .unavailableResource("copy.0e3b0c4afad6")
+        case .calls: .unavailableResource("chat.unavailable.calls")
+        case .details: .unavailableResource("chat.unavailable.details")
+        case .attachmentTransfer: .unavailableResource("chat.unavailable.attachmentTransfer")
         }
     }
     public func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]> { .failure(.sdkUnavailable) }

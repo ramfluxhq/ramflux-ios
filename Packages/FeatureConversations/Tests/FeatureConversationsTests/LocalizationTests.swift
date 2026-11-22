@@ -5,7 +5,7 @@ import Testing
 @testable import FeatureConversations
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.04d7b4833927"
+        let key = "common.tab.messages"
         let english = FeatureConversationsStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = FeatureConversationsStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureConversationsStrings.text(key, locale: Locale(identifier: "en-XA"))

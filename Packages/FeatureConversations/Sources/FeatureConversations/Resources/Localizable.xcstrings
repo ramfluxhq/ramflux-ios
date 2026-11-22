@@ -4,11 +4,22 @@
   "strings": {
     "conversations.account.current": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Current account" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "当前账号" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前账号"
+          }
+        }
       }
     },
-    "copy.04d7b4833927": {
+    "common.tab.messages": {
+      "comment": "Name of the Messages tab and title of the conversation list.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -24,7 +35,8 @@
         }
       }
     },
-    "copy.0d60084f056e": {
+    "conversations.empty.title": {
+      "comment": "Title when there are no conversations.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -40,7 +52,8 @@
         }
       }
     },
-    "copy.0e9161011702": {
+    "common.action.refresh": {
+      "comment": "Button that reloads the current screen from the account service.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -56,7 +69,8 @@
         }
       }
     },
-    "copy.10eb36925a11": {
+    "conversations.empty.message": {
+      "comment": "Explains that adding a contact starts a conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -72,7 +86,8 @@
         }
       }
     },
-    "copy.4ebdb8769377": {
+    "contacts.strangers.title": {
+      "comment": "Title of the list of requests from people who are not contacts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -88,7 +103,8 @@
         }
       }
     },
-    "copy.8d384c507b47": {
+    "conversations.loading": {
+      "comment": "Progress label while conversations load.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -104,7 +120,8 @@
         }
       }
     },
-    "copy.b450645debe2": {
+    "common.tab.contacts": {
+      "comment": "Title of the Contacts screen and label of the header button that opens it.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -120,7 +137,8 @@
         }
       }
     },
-    "copy.ddf0602b21a7": {
+    "conversations.search.placeholder": {
+      "comment": "Placeholder of the search field above the conversation list.",
       "localizations": {
         "en": {
           "stringUnit": {

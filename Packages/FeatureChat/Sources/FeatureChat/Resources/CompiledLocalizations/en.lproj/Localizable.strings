@@ -4,6 +4,8 @@
 <dict>
 	<key>chat.composer.cancel</key>
 	<string>Cancel</string>
+	<key>chat.composer.placeholder</key>
+	<string>Message</string>
 	<key>chat.delete.confirmSummary</key>
 	<string>%1$@ · %2$@</string>
 	<key>chat.delete.everyone</key>
@@ -12,10 +14,32 @@
 	<string>This removes the message for everyone in the conversation.</string>
 	<key>chat.delete.everyone.summary</key>
 	<string>Delete for everyone</string>
+	<key>chat.delete.mine.fact</key>
+	<string>This does not erase copies on other people's devices.</string>
+	<key>chat.delete.mine.summary</key>
+	<string>Delete message</string>
+	<key>chat.delete.mine.title</key>
+	<string>Delete from your own devices?</string>
 	<key>chat.edit.banner</key>
 	<string>Editing</string>
 	<key>chat.edited</key>
 	<string>Edited</string>
+	<key>chat.empty.message</key>
+	<string>Messages in this conversation will appear here.</string>
+	<key>chat.empty.title</key>
+	<string>No messages yet</string>
+	<key>chat.loading</key>
+	<string>Loading messages</string>
+	<key>chat.message.callHistory</key>
+	<string>Call history</string>
+	<key>chat.message.deleteMine</key>
+	<string>Delete from my devices</string>
+	<key>chat.message.deleted</key>
+	<string>Message deleted</string>
+	<key>chat.message.edit</key>
+	<string>Edit</string>
+	<key>chat.message.react</key>
+	<string>React</string>
 	<key>chat.reaction.add</key>
 	<string>Add reaction</string>
 	<key>chat.reaction.remove</key>
@@ -26,49 +50,17 @@
 	<string>Replying</string>
 	<key>chat.reply.quote</key>
 	<string>Reply</string>
+	<key>chat.send.failed</key>
+	<string>Delivery failed</string>
+	<key>chat.send.retry</key>
+	<string>Retry original send</string>
+	<key>chat.send.submitted</key>
+	<string>Submitted to account service</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>Unread messages below</string>
-	<key>copy.01fad993ff61</key>
-	<string>React</string>
-	<key>copy.0e9161011702</key>
+	<key>common.action.refresh</key>
 	<string>Refresh</string>
-	<key>copy.2f77668a9dfb</key>
-	<string>Message</string>
-	<key>copy.3b6e2ca67ca5</key>
-	<string>Messages in this conversation will appear here.</string>
-	<key>copy.464c4ffd019e</key>
-	<string>Edit</string>
-	<key>copy.4ef7d6d3a97d</key>
-	<string>This does not erase copies on other people's devices.</string>
-	<key>copy.7e94d4b9a46b</key>
-	<string>Message deleted</string>
-	<key>copy.83ceae7197e5</key>
-	<string>Call history</string>
-	<key>copy.87b2e22c1b97</key>
-	<string>Retry original send</string>
-	<key>copy.87e7176a7ce7</key>
-	<string>Delete message</string>
-	<key>copy.8a7b78a5873c</key>
-	<string>The account service reported delivery failed. The original operation is retained.</string>
-	<key>copy.a45a93aaa69f</key>
-	<string>Delete from your own devices?</string>
-	<key>copy.a8a3813c2900</key>
-	<string>Submitted to account service</string>
-	<key>copy.aa8730bbb4e3</key>
-	<string>Loading messages</string>
-	<key>copy.b486522010d5</key>
-	<string>Delivery failed</string>
-	<key>copy.c253f451bdd5</key>
+	<key>common.action.reply</key>
 	<string>Reply</string>
-	<key>copy.d406ade2958c</key>
-	<string>Attach</string>
-	<key>copy.d47d7cb0e4f8</key>
-	<string>More</string>
-	<key>copy.d6e645b7d2b2</key>
-	<string>Call</string>
-	<key>copy.f42e0f66017d</key>
-	<string>No messages yet</string>
-	<key>copy.f67cb7740d52</key>
-	<string>Delete from my devices</string>
 </dict>
 </plist>

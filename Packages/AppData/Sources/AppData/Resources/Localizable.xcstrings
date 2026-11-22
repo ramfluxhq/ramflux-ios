@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.04d7b4833927": {
+    "common.tab.messages": {
+      "comment": "Name of the Messages tab and title of the conversation list.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.0e3b0c4afad6": {
+    "chat.unavailable.attachmentTransfer": {
+      "comment": "Shown when an attachment cannot be downloaded because file storage is not integrated yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.11cc2995d69e": {
+    "session.unavailable.custodyProvider": {
+      "comment": "Shown when account setup needs the phone's protected key provider, which is not available yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.1b6fe0889add": {
+    "failure.outcomeUnknown.message": {
+      "comment": "Explanation when the app could not confirm whether an action finished.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,7 +70,8 @@
         }
       }
     },
-    "copy.25c796d9c8f8": {
+    "chat.message.unsupported": {
+      "comment": "Placeholder for a message whose content cannot be shown as text.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -82,7 +87,8 @@
         }
       }
     },
-    "copy.25f5b958f6a6": {
+    "contacts.unavailable.atomicVerification": {
+      "comment": "Shown when marking a safety number as verified cannot be bound to the exact number on screen; nothing was recorded.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -98,7 +104,8 @@
         }
       }
     },
-    "copy.279b44d2ab4b": {
+    "common.tab.agents": {
+      "comment": "Name of the Agents tab (automated assistants the user manages).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,7 +121,8 @@
         }
       }
     },
-    "copy.29ea6afd1a52": {
+    "failure.invalidInput.title": {
+      "comment": "Short title when the entered data was rejected.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -130,7 +138,8 @@
         }
       }
     },
-    "copy.39bbb719fa2b": {
+    "common.tab.groups": {
+      "comment": "Name of the Groups tab (group conversations).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -146,23 +155,8 @@
         }
       }
     },
-    "copy.4f3713e485e9": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your last confirmed state is preserved."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上次已确认的状态已保留。"
-          }
-        }
-      }
-    },
-    "copy.528e4d2bc7b7": {
+    "contacts.unavailable.reporting": {
+      "comment": "Shown when reporting a stranger is not available yet; declining or blocking still works.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -178,7 +172,8 @@
         }
       }
     },
-    "copy.536ec5ca4da6": {
+    "failure.invalidData.title": {
+      "comment": "Short title when the service returned data the app cannot read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -194,7 +189,8 @@
         }
       }
     },
-    "copy.5562fbd3e629": {
+    "failure.sdkUnavailable.title": {
+      "comment": "Short title when the account service library is not available in this build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -210,7 +206,8 @@
         }
       }
     },
-    "copy.5856eb3d60b0": {
+    "failure.upgradeRequired.title": {
+      "comment": "Short title when the app must be updated before it can continue.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -226,7 +223,8 @@
         }
       }
     },
-    "copy.61e1cb437dd3": {
+    "conversations.unavailable.search": {
+      "comment": "Shown when local message search is not available in this build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -242,7 +240,8 @@
         }
       }
     },
-    "copy.68d02ee6497e": {
+    "failure.locked.title": {
+      "comment": "Short title when the account is locked and must be unlocked first.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -258,7 +257,8 @@
         }
       }
     },
-    "copy.6bf512f2eab9": {
+    "conversations.unavailable.searchService": {
+      "comment": "Shown when the account service does not offer local message search yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -274,7 +274,8 @@
         }
       }
     },
-    "copy.6d135fefd8df": {
+    "session.unavailable.featureNotInstalled": {
+      "comment": "Shown when a feature module is not installed in this build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -290,7 +291,8 @@
         }
       }
     },
-    "copy.6dc7a42f5b47": {
+    "contacts.unavailable.batch": {
+      "comment": "Shown when deciding several contact requests at once is not available yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -306,7 +308,8 @@
         }
       }
     },
-    "copy.70336657918f": {
+    "settings.unavailable.pairing": {
+      "comment": "Shown when linking another device is not available in this build; no code or authorization was created.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -322,7 +325,8 @@
         }
       }
     },
-    "copy.70de3acff368": {
+    "failure.locked.message": {
+      "comment": "Explanation when the device must be unlocked before local records can be opened.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,7 +342,8 @@
         }
       }
     },
-    "copy.787406ddea2a": {
+    "failure.unavailable.title": {
+      "comment": "Short title when a feature is not available yet in this build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -354,7 +359,8 @@
         }
       }
     },
-    "copy.79ee17726170": {
+    "backup.import.tooLarge": {
+      "comment": "Shown when a backup archive is larger than the phone import limit. Keep \"256 MiB\" as written.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -370,7 +376,8 @@
         }
       }
     },
-    "copy.7cca3d86d331": {
+    "session.unavailable.nativeCore": {
+      "comment": "Shown when this build has no account service; reassures that saved data is unchanged.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -386,7 +393,8 @@
         }
       }
     },
-    "copy.7fe3baa7c52d": {
+    "failure.invalidData.message": {
+      "comment": "Explanation when the service returned data the app cannot read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -402,7 +410,8 @@
         }
       }
     },
-    "copy.84f9c932bfcd": {
+    "failure.invalidInput.message": {
+      "comment": "Explanation when required fields are missing or invalid.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -418,7 +427,8 @@
         }
       }
     },
-    "copy.8f3374ffa405": {
+    "chat.unavailable.calls": {
+      "comment": "Shown when calling is not available in this phone build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -434,23 +444,8 @@
         }
       }
     },
-    "copy.90e302595fee": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Editing, reactions and replies require the updated message service."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "编辑、表情回应和引用回复需要更新后的消息服务。"
-          }
-        }
-      }
-    },
-    "copy.9503c0e50707": {
+    "failure.resyncRequired.title": {
+      "comment": "Short title asking the user to reload local records after missed updates.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -466,7 +461,8 @@
         }
       }
     },
-    "copy.98b57b0920ec": {
+    "chat.unavailable.details": {
+      "comment": "Shown when conversation details are not available in this phone build.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -482,7 +478,8 @@
         }
       }
     },
-    "copy.9dcdd3257d89": {
+    "failure.busy.title": {
+      "comment": "Short title when the service is busy and the user should retry soon.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -498,7 +495,8 @@
         }
       }
     },
-    "copy.a18c44969ead": {
+    "failure.unsupported.message": {
+      "comment": "Explanation when the account service does not support the requested action.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -514,23 +512,8 @@
         }
       }
     },
-    "copy.ab827e3fe17d": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Something went wrong"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "出现错误"
-          }
-        }
-      }
-    },
-    "copy.b5e82d852d43": {
+    "failure.outcomeUnknown.title": {
+      "comment": "Short title when the app could not confirm whether an action finished.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -546,7 +529,8 @@
         }
       }
     },
-    "copy.b72e06e9393e": {
+    "settings.unavailable.openAccount": {
+      "comment": "Shown when being reachable by open account or username is not available yet; explains it differs from accepting requests automatically.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -562,7 +546,8 @@
         }
       }
     },
-    "copy.c294a0b00e74": {
+    "failure.offline.message": {
+      "comment": "Explanation when there is no connection; local records and drafts are kept.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -578,7 +563,8 @@
         }
       }
     },
-    "copy.c3654c6a066c": {
+    "failure.sdkUnavailable.message": {
+      "comment": "Explanation when this build cannot open the account service; reassures that saved data is unchanged.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -594,7 +580,8 @@
         }
       }
     },
-    "copy.cdf40b9785de": {
+    "settings.unavailable.connectedServices": {
+      "comment": "Shown when advanced connected-service settings must be changed on the desktop app.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -610,7 +597,8 @@
         }
       }
     },
-    "copy.d47d7cb0e4f8": {
+    "common.tab.more": {
+      "comment": "Name of the More tab, which lists the remaining sections of the app.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -626,7 +614,8 @@
         }
       }
     },
-    "copy.dafb5d4bae01": {
+    "failure.busy.message": {
+      "comment": "Explanation when another operation or another writer of the account is still running.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -642,7 +631,8 @@
         }
       }
     },
-    "copy.dcaee1a8b499": {
+    "failure.resyncRequired.message": {
+      "comment": "Explanation that some updates were missed and a refresh reloads current records.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -658,7 +648,8 @@
         }
       }
     },
-    "copy.e1f1db374598": {
+    "settings.unavailable.diagnosticExport": {
+      "comment": "Shown when exporting diagnostics is not available; no private data was shared.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -674,7 +665,8 @@
         }
       }
     },
-    "copy.e40966162b11": {
+    "common.connection.failed": {
+      "comment": "Title shown when the app cannot reach the account service or the chosen node.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -690,7 +682,8 @@
         }
       }
     },
-    "copy.e48183526bae": {
+    "contacts.unavailable.replyWithoutAcceptance": {
+      "comment": "Shown when replying to a request without accepting it is not available yet; no contact was accepted.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -706,7 +699,8 @@
         }
       }
     },
-    "copy.e6aaf3412a3a": {
+    "contacts.unavailable.identityCommitment": {
+      "comment": "Shown when the contact's current identity record cannot be read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -722,7 +716,8 @@
         }
       }
     },
-    "copy.f92268007794": {
+    "failure.upgradeRequired.message": {
+      "comment": "Explanation when the app must be updated before this account can be used.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1266,7 +1261,8 @@
         }
       }
     },
-    "FeatureChat.copy.8a7b78a5873c": {
+    "chat.send.deliveryFailed": {
+      "comment": "Shown when the account service reports that sending failed; the original send can be retried.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1282,7 +1278,8 @@
         }
       }
     },
-    "FeatureOnboarding.copy.d59626702d22": {
+    "onboarding.failure.setupExpired": {
+      "comment": "Shown when account setup timed out and must start again.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1298,7 +1295,8 @@
         }
       }
     },
-    "FeatureOnboarding.copy.5fca79c1258a": {
+    "onboarding.failure.pairingUnavailable": {
+      "comment": "Shown when this build cannot pair with another device; no pairing code was created.",
       "localizations": {
         "en": {
           "stringUnit": {

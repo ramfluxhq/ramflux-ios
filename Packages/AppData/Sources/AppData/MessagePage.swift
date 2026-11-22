@@ -57,7 +57,7 @@ enum MessagePage {
                 continue
             }
             if state == "unsupported" || kindName == "unsupported" {
-                records.append(MessageRecord(id: id, sender: sender, kind: .unsupported(AppDataStrings.text("copy.25c796d9c8f8")), isOwn: own, timestamp: stamp))
+                records.append(MessageRecord(id: id, sender: sender, kind: .unsupported(AppDataStrings.text("chat.message.unsupported")), isOwn: own, timestamp: stamp))
                 continue
             }
             guard kindName == "message" || state == "content" else { continue }
@@ -70,7 +70,7 @@ enum MessagePage {
             }
             let kind: MessageRecord.Kind
             if let text, text.utf8.count <= 65_536 { kind = .text(text) }
-            else { kind = .unsupported(AppDataStrings.text("copy.25c796d9c8f8")) }
+            else { kind = .unsupported(AppDataStrings.text("chat.message.unsupported")) }
             let reply = row["content"]?["message"]?["replyTo"]?["id"]?.string.map(normalizeIdentifier)
             records.append(MessageRecord(id: id, sender: sender, kind: kind, isOwn: own, timestamp: stamp, receipt: receiptText(row["receipts"], own: own), edited: edited, replyTo: reply?.isEmpty == false ? reply : nil, reactions: reactions(row["reactions"])))
         }

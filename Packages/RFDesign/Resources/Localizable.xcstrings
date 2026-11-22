@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.a2538eaa411f": {
+    "kit.secret.confirmOnce": {
+      "comment": "Button under a protected secret field: submits it in a single attempt.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.c771af79a1fe": {
+    "kit.load.readingRecords": {
+      "comment": "Explanation while local records are read from storage.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.d8b8392e2c54": {
+    "kit.load.retry": {
+      "comment": "Button that retries loading after an error.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.dc380888c4e2": {
+    "kit.load.loading": {
+      "comment": "Progress label while content loads.",
       "localizations": {
         "en": {
           "stringUnit": {

@@ -11,9 +11,9 @@ public enum UnavailableReason: String, Sendable, Equatable {
     public var message: String { message(locale: .current) }
     public func message(locale: Locale) -> String {
         switch self {
-        case .nativeCoreMissing: AppDataStrings.text("copy.7cca3d86d331", locale: locale)
-        case .featureNotInstalled: AppDataStrings.text("copy.6d135fefd8df", locale: locale)
-        case .custodyProviderPending: AppDataStrings.text("copy.11cc2995d69e", locale: locale)
+        case .nativeCoreMissing: AppDataStrings.text("session.unavailable.nativeCore", locale: locale)
+        case .featureNotInstalled: AppDataStrings.text("session.unavailable.featureNotInstalled", locale: locale)
+        case .custodyProviderPending: AppDataStrings.text("session.unavailable.custodyProvider", locale: locale)
         }
     }
 }

@@ -5,7 +5,7 @@ import Testing
 @testable import FeatureSettings
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.01a234cb80c4"
+        let key = "settings.devices.link"
         let english = FeatureSettingsStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = FeatureSettingsStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureSettingsStrings.text(key, locale: Locale(identifier: "en-XA"))

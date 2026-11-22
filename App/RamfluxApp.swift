@@ -42,21 +42,21 @@ import RFDesign
                 case .cards: return AnyView(CardsHost(coordinator: composition.cards))
                 case .tasks, .permissions:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .calls(let conversation):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(CallsHost(coordinator: composition.calls(account: account, conversation: conversation))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .groupConversation(let id, let title):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, isGroup: true, title: title))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.ca69b8b49dd0"))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .contacts, .strangers, .contact, .safetyNumber:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
                         let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
-                    } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("copy.3601da87db9d"), message: RamfluxAppStrings.text("copy.8a07f13cdb0d"))) }
+                    } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
                 case .notices: return AnyView(NoticesScreen())
                 case .shellNavigation:

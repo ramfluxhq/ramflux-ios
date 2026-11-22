@@ -2,110 +2,86 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>FeatureChat.copy.8a7b78a5873c</key>
-	<string>The account service reported delivery failed. The original operation is retained.</string>
-	<key>FeatureOnboarding.copy.5fca79c1258a</key>
-	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
-	<key>FeatureOnboarding.copy.d59626702d22</key>
-	<string>Setup expired. Start a new account ceremony.</string>
 	<key>agents.unavailable</key>
 	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
+	<key>backup.import.tooLarge</key>
+	<string>This archive exceeds the 256 MiB mobile import limit.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
 	<key>cards.unavailable</key>
 	<string>Interactive cards are not available on this device yet. You can continue using messages and your account.</string>
-	<key>copy.04d7b4833927</key>
-	<string>Messages</string>
-	<key>copy.0e3b0c4afad6</key>
-	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
-	<key>copy.11cc2995d69e</key>
-	<string>Account setup requires the phone's protected key provider.</string>
-	<key>copy.1b6fe0889add</key>
-	<string>The action may have completed. Check its current status before starting another attempt.</string>
-	<key>copy.25c796d9c8f8</key>
+	<key>chat.message.unsupported</key>
 	<string>This message has no displayable text projection.</string>
-	<key>copy.25f5b958f6a6</key>
-	<string>The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.</string>
-	<key>copy.279b44d2ab4b</key>
-	<string>Agents</string>
-	<key>copy.29ea6afd1a52</key>
-	<string>Check your input</string>
-	<key>copy.39bbb719fa2b</key>
-	<string>Groups</string>
-	<key>copy.4f3713e485e9</key>
-	<string>Your last confirmed state is preserved.</string>
-	<key>copy.528e4d2bc7b7</key>
-	<string>Stranger reporting is not available in the account service yet. Decline or block remains available.</string>
-	<key>copy.536ec5ca4da6</key>
-	<string>Unable to read this information</string>
-	<key>copy.5562fbd3e629</key>
-	<string>Account services are unavailable</string>
-	<key>copy.5856eb3d60b0</key>
-	<string>An update is required</string>
-	<key>copy.61e1cb437dd3</key>
-	<string>Local message search is not available yet.</string>
-	<key>copy.68d02ee6497e</key>
-	<string>Unlock this account</string>
-	<key>copy.6bf512f2eab9</key>
-	<string>Local message search is not available in the account service yet.</string>
-	<key>copy.6d135fefd8df</key>
-	<string>This feature module is not installed yet.</string>
-	<key>copy.6dc7a42f5b47</key>
-	<string>Batch decisions are not available yet. Review each request separately.</string>
-	<key>copy.70336657918f</key>
-	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
-	<key>copy.70de3acff368</key>
-	<string>Unlock this device before opening your local records.</string>
-	<key>copy.787406ddea2a</key>
-	<string>Not available yet</string>
-	<key>copy.79ee17726170</key>
-	<string>This archive exceeds the 256 MiB mobile import limit.</string>
-	<key>copy.7cca3d86d331</key>
-	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
-	<key>copy.7fe3baa7c52d</key>
-	<string>The service returned information this app cannot display.</string>
-	<key>copy.84f9c932bfcd</key>
-	<string>Complete the required fields before continuing.</string>
-	<key>copy.8f3374ffa405</key>
+	<key>chat.send.deliveryFailed</key>
+	<string>The account service reported delivery failed. The original operation is retained.</string>
+	<key>chat.unavailable.attachmentTransfer</key>
+	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
+	<key>chat.unavailable.calls</key>
 	<string>Calling is not available in this phone build.</string>
-	<key>copy.90e302595fee</key>
-	<string>Editing, reactions and replies require the updated message service.</string>
-	<key>copy.9503c0e50707</key>
-	<string>Refresh your local records</string>
-	<key>copy.98b57b0920ec</key>
+	<key>chat.unavailable.details</key>
 	<string>Conversation details are not available in this phone build.</string>
-	<key>copy.9dcdd3257d89</key>
-	<string>Please try again shortly</string>
-	<key>copy.a18c44969ead</key>
-	<string>This action is not supported by the account service.</string>
-	<key>copy.ab827e3fe17d</key>
-	<string>Something went wrong</string>
-	<key>copy.b5e82d852d43</key>
-	<string>Outcome not confirmed</string>
-	<key>copy.b72e06e9393e</key>
-	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
-	<key>copy.c294a0b00e74</key>
-	<string>Check your connection. Your local records and drafts are kept.</string>
-	<key>copy.c3654c6a066c</key>
-	<string>This build cannot open the account service. Your saved data has not been changed.</string>
-	<key>copy.cdf40b9785de</key>
-	<string>Advanced connected-service configuration is managed on your desktop.</string>
-	<key>copy.d47d7cb0e4f8</key>
-	<string>More</string>
-	<key>copy.dafb5d4bae01</key>
-	<string>Another operation or account writer is still active.</string>
-	<key>copy.dcaee1a8b499</key>
-	<string>An update gap occurred. Refresh to load current records and reopen updates.</string>
-	<key>copy.e1f1db374598</key>
-	<string>Sanitized diagnostic export is not available in this build. No private account data has been shared.</string>
-	<key>copy.e40966162b11</key>
+	<key>common.connection.failed</key>
 	<string>Unable to connect</string>
-	<key>copy.e48183526bae</key>
-	<string>The service does not expose this request's reply conversation yet. No contact has been accepted.</string>
-	<key>copy.e6aaf3412a3a</key>
+	<key>common.tab.agents</key>
+	<string>Agents</string>
+	<key>common.tab.groups</key>
+	<string>Groups</string>
+	<key>common.tab.messages</key>
+	<string>Messages</string>
+	<key>common.tab.more</key>
+	<string>More</string>
+	<key>contacts.unavailable.atomicVerification</key>
+	<string>The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.</string>
+	<key>contacts.unavailable.batch</key>
+	<string>Batch decisions are not available yet. Review each request separately.</string>
+	<key>contacts.unavailable.identityCommitment</key>
 	<string>The current contact identity commitment is unavailable.</string>
-	<key>copy.f92268007794</key>
+	<key>contacts.unavailable.replyWithoutAcceptance</key>
+	<string>The service does not expose this request's reply conversation yet. No contact has been accepted.</string>
+	<key>contacts.unavailable.reporting</key>
+	<string>Stranger reporting is not available in the account service yet. Decline or block remains available.</string>
+	<key>conversations.unavailable.search</key>
+	<string>Local message search is not available yet.</string>
+	<key>conversations.unavailable.searchService</key>
+	<string>Local message search is not available in the account service yet.</string>
+	<key>failure.busy.message</key>
+	<string>Another operation or account writer is still active.</string>
+	<key>failure.busy.title</key>
+	<string>Please try again shortly</string>
+	<key>failure.invalidData.message</key>
+	<string>The service returned information this app cannot display.</string>
+	<key>failure.invalidData.title</key>
+	<string>Unable to read this information</string>
+	<key>failure.invalidInput.message</key>
+	<string>Complete the required fields before continuing.</string>
+	<key>failure.invalidInput.title</key>
+	<string>Check your input</string>
+	<key>failure.locked.message</key>
+	<string>Unlock this device before opening your local records.</string>
+	<key>failure.locked.title</key>
+	<string>Unlock this account</string>
+	<key>failure.offline.message</key>
+	<string>Check your connection. Your local records and drafts are kept.</string>
+	<key>failure.outcomeUnknown.message</key>
+	<string>The action may have completed. Check its current status before starting another attempt.</string>
+	<key>failure.outcomeUnknown.title</key>
+	<string>Outcome not confirmed</string>
+	<key>failure.resyncRequired.message</key>
+	<string>An update gap occurred. Refresh to load current records and reopen updates.</string>
+	<key>failure.resyncRequired.title</key>
+	<string>Refresh your local records</string>
+	<key>failure.sdkUnavailable.message</key>
+	<string>This build cannot open the account service. Your saved data has not been changed.</string>
+	<key>failure.sdkUnavailable.title</key>
+	<string>Account services are unavailable</string>
+	<key>failure.unavailable.title</key>
+	<string>Not available yet</string>
+	<key>failure.unsupported.message</key>
+	<string>This action is not supported by the account service.</string>
+	<key>failure.upgradeRequired.message</key>
 	<string>Update Ramflux before continuing with this account.</string>
+	<key>failure.upgradeRequired.title</key>
+	<string>An update is required</string>
 	<key>groups.unavailable.archive</key>
 	<string>Group archive is not available in the current SDK.</string>
 	<key>groups.unavailable.history</key>
@@ -118,6 +94,10 @@
 	<string>Group threads and forum posts are not available in this phone build.</string>
 	<key>groups.unavailable.transfer</key>
 	<string>Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet.</string>
+	<key>onboarding.failure.pairingUnavailable</key>
+	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
+	<key>onboarding.failure.setupExpired</key>
+	<string>Setup expired. Start a new account ceremony.</string>
 	<key>onboarding.nodeKeyMismatch</key>
 	<string>The operator key must match the discovered node key. Check it with the operator before confirming.</string>
 	<key>onboarding.nodeRequired</key>
@@ -212,8 +192,22 @@
 	<string>The local file operation failed. Check available storage and file access before trying again.</string>
 	<key>request.refusal.title</key>
 	<string>Request could not complete</string>
+	<key>session.unavailable.custodyProvider</key>
+	<string>Account setup requires the phone's protected key provider.</string>
+	<key>session.unavailable.featureNotInstalled</key>
+	<string>This feature module is not installed yet.</string>
+	<key>session.unavailable.nativeCore</key>
+	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
 	<key>settings.mobileBackup</key>
 	<string>Backup and restore are available on the desktop client. No backup task can be started from this phone.</string>
+	<key>settings.unavailable.connectedServices</key>
+	<string>Advanced connected-service configuration is managed on your desktop.</string>
+	<key>settings.unavailable.diagnosticExport</key>
+	<string>Sanitized diagnostic export is not available in this build. No private account data has been shared.</string>
+	<key>settings.unavailable.openAccount</key>
+	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
+	<key>settings.unavailable.pairing</key>
+	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
 	<key>status.accept</key>
 	<string>Accept</string>
 	<key>status.accepted</key>

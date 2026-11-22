@@ -17,7 +17,7 @@ public enum MoreHubItem: Equatable, Sendable {
         case .route(.settings): "common.nav.settings"
         case .route(.notices): "shell.notices.title"
         case .navigation: "shell.more.navigation"
-        case .accounts: "copy.8a7c8b67fe8b"
+        case .accounts: "shell.accounts.title"
         case .route: "common.nav.settings"
         }
     }

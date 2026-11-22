@@ -16,13 +16,13 @@ public struct AccountPickerScreen: View {
             VStack(spacing: theme.gap) {
                 Button(FeatureAppShellStrings.text("account.add", locale: locale)) { onAction(.open(.onboarding)) }.disabled(state.busy)
                 if state.session.accounts.isEmpty {
-                    RFUnavailableView(title: FeatureAppShellStrings.text("copy.79b40467bd3e", locale: locale), message: FeatureAppShellStrings.text("copy.555b840fbf7c", locale: locale))
+                    RFUnavailableView(title: FeatureAppShellStrings.text("shell.accounts.empty.title", locale: locale), message: FeatureAppShellStrings.text("shell.accounts.empty.message", locale: locale))
                 } else {
                     List(state.session.accounts) { account in
                         Button(account.displayName) { onAction(.selectAccount(account.id)) }.disabled(state.busy)
                     }.scrollContentBackground(.hidden)
                 }
             }.padding(theme.gap)
-        }.navigationTitle(FeatureAppShellStrings.text("copy.8a7c8b67fe8b", locale: locale))
+        }.navigationTitle(FeatureAppShellStrings.text("shell.accounts.title", locale: locale))
     }
 }

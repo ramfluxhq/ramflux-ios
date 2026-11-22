@@ -5,14 +5,14 @@ import Testing
 @testable import AppData
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.04d7b4833927"
+        let key = "common.tab.messages"
         let english = AppDataStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = AppDataStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = AppDataStrings.text(key, locale: Locale(identifier: "en-XA"))
         #expect(english != key); #expect(chinese != key); #expect(chinese != english); #expect(expanded.count > english.count)
     }
     @Test func localeWithoutTranslationsShowsEnglishNotTheKey() {
-        let key = "copy.04d7b4833927"
+        let key = "common.tab.messages"
         let english = AppDataStrings.text(key, locale: Locale(identifier: "en"))
         #expect(AppDataStrings.text(key, locale: Locale(identifier: "ar")) == english)
         #expect(AppDataStrings.text(key, locale: Locale(identifier: "de-DE")) == english)

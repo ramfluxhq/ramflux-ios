@@ -11,14 +11,14 @@ public enum OnboardingStage: String, CaseIterable, Identifiable, Sendable {
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
-        case .launch: FeatureOnboardingStrings.text("copy.28f2d4300544", locale: locale); case .start, .welcome: FeatureOnboardingStrings.text("copy.b9d9bb247022", locale: locale)
-        case .connection, .defaultNode: FeatureOnboardingStrings.text("copy.8e9aff1d599c", locale: locale); case .address: FeatureOnboardingStrings.text("copy.dac665b06b4d", locale: locale)
-        case .checkingAddress, .normalizedAddress: FeatureOnboardingStrings.text("copy.985b82be2098", locale: locale); case .verifying: FeatureOnboardingStrings.text("copy.7cee9719c6e5", locale: locale)
-        case .connectionFailed: FeatureOnboardingStrings.text("copy.e40966162b11", locale: locale); case .restoring: FeatureOnboardingStrings.text("copy.e1b57debc57c", locale: locale); case .offline: FeatureOnboardingStrings.text("copy.4d5c943931a4", locale: locale)
-        case .identity: FeatureOnboardingStrings.text("copy.5f13d96a0063", locale: locale); case .verificationFailed: FeatureOnboardingStrings.text("copy.b47895eadb24", locale: locale); case .saveFailed: FeatureOnboardingStrings.text("copy.0234cae2e221", locale: locale)
-        case .configuration: FeatureOnboardingStrings.text("copy.83c95649b037", locale: locale); case .saving: FeatureOnboardingStrings.text("copy.59d9af4c5214", locale: locale); case .saved: FeatureOnboardingStrings.text("copy.e77b763e169d", locale: locale)
-        case .create: FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale); case .savePhrase: FeatureOnboardingStrings.text("copy.e0d94a676bb9", locale: locale); case .confirmPhrase: FeatureOnboardingStrings.text("copy.a954d93bce56", locale: locale)
-        case .localUnlock: FeatureOnboardingStrings.text("copy.2fcb31c28a31", locale: locale); case .complete: FeatureOnboardingStrings.text("copy.04d3e7f2e48b", locale: locale); case .link: FeatureOnboardingStrings.text("copy.5dfe7b2bb38d", locale: locale); case .recover: FeatureOnboardingStrings.text("copy.51ac0753998e", locale: locale)
+        case .launch: FeatureOnboardingStrings.text("common.appName", locale: locale); case .start, .welcome: FeatureOnboardingStrings.text("onboarding.welcome.title", locale: locale)
+        case .connection, .defaultNode: FeatureOnboardingStrings.text("onboarding.node.choose", locale: locale); case .address: FeatureOnboardingStrings.text("onboarding.stage.customNode", locale: locale)
+        case .checkingAddress, .normalizedAddress: FeatureOnboardingStrings.text("onboarding.stage.checkingAddress", locale: locale); case .verifying: FeatureOnboardingStrings.text("onboarding.stage.verifying", locale: locale)
+        case .connectionFailed: FeatureOnboardingStrings.text("common.connection.failed", locale: locale); case .restoring: FeatureOnboardingStrings.text("onboarding.stage.restoring", locale: locale); case .offline: FeatureOnboardingStrings.text("onboarding.stage.offline", locale: locale)
+        case .identity: FeatureOnboardingStrings.text("onboarding.stage.identity", locale: locale); case .verificationFailed: FeatureOnboardingStrings.text("onboarding.stage.verificationFailed", locale: locale); case .saveFailed: FeatureOnboardingStrings.text("onboarding.stage.saveFailed", locale: locale)
+        case .configuration: FeatureOnboardingStrings.text("onboarding.stage.configuration", locale: locale); case .saving: FeatureOnboardingStrings.text("onboarding.stage.saving", locale: locale); case .saved: FeatureOnboardingStrings.text("onboarding.stage.saved", locale: locale)
+        case .create: FeatureOnboardingStrings.text("onboarding.create.title", locale: locale); case .savePhrase: FeatureOnboardingStrings.text("onboarding.stage.savePhrase", locale: locale); case .confirmPhrase: FeatureOnboardingStrings.text("onboarding.stage.confirmPhrase", locale: locale)
+        case .localUnlock: FeatureOnboardingStrings.text("onboarding.stage.localUnlock", locale: locale); case .complete: FeatureOnboardingStrings.text("onboarding.stage.complete", locale: locale); case .link: FeatureOnboardingStrings.text("onboarding.link.title", locale: locale); case .recover: FeatureOnboardingStrings.text("onboarding.stage.recover", locale: locale)
         }
     }
 }

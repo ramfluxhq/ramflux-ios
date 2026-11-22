@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.3601da87db9d": {
+    "app.locked.title": {
+      "comment": "Title of the placeholder shown instead of a screen while the account is locked.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.8a07f13cdb0d": {
+    "app.locked.contactsMessage": {
+      "comment": "Message under the locked placeholder: contacts can only be read after the account is opened (unlocked).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.94e3068f8e98": {
+    "app.background.releaseStorageTask": {
+      "comment": "Name of the short background task that closes account storage when the app leaves the screen. Appears only in system diagnostics.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.ca69b8b49dd0": {
+    "app.locked.conversationMessage": {
+      "comment": "Message under the locked placeholder: a conversation can only be read after the account is opened (unlocked).",
       "localizations": {
         "en": {
           "stringUnit": {

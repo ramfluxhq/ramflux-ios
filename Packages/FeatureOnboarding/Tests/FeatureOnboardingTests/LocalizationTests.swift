@@ -5,7 +5,7 @@ import Testing
 @testable import FeatureOnboarding
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.0234cae2e221"
+        let key = "onboarding.stage.saveFailed"
         let english = FeatureOnboardingStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = FeatureOnboardingStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureOnboardingStrings.text(key, locale: Locale(identifier: "en-XA"))

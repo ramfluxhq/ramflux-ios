@@ -20,9 +20,9 @@ public struct AppShellScreen: View {
     public var body: some View {
         RFPage {
             if state.privacyShield {
-                Text(FeatureAppShellStrings.text("copy.28f2d4300544", locale: locale))
+                Text(FeatureAppShellStrings.text("common.appName", locale: locale))
                     .font(theme.pageFont)
-                    .accessibilityLabel(FeatureAppShellStrings.text("copy.7a9453b18943", locale: locale))
+                    .accessibilityLabel(FeatureAppShellStrings.text("shell.locked.accessibility", locale: locale))
             } else {
                 VStack(spacing: 0) {
                     if let featureContent {
@@ -46,7 +46,7 @@ public struct AppShellScreen: View {
                 VStack(alignment: .leading, spacing: KitMetrics.rowGap) {
                     sessionStatus
                     if state.session.activeAccountID == nil, state.session.phase == .ready {
-                        KitButton(FeatureAppShellStrings.text("copy.8a7c8b67fe8b", locale: locale), action: { onAction(.openAccounts) }, tag: "shell-accounts")
+                        KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: { onAction(.openAccounts) }, tag: "shell-accounts")
                     }
                     if let failure = state.failure { failureView(failure) }
                 }
@@ -76,27 +76,27 @@ public struct AppShellScreen: View {
     @ViewBuilder private var sessionStatus: some View {
         switch state.session.phase {
         case .opening:
-            ProgressView(FeatureAppShellStrings.text("copy.446531641e6a", locale: locale))
+            ProgressView(FeatureAppShellStrings.text("shell.loading.accountServices", locale: locale))
         case .ready:
             if let account = state.session.activeAccountID {
-                LabeledContent(FeatureAppShellStrings.text("copy.7e1b0d5641f2", locale: locale), value: account)
+                LabeledContent(FeatureAppShellStrings.text("shell.session.account", locale: locale), value: account)
             } else {
                 emptyBlock(
-                    title: FeatureAppShellStrings.text("copy.eab0ba7f342e", locale: locale),
-                    body: FeatureAppShellStrings.text("copy.28f2d4300544", locale: locale),
+                    title: FeatureAppShellStrings.text("shell.noAccount.title", locale: locale),
+                    body: FeatureAppShellStrings.text("common.appName", locale: locale),
                     icon: "user-round"
                 )
             }
         case .unavailable(let reason):
             emptyBlock(
-                title: FeatureAppShellStrings.text("copy.9882e82fed9b", locale: locale),
+                title: FeatureAppShellStrings.text("shell.unavailable.title", locale: locale),
                 body: reason.message(locale: locale),
                 icon: "circle-alert"
             )
         case .failed(let failure):
             failureView(failure)
         case .stopped, .suspended:
-            Text(FeatureAppShellStrings.text("copy.cf60a4dcdd09", locale: locale))
+            Text(FeatureAppShellStrings.text("shell.stopped.title", locale: locale))
         }
     }
 
