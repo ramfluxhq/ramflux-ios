@@ -298,7 +298,7 @@ enum KitCatalog {
                         KitIcon(name: "globe", size: KitMetrics.securityIcon, tint: RFDesign.light.secondary)
                         KitLabel("正在关联的来源", size: 13, weight: .regular, color: RFDesign.light.secondary, line: KitMetrics.lineSecondary)
                     }
-                    KitLabel("https://chat.example.org", size: 17, weight: .semibold, color: RFDesign.light.text, line: KitMetrics.lineTitle)
+                    KitLabel("https://chat.example.org", size: 17, weight: .semibold, color: RFDesign.light.text, line: KitMetrics.lineBody)
                     KitLabel("确认它与那个浏览器地址栏显示的地址完全一致，否则请拒绝。", size: 13, weight: .regular, color: RFDesign.light.secondary, line: KitMetrics.lineSecondary, lines: nil)
                 }
                 .padding(KitMetrics.securityPad)

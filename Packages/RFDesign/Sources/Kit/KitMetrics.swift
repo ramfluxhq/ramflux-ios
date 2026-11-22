@@ -13,8 +13,6 @@ public enum KitMetrics {
     public static let fieldDisabledAlpha: CGFloat = 0.55
     public static let bubbleWidthFraction: CGFloat = 0.78
     public static let agentRadiusRatio: CGFloat = 0.28
-    public static let screen: CGFloat = 393
-    public static let content: CGFloat = 361
     public static let gutter: CGFloat = 16
     public static let lineTight: CGFloat = 1.25
     public static let lineTitle: CGFloat = 1.3
@@ -148,7 +146,8 @@ public enum KitMetrics {
     public static let hero: CGFloat = 72
     public static let heroGlyph: CGFloat = 40
     public static let heroRadius: CGFloat = 36
-    public static let approval: CGFloat = 329
+    /// Widest an approval card grows; it shrinks with its container.
+    public static let approvalMax: CGFloat = 329
     public static let approvalPad: CGFloat = 12
     public static let approvalGap: CGFloat = 10
     public static let scopePad: CGFloat = 10

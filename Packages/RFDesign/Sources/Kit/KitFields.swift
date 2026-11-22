@@ -30,20 +30,20 @@ public struct KitTextField: View {
         let active = focused || editing
         let border = error != nil ? theme.danger : (active ? theme.focus : theme.input_border)
         VStack(alignment: .leading, spacing: KitMetrics.fieldGap) {
-            KitLabel(label, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+            KitLabel(label, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
             HStack(spacing: KitMetrics.headerGap) {
                 fieldText(size: theme.size_mobile_body)
                 if error != nil { KitIcon(name: "circle-alert", size: KitMetrics.fieldIcon, tint: theme.danger) }
             }
             .padding(.horizontal, KitMetrics.fieldPad)
-            .frame(maxWidth: .infinity)
-            .frame(height: KitMetrics.fieldBox)
+            .padding(.vertical, KitMetrics.chipPadV)
+            .frame(maxWidth: .infinity, minHeight: KitMetrics.fieldBox)
             .background(theme.input, in: RoundedRectangle(cornerRadius: theme.radius_input))
             .overlay { RoundedRectangle(cornerRadius: theme.radius_input).strokeBorder(border, lineWidth: KitMetrics.stroke) }
             if let error {
-                KitLabel(error, size: theme.size_secondary, weight: .regular, color: theme.danger, line: KitMetrics.lineSecondary)
+                KitLabel(error, size: theme.size_secondary, weight: .regular, color: theme.danger, line: KitMetrics.lineSecondary, lines: nil)
             } else if let note {
-                KitLabel(note, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                KitLabel(note, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
             }
         }
         .opacity(enabled ? 1 : KitMetrics.fieldDisabledAlpha)
@@ -58,7 +58,7 @@ public struct KitTextField: View {
         } else {
             TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
                 .textFieldStyle(.plain)
-                .font(kitFont(size: size, weight: kitWeight(.regular), role: .ui))
+                .modifier(KitFieldFont(size: size))
                 .foregroundStyle(theme.text)
                 .focused($editing)
                 .disabled(!enabled)
@@ -95,7 +95,7 @@ public struct KitSearchField: View {
             } else {
                 TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
                     .textFieldStyle(.plain)
-                    .font(kitFont(size: theme.size_mobile_body, weight: kitWeight(.regular), role: .ui))
+                    .modifier(KitFieldFont(size: theme.size_mobile_body))
                     .foregroundStyle(value.isEmpty ? theme.secondary : theme.text)
                     .disabled(!enabled)
             }
@@ -113,8 +113,8 @@ public struct KitSearchField: View {
             }
         }
         .padding(.horizontal, KitMetrics.searchPad)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.search)
+        .padding(.vertical, KitMetrics.tagPadV)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.search)
         .background(theme.surface, in: shape)
         .overlay { if focused { shape.strokeBorder(theme.focus, lineWidth: KitMetrics.focusRing) } }
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)

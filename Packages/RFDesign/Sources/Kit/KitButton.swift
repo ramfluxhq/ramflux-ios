@@ -64,10 +64,12 @@ public struct KitButton: View {
         KitHit(enabled: active, label: label, hitTag: tag.map { $0 + "-hit" }, onPress: { holding = $0 }, action: action) {
             HStack(spacing: KitMetrics.headerGap) {
                 if loading { KitSpinner(size: KitMetrics.tileGlyph, tint: labelColor, tag: tag.map { $0 + "-spinner" }) }
-                KitLabel(label, size: theme.size_mobile_body, weight: weight, color: labelColor, line: KitMetrics.lineTitle)
+                KitLabel(label, size: theme.size_mobile_body, weight: weight, color: labelColor, line: KitMetrics.lineTitle, lines: nil)
+                    .multilineTextAlignment(.center)
             }
             .padding(.horizontal, KitMetrics.buttonPadH)
-            .frame(maxWidth: .infinity, minHeight: height, maxHeight: height)
+            .padding(.vertical, KitMetrics.headerPadV)
+            .frame(maxWidth: .infinity, minHeight: height)
             .background(fill, in: shape)
             .overlay { if let stroke { shape.strokeBorder(stroke, lineWidth: KitMetrics.stroke) } }
             .overlay { if focused { shape.strokeBorder(kitFocusRing(fill: fill, theme: theme), lineWidth: KitMetrics.focusRing) } }

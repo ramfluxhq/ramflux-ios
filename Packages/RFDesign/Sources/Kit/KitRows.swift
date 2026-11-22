@@ -74,9 +74,9 @@ public struct KitRow: View {
         HStack(spacing: KitMetrics.rowGap) {
             if let icon { KitIconTile(icon: icon) }
             VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle)
+                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: nil)
                 if let value, !value.isEmpty {
-                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -94,8 +94,7 @@ public struct KitRow: View {
         }
         .padding(.horizontal, KitMetrics.gutter)
         .padding(.vertical, KitMetrics.rowPadV)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.row)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.row)
         .background(pressed ? theme.selected : .clear)
         .kitHairline(theme.line)
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
@@ -187,19 +186,19 @@ public struct KitConversationRow<Avatar: View>: View {
                     if let badge, !badge.isEmpty {
                         KitLabel(badge, size: theme.size_meta, weight: .semibold, color: theme.on_badge, line: KitMetrics.lineTitle)
                             .padding(.horizontal, KitMetrics.listBadgePad)
-                            .frame(height: KitMetrics.listBadge)
+                            .frame(minHeight: KitMetrics.listBadge)
                             .background(theme.badge, in: RoundedRectangle(cornerRadius: KitMetrics.listBadgeRadius))
                     }
                     if pinned { KitIcon(name: "pin", size: KitMetrics.metaIcon, tint: theme.secondary) }
                 }
             }
             .padding(.trailing, KitMetrics.gutter)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .padding(.vertical, KitMetrics.rowPadV)
+            .frame(maxWidth: .infinity, minHeight: KitMetrics.conversation, alignment: .center)
             .kitHairline(theme.line)
         }
         .padding(.leading, KitMetrics.gutter)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.conversation)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.conversation)
         .background(pressed ? theme.selected : .clear)
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
         .contentShape(Rectangle())

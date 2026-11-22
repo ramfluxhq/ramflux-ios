@@ -69,17 +69,16 @@ public struct KitComposer: View {
                     KitIcon(name: "chevron-down", size: KitMetrics.chevron, tint: theme.secondary)
                 }
                 .padding(.horizontal, KitMetrics.modePad)
-                .frame(height: KitMetrics.modeChip)
+                .frame(minHeight: KitMetrics.modeChip)
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_chip))
             }
             if let option, !option.isEmpty {
                 HStack(spacing: KitMetrics.approvalGap) {
                     KitCheckbox(checked: optionChecked, onChecked: onOption, size: KitMetrics.optionBox, radius: theme.radius_xs, strokeColor: theme.line_strong)
-                    KitLabel(option, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                    KitLabel(option, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
                 }
                 .padding(.horizontal, KitMetrics.headerGap)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: KitMetrics.optionRow)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.optionRow, alignment: .leading)
             }
             if let replyAuthor, !replyAuthor.isEmpty {
                 HStack(spacing: KitMetrics.approvalGap) {
@@ -92,15 +91,14 @@ public struct KitComposer: View {
                             KitLabel(replyExcerpt, size: theme.size_button, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                         }
                     }
+                    .padding(.vertical, KitMetrics.capsulePad)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     if let onCloseReply {
                         KitIconHit(icon: "x", size: KitMetrics.iconInfo, tint: theme.secondary, label: RFDesignStrings.text("kit.close"), action: onCloseReply)
                     }
                 }
                 .padding(.leading, KitMetrics.gutter)
-                .padding(.vertical, KitMetrics.capsulePad)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.replyBar)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.replyBar)
             }
             if let attachmentName, !attachmentName.isEmpty {
                 HStack(spacing: KitMetrics.headerGap) {
@@ -119,8 +117,8 @@ public struct KitComposer: View {
                     }
                 }
                 .padding(.leading, KitMetrics.headerGap)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.attachment)
+                .padding(.vertical, KitMetrics.chipPadV)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.attachment)
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             }
             HStack(spacing: KitMetrics.bubbleGap) {
@@ -137,7 +135,7 @@ public struct KitComposer: View {
                     } else {
                         TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
                             .textFieldStyle(.plain)
-                            .font(kitFont(size: theme.size_mobile_body, weight: kitWeight(.regular), role: .ui))
+                            .modifier(KitFieldFont(size: theme.size_mobile_body))
                             .foregroundStyle(theme.text)
                     }
                     KitHit(enabled: sendActive, label: RFDesignStrings.text("kit.send"), hitTag: tag.map { $0 + "-send" }, action: onSend) {
@@ -150,12 +148,11 @@ public struct KitComposer: View {
                 .padding(.leading, KitMetrics.capsulePadStart)
                 .padding(.trailing, KitMetrics.capsulePad)
                 .padding(.vertical, KitMetrics.capsulePad)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.composerRow)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.composerRow)
                 .background(theme.input, in: RoundedRectangle(cornerRadius: KitMetrics.capsuleRadius))
                 .overlay { RoundedRectangle(cornerRadius: KitMetrics.capsuleRadius).strokeBorder(theme.input_border, lineWidth: KitMetrics.stroke) }
             }
-            .frame(height: KitMetrics.composerRow)
+            .frame(minHeight: KitMetrics.composerRow)
         }
         .padding(KitMetrics.composerPad)
         .frame(maxWidth: .infinity, alignment: .leading)

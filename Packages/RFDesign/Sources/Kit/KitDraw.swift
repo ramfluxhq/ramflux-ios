@@ -104,25 +104,6 @@ struct KitSpinner: View {
     }
 }
 
-func KitLabel(
-    _ text: String,
-    size: CGFloat,
-    weight: Font.Weight,
-    color: Color,
-    line: CGFloat = KitMetrics.lineBody,
-    role: KitFontRole = .ui,
-    tracking: CGFloat = 0,
-    lines: Int? = 1,
-    spacing: CGFloat? = nil
-) -> some View {
-    Text(text)
-        .font(kitFont(size: size, weight: kitWeight(weight), role: role))
-        .foregroundStyle(color)
-        .lineSpacing(spacing ?? kitLineSpacing(size: size, weight: weight, line: line, role: role))
-        .tracking(tracking)
-        .lineLimit(lines)
-}
-
 struct KitFlowText: View {
     var text: String
     var size: CGFloat

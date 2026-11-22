@@ -72,7 +72,7 @@ public struct KitBubble: View {
                     if let agentTag, !agentTag.isEmpty {
                         KitLabel(agentTag, size: theme.size_mobile_caption, weight: .semibold, color: theme.secondary, line: KitMetrics.lineTitle, role: .latin)
                             .padding(.horizontal, KitMetrics.chipPadH)
-                            .frame(height: KitMetrics.agentTag)
+                            .frame(minHeight: KitMetrics.agentTag)
                             .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_chip))
                     }
                 }
