@@ -189,6 +189,126 @@
           }
         }
       }
+    },
+    "conversations.requests.pending %llu": {
+      "comment": "Detail line of the message requests row: how many people who are not contacts are waiting.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Messages from %llu person who is not a contact"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Messages from %llu people who are not contacts"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu 位非联系人的消息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "conversations.time.yesterday": {
+      "comment": "Time column of a conversation row whose last activity was yesterday.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "昨天"
+          }
+        }
+      }
+    },
+    "conversations.action.new": {
+      "comment": "Header button that starts a new conversation by choosing a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New conversation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新会话"
+          }
+        }
+      }
+    },
+    "conversations.action.more": {
+      "comment": "Header button that opens more actions for the conversation list.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
+          }
+        }
+      }
+    },
+    "conversations.loadingMore": {
+      "comment": "Shown at the end of the conversation list while the next page loads.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading more conversations"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更多会话"
+          }
+        }
+      }
+    },
+    "conversations.order.note": {
+      "comment": "Footnote at the end of the loaded conversation list: only loaded conversations are sorted by recent activity.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorted by recent activity among the conversations loaded so far."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按最近活动排序（仅限已加载的会话）。"
+          }
+        }
+      }
     }
   }
 }

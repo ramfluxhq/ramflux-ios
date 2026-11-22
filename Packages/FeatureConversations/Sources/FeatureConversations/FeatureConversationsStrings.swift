@@ -13,6 +13,13 @@ public enum FeatureConversationsStrings {
         let value = String(localized: "conversations.unread \(count)", bundle: resolved.bundle, locale: resolved.locale)
         return expanded ? CatalogLookup.expand(value) : value
     }
+    public static func pendingRequests(_ count: UInt, locale: Locale) -> String {
+        guard count > 0 else { return "" }
+        let expanded = CatalogLookup.isExpanded(locale)
+        let resolved = CatalogLookup.resolve("conversations.requests.pending %llu", in: .module, locale: expanded ? Locale(identifier: CatalogLookup.developmentLanguage) : locale)
+        let value = String(localized: "conversations.requests.pending \(count)", bundle: resolved.bundle, locale: resolved.locale)
+        return expanded ? CatalogLookup.expand(value) : value
+    }
     public static func format(_ key: String, _ arguments: CVarArg..., locale: Locale = .current) -> String {
         CatalogLookup.format(key, arguments, bundle: .module, locale: locale)
     }

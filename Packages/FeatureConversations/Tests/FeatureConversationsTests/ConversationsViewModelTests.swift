@@ -6,7 +6,8 @@ import AppData
 private actor DirectoryFake: ConversationsRepository {
     var failure: AppFailure?
     func fail() { failure = .offline }
-    func list(account: String) -> RepositoryResult<[ConversationRecord]> { if let failure { return .failure(failure) }; return .success([ConversationRecord(id: "thread", title: "Thread", preview: "")]) }
+    func page(account: String, cursor: String?, limit: Int) -> RepositoryResult<ConversationPage> { if let failure { return .failure(failure) }; return .success(ConversationPage(rows: [ConversationRecord(id: "thread", title: "Thread", preview: "")], nextCursor: nil)) }
+    func pendingRequests(account: String) -> RepositoryResult<UInt> { .success(2) }
     func search(account: String, query: String) -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable("Search unavailable")) }
     func observe(account: String) -> RepositoryObservation { {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)

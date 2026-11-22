@@ -12,10 +12,12 @@ private actor ControlledDirectory: ConversationsRepository {
     nonisolated let updates = Mutex<AsyncStream<RepositoryUpdate>.Continuation?>(nil)
     private var count = 0
     private var waiting: [Int: CheckedContinuation<RepositoryResult<[ConversationRecord]>, Never>] = [:]
-    func list(account: String) async -> RepositoryResult<[ConversationRecord]> {
+    func page(account: String, cursor: String?, limit: Int) async -> RepositoryResult<ConversationPage> {
         count += 1; let id = count
-        return await withCheckedContinuation { waiting[id] = $0; reads.continuation.yield(id) }
+        let rows = await withCheckedContinuation { waiting[id] = $0; reads.continuation.yield(id) }
+        switch rows { case .success(let value): return .success(ConversationPage(rows: value, nextCursor: nil)); case .failure(let failure): return .failure(failure) }
     }
+    func pendingRequests(account: String) -> RepositoryResult<UInt> { .success(0) }
     func shutdown() {
         for continuation in waiting.values { continuation.resume(returning: .failure(.failed)) }; waiting = [:]
         reads.continuation.finish(); updates.withLock { $0?.finish() }; stopped.continuation.finish()

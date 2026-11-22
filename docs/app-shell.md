@@ -92,6 +92,14 @@ spent on a code the SDK would refuse. SDK refusals `not_six_digits`, `trivial_co
 repeated wrong codes but its C ABI error projection drops `retry_after_secs`, so the app can
 only say "wait a while".
 
+The conversation list reads `conversation.directory` one page (50 rows) at a time through
+`ConversationsRepository.page(account:cursor:limit:)` and follows `next_cursor` when the last
+row appears. The SDK orders directory pages by conversation id and offers no activity-ordered
+cursor (`conversation.list` is recent first but unpaged), so `ConversationsWindow` sorts only the
+loaded rows by `last_activity` off the main actor and says so in a footnote; a refresh re-reads at
+most six pages. Time labels come from `last_activity` (Unix seconds); the SDK provides no preview,
+so none is shown. The message-requests row counts pending inbound `contact.requests.list` rows.
+
 Message sending uses the high-level conversation intent. An uncertain send retains
 its original operation key and text for explicit retry. Device revocation and verified
 archive installation require host-drawn single-tap confirmation bound to the selected facts. Confirmation opens with Cancel focused for keyboard and accessibility. Hardware-key events cannot activate Confirm; its accessibility label names the action and target.

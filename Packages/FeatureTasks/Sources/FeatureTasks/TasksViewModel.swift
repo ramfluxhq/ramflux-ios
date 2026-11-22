@@ -61,7 +61,11 @@ import AppData
             let pending = await repository.pending(account: account)
             let result: TasksReadResult
             switch mode {
-            case .conversations: result = .conversations(await conversations.list(account: account))
+            case .conversations:
+                switch await conversations.page(account: account, cursor: nil, limit: NativeConversationsRepository.pageLimit) {
+                case .success(let page): result = .conversations(.success(page.rows))
+                case .failure(let failure): result = .conversations(.failure(failure))
+                }
             case .list(let conversation): result = .page(await repository.page(account: account, conversation: conversation, cursor: cursor))
             case .detail(let conversation, let task): result = .detail(await repository.detail(account: account, conversation: conversation, task: task))
             case .permissions, .permission: result = .permissions(await repository.permissions(account: account))

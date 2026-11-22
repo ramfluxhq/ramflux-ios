@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Foundation
 import Observation
 import AppData
 @Observable @MainActor public final class ConversationsViewModel {
@@ -13,6 +14,8 @@ import AppData
     @ObservationIgnored private var observationID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
     @ObservationIgnored private var generation: UInt64 = 0
+    @ObservationIgnored private var window = ConversationsWindow()
+    @ObservationIgnored private var locale = Locale.current
     public init(repository: any ConversationsRepository, account: String, accountTitle: String = "", state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) {
         self.repository = repository
         self.account = account
@@ -32,20 +35,23 @@ import AppData
                 let observation = await repository.observe(account: account)
                 for await update in observation.stream {
                     guard !Task.isCancelled, let self else { break }
-                    switch update { case .invalidated: self.state.failure = nil; if self.state.loading { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
+                    switch update { case .invalidated: self.state.failure = nil; if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
                 }
                 await observation.stop()
                 if let self, self.observationID == watchID { self.observer = nil }
             }
         case .refresh: if observer == nil { send(.appeared) } else { reload(search: false) }
+        case .loadMore: loadMore()
+        case .localeChanged(let value): guard value.identifier != locale.identifier else { return }; locale = value; if !state.rows.isEmpty { reload(search: false) }
         case .queryChanged(let query): state.query = String(query.prefix(1024))
         case .search: reload(search: true)
         case .open(let id): if state.rows.contains(where: { $0.id == id }) { emit(.navigate(.conversation(id))) }
-        case .contacts: emit(.navigate(.contacts))
+        case .contacts, .newConversation: emit(.navigate(.contacts))
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
             observationID &+= 1; pendingRefresh = false
             generation &+= 1; work?.cancel(); observer?.cancel(); observer = nil
+            window = ConversationsWindow()
             state = ConversationsState()
             state.accountID = account
             state.accountTitle = accountTitle
@@ -53,15 +59,44 @@ import AppData
     }
     private func reload(search: Bool) {
         generation &+= 1; let epoch = generation
-        work?.cancel(); state.loading = true; state.failure = nil
-        let query = state.query
+        work?.cancel(); state.loading = true; state.loadingMore = false; state.failure = nil
+        let query = state.query, pages = min(max(window.pages, 1), ConversationsWindow.refreshPages), locale = locale
         work = Task { [weak self, repository, account] in
-            let result = search ? await repository.search(account: account, query: query) : await repository.list(account: account)
+            if search {
+                let result = await repository.search(account: account, query: query)
+                guard !Task.isCancelled, let self, self.generation == epoch else { return }
+                self.state.loading = false
+                switch result { case .success(let rows): self.state.rows = rows; case .failure(let error): self.state.failure = error }
+                return
+            }
+            async let requests = repository.pendingRequests(account: account)
+            let loaded = await Task.detached { await ConversationsWindow.load(repository, account: account, pages: pages, locale: locale, now: Date()) }.value
+            let pending = await requests
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
             self.state.loading = false
-            switch result { case .success(let rows): self.state.rows = rows; case .failure(let error): self.state.failure = error; if error == .locked { self.state.rows = [] } }
+            if case .success(let count) = pending { self.state.strangersUnread = count }
+            switch loaded {
+            case .success(let next): self.apply(next)
+            case .failure(let error): self.state.failure = error; if error == .locked { self.window = ConversationsWindow(); self.state.rows = []; self.state.canLoadMore = false }
+            }
             if self.pendingRefresh { self.pendingRefresh = false; self.reload(search: false) }
         }
+    }
+    private func loadMore() {
+        guard window.canLoadMore, !state.loading, !state.loadingMore else { return }
+        generation &+= 1; let epoch = generation
+        state.loadingMore = true
+        let current = window, locale = locale
+        work = Task { [weak self, repository, account] in
+            let result = await Task.detached { await current.appending(repository, account: account, locale: locale, now: Date()) }.value
+            guard !Task.isCancelled, let self, self.generation == epoch else { return }
+            self.state.loadingMore = false
+            switch result { case .success(let next): self.apply(next); case .failure(let error): self.state.failure = error }
+            if self.pendingRefresh { self.pendingRefresh = false; self.reload(search: false) }
+        }
+    }
+    private func apply(_ next: ConversationsWindow) {
+        window = next; state.rows = next.rows; state.canLoadMore = next.canLoadMore
     }
     public func joinObservation() async { await observer?.value }
     public func settle() async { while true { let current = generation; await work?.value; if current == generation { return } } }

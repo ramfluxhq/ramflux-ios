@@ -7,6 +7,7 @@ import RFLocalization
 public struct ConversationsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @State private var showingMore = false
     public let state: ConversationsState
     public let onAction: (ConversationsAction) -> Void
     public init(state: ConversationsState, onAction: @escaping (ConversationsAction) -> Void) { self.state = state; self.onAction = onAction }
@@ -17,8 +18,8 @@ public struct ConversationsScreen: View {
                 large: true,
                 subtitle: accountSubtitle,
                 actions: [
-                    KitHeaderAction(icon: "user-round", label: FeatureConversationsStrings.text("common.tab.contacts", locale: locale), action: { onAction(.contacts) }),
-                    KitHeaderAction(icon: "refresh-cw", label: FeatureConversationsStrings.text("common.action.refresh", locale: locale), action: { onAction(.refresh) }),
+                    KitHeaderAction(icon: "square-pen", label: FeatureConversationsStrings.text("conversations.action.new", locale: locale), action: { onAction(.newConversation) }),
+                    KitHeaderAction(icon: "ellipsis", label: FeatureConversationsStrings.text("conversations.action.more", locale: locale), action: { showingMore = true }),
                 ],
                 tag: "messages-header"
             )
@@ -29,11 +30,11 @@ public struct ConversationsScreen: View {
                 .onSubmit { onAction(.search) }
             if state.loading { ProgressView(FeatureConversationsStrings.text("conversations.loading", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) { onAction(.refresh) } }
-            if state.rows.isEmpty && state.strangersDetail.isEmpty && !state.loading && state.failure == nil { RFUnavailableView(title: FeatureConversationsStrings.text("conversations.empty.title", locale: locale), message: FeatureConversationsStrings.text("conversations.empty.message", locale: locale)) }
+            if state.rows.isEmpty && (state.strangersUnread ?? 0) == 0 && !state.loading && state.failure == nil { RFUnavailableView(title: FeatureConversationsStrings.text("conversations.empty.title", locale: locale), message: FeatureConversationsStrings.text("conversations.empty.message", locale: locale)) }
             ScrollView { LazyVStack(spacing: 0) {
                 KitConversationRow(
                     FeatureConversationsStrings.text("contacts.strangers.title", locale: locale),
-                    preview: state.strangersDetail,
+                    preview: FeatureConversationsStrings.pendingRequests(state.strangersUnread ?? 0, locale: locale),
                     time: "",
                     badge: badge(state.strangersUnread),
                     tag: "strangers",
@@ -56,9 +57,19 @@ public struct ConversationsScreen: View {
                     ) {
                         rowAvatar(row)
                     }
+                    .onAppear { if row.id == state.rows.last?.id { onAction(.loadMore) } }
+                }
+                if state.loadingMore { ProgressView(FeatureConversationsStrings.text("conversations.loadingMore", locale: locale)).padding(theme.gap) }
+                if state.canLoadMore || state.rows.count > ConversationsWindow.pageSize {
+                    Text(FeatureConversationsStrings.text("conversations.order.note", locale: locale)).font(.footnote).foregroundStyle(theme.secondary).padding(theme.gap)
                 }
             } }
         } }
+        .confirmationDialog(FeatureConversationsStrings.text("conversations.action.more", locale: locale), isPresented: $showingMore) {
+            Button(FeatureConversationsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.strangers) }
+            Button(FeatureConversationsStrings.text("common.tab.contacts", locale: locale)) { onAction(.contacts) }
+            Button(FeatureConversationsStrings.text("common.action.refresh", locale: locale)) { onAction(.refresh) }
+        }
         .rfHidesNavigationBar()
         .privacySensitive()
     }
