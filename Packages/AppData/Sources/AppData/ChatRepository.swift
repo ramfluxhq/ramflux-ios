@@ -61,6 +61,18 @@ public protocol ChatRepository: Sendable {
     func setMuted(account: String, conversation: String, muted: Bool, operationID: String) async -> RepositoryResult<Bool>
     func draft(account: String, conversation: String) async -> String
     func saveDraft(account: String, conversation: String, text: String) async
+    /// The stored original when it is on this device, `.downloading` while an import runs, else nil.
+    func mediaState(account: String, attachment: AttachmentRecord) async -> MediaTransferState?
+    /// Imports, decrypts and stores one attachment; returns its final state.
+    func download(account: String, attachment: AttachmentRecord) async -> MediaTransferState
+    func cancelDownload(account: String, attachment: AttachmentRecord) async
+    /// The protected directory where normalised files wait for upload.
+    func mediaOutbox(account: String) async -> URL?
+    func sendMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<SendOutcome>
+    /// Retires a message's attachment grants on the relay and drops local copies.
+    func revokeMedia(account: String, message: String) async -> RepositoryResult<Void>
+    func purgeAccountMedia(account: String) async
+    func mediaUsage(account: String) async -> MediaUsage
     func observe(account: String) async -> RepositoryObservation
 }
 public struct NativeChatRepository: ChatRepository {
@@ -69,6 +81,7 @@ public struct NativeChatRepository: ChatRepository {
     private let queue = ChatOutbox()
     private let drafts = ChatDrafts()
     private let devices = OwnDeviceCache()
+    private let media: ChatMediaEngine
     public func sendState(account: String, conversation: String) async -> PendingChatSend? {
         guard let entry = await sends.snapshot(scope: Self.scope(account, conversation)) else { return nil }
         return PendingChatSend(operationID: entry.operationID, text: entry.arguments, unresolved: entry.unresolved, result: entry.result)
@@ -79,21 +92,30 @@ public struct NativeChatRepository: ChatRepository {
     }
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
-    public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
+    public init(client: RamfluxClient, updates: NativeUpdateSource) { self.init(client: client, updates: updates, mediaRoot: nil) }
+    init(client: RamfluxClient, updates: NativeUpdateSource, mediaRoot: URL?, pause: @escaping @Sendable (Int) async throws -> Void = { try await Task.sleep(for: .milliseconds($0)) }) {
+        let gateway = ProxyGateway(proxy: SDKProxy(client: client))
+        self.gateway = gateway; self.updates = updates
+        media = ChatMediaEngine(gateway: gateway, store: MediaStore(base: mediaRoot), pause: pause)
+    }
     public func unavailable(_ capability: ChatCapability) -> AppFailure { ChatUnavailable.failure(capability) }
     public func messages(account: String, conversation: String, before: MessageCursor?) async -> RepositoryResult<MessageWindowPage> {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }
         do {
             var body: [String: JSONValue] = ["conversation_id": .string(conversation), "read_model": .bool(true), "limit": .number(Double(Self.pageSize))]
             if let before { body["before_order_key"] = before.value }
-            return .success(try MessagePage.page(body: try await gateway.call(.messageRead, account: account, body: .object(body)), conversation: conversation))
+            let page = try MessagePage.page(body: try await gateway.call(.messageRead, account: account, body: .object(body)), conversation: conversation)
+            purgeErased(account, page.records)
+            return .success(page)
         } catch { return .failure(AppFailure.map(error)) }
     }
     public func changes(account: String, conversation: String, after: UInt64) async -> RepositoryResult<MessageChangeBatch> {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }
         do {
             let body: JSONValue = .object(["conversation_id": .string(conversation), "after_sequence": .unsigned(after), "limit": .number(Double(Self.pageSize))])
-            return .success(try MessagePage.changes(body: try await gateway.call(.messageRead, account: account, body: body), conversation: conversation))
+            let batch = try MessagePage.changes(body: try await gateway.call(.messageRead, account: account, body: body), conversation: conversation)
+            purgeErased(account, batch.changes.compactMap { if case .row(let record) = $0 { record } else { nil } })
+            return .success(batch)
         } catch { return .failure(AppFailure.map(error)) }
     }
     public func send(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<SendOutcome> {
@@ -173,6 +195,32 @@ public struct NativeChatRepository: ChatRepository {
             let until = ProxyGateway.integer(result["mute_until"])
             return .success(until.map { $0 > Int64(Date().timeIntervalSince1970) } ?? false)
         } catch { return .failure(AppFailure.map(error)) }
+    }
+    public func mediaState(account: String, attachment: AttachmentRecord) async -> MediaTransferState? { await media.state(account, attachment) }
+    public func download(account: String, attachment: AttachmentRecord) async -> MediaTransferState {
+        guard Self.identity(attachment.messageID), (0..<MessagePage.maxAttachments).contains(attachment.index) else { return .failed(.invalidInput, retryable: false) }
+        return await media.download(account, attachment)
+    }
+    public func cancelDownload(account: String, attachment: AttachmentRecord) async { await media.cancel(account, attachment) }
+    public func mediaOutbox(account: String) async -> URL? {
+        let directory = media.store.outbox(account)
+        return (try? media.store.prepare(directory)) == nil ? nil : directory
+    }
+    public func sendMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<SendOutcome> {
+        guard Self.identity(conversation), Self.identity(operationID), caption.utf8.count <= 65_536, groupID.map(Self.identity) ?? true else { return .failure(.invalidInput) }
+        let outbox = media.store.outbox(account).standardizedFileURL.path
+        guard items.allSatisfy({ $0.file.standardizedFileURL.path.hasPrefix(outbox + "/") && (1...256).contains($0.fileName.utf8.count) && (1...256).contains($0.mime.utf8.count) }) else { return .failure(.invalidInput) }
+        return await media.send(account, conversation: conversation, groupID: groupID, caption: caption, items: items, operationID: operationID)
+    }
+    public func revokeMedia(account: String, message: String) async -> RepositoryResult<Void> {
+        guard Self.identity(message) else { return .failure(.invalidInput) }
+        return await media.revoke(account, message: message)
+    }
+    public func purgeAccountMedia(account: String) async { media.store.purgeAccount(account) }
+    public func mediaUsage(account: String) async -> MediaUsage { media.store.usage(account) }
+    /// Erased rows lose their local media at once (erase for everyone, local delete, expiry).
+    private func purgeErased(_ account: String, _ records: [MessageRecord]) {
+        for record in records where record.kind == .deleted { media.store.purge(account, message: record.id) }
     }
     public func draft(account: String, conversation: String) async -> String { await drafts.draft(Self.scope(account, conversation)) }
     public func saveDraft(account: String, conversation: String, text: String) async {
@@ -275,6 +323,14 @@ public extension ChatRepository {
     func setMuted(account: String, conversation: String, muted: Bool, operationID: String) async -> RepositoryResult<Bool> { .failure(unavailable(.details)) }
     func draft(account: String, conversation: String) async -> String { "" }
     func saveDraft(account: String, conversation: String, text: String) async {}
+    func mediaState(account: String, attachment: AttachmentRecord) async -> MediaTransferState? { nil }
+    func download(account: String, attachment: AttachmentRecord) async -> MediaTransferState { .failed(unavailable(.attachmentTransfer), retryable: false) }
+    func cancelDownload(account: String, attachment: AttachmentRecord) async {}
+    func mediaOutbox(account: String) async -> URL? { nil }
+    func sendMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<SendOutcome> { .failure(unavailable(.attachmentTransfer)) }
+    func revokeMedia(account: String, message: String) async -> RepositoryResult<Void> { .failure(unavailable(.attachmentTransfer)) }
+    func purgeAccountMedia(account: String) async {}
+    func mediaUsage(account: String) async -> MediaUsage { MediaUsage(originals: 0, outbox: 0) }
 }
 enum ChatUnavailable {
     static func failure(_ capability: ChatCapability) -> AppFailure {
