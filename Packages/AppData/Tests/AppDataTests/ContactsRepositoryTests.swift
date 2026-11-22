@@ -8,7 +8,7 @@ struct ContactsRepositoryTests {
         let transport = ProxyTransport { request in
             switch request.method {
             case "contact.verification.status": return .object(["contact_identity_commitment": .string("root"), "safety_number": .array([.string("12345"),.string("67890")]), "fingerprint_hex": .string("fingerprint"), "verification_state": .string("key_changed"), "stored_verification_state": .string("verified")])
-            case "contact.request.block":
+            case "contact.block":
                 #expect(request.body["request_id"] == .string("request")); #expect(request.operationID?.rawValue == "stable")
                 return .object([:])
             default: return .object([:])
@@ -20,6 +20,6 @@ struct ContactsRepositoryTests {
         guard case .success(let safety) = await repo.safety(account: "a", contact: contact) else { Issue.record("Safety mapping failed"); return }
         #expect(safety.number == "12345 67890"); #expect(!safety.verified); #expect(safety.requiresReview)
         _ = await repo.decide(account: "a", request: "request", decision: .block, operationID: "stable")
-        #expect(transport.calls.withLock { $0.last?.method } == "contact.request.block")
+        #expect(transport.calls.withLock { $0.last?.method } == "contact.block")
     }
 }

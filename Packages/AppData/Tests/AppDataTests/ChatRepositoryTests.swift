@@ -31,9 +31,9 @@ import RamfluxCore
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
         #expect(await repo.send(account: "a", conversation: "c", text: "Hello", operationID: "stable-send") == .success(SendOutcome(messageID: "m", state: .submitted)))
     }
-    @Test func messageListRequestsTheReadModelAndRefusesAPageWithoutTheSchema() async {
+    @Test func messageReadRequestsTheReadModelAndRefusesAPageWithoutTheSchema() async {
         let transport = ProxyTransport { request in
-            #expect(request.method == "message.list")
+            #expect(request.method == "message.read")
             #expect(request.body["read_model"] == .bool(true))
             #expect(request.body["limit"] == .number(100))
             return .object(["messages": .array([.object(["message_id": .string("m"), "conversation_id": .string("c"), "body_utf8": .string("Legacy")])])])
