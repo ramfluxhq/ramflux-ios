@@ -6,44 +6,27 @@ import UIKit
 import AppData
 import RFDesign
 import FeatureAppShell
+import FeatureChat
 import FeatureConversations
 import FeatureGroups
 import FeatureAgents
 import FeatureOnboarding
 
-/// ImageRenderer cannot flatten ScrollView, List, or TextField, so shell boards
-/// are hosted in a window and snapshotted with drawHierarchy.
+/// Renders every board over the full CaptureMatrix and writes
+/// `<board>-<locale>-<width>-<textSize>-<theme>.png` into SHELL_CAPTURE_DIR.
+/// `scripts/compare-boards.py` compares the 393-wide default-size captures with
+/// the design references and checks the rest for clipping.
+///
+/// ImageRenderer cannot flatten ScrollView, List, TextField or the UIKit
+/// timeline, so boards are hosted in a window and snapshotted with drawHierarchy.
 @MainActor
 final class ShellBoardCaptureTests: XCTestCase {
-    private struct Board {
-        var stem: String
-        var scheme: ColorScheme
-        var extraDark: Bool
-    }
-
-    private struct Shot {
-        var name: String
-        var scheme: ColorScheme
-        var locale: Locale
-    }
-
-    /// Every preview stem, with zh-CN, en, and a dark pair when the stem is not already the dark board.
-    private static let boards: [Board] = [
-        Board(stem: "MOB-B01.light", scheme: .light, extraDark: false),
-        Board(stem: "MOB-B01.dark", scheme: .dark, extraDark: false),
-        Board(stem: "MOB-B01L.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-B01X.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-C01.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-D01.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-D01E.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-G01.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-G03.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-S01.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-S02.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-S18.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-A01.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-A02.light", scheme: .light, extraDark: true),
-        Board(stem: "MOB-N01.light", scheme: .light, extraDark: true),
+    /// Board keys as in shell-previews/manifest.json. Boards without a fixture
+    /// stay reference-only until a screen exists for them.
+    private static let boards = [
+        "MOB-B01", "MOB-B01L", "MOB-B01X", "MOB-B12", "MOB-B02", "MOB-B02E",
+        "MOB-C01", "MOB-D01", "MOB-D01E", "MOB-G01", "MOB-G03",
+        "MOB-S01", "MOB-S02", "MOB-S18", "MOB-A01", "MOB-A02", "MOB-N01",
     ]
 
     override func setUp() {
@@ -52,7 +35,7 @@ final class ShellBoardCaptureTests: XCTestCase {
         UIView.setAnimationsEnabled(false)
     }
 
-    func testCapturesShellBoards() throws {
+    func testCapturesBoardMatrix() throws {
         let env = ProcessInfo.processInfo.environment
         let ci = env["CI"] == "true" || env["GITHUB_ACTIONS"] == "true"
         let dir = env["SHELL_CAPTURE_DIR"] ?? (env["SIMULATOR_UDID"] == nil ? nil : "/tmp/shell-ios-captures")
@@ -65,91 +48,65 @@ final class ShellBoardCaptureTests: XCTestCase {
         if let old = try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) {
             for url in old where url.pathExtension == "png" { try FileManager.default.removeItem(at: url) }
         }
-        let zh = Locale(identifier: "zh-CN")
-        let en = Locale(identifier: "en")
-        let expected = Self.boards.flatMap { shots(for: $0, zh: zh, en: en) }
-        XCTAssertEqual(expected.count, 84)
-        for shot in expected {
-            let data = try png(view(for: shot.name), scheme: shot.scheme, locale: shot.locale, reservesHome: reservesHome(shot.name))
-            if data.isEmpty { XCTFail("empty capture \(shot.name)"); return }
-            try data.write(to: root.appendingPathComponent(shot.name + ".png"))
+        var expected: [String] = []
+        for board in Self.boards {
+            for locale in CaptureMatrix.locales {
+                for canvas in CaptureMatrix.canvases {
+                    for textSize in CaptureMatrix.textSizes {
+                        for theme in CaptureMatrix.themes {
+                            let name = CaptureMatrix.captureName(board: board, locale: locale, canvas: canvas, textSize: textSize, theme: theme)
+                            let data = try png(view(for: board, language: FixtureLanguage(localeID: locale.id)), locale: locale, canvas: canvas, textSize: textSize, theme: theme, reservesHome: reservesHome(board))
+                            if data.isEmpty { XCTFail("empty capture \(name)"); return }
+                            try data.write(to: root.appendingPathComponent(name + ".png"))
+                            expected.append(name)
+                        }
+                    }
+                }
+            }
         }
+        let perBoard = CaptureMatrix.locales.count * CaptureMatrix.canvases.count * CaptureMatrix.textSizes.count * CaptureMatrix.themes.count
+        XCTAssertEqual(expected.count, Self.boards.count * perBoard)
         let written = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
             .filter { $0.pathExtension == "png" }
             .map { $0.deletingPathExtension().lastPathComponent }
-        XCTAssertEqual(Set(written), Set(expected.map(\.name)))
+        XCTAssertEqual(Set(written), Set(expected))
+        // Each dimension must change the rendering, or the matrix measures nothing.
+        func data(_ board: String, _ locale: String, _ theme: String = "light") throws -> Data {
+            try Data(contentsOf: root.appendingPathComponent("\(board)-\(locale)-393-default-\(theme).png"))
+        }
         for board in Self.boards {
-            let base = try Data(contentsOf: root.appendingPathComponent(board.stem + ".png"))
-            let english = try Data(contentsOf: root.appendingPathComponent(board.stem + "--en.png"))
-            let chinese = try Data(contentsOf: root.appendingPathComponent(board.stem + "--zh.png"))
-            XCTAssertNotEqual(base, english, board.stem)
-            XCTAssertNotEqual(chinese, english, board.stem)
-            if board.extraDark {
-                let darkEnglish = try Data(contentsOf: root.appendingPathComponent(board.stem + "--en--dark.png"))
-                let darkChinese = try Data(contentsOf: root.appendingPathComponent(board.stem + "--zh--dark.png"))
-                XCTAssertNotEqual(darkEnglish, darkChinese, board.stem)
-            }
+            XCTAssertNotEqual(try data(board, "zh-CN"), try data(board, "en"), board)
+            XCTAssertNotEqual(try data(board, "en"), try data(board, "ar"), board)
+            XCTAssertNotEqual(try data(board, "en"), try data(board, "en", "dark"), board)
         }
-        let directory = try Data(contentsOf: root.appendingPathComponent("MOB-D01.light.png"))
-        let searchMiss = try Data(contentsOf: root.appendingPathComponent("MOB-D01E.light.png"))
-        let hub = try Data(contentsOf: root.appendingPathComponent("MOB-G01.light.png"))
-        let editor = try Data(contentsOf: root.appendingPathComponent("MOB-G03.light.png"))
-        XCTAssertNotEqual(directory, searchMiss)
-        XCTAssertNotEqual(hub, editor)
+        XCTAssertNotEqual(try data("MOB-D01", "zh-CN"), try data("MOB-D01E", "zh-CN"))
+        XCTAssertNotEqual(try data("MOB-G01", "zh-CN"), try data("MOB-G03", "zh-CN"))
+        XCTAssertNotEqual(try data("MOB-B02", "zh-CN"), try data("MOB-B02E", "zh-CN"))
     }
 
-    private func shots(for board: Board, zh: Locale, en: Locale) -> [Shot] {
-        var result = [
-            Shot(name: board.stem, scheme: board.scheme, locale: zh),
-            Shot(name: board.stem + "--en", scheme: board.scheme, locale: en),
-            Shot(name: board.stem + "--zh", scheme: board.scheme, locale: zh),
-        ]
-        if board.extraDark {
-            result.append(Shot(name: board.stem + "--dark", scheme: .dark, locale: zh))
-            result.append(Shot(name: board.stem + "--zh--dark", scheme: .dark, locale: zh))
-            result.append(Shot(name: board.stem + "--en--dark", scheme: .dark, locale: en))
-        }
-        return result
-    }
-
-    private func view(for name: String) -> some View {
-        let stem = name
-            .replacingOccurrences(of: "--en--dark", with: "")
-            .replacingOccurrences(of: "--zh--dark", with: "")
-            .replacingOccurrences(of: "--dark", with: "")
-            .replacingOccurrences(of: "--en", with: "")
-            .replacingOccurrences(of: "--zh", with: "")
-        let messages = ConversationsPreviews.states
-        var agents = AgentsState()
-        agents.entries = [
-            AgentEntry(id: "nova", name: "Nova", detail: "研究搭档 · 协作设置已确认", icon: "orbit"),
-            AgentEntry(id: "atlas", name: "Atlas", detail: "规划助手 · 协作设置已确认", icon: "gem"),
-            AgentEntry(id: "mira", name: "Mira", detail: "写作伙伴 · 协作已暂停", icon: "user-round"),
-        ]
-        return Group {
-            switch stem {
-            case "MOB-B01.light", "MOB-B01.dark":
-                phone(.messages, ConversationsScreen(state: messages[3], onAction: { _ in }))
-            case "MOB-B01L.light":
-                phone(.messages, ConversationsScreen(state: messages[1], onAction: { _ in }))
-            case "MOB-B01X.light":
-                phone(.messages, ConversationsScreen(state: messages[2], onAction: { _ in }))
-            case "MOB-C01.light":
-                phone(.groups, GroupsScreen(state: GroupsPreviews.states[4], onAction: { _ in }))
-            case "MOB-D01.light":
-                phone(.agents, AgentsScreen(state: agents, onAction: { _ in }))
-            case "MOB-D01E.light":
+    private func view(for board: String, language: FixtureLanguage) -> some View {
+        Group {
+            switch board {
+            case "MOB-B01", "MOB-B01L", "MOB-B01X", "MOB-B12":
+                phone(.messages, ConversationsScreen(state: BoardFixtures.conversations(board, language), onAction: { _ in }))
+            case "MOB-B02", "MOB-B02E":
+                ChatScreen(state: BoardFixtures.chat(board, language), onAction: { _ in })
+            case "MOB-C01":
+                phone(.groups, GroupsScreen(state: BoardFixtures.groups(language), onAction: { _ in }))
+            case "MOB-D01":
+                phone(.agents, AgentsScreen(state: BoardFixtures.agents(language), onAction: { _ in }))
+            case "MOB-D01E":
                 phone(.agents, AgentsScreen(state: AgentsState(), onAction: { _ in }))
-            case "MOB-G01.light":
+            case "MOB-G01":
                 phone(.more, MoreHubScreen { _ in })
-            case "MOB-G03.light":
+            case "MOB-G03":
                 NavigationEditorScreen(order: .constant(ShellShortcuts.defaultOrder), hidden: .constant(""), onBack: {})
-            case "MOB-S01.light": stage(.launch)
-            case "MOB-S02.light": stage(.connection)
-            case "MOB-S18.light": stage(.welcome)
-            case "MOB-A01.light": stage(.start)
-            case "MOB-A02.light": stage(.localUnlock)
-            case "MOB-N01.light": stage(.create)
+            case "MOB-S01": stage(.launch, language)
+            case "MOB-S02": stage(.connection, language)
+            case "MOB-S18": stage(.welcome, language)
+            case "MOB-A01": stage(.start, language)
+            case "MOB-A02": stage(.localUnlock, language)
+            case "MOB-N01": stage(.create, language)
             default:
                 EmptyView()
             }
@@ -161,10 +118,10 @@ final class ShellBoardCaptureTests: XCTestCase {
         return AppShellScreen(state: state, onAction: { _ in }, featureContent: AnyView(content))
     }
 
-    private func stage(_ stage: OnboardingStage) -> some View {
+    private func stage(_ stage: OnboardingStage, _ language: FixtureLanguage) -> some View {
         var state = OnboardingState(stage: stage)
         if stage == .create {
-            state.name = "林澈"
+            state.name = BoardFixtures.accountTitle(language)
             let node = NodeRecord(
                 id: "official",
                 origin: "https://node.ramflux.example",
@@ -181,18 +138,14 @@ final class ShellBoardCaptureTests: XCTestCase {
 
     /// Boards without a tab bar keep 34 pt clear of the home indicator. Tab roots
     /// already fill that band with the 83 pt bar.
-    private func reservesHome(_ name: String) -> Bool {
-        let stem = name
-            .replacingOccurrences(of: "--en--dark", with: "")
-            .replacingOccurrences(of: "--zh--dark", with: "")
-            .replacingOccurrences(of: "--dark", with: "")
-            .replacingOccurrences(of: "--en", with: "")
-            .replacingOccurrences(of: "--zh", with: "")
-        return stem.hasPrefix("MOB-G03") || stem.hasPrefix("MOB-S") || stem.hasPrefix("MOB-A") || stem.hasPrefix("MOB-N")
+    private func reservesHome(_ board: String) -> Bool {
+        board.hasPrefix("MOB-G03") || board.hasPrefix("MOB-S") || board.hasPrefix("MOB-A") || board.hasPrefix("MOB-N") || board.hasPrefix("MOB-B02")
     }
 
-    private func png(_ view: some View, scheme: ColorScheme, locale: Locale, reservesHome: Bool) throws -> Data {
+    private func png(_ view: some View, locale: CaptureMatrix.CaptureLocale, canvas: CaptureMatrix.Canvas, textSize: CaptureMatrix.TextSize, theme captureTheme: CaptureMatrix.Theme, reservesHome: Bool) throws -> Data {
+        let scheme = captureTheme.scheme
         let theme: RFTheme = scheme == .dark ? .dark : .light
+        let bounds = CGRect(origin: .zero, size: canvas.size)
         let framed = VStack(spacing: 0) {
             KitStatusBar(time: "9:41", tag: "capture-status")
             view
@@ -203,16 +156,17 @@ final class ShellBoardCaptureTests: XCTestCase {
             KitHomeIndicator(tag: "capture-home").padding(.bottom, 12).allowsHitTesting(false)
         }
         .environment(\.colorScheme, scheme)
-        .environment(\.locale, locale)
+        .environment(\.locale, locale.locale)
+        .environment(\.layoutDirection, locale.layoutDirection)
+        .environment(\.dynamicTypeSize, textSize.size)
         .environment(\.rfTheme, theme)
         .ignoresSafeArea()
-        .frame(width: 393, height: 852)
+        .frame(width: bounds.width, height: bounds.height)
         .background(theme.bg)
         let controller = CaptureController(rootView: AnyView(framed))
         controller.safeAreaRegions = []
         controller.view.backgroundColor = UIColor(theme.bg)
         controller.overrideUserInterfaceStyle = scheme == .dark ? .dark : .light
-        let bounds = CGRect(x: 0, y: 0, width: 393, height: 852)
         guard let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else {
             throw ShellCaptureError("no window scene")
         }
@@ -230,20 +184,22 @@ final class ShellBoardCaptureTests: XCTestCase {
         controller.view.setNeedsLayout()
         controller.view.layoutIfNeeded()
         // Fulfilled from viewDidLayoutSubviews. 30s is the per-board deadline;
-        // the test allowance of 600s covers every board. The snapshot then
+        // the test allowance of 600s covers the matrix. The snapshot then
         // waits for the screen update.
         wait(for: [settled], timeout: 30)
         controller.onLayout = nil
+        // One pixel per point in 8-bit sRGB, the format of the design references.
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         format.opaque = true
+        format.preferredRange = .standard
         let image = UIGraphicsImageRenderer(size: bounds.size, format: format).image { _ in
             window.drawHierarchy(in: bounds, afterScreenUpdates: true)
         }
         window.isHidden = true
         window.rootViewController = nil
-        guard let data = image.pngData(), let source = image.cgImage, source.width == 393, source.height == 852 else {
-            throw ShellCaptureError("capture is not 393x852")
+        guard let data = image.pngData(), let source = image.cgImage, source.width == canvas.width, source.height == canvas.height else {
+            throw ShellCaptureError("capture is not \(canvas.width)x\(canvas.height)")
         }
         return data
     }
