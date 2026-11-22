@@ -45,11 +45,13 @@ public struct AgentsScreen: View {
                         if state.entries.isEmpty {
                             searchMiss.padding(.horizontal, theme.gap)
                         } else {
-                            ForEach(state.entries) { entry in
-                                KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id, action: { onAction(.mode(.profile(entry.id))) }) {
-                                    KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+                            LazyVStack(spacing: 10) {
+                                ForEach(state.entries) { entry in
+                                    KitConversationRow(entry.name, preview: entry.detail, time: "", tag: "agent-" + entry.id, action: { onAction(.mode(.profile(entry.id))) }) {
+                                        KitAvatar("", size: 44, kind: .agent, icon: entry.icon, tag: entry.id + "-avatar")
+                                    }
+                                    .onAppear { if entry.id == state.entries.last?.id && state.canLoadMore { onAction(.loadMore) } }
                                 }
-                                .onAppear { if entry.id == state.entries.last?.id && state.canLoadMore { onAction(.loadMore) } }
                             }
                             if state.loadingMore { ProgressView(copy("loadingMore")).padding(.horizontal, theme.gap) }
                             Text(copy("directory.note")).rfFont(.caption).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap).padding(.top, 12)

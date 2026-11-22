@@ -755,7 +755,7 @@
     },
     "MOB-B01L-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows five skeleton rows; the app shows a spinner with '正在加载会话' above the strangers row. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "Re-reviewed 2026-11-23 (wave 2, ios-core second pass): the list now shows the five skeleton rows of the design (52 pt circles, two bars per row, 72 pt pitch) and no strangers row while the first page loads; the skeleton fill is the theme surface token, slightly lighter than the design grey, which leaves faint bar edges inside the row rectangles. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. The Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk (audit 7.4 rule 8); keeping a Latin face needs a design or owner decision.",
       "regions": [
         {
           "rect": [
@@ -791,18 +791,18 @@
         },
         {
           "rect": [
-            300,
+            299,
             77,
-            31,
+            32,
             24
           ]
         },
         {
           "rect": [
-            351,
-            78,
-            23,
-            23
+            356,
+            85,
+            17,
+            8
           ]
         },
         {
@@ -819,38 +819,6 @@
             149,
             5,
             16
-          ]
-        },
-        {
-          "rect": [
-            184,
-            185,
-            25,
-            24
-          ]
-        },
-        {
-          "rect": [
-            144,
-            218,
-            105,
-            20
-          ]
-        },
-        {
-          "rect": [
-            71,
-            257,
-            54,
-            20
-          ]
-        },
-        {
-          "rect": [
-            27,
-            263,
-            23,
-            25
           ]
         },
         {
@@ -905,7 +873,7 @@
     },
     "MOB-B01X-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred wifi-off icon, title '暂时无法连接' and a compact outline '重试加载' button. The app shows a large icon tile, left-aligned title and message, a full-width retry button with no side padding, and the strangers row below. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "Re-reviewed 2026-11-23 (wave 2, ios-core second pass): the failure is now centred under the search field with the wifi-off icon, the title and a compact outline retry button inside the side margins, and no strangers row. The title is the shared offline failure title '无法连接' instead of the design's '暂时无法连接' (AppData copy), and the block sits about 7 pt lower than the design. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. The Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk (audit 7.4 rule 8); keeping a Latin face needs a design or owner decision.",
       "regions": [
         {
           "rect": [
@@ -941,18 +909,18 @@
         },
         {
           "rect": [
-            300,
+            299,
             77,
-            31,
+            32,
             24
           ]
         },
         {
           "rect": [
-            351,
-            78,
-            23,
-            23
+            356,
+            85,
+            17,
+            8
           ]
         },
         {
@@ -973,42 +941,18 @@
         },
         {
           "rect": [
-            16,
-            202,
-            41,
-            42
-          ]
-        },
-        {
-          "rect": [
             180,
-            234,
+            236,
             33,
-            34
+            33
           ]
         },
         {
           "rect": [
-            0,
+            140,
             278,
-            397,
-            124
-          ]
-        },
-        {
-          "rect": [
-            71,
-            417,
-            54,
-            21
-          ]
-        },
-        {
-          "rect": [
-            27,
-            423,
-            23,
-            25
+            113,
+            93
           ]
         },
         {
@@ -1617,7 +1561,7 @@
     },
     "MOB-B12-en-light": {
       "status": "deviates",
-      "reason": "Same as the zh board: centred empty state with 'Add contact' in the design; search field, left-aligned unavailable view and 'Strangers' row in the app; subtitle separator spacing differs. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision.",
+      "reason": "Re-reviewed 2026-11-23 (wave 2, ios-core second pass): the empty list is now the centred design state with 'Add contact'. Remaining: the message runs about 4 pt low and 8 pt wider, the button about 6 pt low; subtitle separator spacing differs; status bar glyphs and home indicator differ from the design status bar; the Agents tab label uses the UI face instead of Hanken Grotesk (audit 7.4 rule 8).",
       "regions": [
         {
           "rect": [
@@ -1653,26 +1597,18 @@
         },
         {
           "rect": [
-            300,
+            299,
             77,
-            31,
+            32,
             24
           ]
         },
         {
           "rect": [
-            351,
-            78,
-            23,
-            23
-          ]
-        },
-        {
-          "rect": [
-            23,
-            148,
-            163,
-            23
+            356,
+            85,
+            17,
+            8
           ]
         },
         {
@@ -1685,42 +1621,18 @@
         },
         {
           "rect": [
-            16,
-            276,
-            41,
-            41
-          ]
-        },
-        {
-          "rect": [
-            0,
+            95,
             335,
-            361,
-            78
-          ]
-        },
-        {
-          "rect": [
-            94,
-            424,
-            205,
-            56
-          ]
-        },
-        {
-          "rect": [
-            71,
-            497,
-            81,
-            21
-          ]
-        },
-        {
-          "rect": [
-            27,
-            501,
-            23,
+            204,
             25
+          ]
+        },
+        {
+          "rect": [
+            23,
+            373,
+            346,
+            114
           ]
         },
         {
@@ -1775,7 +1687,7 @@
     },
     "MOB-B12-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred empty state (icon tile, title, two-line message, primary 'add contact' button) with no search field and no strangers row. The app shows the search field, a left-aligned unavailable view without an action, and the strangers row. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "Re-reviewed 2026-11-23 (wave 2, ios-core second pass): the empty list is now the centred design state (icon disc, title, message, primary 'add contact' button, no search field, no strangers row). Remaining: the message wraps at a different point and sits about 3 pt low, and the button about 6 pt low; the header shows a hairline under the subtitle. subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. The Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk (audit 7.4 rule 8); keeping a Latin face needs a design or owner decision.",
       "regions": [
         {
           "rect": [
@@ -1811,26 +1723,18 @@
         },
         {
           "rect": [
-            300,
+            299,
             77,
-            31,
+            32,
             24
           ]
         },
         {
           "rect": [
-            351,
-            78,
-            23,
-            23
-          ]
-        },
-        {
-          "rect": [
-            23,
-            148,
-            95,
-            20
+            356,
+            85,
+            17,
+            8
           ]
         },
         {
@@ -1843,42 +1747,18 @@
         },
         {
           "rect": [
-            16,
-            276,
-            41,
-            41
-          ]
-        },
-        {
-          "rect": [
-            0,
+            145,
             334,
-            377,
-            79
+            103,
+            24
           ]
         },
         {
           "rect": [
-            94,
-            424,
-            205,
-            56
-          ]
-        },
-        {
-          "rect": [
-            71,
-            495,
-            54,
-            21
-          ]
-        },
-        {
-          "rect": [
-            27,
-            501,
-            23,
-            25
+            15,
+            373,
+            362,
+            114
           ]
         },
         {

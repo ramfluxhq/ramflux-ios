@@ -68,16 +68,16 @@ struct ConversationsEmpty: View {
     let addContact: () -> Void
     var body: some View {
         VStack(spacing: 0) {
-            KitIcon(name: "messages-square", size: 32, tint: theme.secondary)
+            KitIcon(name: "messages-square", size: 36, tint: theme.secondary)
                 .frame(width: 72, height: 72)
                 .background(theme.surface, in: Circle())
                 .accessibilityHidden(true)
             Text(FeatureConversationsStrings.text("conversations.empty.title", locale: locale)).rfFont(.size(20), weight: .semibold)
                 .multilineTextAlignment(.center)
-                .padding(.top, 16)
-            Text(FeatureConversationsStrings.text("conversations.empty.message", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
+                .padding(.top, 11)
+            Text(FeatureConversationsStrings.text("conversations.empty.message", locale: locale)).rfFont(.body).foregroundStyle(theme.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.top, 12)
+                .padding(.top, 14)
             KitButton(FeatureConversationsStrings.text("conversations.empty.action", locale: locale), action: addContact, tag: "conversations-add-contact")
                 .frame(maxWidth: 200)
                 .padding(.top, 10)
