@@ -50,7 +50,7 @@ public struct MessageBubble: View {
                     }
                     .rfFont(.caption)
                 }
-                if let receipt = message.receipt { Text(verbatim: RFUntrustedText(receipt, kind: .messageBody).text).rfFont(.caption) }
+                if let receipt = message.receipt { Text(verbatim: receipt).rfFont(.caption) }
             }
             .frame(maxWidth: .infinity, alignment: placement.frameAlignment)
             .padding(.horizontal, theme.gap)

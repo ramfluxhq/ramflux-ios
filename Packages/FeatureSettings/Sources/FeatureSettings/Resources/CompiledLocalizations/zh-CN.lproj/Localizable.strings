@@ -62,6 +62,8 @@
 	<string>撤销设备</string>
 	<key>settings.devices.revoke.fact</key>
 	<string>此操作将撤销后续访问权限。已读取的副本无法远程擦除。</string>
+	<key>settings.devices.revoke.summary</key>
+	<string>撤销设备 · %@</string>
 	<key>settings.devices.revoke.title</key>
 	<string>要撤销此设备吗？</string>
 	<key>settings.devices.thisDevice</key>

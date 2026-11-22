@@ -32,6 +32,8 @@
 	<string>取消</string>
 	<key>groups.confirm</key>
 	<string>确认此操作</string>
+	<key>groups.confirm.summary</key>
+	<string>%1$@ · %2$@</string>
 	<key>groups.create</key>
 	<string>创建群组</string>
 	<key>groups.created</key>

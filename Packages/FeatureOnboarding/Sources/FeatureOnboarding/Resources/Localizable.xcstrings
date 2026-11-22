@@ -1256,23 +1256,6 @@
         }
       }
     },
-    "node.confirmFingerprint": {
-      "comment": "Button that confirms the node fingerprint and pins (remembers) that node. A node is the server the account connects to.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm fingerprint and pin node"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认指纹并固定节点"
-          }
-        }
-      }
-    },
     "node.fingerprintInstructions": {
       "localizations": {
         "en": {
@@ -1302,6 +1285,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "修改运营者公钥"
+          }
+        }
+      }
+    },
+    "node.confirmFingerprint.summary": {
+      "comment": "Summary on the confirmation that pins a node (server). %1$@ is the node address, %2$@ is its fingerprint.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm fingerprint and pin node · %1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认指纹并固定节点 · %1$@ · %2$@"
           }
         }
       }

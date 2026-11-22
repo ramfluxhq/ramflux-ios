@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ConversationsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -64,8 +65,7 @@ public struct ConversationsScreen: View {
     private var accountSubtitle: String? {
         let name = state.accountTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { return nil }
-        let current = FeatureConversationsStrings.text("conversations.account.current", locale: locale)
-        return name + " · " + current
+        return FeatureConversationsStrings.sentence("conversations.account.subtitle", [.untrusted(name)], locale: locale)
     }
     private func badge(_ count: UInt?) -> String? {
         guard let count, count > 0 else { return nil }

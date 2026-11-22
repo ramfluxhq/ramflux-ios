@@ -4,6 +4,7 @@ import Foundation
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct TasksScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -21,7 +22,7 @@ public struct TasksScreen: View {
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                 Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
-                RFHostConfirmationActions(summary: copy(confirmation.attempt.arguments.kind.rawValue) + " · " + confirmation.attempt.arguments.task.title + " · " + confirmation.attempt.arguments.task.id, enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
+                RFHostConfirmationActions(summary: FeatureTasksStrings.sentence("tasks.confirm.summary", [.localized(copy(confirmation.attempt.arguments.kind.rawValue)), .untrusted(confirmation.attempt.arguments.task.title), .identifier(confirmation.attempt.arguments.task.id)], locale: locale), enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
             }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
         }
     }

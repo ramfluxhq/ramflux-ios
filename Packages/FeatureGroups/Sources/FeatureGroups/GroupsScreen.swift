@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct GroupsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -172,7 +173,9 @@ public struct GroupsScreen: View {
         case .add: "groups.add"
         case .invitation(_, let accept): accept ? "groups.accept" : "groups.decline"
         }
-        return ([FeatureGroupsStrings.text(key, locale: locale)] + facts(change).map(\.value)).joined(separator: " · ")
+        // Fact values are names and identifiers: each is isolated, and the locale's list format joins them.
+        let values = facts(change).map { RFBidi.isolate($0.value) }.formatted(.list(type: .and, width: .narrow).locale(locale))
+        return FeatureGroupsStrings.sentence("groups.confirm.summary", [.localized(FeatureGroupsStrings.text(key, locale: locale)), .localized(values)], locale: locale)
     }
     private func facts(_ change: GroupMutation) -> [RFHostFact] {
         var values = [RFHostFact(id: "account", label: FeatureGroupsStrings.text("groups.account", locale: locale), value: state.accountID), RFHostFact(id: "group", label: FeatureGroupsStrings.text("groups.id", locale: locale), value: change.groupID)]

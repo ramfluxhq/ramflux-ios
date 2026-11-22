@@ -24,6 +24,8 @@
 	<string>要接受此请求并将此账户添加为联系人吗？</string>
 	<key>contacts.decision.confirmOther</key>
 	<string>要对这条收到的请求执行此操作吗？</string>
+	<key>contacts.decision.summary</key>
+	<string>%1$@ · %2$@ · %3$@</string>
 	<key>contacts.empty.message</key>
 	<string>使用对方的账户地址添加联系人。</string>
 	<key>contacts.empty.title</key>

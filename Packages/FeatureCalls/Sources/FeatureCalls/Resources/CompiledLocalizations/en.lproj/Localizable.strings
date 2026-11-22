@@ -112,6 +112,8 @@
 	<string>Voice relay unavailable</string>
 	<key>calls.review</key>
 	<string>Review signaling action</string>
+	<key>calls.row.summary</key>
+	<string>%1$@ · %2$@</string>
 	<key>calls.sequence</key>
 	<string>Observed call version</string>
 	<key>calls.settings</key>

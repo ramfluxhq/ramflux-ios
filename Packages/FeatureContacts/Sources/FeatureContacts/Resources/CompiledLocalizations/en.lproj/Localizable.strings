@@ -24,6 +24,8 @@
 	<string>Accept this request and add this account to your contacts?</string>
 	<key>contacts.decision.confirmOther</key>
 	<string>Apply this decision to this incoming request?</string>
+	<key>contacts.decision.summary</key>
+	<string>%1$@ · %2$@ · %3$@</string>
 	<key>contacts.empty.message</key>
 	<string>Add a contact using their account address.</string>
 	<key>contacts.empty.title</key>

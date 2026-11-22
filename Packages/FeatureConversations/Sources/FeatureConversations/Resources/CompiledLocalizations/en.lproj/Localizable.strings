@@ -10,8 +10,8 @@
 	<string>Messages</string>
 	<key>contacts.strangers.title</key>
 	<string>Strangers</string>
-	<key>conversations.account.current</key>
-	<string>Current account</string>
+	<key>conversations.account.subtitle</key>
+	<string>%@ · Current account</string>
 	<key>conversations.empty.message</key>
 	<string>Add someone to your contacts to start a conversation.</string>
 	<key>conversations.empty.title</key>

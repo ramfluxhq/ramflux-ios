@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct OnboardingScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -115,7 +116,7 @@ public struct OnboardingScreen: View {
                 if let fingerprint = state.visibleNodeFingerprint {
                     Text(FeatureOnboardingStrings.text("node.fingerprintInstructions", locale: locale))
                     Text(fingerprint).font(theme.captionFont).textSelection(.enabled)
-                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.text("node.confirmFingerprint", locale: locale) + " · " + candidate.origin + " · " + fingerprint, enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
+                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.confirmFingerprint.summary", [.untrusted(candidate.origin), .identifier(fingerprint)], locale: locale), enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
                     action(FeatureOnboardingStrings.text("node.editOperatorKey", locale: locale), .expectedNodeKeyChanged(""))
                 } else {
                     Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))

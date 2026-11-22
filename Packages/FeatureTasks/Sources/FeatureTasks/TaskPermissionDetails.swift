@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 struct TaskPermissionDetails: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -16,7 +17,7 @@ struct TaskPermissionDetails: View {
             switch row {
             case .grant(let grant):
                 LabeledContent(copy("server"), value: grant.state.server); LabeledContent(copy("tool"), value: grant.state.tool)
-                LabeledContent(copy("capability"), value: grant.state.allowedCapabilities.joined(separator: " · "))
+                LabeledContent(copy("capability"), value: grant.state.allowedCapabilities.formatted(.list(type: .and, width: .narrow).locale(locale)))
                 LabeledContent(copy("status"), value: copy(grant.state.revoked ? "revoked" : "notRevoked"))
                 if let scope = grant.state.scope { LabeledContent(copy("scope"), value: scope) }
                 if let hash = grant.argumentsHash { LabeledContent(copy("hash"), value: hash) }

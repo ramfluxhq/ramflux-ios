@@ -1136,6 +1136,23 @@
           }
         }
       }
+    },
+    "calls.row.summary": {
+      "comment": "Subtitle of a call row. %1$@ is the direction (Incoming or Outgoing), %2$@ is the call state. Keep or change the separator as natural for the language.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
     }
   }
 }

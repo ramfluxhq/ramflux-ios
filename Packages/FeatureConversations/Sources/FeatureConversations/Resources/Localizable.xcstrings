@@ -2,23 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "conversations.account.current": {
-      "comment": "Label for the account currently in use, shown in the conversation list header.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Current account"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "当前账号"
-          }
-        }
-      }
-    },
     "common.tab.messages": {
       "comment": "Name of the Messages tab and title of the conversation list.",
       "localizations": {
@@ -186,6 +169,23 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "conversations.account.subtitle": {
+      "comment": "Subtitle of the conversation list header. %@ is the display name of the account in use.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · Current account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 当前账号"
           }
         }
       }

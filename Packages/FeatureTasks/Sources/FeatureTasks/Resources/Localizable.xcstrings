@@ -1133,6 +1133,23 @@
           }
         }
       }
+    },
+    "tasks.confirm.summary": {
+      "comment": "Summary on the confirmation of a task action. %1$@ is the action, %2$@ is the task title, %3$@ is the task identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
     }
   }
 }

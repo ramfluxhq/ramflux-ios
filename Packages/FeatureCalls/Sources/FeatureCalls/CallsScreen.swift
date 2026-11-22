@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct CallsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -43,7 +44,7 @@ public struct CallsScreen: View {
                 RFUnavailableView(title: copy("empty"), message: copy("empty.message"))
             }
             ForEach(state.visibleCalls) { row in
-                KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: "phone", value: copy(row.direction.rawValue) + " · " + copy(row.phase.rawValue), tag: row.id)
+                KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: "phone", value: FeatureCallsStrings.sentence("calls.row.summary", [.localized(copy(row.direction.rawValue)), .localized(copy(row.phase.rawValue))], locale: locale), tag: row.id)
             }
         case .dial(let conversation):
             LabeledContent(copy("conversation"), value: conversation)

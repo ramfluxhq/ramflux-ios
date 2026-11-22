@@ -4,6 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import AppData
 import RFDesign
+import RFLocalization
 public struct SettingsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -113,7 +114,7 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("settings.devices.revoke.title", locale: locale)).font(theme.pageFont); Text(device.id).textSelection(.enabled)
             if let origin = device.webOrigin { Text(origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("settings.devices.revoke.fact", locale: locale))
-            RFHostConfirmationActions(summary: FeatureSettingsStrings.text("settings.devices.revoke", locale: locale) + " · " + device.id, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
+            RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.devices.revoke.summary", [.identifier(device.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
         case .backup, .share: backupContent
         }
     }

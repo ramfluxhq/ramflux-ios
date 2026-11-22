@@ -216,42 +216,5 @@
       "tasks.waiting"
     ]
   },
-  "assembly": [
-    {
-      "path": "Packages/AppData/Sources/AppData/MessagePage.swift",
-      "line": "}.joined(separator: \" · \")"
-    },
-    {
-      "path": "Packages/FeatureCalls/Sources/FeatureCalls/CallsScreen.swift",
-      "line": "KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: \"phone\", value: copy(row.direction.rawValue) + \" · \" + copy(row.phase.rawValue), tag: row.id)"
-    },
-    {
-      "path": "Packages/FeatureContacts/Sources/FeatureContacts/ContactsScreen.swift",
-      "line": "RFHostConfirmationActions(summary: AppDataStrings.status(pending.action.rawValue, locale: locale) + \" · \" + pending.request.name + \" · \" + pending.request.principal, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)"
-    },
-    {
-      "path": "Packages/FeatureConversations/Sources/FeatureConversations/ConversationsScreen.swift",
-      "line": "return name + \" · \" + current"
-    },
-    {
-      "path": "Packages/FeatureGroups/Sources/FeatureGroups/GroupsScreen.swift",
-      "line": "return ([FeatureGroupsStrings.text(key, locale: locale)] + facts(change).map(\\.value)).joined(separator: \" · \")"
-    },
-    {
-      "path": "Packages/FeatureOnboarding/Sources/FeatureOnboarding/OnboardingScreen.swift",
-      "line": "RFHostConfirmationActions(summary: FeatureOnboardingStrings.text(\"node.confirmFingerprint\", locale: locale) + \" · \" + candidate.origin + \" · \" + fingerprint, enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged(\"\")) }).id(fingerprint)"
-    },
-    {
-      "path": "Packages/FeatureSettings/Sources/FeatureSettings/SettingsScreen.swift",
-      "line": "RFHostConfirmationActions(summary: FeatureSettingsStrings.text(\"settings.devices.revoke\", locale: locale) + \" · \" + device.id, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)"
-    },
-    {
-      "path": "Packages/FeatureTasks/Sources/FeatureTasks/TaskPermissionDetails.swift",
-      "line": "LabeledContent(copy(\"capability\"), value: grant.state.allowedCapabilities.joined(separator: \" · \"))"
-    },
-    {
-      "path": "Packages/FeatureTasks/Sources/FeatureTasks/TasksScreen.swift",
-      "line": "RFHostConfirmationActions(summary: copy(confirmation.attempt.arguments.kind.rawValue) + \" · \" + confirmation.attempt.arguments.task.title + \" · \" + confirmation.attempt.arguments.task.id, enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)"
-    }
-  ]
+  "assembly": []
 }

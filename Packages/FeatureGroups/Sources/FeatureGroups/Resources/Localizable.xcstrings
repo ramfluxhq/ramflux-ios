@@ -1206,6 +1206,23 @@
           }
         }
       }
+    },
+    "groups.confirm.summary": {
+      "comment": "Summary on the confirmation of a group operation. %1$@ is the operation, %2$@ is the list of its facts (account, group, names and identifiers).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
     }
   }
 }

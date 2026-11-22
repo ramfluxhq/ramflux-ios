@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ContactsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -24,7 +25,7 @@ public struct ContactsScreen: View {
                     Text(pending.request.name).font(theme.bodyFont.weight(.semibold))
                     Text(pending.request.principal).textSelection(.enabled)
                     Text(pending.action == .accept ? FeatureContactsStrings.text("contacts.decision.confirmAccept", locale: locale) : FeatureContactsStrings.text("contacts.decision.confirmOther", locale: locale))
-                    RFHostConfirmationActions(summary: AppDataStrings.status(pending.action.rawValue, locale: locale) + " · " + pending.request.name + " · " + pending.request.principal, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
+                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(AppDataStrings.status(pending.action.rawValue, locale: locale)), .untrusted(pending.request.name), .identifier(pending.request.principal)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
                     if state.busy { ProgressView(FeatureContactsStrings.text("contacts.decision.applying", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)

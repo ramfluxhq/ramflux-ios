@@ -715,6 +715,23 @@
           }
         }
       }
+    },
+    "contacts.decision.summary": {
+      "comment": "Summary on the confirmation of a request decision. %1$@ is the decision (Accept, Decline or Block), %2$@ is the sender display name, %3$@ is the sender account identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
     }
   }
 }

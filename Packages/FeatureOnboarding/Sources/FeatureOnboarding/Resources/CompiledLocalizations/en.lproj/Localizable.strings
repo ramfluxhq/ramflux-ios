@@ -8,8 +8,8 @@
 	<string>Unable to connect</string>
 	<key>common.secureInput.hostRequired</key>
 	<string>Complete secure input in the iOS app.</string>
-	<key>node.confirmFingerprint</key>
-	<string>Confirm fingerprint and pin node</string>
+	<key>node.confirmFingerprint.summary</key>
+	<string>Confirm fingerprint and pin node · %1$@ · %2$@</string>
 	<key>node.confirmOperator</key>
 	<string>Confirm operator key and save node</string>
 	<key>node.editOperatorKey</key>

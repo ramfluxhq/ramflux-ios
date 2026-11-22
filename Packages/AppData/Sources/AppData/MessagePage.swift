@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import Foundation
+import RFLocalization
 import RamfluxCore
 
 enum ReactionToken {
@@ -101,13 +102,15 @@ enum MessagePage {
         }
     }
 
-    private static func receiptText(_ value: JSONValue?, own: Bool?) -> String? {
+    static func receiptText(_ value: JSONValue?, own: Bool?) -> String? {
         guard own == true, case .array(let values) = value else { return nil }
-        let text = values.compactMap { entry -> String? in
+        // Device ids are identifiers (left to right, Western digits); the list separator comes
+        // from the locale's list format, never from a literal.
+        let entries = values.compactMap { entry -> String? in
             guard let device = entry["device_id"]?.string, let status = entry["state"]?.string, ["sent", "delivered", "read"].contains(status) else { return nil }
-            return AppDataStrings.format("receipt.deviceState", device, AppDataStrings.status(status))
-        }.joined(separator: " · ")
-        return text.isEmpty ? nil : text
+            return RFSentence.compose(AppDataStrings.text("receipt.deviceState"), [.identifier(device), .localized(AppDataStrings.status(status))], locale: .current)
+        }
+        return entries.isEmpty ? nil : entries.formatted(.list(type: .and, width: .narrow).locale(.current))
     }
 
 }

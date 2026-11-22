@@ -8,8 +8,8 @@
 	<string>无法连接</string>
 	<key>common.secureInput.hostRequired</key>
 	<string>请在 iOS 应用中完成安全输入。</string>
-	<key>node.confirmFingerprint</key>
-	<string>确认指纹并固定节点</string>
+	<key>node.confirmFingerprint.summary</key>
+	<string>确认指纹并固定节点 · %1$@ · %2$@</string>
 	<key>node.confirmOperator</key>
 	<string>确认运营方公钥并保存节点</string>
 	<key>node.editOperatorKey</key>

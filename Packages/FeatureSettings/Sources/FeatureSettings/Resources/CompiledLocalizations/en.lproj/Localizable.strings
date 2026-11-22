@@ -62,6 +62,8 @@
 	<string>Revoke device</string>
 	<key>settings.devices.revoke.fact</key>
 	<string>This removes future access. Previously read copies cannot be erased remotely.</string>
+	<key>settings.devices.revoke.summary</key>
+	<string>Revoke device · %@</string>
 	<key>settings.devices.revoke.title</key>
 	<string>Revoke this device?</string>
 	<key>settings.devices.thisDevice</key>

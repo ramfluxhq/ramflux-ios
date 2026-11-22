@@ -10,8 +10,8 @@
 	<string>消息</string>
 	<key>contacts.strangers.title</key>
 	<string>陌生人</string>
-	<key>conversations.account.current</key>
-	<string>当前账号</string>
+	<key>conversations.account.subtitle</key>
+	<string>%@ · 当前账号</string>
 	<key>conversations.empty.message</key>
 	<string>添加联系人即可开始会话。</string>
 	<key>conversations.empty.title</key>
