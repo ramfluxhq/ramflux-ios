@@ -170,11 +170,11 @@ enum KitRaster {
             .environment(\.kitSpinnerAnimated, false)
             .environment(\.locale, Locale(identifier: board.name.hasSuffix("--en") ? "en" : "zh-CN"))
             .environment(\.kitCapturing, true)
-            .background(theme.bg)
         let proposed = board.width ?? 800
+        // The board background fills the board frame, also around components that hug their content.
         let sized = board.width == nil
-            ? AnyView(root.fixedSize())
-            : AnyView(root.frame(width: board.width, alignment: .topLeading).fixedSize(horizontal: false, vertical: true))
+            ? AnyView(root.fixedSize().background(theme.bg))
+            : AnyView(root.frame(width: board.width, alignment: .topLeading).fixedSize(horizontal: false, vertical: true).background(theme.bg))
         let fit = measure(sized, proposed: proposed)
         let width = max(1, fit.width.rounded())
         let height = max(1, fit.height.rounded())

@@ -61,8 +61,20 @@ public struct KitBubble: View {
         let fill = own ? theme.outgoing : theme.incoming
         let ink = own ? theme.outgoing_text : theme.text
         let meta = own ? theme.outgoing_meta : theme.incoming_meta
-        let cap = maxWidth ?? theme.mobile_bubble_max
         let shape = bubbleShape
+        KitBubbleWidth(fixed: maxWidth, token: theme.mobile_bubble_max, fraction: KitMetrics.bubbleWidthFraction) {
+            content(own: own, ink: ink, meta: meta)
+                .padding(.horizontal, kind == .file ? KitMetrics.bubblePadV : KitMetrics.bubblePadH)
+                .padding(.vertical, KitMetrics.bubblePadV)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .background(fill, in: shape)
+        .overlay { if failed { shape.strokeBorder(theme.danger, lineWidth: KitMetrics.controlStroke) } }
+        .opacity(transient ? 0 : 1)
+        .kitTag(tag)
+    }
+
+    private func content(own: Bool, ink: Color, meta: Color) -> some View {
         VStack(alignment: .leading, spacing: KitMetrics.bubbleGap) {
             if kind == .incoming && (!(sender ?? "").isEmpty || !(agentTag ?? "").isEmpty) {
                 HStack(spacing: KitMetrics.headerGap) {
@@ -81,7 +93,7 @@ public struct KitBubble: View {
                 fileRow(meta: meta)
             } else {
                 HStack(alignment: .bottom, spacing: KitMetrics.headerGap) {
-                    KitFlowText(text: bodyText, size: theme.size_mobile_body, weight: .regular, color: ink, line: KitMetrics.lineBubble, role: .ui)
+                    KitMessageText(bodyText, color: ink)
                     HStack(spacing: KitMetrics.replyRadius) {
                         if let edited, !edited.isEmpty {
                             KitLabel(edited, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
@@ -94,16 +106,10 @@ public struct KitBubble: View {
                             KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
                         }
                     }
+                    .fixedSize()
                 }
             }
         }
-        .padding(.horizontal, kind == .file ? KitMetrics.bubblePadV : KitMetrics.bubblePadH)
-        .padding(.vertical, KitMetrics.bubblePadV)
-        .frame(maxWidth: cap, alignment: .leading)
-        .background(fill, in: shape)
-        .overlay { if failed { shape.strokeBorder(theme.danger, lineWidth: KitMetrics.controlStroke) } }
-        .opacity(transient ? 0 : 1)
-        .kitTag(tag)
     }
 
     private var bubbleShape: UnevenRoundedRectangle {

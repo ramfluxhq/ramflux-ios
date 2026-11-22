@@ -258,6 +258,39 @@ struct KitLayoutTests {
         #expect(CGFloat(gap - first) < CGFloat(last - first) * 0.3, "gap at \(gap) in \(first)...\(last) \(direction)")
     }
 
+    /// Bubbles take their cap from the container: min(token, fraction x width). Short text hugs.
+    @Test(arguments: [CGFloat(320), 393, 744])
+    func bubbleWidthFollowsTheContainer(_ width: CGFloat) {
+        let frames = measure(width: width) {
+            VStack(alignment: .leading) {
+                KitBubble("OK", time: "10:23", tag: "short")
+                KitBubble(String(repeating: "收到，我会把问题逐项回复。", count: 4), time: "10:23", tag: "long")
+            }
+        }
+        let cap = min(RFTheme.light.mobile_bubble_max, width * KitMetrics.bubbleWidthFraction)
+        #expect((frames["short"]?.width ?? 0) < cap * 0.6, "short \(frames["short"]?.width ?? 0)")
+        #expect(abs((frames["long"]?.width ?? 0) - cap) < 0.5, "long \(frames["long"]?.width ?? 0) cap \(cap)")
+    }
+
+    /// Message text aligns by its own direction: Arabic starts at the right in a left-to-right UI,
+    /// English at the left in a right-to-left UI.
+    @Test(arguments: [("مرحبا بك", LayoutDirection.leftToRight, true), ("Hello there", .rightToLeft, false), ("Hello there", .leftToRight, false), ("مرحبا بك", .rightToLeft, true)])
+    func messageTextAlignsByItsContent(_ text: String, _ direction: LayoutDirection, _ expectRight: Bool) throws {
+        let rep = try render(width: 300, direction: direction) { KitMessageText(text, color: .black) }
+        var columns: [Int] = []
+        for x in stride(from: 0, to: 300, by: 2) {
+            for y in stride(from: 4, to: 18, by: 2) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { columns.append(x); break }
+        }
+        guard let first = columns.first, let last = columns.last else { Issue.record("no ink"); return }
+        if expectRight { #expect(first > 150 && last > 280, "ink \(first)...\(last)") } else { #expect(first < 20 && last < 150, "ink \(first)...\(last)") }
+    }
+
+    @Test func messageLinksAreDetected() {
+        let attributed = KitMessageText.linked("see https://example.org/a and mail")
+        let links = attributed.runs.compactMap(\.link)
+        #expect(links == [URL(string: "https://example.org/a")])
+    }
+
     @Test func bundledWeightsSelectTheAxis() {
         for weight in [CGFloat(400), 500, 600, 700] {
             let font = kitCTFont(size: 17, weight: weight, role: .ui)
