@@ -46,10 +46,10 @@
 	<string>Messages</string>
 	<key>common.tab.more</key>
 	<string>More</string>
-	<key>contacts.unavailable.atomicVerification</key>
-	<string>The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.</string>
 	<key>contacts.unavailable.batch</key>
 	<string>Batch decisions are not available yet. Review each request separately.</string>
+	<key>contacts.unavailable.contactGone</key>
+	<string>This contact no longer exists. Refresh your contacts.</string>
 	<key>contacts.unavailable.identityCommitment</key>
 	<string>The current contact identity commitment is unavailable.</string>
 	<key>contacts.unavailable.replyWithoutAcceptance</key>

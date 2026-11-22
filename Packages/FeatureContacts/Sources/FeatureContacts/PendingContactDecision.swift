@@ -7,3 +7,10 @@ public struct PendingContactDecision: Equatable, Sendable, Identifiable {
     public var id: String { request.id + action.rawValue }
     public init(request: ContactRequestRecord, action: ContactDecision) { self.request = request; self.action = action }
 }
+/// A change to an accepted contact waiting for the host-drawn confirmation.
+public struct PendingContactChange: Equatable, Sendable, Identifiable {
+    public let contact: ContactRecord
+    public let change: ContactChange
+    public var id: String { contact.id + change.rawValue }
+    public init(contact: ContactRecord, change: ContactChange) { self.contact = contact; self.change = change }
+}

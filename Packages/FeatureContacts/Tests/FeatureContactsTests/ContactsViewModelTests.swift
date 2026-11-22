@@ -50,7 +50,7 @@ private actor ContactsFake: ContactsRepository {
     }
     @Test func onlyIncomingPendingRequestsCanBeSelectedAndNoDecisionBeforeConfirm() async {
         let fake = ContactsFake(); let model = ContactsViewModel(repository: fake, account: "a", emit: { _ in })
-        model.send(.refresh); await model.settle()
+        model.send(.mode(.strangers)); await model.settle()
         model.send(.requestDecision("outgoing", .accept)); #expect(model.state.pending == nil)
         model.send(.requestDecision("incoming", .decline)); #expect(model.state.pending?.request.id == "incoming"); #expect(await fake.decisions.isEmpty)
         model.send(.confirmDecision); await model.settle(); #expect(await fake.decisions == ["incoming:decline"])

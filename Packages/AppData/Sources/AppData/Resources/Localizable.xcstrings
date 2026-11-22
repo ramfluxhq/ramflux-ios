@@ -87,23 +87,6 @@
         }
       }
     },
-    "contacts.unavailable.atomicVerification": {
-      "comment": "Shown when marking a safety number as verified cannot be bound to the exact number on screen; nothing was recorded.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "验证操作尚未绑定到这里显示的确切指纹。未记录新的验证结果。"
-          }
-        }
-      }
-    },
     "common.tab.agents": {
       "comment": "Name of the Agents tab (automated assistants the user manages).",
       "localizations": {
@@ -2241,6 +2224,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "此手机已不再保存解锁此账户的密钥。请用恢复短语恢复此账户。"
+          }
+        }
+      }
+    },
+    "contacts.unavailable.contactGone": {
+      "comment": "Failure message when a contact change is retried but the contact no longer exists.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This contact no longer exists. Refresh your contacts."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该联系人已不存在。请刷新联系人。"
           }
         }
       }

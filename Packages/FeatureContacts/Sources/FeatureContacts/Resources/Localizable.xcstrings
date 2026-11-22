@@ -732,6 +732,193 @@
           }
         }
       }
+    },
+    "contacts.profile.remove": {
+      "comment": "Destructive button on a contact profile that removes the contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除联系人"
+          }
+        }
+      }
+    },
+    "contacts.profile.block": {
+      "comment": "Button on a contact profile that blocks the contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "屏蔽联系人"
+          }
+        }
+      }
+    },
+    "contacts.profile.unblock": {
+      "comment": "Button on a blocked contact's profile that unblocks it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unblock contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消屏蔽"
+          }
+        }
+      }
+    },
+    "contacts.profile.blocked": {
+      "comment": "Status on the profile of a blocked contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已屏蔽"
+          }
+        }
+      }
+    },
+    "contacts.change.confirm.remove": {
+      "comment": "Confirmation text before removing a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove this contact? You can add them again later with a new request."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除该联系人？之后可以重新发送请求添加。"
+          }
+        }
+      }
+    },
+    "contacts.change.confirm.block": {
+      "comment": "Confirmation text before blocking a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block this contact? They can no longer reach you until you unblock them."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "屏蔽该联系人？取消屏蔽之前，对方无法联系你。"
+          }
+        }
+      }
+    },
+    "contacts.change.confirm.unblock": {
+      "comment": "Confirmation text before unblocking a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unblock this contact? They can reach you again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消屏蔽该联系人？对方将可以再次联系你。"
+          }
+        }
+      }
+    },
+    "contacts.change.confirm.verify": {
+      "comment": "Confirmation text before marking a safety number verified; the user states they compared it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark this safety number verified? Only confirm if every digit matched through a trusted channel."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将此安全码标记为已验证？只有在通过可信渠道逐位核对一致后才确认。"
+          }
+        }
+      }
+    },
+    "contacts.change.applying": {
+      "comment": "Progress label while a contact change is applied.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applying change"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在应用更改"
+          }
+        }
+      }
+    },
+    "contacts.loadingMore": {
+      "comment": "Progress label at the end of the contact or request list while the next page loads.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading more"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更多"
+          }
+        }
+      }
+    },
+    "contacts.safety.verifiedNote": {
+      "comment": "Shown under a verified safety number.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You marked this number verified. If the identity changes, you will be asked to compare again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已将此安全码标记为已验证。如果对方身份变化，会提示你重新核对。"
+          }
+        }
+      }
     }
   }
 }

@@ -110,8 +110,16 @@ archive installation require host-drawn single-tap confirmation bound to the sel
 Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
 archive sharing accepts regular files within private backup storage only.
 
-Local search, phone pairing, attachment transfer, stranger reporting and
-atomic safety-fingerprint verification are unavailable until their SDK/integration
+Contacts and contact requests read through `RowWindow` (AppData), a bounded window of
+at most 300 rows over a `RowPageReader`. `contact.list` and `contact.requests.list` are unpaged
+in the SDK, so `SnapshotPager` reads each once per first page, keeps the matching rows in the data
+layer and pages them by offset; the filter runs there, off the main actor. A contact profile offers
+block, unblock and remove (`contact.block`, `contact.unblock`, `contact.remove` with scope `me`, each
+selected by `link_id`) behind host-drawn confirmation. Marking a safety number verified reads
+`contact.verification.status` and passes its `expected` snapshot to `contact.verify`, a
+compare-and-set, so a number that changed after the user compared it is not recorded as verified.
+Local search, phone pairing, attachment transfer, replying to a stranger without accepting,
+stranger reporting and batch request actions are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published
 conversation contract. Open-account reachability is not inferred from automatic contact
 request acceptance. No synthetic identity, routing, delivery or verification state

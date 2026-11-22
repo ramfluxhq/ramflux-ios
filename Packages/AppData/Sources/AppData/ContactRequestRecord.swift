@@ -23,4 +23,7 @@ public struct ContactSafety: Equatable, Sendable {
     }
 }
 public enum ContactDecision: String, Equatable, Sendable { case accept, decline, block }
-public enum ContactUnavailable: Sendable, Equatable { case reporting, batch, replyWithoutAcceptance, atomicSafetyVerification }
+/// Stranger actions the pinned SDK has no method for.
+public enum ContactUnavailable: Sendable, Equatable { case reporting, batch, replyWithoutAcceptance }
+/// Changes to an accepted contact, selected by its friend link.
+public enum ContactChange: String, Equatable, Sendable { case remove, block, unblock, verify }
