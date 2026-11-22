@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import Foundation
+import RFLocalization
 public enum FeatureCallsStrings {
     public static func text(_ key: String, locale: Locale = .current) -> String {
-        let source: Bundle = .module
-        let language = Bundle.preferredLocalizations(from: source.localizations, forPreferences: [locale.identifier.replacingOccurrences(of: "_", with: "-")]).first ?? "en"
-        let localized = source.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? source
-        let value = String(localized: String.LocalizationValue(key), bundle: localized, locale: locale)
-        return locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA" ? "［" + value + " · " + value + "］" : value
+        CatalogLookup.text(key, bundle: .module, locale: locale)
     }
     public static func duration(_ seconds: Int64, locale: Locale) -> String {
-        let source: Bundle = .module
-        let language = Bundle.preferredLocalizations(from: source.localizations, forPreferences: [locale.identifier.replacingOccurrences(of: "_", with: "-")]).first ?? "en"
-        let localized = source.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? source
-        return String(localized: "calls.duration \(seconds)", bundle: localized, locale: locale)
+        let resolved = CatalogLookup.resolve("calls.duration %lld", in: .module, locale: locale)
+        return String(localized: "calls.duration \(seconds)", bundle: resolved.bundle, locale: resolved.locale)
     }
     public static func format(_ key: String, _ arguments: CVarArg..., locale: Locale = .current) -> String {
-        let expanded = locale.identifier.replacingOccurrences(of: "-", with: "_") == "en_XA"
-        let value = String(format: text(key, locale: expanded ? Locale(identifier: "en") : locale), locale: locale, arguments: arguments)
-        return expanded ? "［" + value + " · " + value + "］" : value
+        CatalogLookup.format(key, arguments, bundle: .module, locale: locale)
     }
 }

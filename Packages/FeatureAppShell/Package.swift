@@ -4,7 +4,7 @@
 import PackageDescription
 let package = Package(name: "FeatureAppShell", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
     products: [.library(name: "FeatureAppShell", targets: ["FeatureAppShell"])],
-    dependencies: [.package(path: "../AppData"), .package(path: "../RFDesign")], targets: [
-        .target(name: "FeatureAppShell", dependencies: ["AppData", "RFDesign"], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")]),
+    dependencies: [.package(path: "../AppData"), .package(path: "../RFDesign"), .package(path: "../RFLocalization")], targets: [
+        .target(name: "FeatureAppShell", dependencies: ["AppData", "RFDesign", "RFLocalization"], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")]),
         .testTarget(name: "FeatureAppShellTests", dependencies: ["FeatureAppShell", "AppData"]),
     ], swiftLanguageModes: [.v6])

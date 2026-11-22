@@ -1,0 +1,251 @@
+{
+  "source": "Unicode CLDR 46 plurals.xml, cardinal rules. Keys are lowercase BCP 47 tags; the lint tries the full tag, then shorter prefixes.",
+  "cardinal": {
+    "af": [
+      "one",
+      "other"
+    ],
+    "am": [
+      "one",
+      "other"
+    ],
+    "ar": [
+      "zero",
+      "one",
+      "two",
+      "few",
+      "many",
+      "other"
+    ],
+    "bg": [
+      "one",
+      "other"
+    ],
+    "bn": [
+      "one",
+      "other"
+    ],
+    "ca": [
+      "one",
+      "many",
+      "other"
+    ],
+    "cs": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "da": [
+      "one",
+      "other"
+    ],
+    "de": [
+      "one",
+      "other"
+    ],
+    "el": [
+      "one",
+      "other"
+    ],
+    "en": [
+      "one",
+      "other"
+    ],
+    "es": [
+      "one",
+      "many",
+      "other"
+    ],
+    "et": [
+      "one",
+      "other"
+    ],
+    "fa": [
+      "one",
+      "other"
+    ],
+    "fi": [
+      "one",
+      "other"
+    ],
+    "fil": [
+      "one",
+      "other"
+    ],
+    "fr": [
+      "one",
+      "many",
+      "other"
+    ],
+    "he": [
+      "one",
+      "two",
+      "other"
+    ],
+    "hi": [
+      "one",
+      "other"
+    ],
+    "hr": [
+      "one",
+      "few",
+      "other"
+    ],
+    "hu": [
+      "one",
+      "other"
+    ],
+    "id": [
+      "other"
+    ],
+    "it": [
+      "one",
+      "many",
+      "other"
+    ],
+    "ja": [
+      "other"
+    ],
+    "kk": [
+      "one",
+      "other"
+    ],
+    "km": [
+      "other"
+    ],
+    "ko": [
+      "other"
+    ],
+    "lo": [
+      "other"
+    ],
+    "lt": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "lv": [
+      "zero",
+      "one",
+      "other"
+    ],
+    "mr": [
+      "one",
+      "other"
+    ],
+    "ms": [
+      "other"
+    ],
+    "my": [
+      "other"
+    ],
+    "nb": [
+      "one",
+      "other"
+    ],
+    "nl": [
+      "one",
+      "other"
+    ],
+    "pl": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "pt": [
+      "one",
+      "many",
+      "other"
+    ],
+    "pt-pt": [
+      "one",
+      "many",
+      "other"
+    ],
+    "ro": [
+      "one",
+      "few",
+      "other"
+    ],
+    "ru": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "sk": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "sl": [
+      "one",
+      "two",
+      "few",
+      "other"
+    ],
+    "sq": [
+      "one",
+      "other"
+    ],
+    "sr": [
+      "one",
+      "few",
+      "other"
+    ],
+    "sv": [
+      "one",
+      "other"
+    ],
+    "sw": [
+      "one",
+      "other"
+    ],
+    "ta": [
+      "one",
+      "other"
+    ],
+    "te": [
+      "one",
+      "other"
+    ],
+    "th": [
+      "other"
+    ],
+    "tr": [
+      "one",
+      "other"
+    ],
+    "uk": [
+      "one",
+      "few",
+      "many",
+      "other"
+    ],
+    "ur": [
+      "one",
+      "other"
+    ],
+    "uz": [
+      "one",
+      "other"
+    ],
+    "vi": [
+      "other"
+    ],
+    "yue": [
+      "other"
+    ],
+    "zh": [
+      "other"
+    ],
+    "zu": [
+      "one",
+      "other"
+    ]
+  }
+}
