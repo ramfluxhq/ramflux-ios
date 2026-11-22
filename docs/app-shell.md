@@ -81,6 +81,17 @@ direction of its own content, while the bubble side follows sender and own
 messages. Recovery output is painted from erasable bytes rather than decoded
 into a Swift String; spoken recovery-word accessibility is currently limited.
 
+The account code is six ASCII digits. Creation asks for the code twice and confirmation,
+recovery and unlock take it through `RFSecureEntryForm` account-code editors (number pad,
+left to right, at most six digits). `SensitiveSubmission(values:accountCode:)` checks the
+code on transient bytes before the erasable buffers are built and mirrors the SDK admission
+rule (six digits, not all equal, not a straight run), so a single-attempt ceremony is never
+spent on a code the SDK would refuse. SDK refusals `not_six_digits`, `trivial_code`,
+`unlock_retry_later`, `unlock_attempts_exhausted`, `account_code_required` and
+`device_unlock_unavailable` map to `AppFailure.accountCode`. The SDK computes the wait after
+repeated wrong codes but its C ABI error projection drops `retry_after_secs`, so the app can
+only say "wait a while".
+
 Message sending uses the high-level conversation intent. An uncertain send retains
 its original operation key and text for explicit retry. Device revocation and verified
 archive installation require host-drawn single-tap confirmation bound to the selected facts. Confirmation opens with Cancel focused for keyboard and accessibility. Hardware-key events cannot activate Confirm; its accessibility label names the action and target.

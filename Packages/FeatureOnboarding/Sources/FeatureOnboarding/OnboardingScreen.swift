@@ -148,8 +148,12 @@ public struct OnboardingScreen: View {
                 TextField(FeatureOnboardingStrings.text("onboarding.localUnlock.accountID", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
             } else { Text(FeatureOnboardingStrings.text("onboarding.localUnlock.instructions", locale: locale)) }
             #if os(iOS)
-            SecureOnboardingForm(labels: (state.unlockingSavedAccount ? [] : state.positions.enumerated().map { ("word\($0.offset + 1)", FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }) + [("passphrase", FeatureOnboardingStrings.text("onboarding.localUnlock.passphrase", locale: locale))], enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
-                .frame(minHeight: theme.composer_min * (state.unlockingSavedAccount ? 3 : 6))
+            SecureOnboardingForm(fields: unlockFields, accountCode: state.unlockingSavedAccount ? .existing : .new, enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
+                .frame(minHeight: theme.composer_min * (state.unlockingSavedAccount ? 3 : 7))
+            Text(FeatureOnboardingStrings.text("onboarding.accountCode.local", locale: locale)).foregroundStyle(theme.secondary)
+            if state.failure == .accountCode(.attemptsExhausted) || state.failure == .accountCode(.deviceUnlockUnavailable) {
+                action(FeatureOnboardingStrings.text("onboarding.stage.recover", locale: locale), .recover)
+            }
             #else
             Text(FeatureOnboardingStrings.text("common.secureInput.hostRequired", locale: locale))
             #endif
@@ -159,7 +163,7 @@ public struct OnboardingScreen: View {
                 Text(FeatureOnboardingStrings.text("onboarding.recover.warning", locale: locale))
                 Toggle(FeatureOnboardingStrings.text("onboarding.recover.fingerprintChecked", locale: locale), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
                 #if os(iOS)
-                SecureOnboardingForm(labels: [("phrase", FeatureOnboardingStrings.text("onboarding.recover.phrase", locale: locale)), ("passphrase", FeatureOnboardingStrings.text("onboarding.recover.existingPassphrase", locale: locale))], enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
+                SecureOnboardingForm(fields: [RFSecureEntryField(id: "phrase", label: FeatureOnboardingStrings.text("onboarding.recover.phrase", locale: locale)), RFSecureEntryField(id: "passphrase", label: FeatureOnboardingStrings.text("onboarding.accountCode.existing", locale: locale), kind: .accountCode)], accountCode: .existing, enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
                 #endif
             } else {
                 TextField(FeatureOnboardingStrings.text("onboarding.recover.accountID", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
@@ -177,6 +181,14 @@ public struct OnboardingScreen: View {
             action(FeatureOnboardingStrings.text("onboarding.connection.editAddress", locale: locale), .customNode)
         }
     }
+    #if os(iOS)
+    private var unlockFields: [RFSecureEntryField] {
+        if state.unlockingSavedAccount { return [RFSecureEntryField(id: "passphrase", label: FeatureOnboardingStrings.text("onboarding.accountCode.existing", locale: locale), kind: .accountCode)] }
+        let words = state.positions.enumerated().map { RFSecureEntryField(id: "word\($0.offset + 1)", label: FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }
+        return words + [RFSecureEntryField(id: "passphrase", label: FeatureOnboardingStrings.text("onboarding.accountCode.new", locale: locale), kind: .accountCode),
+                        RFSecureEntryField(id: "passphraseRepeat", label: FeatureOnboardingStrings.text("onboarding.accountCode.repeat", locale: locale), kind: .accountCode)]
+    }
+    #endif
     @ViewBuilder private var nodeChoices: some View {
         if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("onboarding.node.noneConfirmed", locale: locale)) }
         ForEach(state.nodes) { node in

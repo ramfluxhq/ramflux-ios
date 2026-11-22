@@ -7,6 +7,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     case sdkRefusal(Int32), onboardingProtocol, localStorage, localFailure
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
+    case accountCode(AccountCodeIssue)
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
@@ -25,6 +26,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.title", locale: locale)
         case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
+        case .accountCode: AppDataStrings.text("accountCode.failure.title", locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -56,16 +58,19 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.message", locale: locale)
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
+        case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
         }
     }
     public var canRetry: Bool {
         if case .typedRefusal = self { return false }
+        if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }
         return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
     }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
+            if let issue = AccountCodeIssue.sdk(failure.reasonCode) { return .accountCode(issue) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission
@@ -106,6 +111,17 @@ public enum AppFailure: Error, Sendable, Equatable {
         if native.domain == NSCocoaErrorDomain { return .localStorage }
         if error is BridgeError { return .invalidData }
         return .localFailure
+    }
+    private static func accountCodeMessage(_ issue: AccountCodeIssue) -> String {
+        switch issue {
+        case .notSixDigits: "accountCode.failure.notSixDigits"
+        case .trivial: "accountCode.failure.trivial"
+        case .mismatch: "accountCode.failure.mismatch"
+        case .retryLater: "accountCode.failure.retryLater"
+        case .attemptsExhausted: "accountCode.failure.attemptsExhausted"
+        case .required: "accountCode.failure.required"
+        case .deviceUnlockUnavailable: "accountCode.failure.deviceUnlockUnavailable"
+        }
     }
     private static func knownRefusal(_ name: String) -> AppFailure? {
         switch name {

@@ -22,6 +22,14 @@
 	<string>Operator public key</string>
 	<key>node.reviewFingerprint</key>
 	<string>Review fingerprint</string>
+	<key>onboarding.accountCode.existing</key>
+	<string>Account code (6 digits)</string>
+	<key>onboarding.accountCode.local</key>
+	<string>The account code is checked on this phone only. It is never sent to the node or to your other devices.</string>
+	<key>onboarding.accountCode.new</key>
+	<string>New account code (6 digits)</string>
+	<key>onboarding.accountCode.repeat</key>
+	<string>Repeat account code</string>
 	<key>onboarding.address.check</key>
 	<string>Check address</string>
 	<key>onboarding.address.connect</key>
@@ -59,9 +67,7 @@
 	<key>onboarding.localUnlock.accountID</key>
 	<string>Local account ID</string>
 	<key>onboarding.localUnlock.instructions</key>
-	<string>Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt.</string>
-	<key>onboarding.localUnlock.passphrase</key>
-	<string>Local passphrase</string>
+	<string>Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt.</string>
 	<key>onboarding.n01.create</key>
 	<string>Create the account</string>
 	<key>onboarding.n01.header</key>
@@ -102,8 +108,6 @@
 	<string>Show recovery phrase once</string>
 	<key>onboarding.recover.accountID</key>
 	<string>Existing local account ID</string>
-	<key>onboarding.recover.existingPassphrase</key>
-	<string>Existing local passphrase</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>I checked this account fingerprint</string>
 	<key>onboarding.recover.phrase</key>
@@ -127,7 +131,7 @@
 	<key>onboarding.stage.identity</key>
 	<string>Check the node identity</string>
 	<key>onboarding.stage.localUnlock</key>
-	<string>Set up local unlock</string>
+	<string>Set account code</string>
 	<key>onboarding.stage.offline</key>
 	<string>You are offline</string>
 	<key>onboarding.stage.recover</key>

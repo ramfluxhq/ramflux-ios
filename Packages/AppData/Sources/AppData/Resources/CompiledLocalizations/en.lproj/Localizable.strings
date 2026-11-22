@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>accountCode.failure.attemptsExhausted</key>
+	<string>Too many wrong account codes. Restore the account with its recovery phrase.</string>
+	<key>accountCode.failure.deviceUnlockUnavailable</key>
+	<string>This phone no longer holds the key that unlocks this account. Restore the account with its recovery phrase.</string>
+	<key>accountCode.failure.mismatch</key>
+	<string>The two account codes do not match. Enter them again.</string>
+	<key>accountCode.failure.notSixDigits</key>
+	<string>The account code must be exactly 6 digits (0–9).</string>
+	<key>accountCode.failure.required</key>
+	<string>This account is locked. Enter its account code.</string>
+	<key>accountCode.failure.retryLater</key>
+	<string>Too many wrong account codes. Wait a while before the next try.</string>
+	<key>accountCode.failure.title</key>
+	<string>Account code</string>
+	<key>accountCode.failure.trivial</key>
+	<string>This code is too easy to guess (repeated digits or a straight run). Choose another.</string>
 	<key>agents.unavailable</key>
 	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
 	<key>backup.import.tooLarge</key>

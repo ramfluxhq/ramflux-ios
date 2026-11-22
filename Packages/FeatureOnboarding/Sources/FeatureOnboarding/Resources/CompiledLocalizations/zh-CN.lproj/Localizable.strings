@@ -22,6 +22,14 @@
 	<string>运营方公钥</string>
 	<key>node.reviewFingerprint</key>
 	<string>核对指纹</string>
+	<key>onboarding.accountCode.existing</key>
+	<string>账户码（6 位数字）</string>
+	<key>onboarding.accountCode.local</key>
+	<string>账户码只在本机校验，不会发送到节点或你的其他设备。</string>
+	<key>onboarding.accountCode.new</key>
+	<string>新账户码（6 位数字）</string>
+	<key>onboarding.accountCode.repeat</key>
+	<string>再次输入账户码</string>
 	<key>onboarding.address.check</key>
 	<string>检查地址</string>
 	<key>onboarding.address.connect</key>
@@ -59,9 +67,7 @@
 	<key>onboarding.localUnlock.accountID</key>
 	<string>本地账户 ID</string>
 	<key>onboarding.localUnlock.instructions</key>
-	<string>设置本地口令，然后输入指定的三个助记词。确认操作仅可尝试一次。</string>
-	<key>onboarding.localUnlock.passphrase</key>
-	<string>本地口令</string>
+	<string>设置一个 6 位数字账户码并再次输入，然后填写所要求的三个恢复词。确认只有一次机会。</string>
 	<key>onboarding.n01.create</key>
 	<string>创建账号</string>
 	<key>onboarding.n01.header</key>
@@ -102,8 +108,6 @@
 	<string>显示恢复助记词（仅一次）</string>
 	<key>onboarding.recover.accountID</key>
 	<string>现有本地账户 ID</string>
-	<key>onboarding.recover.existingPassphrase</key>
-	<string>现有本地口令</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>我已核对此账户指纹</string>
 	<key>onboarding.recover.phrase</key>
@@ -127,7 +131,7 @@
 	<key>onboarding.stage.identity</key>
 	<string>核对节点身份</string>
 	<key>onboarding.stage.localUnlock</key>
-	<string>设置本地解锁</string>
+	<string>设置账户码</string>
 	<key>onboarding.stage.offline</key>
 	<string>当前离线</string>
 	<key>onboarding.stage.recover</key>

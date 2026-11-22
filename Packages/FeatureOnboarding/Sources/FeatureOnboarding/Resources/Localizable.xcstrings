@@ -186,23 +186,6 @@
         }
       }
     },
-    "onboarding.recover.existingPassphrase": {
-      "comment": "Field label for the local passphrase of an account already on this phone.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Existing local passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "现有本地口令"
-          }
-        }
-      }
-    },
     "onboarding.connection.preserved": {
       "comment": "Reassurance that the last confirmed connection is kept after an error.",
       "localizations": {
@@ -221,18 +204,18 @@
       }
     },
     "onboarding.localUnlock.instructions": {
-      "comment": "Instructions: choose a local passphrase, then enter the requested recovery words. Only one attempt is allowed.",
+      "comment": "Instructions on the step where the user sets the account code and confirms three recovery words.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt."
+            "value": "Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置本地口令，然后输入指定的三个助记词。确认操作仅可尝试一次。"
+            "value": "设置一个 6 位数字账户码并再次输入，然后填写所要求的三个恢复词。确认只有一次机会。"
           }
         }
       }
@@ -442,18 +425,18 @@
       }
     },
     "onboarding.stage.localUnlock": {
-      "comment": "Title and button for setting up the local unlock passphrase.",
+      "comment": "Title of the step where the user sets the six-digit account code.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set up local unlock"
+            "value": "Set account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置本地解锁"
+            "value": "设置账户码"
           }
         }
       }
@@ -573,23 +556,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在保存节点"
-          }
-        }
-      }
-    },
-    "onboarding.localUnlock.passphrase": {
-      "comment": "Field label for the new local passphrase.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Local passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地口令"
           }
         }
       }
@@ -1302,6 +1268,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认指纹并固定节点 · %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.new": {
+      "comment": "Placeholder of the secure field where the user chooses a new six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New account code (6 digits)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新账户码（6 位数字）"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.repeat": {
+      "comment": "Placeholder of the secure field where the user types the new six-digit account code again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入账户码"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.existing": {
+      "comment": "Placeholder of the secure field where the user enters the six-digit account code of an existing account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account code (6 digits)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码（6 位数字）"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.local": {
+      "comment": "Explains that the six-digit account code is checked on this phone only.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account code is checked on this phone only. It is never sent to the node or to your other devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码只在本机校验，不会发送到节点或你的其他设备。"
           }
         }
       }

@@ -75,6 +75,8 @@ import AppData
         case .continueUnlock: if state.stage == .confirmPhrase { state.stage = .localUnlock }
         case .submit(let input):
             guard !state.confirmationConsumed else { input.erase(); return }
+            // A code the SDK would refuse must not spend the single-attempt confirmation.
+            if let issue = input.accountCodeIssue { input.erase(); state.failure = .accountCode(issue); return }
             if state.unlockingSavedAccount {
                 guard !state.recoveryAccount.isEmpty else { input.erase(); state.failure = .invalidInput; return }
                 let id = state.recoveryAccount

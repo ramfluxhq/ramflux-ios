@@ -2108,6 +2108,142 @@
           }
         }
       }
+    },
+    "accountCode.failure.title": {
+      "comment": "Title of an alert when the six-digit account code is refused.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码"
+          }
+        }
+      }
+    },
+    "accountCode.failure.notSixDigits": {
+      "comment": "Shown when the entered account code is not exactly six digits 0-9.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account code must be exactly 6 digits (0–9)."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码必须正好是 6 位数字（0–9）。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.trivial": {
+      "comment": "Shown when a new account code is all the same digit or a straight run such as 123456.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This code is too easy to guess (repeated digits or a straight run). Choose another."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此账户码太容易被猜到（重复数字或连续数字），请另选一个。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.mismatch": {
+      "comment": "Shown when the repeated new account code differs from the first entry.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two account codes do not match. Enter them again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两次输入的账户码不一致，请重新输入。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.retryLater": {
+      "comment": "Shown after too many wrong account codes; the user must wait before trying again. The app does not know the exact wait.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Wait a while before the next try."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请稍候再试。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.attemptsExhausted": {
+      "comment": "Shown after ten wrong account codes; the account can only be restored with its recovery phrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Restore the account with its recovery phrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请用恢复短语恢复此账户。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.required": {
+      "comment": "Shown when the account was locked and must be opened with its account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This account is locked. Enter its account code."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此账户已锁定。请输入账户码。"
+          }
+        }
+      }
+    },
+    "accountCode.failure.deviceUnlockUnavailable": {
+      "comment": "Shown when this phone's secure storage no longer holds the key that unlocks the account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone no longer holds the key that unlocks this account. Restore the account with its recovery phrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机已不再保存解锁此账户的密钥。请用恢复短语恢复此账户。"
+          }
+        }
+      }
     }
   }
 }

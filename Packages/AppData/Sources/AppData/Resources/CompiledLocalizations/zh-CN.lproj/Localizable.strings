@@ -2,6 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>accountCode.failure.attemptsExhausted</key>
+	<string>错误的账户码次数过多。请用恢复短语恢复此账户。</string>
+	<key>accountCode.failure.deviceUnlockUnavailable</key>
+	<string>此手机已不再保存解锁此账户的密钥。请用恢复短语恢复此账户。</string>
+	<key>accountCode.failure.mismatch</key>
+	<string>两次输入的账户码不一致，请重新输入。</string>
+	<key>accountCode.failure.notSixDigits</key>
+	<string>账户码必须正好是 6 位数字（0–9）。</string>
+	<key>accountCode.failure.required</key>
+	<string>此账户已锁定。请输入账户码。</string>
+	<key>accountCode.failure.retryLater</key>
+	<string>错误的账户码次数过多。请稍候再试。</string>
+	<key>accountCode.failure.title</key>
+	<string>账户码</string>
+	<key>accountCode.failure.trivial</key>
+	<string>此账户码太容易被猜到（重复数字或连续数字），请另选一个。</string>
 	<key>agents.unavailable</key>
 	<string>此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。</string>
 	<key>backup.import.tooLarge</key>

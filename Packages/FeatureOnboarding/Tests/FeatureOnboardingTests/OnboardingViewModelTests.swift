@@ -39,6 +39,18 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.create); model.send(.nameChanged("Fresh")); model.send(.beginCreation); await model.settle()
         #expect(model.state.failure == .outcomeUnknown); #expect(await fake.confirmations == 1)
     }
+    @Test func refusedAccountCodeDoesNotSpendTheSingleConfirmation() async {
+        let fake = FlowFake(confirmSucceeds: true)
+        var state = OnboardingState(stage: .localUnlock); state.positions = [3, 7, 11]
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        let words = ["word1": "a", "word2": "b", "word3": "c"]
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "111111", "passphraseRepeat": "111111"]) { $1 }, accountCode: .new)))
+        #expect(model.state.failure == .accountCode(.trivial)); #expect(!model.state.confirmationConsumed)
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135709"]) { $1 }, accountCode: .new)))
+        #expect(model.state.failure == .accountCode(.mismatch)); #expect(await fake.confirmations == 0)
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
+        #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
+    }
     @Test func originMustBeReviewedBeforeNetworkAndSavedKeyIsExact() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
         model.send(.customNode); model.send(.addressChanged("example.org/invite?token=secret")); model.send(.checkAddress)
