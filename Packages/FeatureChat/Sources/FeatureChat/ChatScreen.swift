@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ChatScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme

@@ -3,6 +3,7 @@
 import Testing
 import CoreText
 import Foundation
+import RFLocalization
 @testable import RFDesign
 @Suite(.timeLimit(.minutes(2)))
 struct FontTests {

@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 
 /// Where a message bubble sits and how its text runs. The side follows own versus incoming in
 /// the UI's direction (own messages on the trailing side); the text direction inside follows the

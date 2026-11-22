@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import SwiftUI
+import RFLocalization
 
 /// Message text drawn by the system text stack: selectable, with detected links, read by
 /// VoiceOver like any text, and measured by the system.
