@@ -15,14 +15,14 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 30
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - name: Verify pinned Xcode
         run: |
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
-          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+          test "$(xcodebuild -version | head -1)" = 'Xcode 27.2'
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Check complete localized UI copy
@@ -74,14 +74,14 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 45
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - name: Verify pinned Xcode
         run: |
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
-          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+          test "$(xcodebuild -version | head -1)" = 'Xcode 27.2'
       - name: Check design tokens against the spec
         run: python3 scripts/check-mobile-tokens.py design-tokens/mobile-kit-tokens.json
       - name: Capture kit boards on the iOS simulator
