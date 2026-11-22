@@ -143,3 +143,14 @@ Agent configuration and stranger reporting still have no published methods, so
 those proxies stay local refusals and perform no SDK call. Conversation send,
 reply, edit, reaction and delete use the published conversation methods. There
 are no fake results, guessed wire methods, or preview fixtures in the product.
+
+Linking this phone to an existing account is not available at SDK `3dafe1f8`. The
+joining device must supply its new account code through the SDK's attended credential
+channel during `device.pair.join` (`bus/credentials.rs`, credential action `setup`).
+That channel exists only on local-bus socket connections (`bus/connection.rs`) and on
+the narrow `ramflux_pairing_call` ABI, which needs a same-user local daemon socket
+(`pairing_socket`). The in-process v2 operation ABI that this app uses opens no
+credential channel, and the SDK's `docs/device_pairing.md` states that phone pairing
+companions are outside the release. The onboarding "link" entry therefore shows the
+typed unavailable state. Device list and revocation use `device.list` and
+`device.revoke` and are available.
