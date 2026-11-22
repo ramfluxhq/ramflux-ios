@@ -128,6 +128,13 @@ enum BoardFixtures {
         return state
     }
 
+    /// MOB-C15: a signed-in account with no groups.
+    static func groupsNoneYet() -> GroupsState {
+        var state = GroupsState()
+        state.accountID = "preview-account"
+        return state
+    }
+
     static func agents(_ language: FixtureLanguage) -> AgentsState {
         let detail: [String]
         switch language {

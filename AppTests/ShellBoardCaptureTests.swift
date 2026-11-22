@@ -22,10 +22,11 @@ import FeatureOnboarding
 @MainActor
 final class ShellBoardCaptureTests: XCTestCase {
     /// Board keys as in shell-previews/manifest.json. Boards without a fixture
-    /// stay reference-only until a screen exists for them.
+    /// stay reference-only until a screen exists for them. MOB-D01E (agents
+    /// search miss) has none: the search query is view-private state.
     private static let boards = [
         "MOB-B01", "MOB-B01L", "MOB-B01X", "MOB-B12", "MOB-B02", "MOB-B02E",
-        "MOB-C01", "MOB-D01", "MOB-D01E", "MOB-G01", "MOB-G03",
+        "MOB-C01", "MOB-C15", "MOB-D01", "MOB-D20", "MOB-G01", "MOB-G03",
         "MOB-S01", "MOB-S02", "MOB-S18", "MOB-A01", "MOB-A02", "MOB-N01",
     ]
 
@@ -79,7 +80,8 @@ final class ShellBoardCaptureTests: XCTestCase {
             XCTAssertNotEqual(try data(board, "en"), try data(board, "ar"), board)
             XCTAssertNotEqual(try data(board, "en"), try data(board, "en", "dark"), board)
         }
-        XCTAssertNotEqual(try data("MOB-D01", "zh-CN"), try data("MOB-D01E", "zh-CN"))
+        XCTAssertNotEqual(try data("MOB-D01", "zh-CN"), try data("MOB-D20", "zh-CN"))
+        XCTAssertNotEqual(try data("MOB-C01", "zh-CN"), try data("MOB-C15", "zh-CN"))
         XCTAssertNotEqual(try data("MOB-G01", "zh-CN"), try data("MOB-G03", "zh-CN"))
         XCTAssertNotEqual(try data("MOB-B02", "zh-CN"), try data("MOB-B02E", "zh-CN"))
     }
@@ -95,7 +97,9 @@ final class ShellBoardCaptureTests: XCTestCase {
                 phone(.groups, GroupsScreen(state: BoardFixtures.groups(language), onAction: { _ in }))
             case "MOB-D01":
                 phone(.agents, AgentsScreen(state: BoardFixtures.agents(language), onAction: { _ in }))
-            case "MOB-D01E":
+            case "MOB-C15":
+                phone(.groups, GroupsScreen(state: BoardFixtures.groupsNoneYet(), onAction: { _ in }))
+            case "MOB-D20":
                 phone(.agents, AgentsScreen(state: AgentsState(), onAction: { _ in }))
             case "MOB-G01":
                 phone(.more, MoreHubScreen { _ in })
