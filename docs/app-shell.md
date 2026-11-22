@@ -53,9 +53,13 @@ Use persistent `--scratch-path`/`-derivedDataPath` locations for local work.
 The iOS CI workflow selects installed Xcode 26.2 on hosted `macos-15`, runs the
 host checks and builds/tests the application on an available iPhone simulator.
 `AppShellSnapshotTests` captures all six major states in both themes and at large
-Dynamic Type, plus the tab presentations. XCTest image attachments are review
-artifacts; they are not a reviewed pixel-comparison baseline. Source compilation
-alone does not prove those captures executed.
+Dynamic Type, plus the tab presentations, over every locale and canvas of
+`AppTests/CaptureMatrix.swift`. Feature snapshot attachments are review
+artifacts. Design boards are verified separately: `ShellBoardCaptureTests`
+renders each board at exactly 393x852 pt and `scripts/compare-boards.py` compares
+it pixel by pixel with the design reference; see
+[board verification](board-verification.md). Source compilation alone does not
+prove those captures executed.
 
 The app immediately shields UI on inactivity; proving actual writer release
 before OS suspension still requires a linked SDK/device test. No recovery words,
@@ -69,8 +73,10 @@ types. Screens render State and emit Action; ViewModels own cancellable asynchro
 work. AppData owns repositories shared over one RamfluxClient and maps SDK responses
 into application records. One visible feature observes the native event subscription;
 replacement stops and joins the previous subscription before resetting and reloading
-the projection. UIKit owns the message timeline, marked-text composer and secure
-input editors. Recovery output is painted from erasable bytes rather than decoded
+the projection. UIKit owns the message timeline (a `UITableViewController` whose cells host
+SwiftUI `MessageBubble`s) and the secure input editors. The composer is the
+SwiftUI `KitComposer`, a single-line `TextField`; the UIKit `ComposerView` in
+FeatureChat is not referenced by any screen. Recovery output is painted from erasable bytes rather than decoded
 into a Swift String; spoken recovery-word accessibility is currently limited.
 
 Message sending uses the high-level conversation intent. An uncertain send retains
@@ -94,16 +100,27 @@ platform compatibility extensions remain in RFDesign/Sources.
 
 ## Localization and themes
 
-Every package owns an English/Simplified Chinese String Catalog. Handwritten native
-controls, errors and accessibility labels use explicit package-bundle lookups.
+Every package owns a String Catalog; English is the development and fallback
+language. Package `*Strings` helpers look keys up through
+`RFLocalization.CatalogLookup`, which picks the best localisation for the
+locale and falls back to the English entry (with English plural rules) for any
+key the localisation lacks, so a missing translation never shows a raw key. The
+RFDesign and FeatureChat helpers still use their own lookup without fallback.
 `export-localizations.py` compiles catalogs into checked portable `.strings`/`.stringsdict`
 resources for SwiftPM native CLI compatibility. Catalogs remain the sole source;
 CI verifies exported semantics with the pinned Apple catalog compiler.
 Peer text and protocol identifiers are data rather than translation keys. Catalog
 format entries carry variable labels; dates and numbers use the active locale.
-The UI copy check rejects literal presentation labels and incomplete locale keys.
-Major-state captures cover both shipped themes in English, Chinese and expanded
-pseudo-localized copy. These are render artifacts for design review.
+The UI copy check rejects literal presentation labels and is language-agnostic:
+the shipped locales are the locales present in the catalogs, so adding a
+language is a resources-only change. Every key needs its English entry and every
+shipped locale, plural variations must have exactly the CLDR categories of their
+language (`scripts/cldr-plural-categories.json`), and new `copy.<hash>` keys,
+new keys without a translator comment and localised text assembled with `+` or
+a literal separator fail. Existing debt is listed in
+`scripts/localization-baseline.json`, which may only shrink.
+Captures run over English, Chinese, the expanded pseudo-locale `en-XA` and
+Arabic (right to left, English fallback copy) in both themes.
 
 RFThemeScope supplies the active RFTheme environment value. Themes are bounded,
 validated JSON token files copied from the shared token source; adding another

@@ -1,0 +1,3969 @@
+{
+  "note": "Reviewed expected deviations between the app and the design references (shell-previews/manifest.json), recorded 2026-11-23 from captures on Xcode 27.2 / iOS 27.2. This is the wave-2 work list: each entry is a known difference; compare-boards.py fails on any difference outside these rectangles. Rectangles are x, y, w, h in points. Remove an entry when its board is aligned; never widen one to hide a new difference.",
+  "boards": {
+    "MOB-A01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app shows the generic start catalog form (unlock, create, restore, link, choose node buttons). The board is the 'continue with existing identity' page: pushed header with back, node card with a change-node row, existing local account section with an info button, one primary 'unlock existing account' button at the bottom. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            36,
+            17
+          ]
+        },
+        {
+          "rect": [
+            22,
+            22,
+            34,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            215,
+            25
+          ]
+        },
+        {
+          "rect": [
+            14,
+            113,
+            220,
+            69
+          ]
+        },
+        {
+          "rect": [
+            14,
+            193,
+            365,
+            264
+          ]
+        },
+        {
+          "rect": [
+            14,
+            468,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
+            15,
+            542,
+            71,
+            20
+          ]
+        },
+        {
+          "rect": [
+            14,
+            753,
+            365,
+            56
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            124,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-A02-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app shows the local passphrase and three-recovery-word form. The board is the unlock summary: account name title, identity and device facts card, 'unlock on this device' notice with info button, remote form notice card, outline 'view device unlock info' button. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            23,
+            21,
+            37,
+            18
+          ]
+        },
+        {
+          "rect": [
+            294,
+            21,
+            77,
+            18
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            173,
+            25
+          ]
+        },
+        {
+          "rect": [
+            14,
+            113,
+            360,
+            101
+          ]
+        },
+        {
+          "rect": [
+            22,
+            237,
+            70,
+            25
+          ]
+        },
+        {
+          "rect": [
+            307,
+            241,
+            54,
+            21
+          ]
+        },
+        {
+          "rect": [
+            14,
+            292,
+            229,
+            27
+          ]
+        },
+        {
+          "rect": [
+            344,
+            298,
+            22,
+            22
+          ]
+        },
+        {
+          "rect": [
+            31,
+            361,
+            190,
+            21
+          ]
+        },
+        {
+          "rect": [
+            30,
+            393,
+            317,
+            39
+          ]
+        },
+        {
+          "rect": [
+            15,
+            530,
+            71,
+            21
+          ]
+        },
+        {
+          "rect": [
+            13,
+            751,
+            367,
+            58
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            124,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-A07-en-light": {
+      "status": "no-capture",
+      "reason": "No capture: the device unlock info screen has no fixture in wave 1."
+    },
+    "MOB-A07-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: the device unlock info screen has no fixture in wave 1."
+    },
+    "MOB-B01-zh-CN-dark": {
+      "status": "deviates",
+      "reason": "Dark proof MOB-DK03. Same deviations as MOB-B01 light: Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Strangers row title and icon, 44 pt avatars (text dx -8), group avatar, muted badge colour, dark Nova tile is white in the design. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            35,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            17
+          ]
+        },
+        {
+          "rect": [
+            15,
+            65,
+            92,
+            56
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            116,
+            148,
+            53,
+            20
+          ]
+        },
+        {
+          "rect": [
+            51,
+            149,
+            5,
+            9
+          ]
+        },
+        {
+          "rect": [
+            71,
+            202,
+            142,
+            45
+          ]
+        },
+        {
+          "rect": [
+            27,
+            211,
+            28,
+            25
+          ]
+        },
+        {
+          "rect": [
+            351,
+            226,
+            28,
+            22
+          ]
+        },
+        {
+          "rect": [
+            70,
+            274,
+            257,
+            45
+          ]
+        },
+        {
+          "rect": [
+            348,
+            278,
+            31,
+            42
+          ]
+        },
+        {
+          "rect": [
+            28,
+            284,
+            26,
+            25
+          ]
+        },
+        {
+          "rect": [
+            14,
+            339,
+            172,
+            56
+          ]
+        },
+        {
+          "rect": [
+            355,
+            351,
+            21,
+            10
+          ]
+        },
+        {
+          "rect": [
+            70,
+            418,
+            167,
+            45
+          ]
+        },
+        {
+          "rect": [
+            360,
+            423,
+            17,
+            38
+          ]
+        },
+        {
+          "rect": [
+            27,
+            427,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            70,
+            490,
+            140,
+            45
+          ]
+        },
+        {
+          "rect": [
+            365,
+            496,
+            13,
+            6
+          ]
+        },
+        {
+          "rect": [
+            28,
+            501,
+            25,
+            24
+          ]
+        },
+        {
+          "rect": [
+            71,
+            561,
+            115,
+            46
+          ]
+        },
+        {
+          "rect": [
+            351,
+            567,
+            28,
+            41
+          ]
+        },
+        {
+          "rect": [
+            29,
+            571,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            143,
+            778,
+            14,
+            17
+          ]
+        },
+        {
+          "rect": [
+            237,
+            779,
+            20,
+            23
+          ]
+        },
+        {
+          "rect": [
+            340,
+            786,
+            7,
+            8
+          ]
+        },
+        {
+          "rect": [
+            143,
+            805,
+            16,
+            14
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            11,
+            5
+          ]
+        },
+        {
+          "rect": [
+            243,
+            813,
+            8,
+            5
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. First row is '陌生人' with a user icon instead of '消息请求' with user-search. Avatars are 44 pt instead of 52 pt, so every text column starts 8 pt left of the design (ink dx -8) and the row pitch differs. The group row has no group avatar kind (initial instead of the users icon). The muted badge is black instead of grey; the latest time is not bold. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            65,
+            92,
+            56
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            116,
+            148,
+            53,
+            20
+          ]
+        },
+        {
+          "rect": [
+            51,
+            149,
+            5,
+            16
+          ]
+        },
+        {
+          "rect": [
+            71,
+            202,
+            142,
+            45
+          ]
+        },
+        {
+          "rect": [
+            27,
+            211,
+            28,
+            25
+          ]
+        },
+        {
+          "rect": [
+            351,
+            226,
+            28,
+            22
+          ]
+        },
+        {
+          "rect": [
+            70,
+            274,
+            257,
+            45
+          ]
+        },
+        {
+          "rect": [
+            348,
+            277,
+            31,
+            43
+          ]
+        },
+        {
+          "rect": [
+            28,
+            284,
+            26,
+            25
+          ]
+        },
+        {
+          "rect": [
+            14,
+            339,
+            172,
+            56
+          ]
+        },
+        {
+          "rect": [
+            355,
+            351,
+            21,
+            11
+          ]
+        },
+        {
+          "rect": [
+            70,
+            418,
+            167,
+            45
+          ]
+        },
+        {
+          "rect": [
+            348,
+            423,
+            29,
+            38
+          ]
+        },
+        {
+          "rect": [
+            27,
+            427,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            70,
+            489,
+            140,
+            46
+          ]
+        },
+        {
+          "rect": [
+            354,
+            493,
+            24,
+            13
+          ]
+        },
+        {
+          "rect": [
+            28,
+            501,
+            25,
+            24
+          ]
+        },
+        {
+          "rect": [
+            71,
+            561,
+            115,
+            46
+          ]
+        },
+        {
+          "rect": [
+            351,
+            564,
+            28,
+            44
+          ]
+        },
+        {
+          "rect": [
+            29,
+            571,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B01L-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows five skeleton rows; the app shows a spinner with '正在加载会话' above the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            65,
+            92,
+            56
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            116,
+            148,
+            53,
+            20
+          ]
+        },
+        {
+          "rect": [
+            51,
+            149,
+            5,
+            16
+          ]
+        },
+        {
+          "rect": [
+            184,
+            185,
+            25,
+            24
+          ]
+        },
+        {
+          "rect": [
+            144,
+            218,
+            105,
+            20
+          ]
+        },
+        {
+          "rect": [
+            71,
+            258,
+            54,
+            21
+          ]
+        },
+        {
+          "rect": [
+            27,
+            263,
+            23,
+            25
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B01X-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows a centred wifi-off icon, title '暂时无法连接' and a compact outline '重试加载' button. The app shows a large icon tile, left-aligned title and message, a full-width retry button with no side padding, and the strangers row below. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            65,
+            92,
+            56
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            116,
+            148,
+            53,
+            20
+          ]
+        },
+        {
+          "rect": [
+            51,
+            149,
+            5,
+            16
+          ]
+        },
+        {
+          "rect": [
+            16,
+            202,
+            41,
+            42
+          ]
+        },
+        {
+          "rect": [
+            180,
+            234,
+            33,
+            34
+          ]
+        },
+        {
+          "rect": [
+            0,
+            278,
+            397,
+            124
+          ]
+        },
+        {
+          "rect": [
+            71,
+            418,
+            54,
+            21
+          ]
+        },
+        {
+          "rect": [
+            27,
+            423,
+            23,
+            25
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B02-zh-CN-dark": {
+      "status": "deviates",
+      "reason": "Dark proof MOB-DK01. Same deviations as MOB-B02 light; the own bubble is near-black in the app and dark grey (#3A3A38-like) in the design. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            35,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            17
+          ]
+        },
+        {
+          "rect": [
+            290,
+            77,
+            25,
+            25
+          ]
+        },
+        {
+          "rect": [
+            111,
+            79,
+            37,
+            21
+          ]
+        },
+        {
+          "rect": [
+            33,
+            80,
+            11,
+            18
+          ]
+        },
+        {
+          "rect": [
+            77,
+            80,
+            18,
+            19
+          ]
+        },
+        {
+          "rect": [
+            348,
+            85,
+            17,
+            8
+          ]
+        },
+        {
+          "rect": [
+            27,
+            129,
+            274,
+            44
+          ]
+        },
+        {
+          "rect": [
+            76,
+            186,
+            302,
+            42
+          ]
+        },
+        {
+          "rect": [
+            26,
+            243,
+            277,
+            44
+          ]
+        },
+        {
+          "rect": [
+            17,
+            301,
+            23,
+            28
+          ]
+        },
+        {
+          "rect": [
+            55,
+            306,
+            103,
+            23
+          ]
+        },
+        {
+          "rect": [
+            182,
+            462,
+            27,
+            15
+          ]
+        },
+        {
+          "rect": [
+            26,
+            501,
+            278,
+            44
+          ]
+        },
+        {
+          "rect": [
+            59,
+            561,
+            320,
+            66
+          ]
+        },
+        {
+          "rect": [
+            26,
+            644,
+            279,
+            44
+          ]
+        },
+        {
+          "rect": [
+            70,
+            709,
+            93,
+            35
+          ]
+        },
+        {
+          "rect": [
+            33,
+            713,
+            22,
+            26
+          ]
+        },
+        {
+          "rect": [
+            20,
+            778,
+            20,
+            24
+          ]
+        },
+        {
+          "rect": [
+            71,
+            778,
+            86,
+            26
+          ]
+        },
+        {
+          "rect": [
+            355,
+            780,
+            16,
+            20
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B02-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app timeline is anchored to the top; the design anchors messages to the bottom above the composer. The design shows a '今天' date chip and the '以下为未读消息' unread divider, which no data field drives. The attachment is a file card (icon tile, name, 'PDF 10:24') in the design and a plain icon and name in the app. Composer placeholder '消息' vs '输入消息…', composer 4 pt higher; header avatar and title offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            290,
+            77,
+            25,
+            25
+          ]
+        },
+        {
+          "rect": [
+            111,
+            79,
+            37,
+            21
+          ]
+        },
+        {
+          "rect": [
+            32,
+            80,
+            12,
+            18
+          ]
+        },
+        {
+          "rect": [
+            77,
+            80,
+            19,
+            19
+          ]
+        },
+        {
+          "rect": [
+            348,
+            85,
+            17,
+            8
+          ]
+        },
+        {
+          "rect": [
+            27,
+            129,
+            274,
+            44
+          ]
+        },
+        {
+          "rect": [
+            75,
+            185,
+            304,
+            44
+          ]
+        },
+        {
+          "rect": [
+            26,
+            243,
+            277,
+            44
+          ]
+        },
+        {
+          "rect": [
+            17,
+            301,
+            23,
+            28
+          ]
+        },
+        {
+          "rect": [
+            55,
+            306,
+            103,
+            23
+          ]
+        },
+        {
+          "rect": [
+            182,
+            462,
+            27,
+            15
+          ]
+        },
+        {
+          "rect": [
+            26,
+            501,
+            278,
+            44
+          ]
+        },
+        {
+          "rect": [
+            59,
+            561,
+            320,
+            66
+          ]
+        },
+        {
+          "rect": [
+            26,
+            644,
+            279,
+            44
+          ]
+        },
+        {
+          "rect": [
+            70,
+            709,
+            93,
+            35
+          ]
+        },
+        {
+          "rect": [
+            33,
+            714,
+            22,
+            24
+          ]
+        },
+        {
+          "rect": [
+            20,
+            777,
+            21,
+            25
+          ]
+        },
+        {
+          "rect": [
+            71,
+            778,
+            86,
+            26
+          ]
+        },
+        {
+          "rect": [
+            355,
+            780,
+            16,
+            20
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B02E-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows a centred small message-circle icon, title '会话还没有消息' and '发送第一条消息开始交流。'. The app shows a left-aligned unavailable view with a large icon tile ('暂无消息'). Composer placeholder as MOB-B02. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            290,
+            77,
+            25,
+            25
+          ]
+        },
+        {
+          "rect": [
+            111,
+            79,
+            37,
+            21
+          ]
+        },
+        {
+          "rect": [
+            32,
+            80,
+            12,
+            18
+          ]
+        },
+        {
+          "rect": [
+            77,
+            80,
+            19,
+            19
+          ]
+        },
+        {
+          "rect": [
+            348,
+            85,
+            17,
+            8
+          ]
+        },
+        {
+          "rect": [
+            16,
+            222,
+            41,
+            41
+          ]
+        },
+        {
+          "rect": [
+            0,
+            297,
+            71,
+            21
+          ]
+        },
+        {
+          "rect": [
+            0,
+            336,
+            139,
+            15
+          ]
+        },
+        {
+          "rect": [
+            180,
+            394,
+            33,
+            34
+          ]
+        },
+        {
+          "rect": [
+            136,
+            438,
+            121,
+            21
+          ]
+        },
+        {
+          "rect": [
+            105,
+            471,
+            174,
+            18
+          ]
+        },
+        {
+          "rect": [
+            20,
+            777,
+            21,
+            25
+          ]
+        },
+        {
+          "rect": [
+            71,
+            778,
+            86,
+            26
+          ]
+        },
+        {
+          "rect": [
+            355,
+            780,
+            16,
+            20
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B03-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B04-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B05-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B06-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B07-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B07E-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B08-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B09-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B10-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B11-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: module-B screen state without a board fixture in wave 1 (reference kept for wave 2)."
+    },
+    "MOB-B12-en-light": {
+      "status": "deviates",
+      "reason": "Same as the zh board: centred empty state with 'Add contact' in the design; search field, left-aligned unavailable view and 'Strangers' row in the app; header actions contacts and refresh instead of square-pen and ellipsis; subtitle separator spacing differs. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            67,
+            152,
+            53
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            23,
+            148,
+            163,
+            23
+          ]
+        },
+        {
+          "rect": [
+            176,
+            262,
+            41,
+            42
+          ]
+        },
+        {
+          "rect": [
+            16,
+            276,
+            41,
+            41
+          ]
+        },
+        {
+          "rect": [
+            0,
+            335,
+            361,
+            78
+          ]
+        },
+        {
+          "rect": [
+            94,
+            424,
+            205,
+            56
+          ]
+        },
+        {
+          "rect": [
+            71,
+            498,
+            81,
+            22
+          ]
+        },
+        {
+          "rect": [
+            27,
+            501,
+            23,
+            25
+          ]
+        },
+        {
+          "rect": [
+            23,
+            776,
+            53,
+            45
+          ]
+        },
+        {
+          "rect": [
+            130,
+            777,
+            38,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            785,
+            22,
+            10
+          ]
+        },
+        {
+          "rect": [
+            329,
+            808,
+            30,
+            11
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B12-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows a centred empty state (icon tile, title, two-line message, primary 'add contact' button) with no search field and no strangers row. The app shows the search field, a left-aligned unavailable view without an action, and the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            65,
+            92,
+            56
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            23,
+            148,
+            95,
+            20
+          ]
+        },
+        {
+          "rect": [
+            176,
+            262,
+            41,
+            42
+          ]
+        },
+        {
+          "rect": [
+            16,
+            276,
+            41,
+            41
+          ]
+        },
+        {
+          "rect": [
+            0,
+            334,
+            377,
+            79
+          ]
+        },
+        {
+          "rect": [
+            94,
+            424,
+            205,
+            56
+          ]
+        },
+        {
+          "rect": [
+            71,
+            496,
+            54,
+            21
+          ]
+        },
+        {
+          "rect": [
+            27,
+            501,
+            23,
+            25
+          ]
+        },
+        {
+          "rect": [
+            36,
+            776,
+            26,
+            44
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-C01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "Rows: the design has plain title and subtitle rows ('3 位成员 · #general', '频道与帖子') without the leading icon tile; the app shows the group id as subtitle (GroupRecord carries no member count or channel summary that the row shows). Header: the app shows refresh, the design has no action. Search placeholder '筛选群组' vs '搜索名称或频道…'. The design adds the 'permissions follow the current group' info row and an outline button; the app shows a footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            23,
+            21,
+            37,
+            18
+          ]
+        },
+        {
+          "rect": [
+            294,
+            21,
+            76,
+            18
+          ]
+        },
+        {
+          "rect": [
+            14,
+            73,
+            68,
+            35
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            49,
+            148,
+            136,
+            20
+          ]
+        },
+        {
+          "rect": [
+            14,
+            201,
+            172,
+            51
+          ]
+        },
+        {
+          "rect": [
+            349,
+            214,
+            23,
+            19
+          ]
+        },
+        {
+          "rect": [
+            14,
+            275,
+            294,
+            80
+          ]
+        },
+        {
+          "rect": [
+            349,
+            288,
+            23,
+            33
+          ]
+        },
+        {
+          "rect": [
+            344,
+            378,
+            22,
+            22
+          ]
+        },
+        {
+          "rect": [
+            14,
+            380,
+            139,
+            19
+          ]
+        },
+        {
+          "rect": [
+            13,
+            424,
+            367,
+            58
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-C15-en-light": {
+      "status": "deviates",
+      "reason": "Same as the zh board: centred empty state without search field and refresh in the design; message copy differs ('wait for someone to invite you' vs 'wait for an invitation to join one'). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            75,
+            115,
+            37
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            23,
+            148,
+            127,
+            23
+          ]
+        },
+        {
+          "rect": [
+            32,
+            208,
+            41,
+            38
+          ]
+        },
+        {
+          "rect": [
+            176,
+            264,
+            41,
+            38
+          ]
+        },
+        {
+          "rect": [
+            15,
+            284,
+            117,
+            21
+          ]
+        },
+        {
+          "rect": [
+            14,
+            321,
+            365,
+            137
+          ]
+        },
+        {
+          "rect": [
+            23,
+            776,
+            53,
+            45
+          ]
+        },
+        {
+          "rect": [
+            127,
+            777,
+            42,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            785,
+            22,
+            10
+          ]
+        },
+        {
+          "rect": [
+            329,
+            808,
+            30,
+            11
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-C15-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows a centred empty state (icon tile, title, one-line message, compact 'create group' button) and no search field or header action. The app shows refresh, the search field, a left-aligned empty state with a full-width button and a permissions footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            74,
+            67,
+            34
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            23,
+            148,
+            96,
+            20
+          ]
+        },
+        {
+          "rect": [
+            32,
+            208,
+            41,
+            38
+          ]
+        },
+        {
+          "rect": [
+            176,
+            264,
+            41,
+            38
+          ]
+        },
+        {
+          "rect": [
+            14,
+            282,
+            89,
+            21
+          ]
+        },
+        {
+          "rect": [
+            14,
+            321,
+            365,
+            137
+          ]
+        },
+        {
+          "rect": [
+            36,
+            776,
+            26,
+            44
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-D01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "Header: the design has ellipsis and plus (plus is out of scope: phones do not create agents, owner 2026-11-22); the app has none. Search field and rows sit about 4 pt lower in the design; the footnote and the multi-agent row sit about 8 pt higher and the multi-agent label is larger; the app draws row separators. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            75,
+            102,
+            35
+          ]
+        },
+        {
+          "rect": [
+            354,
+            80,
+            19,
+            19
+          ]
+        },
+        {
+          "rect": [
+            309,
+            85,
+            20,
+            8
+          ]
+        },
+        {
+          "rect": [
+            23,
+            144,
+            129,
+            24
+          ]
+        },
+        {
+          "rect": [
+            14,
+            198,
+            117,
+            50
+          ]
+        },
+        {
+          "rect": [
+            178,
+            228,
+            75,
+            18
+          ]
+        },
+        {
+          "rect": [
+            14,
+            280,
+            117,
+            48
+          ]
+        },
+        {
+          "rect": [
+            177,
+            310,
+            77,
+            18
+          ]
+        },
+        {
+          "rect": [
+            158,
+            322,
+            9,
+            6
+          ]
+        },
+        {
+          "rect": [
+            14,
+            362,
+            119,
+            49
+          ]
+        },
+        {
+          "rect": [
+            177,
+            392,
+            53,
+            18
+          ]
+        },
+        {
+          "rect": [
+            152,
+            395,
+            15,
+            15
+          ]
+        },
+        {
+          "rect": [
+            14,
+            435,
+            204,
+            32
+          ]
+        },
+        {
+          "rect": [
+            19,
+            478,
+            174,
+            55
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            226,
+            779,
+            37,
+            42
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-D01E-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: the agents search miss cannot be driven by a fixture because the search query is view-private state in AgentsScreen."
+    },
+    "MOB-D20-en-light": {
+      "status": "deviates",
+      "reason": "Same as the zh board: centred 'No agents yet' empty state with the desktop tip below it in the design; the app shows the search-miss state, SDK notice and retry. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            75,
+            102,
+            35
+          ]
+        },
+        {
+          "rect": [
+            353,
+            85,
+            20,
+            8
+          ]
+        },
+        {
+          "rect": [
+            27,
+            144,
+            212,
+            22
+          ]
+        },
+        {
+          "rect": [
+            33,
+            207,
+            38,
+            38
+          ]
+        },
+        {
+          "rect": [
+            176,
+            266,
+            41,
+            34
+          ]
+        },
+        {
+          "rect": [
+            15,
+            282,
+            136,
+            22
+          ]
+        },
+        {
+          "rect": [
+            14,
+            320,
+            355,
+            90
+          ]
+        },
+        {
+          "rect": [
+            16,
+            419,
+            219,
+            36
+          ]
+        },
+        {
+          "rect": [
+            23,
+            776,
+            53,
+            45
+          ]
+        },
+        {
+          "rect": [
+            130,
+            777,
+            38,
+            43
+          ]
+        },
+        {
+          "rect": [
+            226,
+            779,
+            37,
+            42
+          ]
+        },
+        {
+          "rect": [
+            333,
+            785,
+            22,
+            10
+          ]
+        },
+        {
+          "rect": [
+            329,
+            808,
+            30,
+            11
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-D20-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design shows a centred empty state (robot icon tile, title, two-line message, 'create agents on your desktop' tip) and a header ellipsis. The app shows the desktop tip at the top, a search-miss icon, 'no agents found' copy, the SDK contract notice and a retry button. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            75,
+            102,
+            35
+          ]
+        },
+        {
+          "rect": [
+            353,
+            85,
+            20,
+            8
+          ]
+        },
+        {
+          "rect": [
+            27,
+            144,
+            146,
+            22
+          ]
+        },
+        {
+          "rect": [
+            33,
+            207,
+            38,
+            38
+          ]
+        },
+        {
+          "rect": [
+            176,
+            266,
+            41,
+            34
+          ]
+        },
+        {
+          "rect": [
+            15,
+            281,
+            123,
+            23
+          ]
+        },
+        {
+          "rect": [
+            15,
+            320,
+            362,
+            102
+          ]
+        },
+        {
+          "rect": [
+            26,
+            435,
+            159,
+            22
+          ]
+        },
+        {
+          "rect": [
+            36,
+            776,
+            26,
+            44
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            226,
+            779,
+            37,
+            42
+          ]
+        },
+        {
+          "rect": [
+            333,
+            786,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            18,
+            9
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-F03-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: the contact profile and safety number screen has no board fixture in wave 1."
+    },
+    "MOB-G01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app lists two rows the board does not have (账户, 开源声明). The design header has an ellipsis action. The permissions icon is shield-check in the design and shield in the app; settings subtitle copy '账号' vs '账户'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            75,
+            66,
+            33
+          ]
+        },
+        {
+          "rect": [
+            353,
+            85,
+            20,
+            8
+          ]
+        },
+        {
+          "rect": [
+            71,
+            154,
+            135,
+            43
+          ]
+        },
+        {
+          "rect": [
+            27,
+            163,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            365,
+            168,
+            8,
+            7
+          ]
+        },
+        {
+          "rect": [
+            70,
+            236,
+            153,
+            43
+          ]
+        },
+        {
+          "rect": [
+            27,
+            245,
+            22,
+            23
+          ]
+        },
+        {
+          "rect": [
+            71,
+            318,
+            51,
+            43
+          ]
+        },
+        {
+          "rect": [
+            131,
+            320,
+            137,
+            41
+          ]
+        },
+        {
+          "rect": [
+            27,
+            326,
+            22,
+            24
+          ]
+        },
+        {
+          "rect": [
+            70,
+            400,
+            37,
+            43
+          ]
+        },
+        {
+          "rect": [
+            27,
+            409,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            117,
+            425,
+            104,
+            18
+          ]
+        },
+        {
+          "rect": [
+            70,
+            482,
+            92,
+            43
+          ]
+        },
+        {
+          "rect": [
+            27,
+            498,
+            18,
+            15
+          ]
+        },
+        {
+          "rect": [
+            70,
+            563,
+            93,
+            44
+          ]
+        },
+        {
+          "rect": [
+            28,
+            572,
+            21,
+            23
+          ]
+        },
+        {
+          "rect": [
+            364,
+            577,
+            9,
+            14
+          ]
+        },
+        {
+          "rect": [
+            71,
+            645,
+            152,
+            43
+          ]
+        },
+        {
+          "rect": [
+            28,
+            653,
+            21,
+            25
+          ]
+        },
+        {
+          "rect": [
+            364,
+            659,
+            9,
+            14
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            135,
+            777,
+            25,
+            43
+          ]
+        },
+        {
+          "rect": [
+            233,
+            779,
+            24,
+            23
+          ]
+        },
+        {
+          "rect": [
+            332,
+            785,
+            23,
+            9
+          ]
+        },
+        {
+          "rect": [
+            333,
+            805,
+            23,
+            15
+          ]
+        },
+        {
+          "rect": [
+            237,
+            811,
+            14,
+            7
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-G02-zh-CN-light": {
+      "status": "no-capture",
+      "reason": "No capture: the settings board has no fixture in wave 1."
+    },
+    "MOB-G03-zh-CN-light": {
+      "status": "deviates",
+      "reason": "Lock icons are smaller in the design; 'add shortcut' is a plus text row in the design and a disabled outline button in the app; the footnote sits lower in the app; the header separator is not in the design; label offsets of 1 pt. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            67,
+            79,
+            122,
+            23
+          ]
+        },
+        {
+          "rect": [
+            32,
+            80,
+            12,
+            18
+          ]
+        },
+        {
+          "rect": [
+            14,
+            140,
+            177,
+            18
+          ]
+        },
+        {
+          "rect": [
+            343,
+            191,
+            23,
+            24
+          ]
+        },
+        {
+          "rect": [
+            15,
+            192,
+            36,
+            22
+          ]
+        },
+        {
+          "rect": [
+            250,
+            193,
+            26,
+            20
+          ]
+        },
+        {
+          "rect": [
+            297,
+            193,
+            23,
+            20
+          ]
+        },
+        {
+          "rect": [
+            343,
+            267,
+            23,
+            24
+          ]
+        },
+        {
+          "rect": [
+            15,
+            268,
+            36,
+            22
+          ]
+        },
+        {
+          "rect": [
+            250,
+            268,
+            27,
+            21
+          ]
+        },
+        {
+          "rect": [
+            297,
+            269,
+            23,
+            20
+          ]
+        },
+        {
+          "rect": [
+            343,
+            343,
+            23,
+            24
+          ]
+        },
+        {
+          "rect": [
+            250,
+            344,
+            26,
+            21
+          ]
+        },
+        {
+          "rect": [
+            297,
+            345,
+            23,
+            20
+          ]
+        },
+        {
+          "rect": [
+            14,
+            346,
+            57,
+            23
+          ]
+        },
+        {
+          "rect": [
+            15,
+            420,
+            54,
+            22
+          ]
+        },
+        {
+          "rect": [
+            250,
+            420,
+            26,
+            21
+          ]
+        },
+        {
+          "rect": [
+            297,
+            421,
+            23,
+            20
+          ]
+        },
+        {
+          "rect": [
+            346,
+            422,
+            18,
+            17
+          ]
+        },
+        {
+          "rect": [
+            14,
+            496,
+            38,
+            22
+          ]
+        },
+        {
+          "rect": [
+            250,
+            496,
+            26,
+            21
+          ]
+        },
+        {
+          "rect": [
+            298,
+            497,
+            22,
+            19
+          ]
+        },
+        {
+          "rect": [
+            346,
+            498,
+            18,
+            17
+          ]
+        },
+        {
+          "rect": [
+            14,
+            553,
+            365,
+            88
+          ]
+        },
+        {
+          "rect": [
+            13,
+            752,
+            366,
+            58
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-N01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The design page uses the grouped background (warm grey) with white cards; the app uses the page background. The node row chevron is not in the design. Header separator and 1 pt offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            36,
+            17
+          ]
+        },
+        {
+          "rect": [
+            22,
+            22,
+            34,
+            16
+          ]
+        },
+        {
+          "rect": [
+            67,
+            79,
+            82,
+            23
+          ]
+        },
+        {
+          "rect": [
+            33,
+            80,
+            11,
+            17
+          ]
+        },
+        {
+          "rect": [
+            28,
+            138,
+            32,
+            16
+          ]
+        },
+        {
+          "rect": [
+            27,
+            175,
+            37,
+            20
+          ]
+        },
+        {
+          "rect": [
+            15,
+            216,
+            102,
+            17
+          ]
+        },
+        {
+          "rect": [
+            15,
+            251,
+            29,
+            16
+          ]
+        },
+        {
+          "rect": [
+            73,
+            294,
+            139,
+            41
+          ]
+        },
+        {
+          "rect": [
+            36,
+            303,
+            22,
+            21
+          ]
+        },
+        {
+          "rect": [
+            350,
+            307,
+            8,
+            12
+          ]
+        },
+        {
+          "rect": [
+            27,
+            370,
+            102,
+            35
+          ]
+        },
+        {
+          "rect": [
+            187,
+            370,
+            10,
+            14
+          ]
+        },
+        {
+          "rect": [
+            326,
+            370,
+            29,
+            16
+          ]
+        },
+        {
+          "rect": [
+            138,
+            371,
+            17,
+            15
+          ]
+        },
+        {
+          "rect": [
+            239,
+            371,
+            49,
+            15
+          ]
+        },
+        {
+          "rect": [
+            302,
+            372,
+            11,
+            13
+          ]
+        },
+        {
+          "rect": [
+            14,
+            755,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-S01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app shows the generic start catalog form for the launch stage; the board is the splash (logo tile, wordmark, wave mark, starting spinner). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            45,
+            13
+          ]
+        },
+        {
+          "rect": [
+            16,
+            113,
+            94,
+            25
+          ]
+        },
+        {
+          "rect": [
+            15,
+            161,
+            213,
+            21
+          ]
+        },
+        {
+          "rect": [
+            14,
+            196,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
+            14,
+            264,
+            365,
+            261
+          ]
+        },
+        {
+          "rect": [
+            15,
+            542,
+            71,
+            20
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-S02-en-light": {
+      "status": "deviates",
+      "reason": "Same as the zh board: the app shows 'Choose a node' with the address field; the design is the get-started page with 'Official node' selected and 'Continue'. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            45,
+            13
+          ]
+        },
+        {
+          "rect": [
+            15,
+            114,
+            167,
+            24
+          ]
+        },
+        {
+          "rect": [
+            16,
+            147,
+            127,
+            38
+          ]
+        },
+        {
+          "rect": [
+            14,
+            205,
+            365,
+            97
+          ]
+        },
+        {
+          "rect": [
+            14,
+            319,
+            350,
+            18
+          ]
+        },
+        {
+          "rect": [
+            13,
+            350,
+            367,
+            80
+          ]
+        },
+        {
+          "rect": [
+            72,
+            455,
+            191,
+            39
+          ]
+        },
+        {
+          "rect": [
+            36,
+            461,
+            22,
+            22
+          ]
+        },
+        {
+          "rect": [
+            349,
+            466,
+            9,
+            12
+          ]
+        },
+        {
+          "rect": [
+            14,
+            753,
+            365,
+            56
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-S02-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app shows the 'choose a node' address form for the connection stage; the board is the get-started page (wordmark, wave mark, headline, official node card selected, change-node row, continue button). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            45,
+            13
+          ]
+        },
+        {
+          "rect": [
+            15,
+            113,
+            128,
+            73
+          ]
+        },
+        {
+          "rect": [
+            14,
+            205,
+            365,
+            94
+          ]
+        },
+        {
+          "rect": [
+            14,
+            318,
+            219,
+            19
+          ]
+        },
+        {
+          "rect": [
+            13,
+            350,
+            367,
+            80
+          ]
+        },
+        {
+          "rect": [
+            72,
+            453,
+            133,
+            40
+          ]
+        },
+        {
+          "rect": [
+            36,
+            461,
+            22,
+            22
+          ]
+        },
+        {
+          "rect": [
+            349,
+            466,
+            9,
+            12
+          ]
+        },
+        {
+          "rect": [
+            14,
+            753,
+            365,
+            56
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-S18-zh-CN-light": {
+      "status": "deviates",
+      "reason": "The app shows the generic start catalog form for the welcome stage; the board is the welcome page (wordmark, wave mark, headline, create, link and restore actions at the bottom). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            23,
+            22,
+            33,
+            16
+          ]
+        },
+        {
+          "rect": [
+            15,
+            77,
+            45,
+            13
+          ]
+        },
+        {
+          "rect": [
+            15,
+            113,
+            146,
+            27
+          ]
+        },
+        {
+          "rect": [
+            14,
+            161,
+            365,
+            228
+          ]
+        },
+        {
+          "rect": [
+            14,
+            400,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
+            14,
+            468,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
+            15,
+            542,
+            71,
+            20
+          ]
+        },
+        {
+          "rect": [
+            13,
+            636,
+            367,
+            117
+          ]
+        },
+        {
+          "rect": [
+            136,
+            771,
+            122,
+            20
+          ]
+        },
+        {
+          "rect": [
+            135,
+            833,
+            124,
+            9
+          ]
+        }
+      ]
+    }
+  }
+}

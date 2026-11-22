@@ -6,7 +6,7 @@ import Foundation
 let native: [SwiftSetting] = ProcessInfo.processInfo.environment["RAMFLUX_CORE_XCFRAMEWORK"] == nil ? [] : [.define("RF_NATIVE_SDK")]
 let package = Package(name: "AppData", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
     products: [.library(name: "AppData", targets: ["AppData"])],
-    dependencies: [.package(name: "RamfluxCoreBridge", path: "../..")], targets: [
-        .target(name: "AppData", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge")], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")], swiftSettings: native),
+    dependencies: [.package(name: "RamfluxCoreBridge", path: "../.."), .package(path: "../RFLocalization")], targets: [
+        .target(name: "AppData", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge"), "RFLocalization"], exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")], swiftSettings: native),
         .testTarget(name: "AppDataTests", dependencies: ["AppData"], swiftSettings: native),
     ], swiftLanguageModes: [.v6])
