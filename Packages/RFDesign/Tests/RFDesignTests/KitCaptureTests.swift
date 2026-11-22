@@ -10,9 +10,11 @@ import AppKit
 import UIKit
 #endif
 
+/// Catalogue checks do no rendering. Only the tests that read `KitCatalog` (which builds views) run
+/// on the main actor; the capture yields it after every board, so these never wait for a capture.
 @Suite(.timeLimit(.minutes(2)))
-@MainActor
 struct KitCoverageTests {
+    @MainActor
     @Test func catalogIncludesDarkAndLocalesForEveryComponent() {
         let names = Set(KitCatalog.boards().map(\.name))
         for stem in Self.componentStems {
@@ -22,6 +24,7 @@ struct KitCoverageTests {
         }
     }
 
+    @MainActor
     @Test func catalogMatchesTheBoardList() {
         let names = Set(KitCatalog.boards().map(\.name))
         let required = Self.requiredBoards
@@ -121,10 +124,12 @@ struct KitCoverageTests {
     ]
 }
 
-@Suite(.timeLimit(.minutes(8)))
+/// Capture tests run one at a time (`.serialized`), so each time limit measures that test's own
+/// rendering and not the queue of other captures waiting for the main actor.
+@Suite(.serialized, .timeLimit(.minutes(8)))
 @MainActor
 struct KitCaptureTests {
-    @Test func captureKitBoards() throws {
+    @Test func captureKitBoards() async throws {
         let env = ProcessInfo.processInfo.environment
         let ci = env["CI"] == "true" || env["GITHUB_ACTIONS"] == "true"
         let dir = env["KIT_CAPTURE_DIR"]
@@ -142,9 +147,7 @@ struct KitCaptureTests {
             }
         }
         let boards = KitCatalog.boards()
-        for board in boards {
-            let data = try KitRaster.png(board)
-            if data.isEmpty { throw KitCaptureDirectoryError("empty capture \(board.name)") }
+        try await KitRaster.render(boards) { board, data in
             try data.write(to: root.appendingPathComponent("\(board.name).png"))
         }
         let written = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
@@ -162,6 +165,21 @@ private struct KitCaptureDirectoryError: Error, CustomStringConvertible {
 
 @MainActor
 enum KitRaster {
+    /// Renders one board per main-actor turn. After each board it yields, so other main-actor tests
+    /// run between boards instead of queueing behind the whole capture, and a time limit or other
+    /// cancellation stops the capture between boards with the position it reached.
+    static func render(_ boards: [KitBoard], store: (KitBoard, Data) throws -> Void) async throws {
+        for (index, board) in boards.enumerated() {
+            if Task.isCancelled {
+                throw KitCaptureDirectoryError("capture cancelled after \(index) of \(boards.count) boards, before \(board.name)")
+            }
+            let data = try png(board)
+            if data.isEmpty { throw KitCaptureDirectoryError("empty capture \(board.name)") }
+            try store(board, data)
+            await Task.yield()
+        }
+    }
+
     static func png(_ board: KitBoard) throws -> Data {
         let theme: RFTheme = board.dark ? .dark : .light
         let root = board.body
