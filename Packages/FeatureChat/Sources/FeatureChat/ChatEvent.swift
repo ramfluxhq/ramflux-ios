@@ -7,6 +7,7 @@ public enum ChatEvent: Equatable, Sendable {
     /// explanation flow and answers with `ChatAction.permissionResolved`.
     case requestPermission(DevicePermission)
     /// The user wants to forward a message. The host presents its conversation picker and
-    /// answers with `ChatAction.forwardTo`.
+    /// answers with `ChatAction.forwardTo`, giving the target's conversation id and, for a group,
+    /// its `group_id` (the two can differ for groups created elsewhere).
     case chooseForwardTarget(messageID: String)
 }

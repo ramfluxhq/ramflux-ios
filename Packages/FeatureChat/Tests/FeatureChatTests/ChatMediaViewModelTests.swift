@@ -176,10 +176,10 @@ private func tinyPNG() throws -> URL {
         model.send(.appeared); await model.settle()
         model.send(.forwardRequested("m1"))
         #expect(events.last == .chooseForwardTarget(messageID: "m1"))
-        model.send(.forwardTo(messageID: "m1", conversation: "g", isGroup: true))
+        model.send(.forwardTo(messageID: "m1", conversation: "g", groupID: "group-id"))
         try await settleMedia(model, fake) { events.contains(.messageSubmitted("forwarded")) }
         let forwards = await fake.forwards
-        #expect(forwards.count == 1); #expect(forwards.first?.0 == "caption"); #expect(forwards.first?.1.map(\.id) == ["m1#0"]); #expect(forwards.first?.2 == "g"); #expect(forwards.first?.3 == "g")
+        #expect(forwards.count == 1); #expect(forwards.first?.0 == "caption"); #expect(forwards.first?.1.map(\.id) == ["m1#0"]); #expect(forwards.first?.2 == "g"); #expect(forwards.first?.3 == "group-id")
         model.send(.disappeared)
     }
 
@@ -321,5 +321,19 @@ private func tinyPNG() throws -> URL {
         await fake.emitTyping(TypingEvent(conversationID: "c", author: "peer", active: true, expiresAt: 999))
         try await Task.sleep(for: .milliseconds(20)); #expect(!model.state.peerTyping)
         model.send(.disappeared); #expect(!model.state.peerTyping)
+    }
+
+    @Test func groupMediaUsesTheGroupIDForPreparationAndTheConversationForSend() async throws {
+        let fake = ChatFake()
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "conv-1", isGroup: true, groupID: "group-9", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        let picked = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try Data("x".utf8).write(to: picked)
+        model.send(.attachPicked([PickedMedia(url: picked, kind: .file, name: "a.txt")]))
+        try await settleMedia(model, fake) { model.state.mediaDraft != nil }
+        model.send(.sendMediaDraft)
+        try await settleMedia(model, fake) { false }
+        #expect(await fake.mediaGroups == ["group-9"])
+        model.send(.disappeared)
     }
 }

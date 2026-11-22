@@ -45,7 +45,7 @@ extension ChatViewModel {
             state.actionTarget = nil
             guard let message = state.messages.first(where: { $0.id == id }), message.kind != .deleted, message.kind != .callHistory else { return }
             emit(.chooseForwardTarget(messageID: id))
-        case .forwardTo(let id, let target, let isGroup): forward(id, to: target, isGroup: isGroup)
+        case .forwardTo(let id, let target, let group): forward(id, to: target, groupID: group)
         case .removeDraftItem(let index):
             guard var draft = state.mediaDraft, draft.items.indices.contains(index) else { return }
             try? FileManager.default.removeItem(at: draft.items.remove(at: index).file)
@@ -229,7 +229,7 @@ extension ChatViewModel {
     /// per-item state and resumed with the same operation id after a relaunch.
     func enqueueMedia(_ uploads: [MediaUpload], caption: String, operationID: String) {
         let current = epoch
-        let groupID = state.isGroup ? conversation : nil
+        let groupID = self.groupID
         mediaTasks["queue:" + operationID] = Task { [weak self, repository, account, conversation] in
             let result = await repository.enqueueMedia(account: account, conversation: conversation, groupID: groupID, caption: caption, items: uploads, operationID: operationID)
             if case .failure = result { for upload in uploads { try? FileManager.default.removeItem(at: upload.file) } }
@@ -256,14 +256,14 @@ extension ChatViewModel {
 
     /// Re-sends a message's text and media to another conversation through the SDK (new
     /// upload and keys); the target's outbox resumes it if the connection is down.
-    private func forward(_ id: String, to target: String, isGroup: Bool) {
+    private func forward(_ id: String, to target: String, groupID: String?) {
         guard let message = state.messages.first(where: { $0.id == id }), message.kind != .deleted, !target.isEmpty else { return }
         let text = if case .text(let body) = message.kind { body } else { "" }
         guard !message.attachments.isEmpty || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         let current = epoch
         let operationID = UUID().uuidString
         mediaTasks["forward:" + operationID] = Task { [weak self, repository, account] in
-            let result = await repository.forward(account: account, text: text, attachments: message.attachments, to: target, groupID: isGroup ? target : nil, operationID: operationID)
+            let result = await repository.forward(account: account, text: text, attachments: message.attachments, to: target, groupID: groupID, operationID: operationID)
             guard let self, self.epoch == current else { return }
             self.mediaTasks["forward:" + operationID] = nil
             switch result {

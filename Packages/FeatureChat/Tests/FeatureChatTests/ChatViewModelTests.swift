@@ -76,7 +76,8 @@ actor ChatFake: ChatRepository {
             return await self.recordMedia(entry)
         }
     }
-    private func recordMedia(_ entry: OutboxEntry) -> RepositoryResult<SendOutcome> { mediaSends.append((entry.operationID, entry.media)); captions.append(entry.text); return mediaSendResult }
+    private(set) var mediaGroups: [String?] = []
+    private func recordMedia(_ entry: OutboxEntry) -> RepositoryResult<SendOutcome> { mediaSends.append((entry.operationID, entry.media)); mediaGroups.append(entry.groupID); captions.append(entry.text); return mediaSendResult }
     func retryOutbox(account: String, conversation: String, operationID: String) async -> [SendOutcome] {
         await queue.requeue(account, conversation, operationID: operationID); return await flushOutbox(account: account, conversation: conversation)
     }

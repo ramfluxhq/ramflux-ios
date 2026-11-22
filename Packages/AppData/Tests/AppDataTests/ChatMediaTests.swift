@@ -161,4 +161,24 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         #expect(!MediaPolicy.autoDownload(file, sender: .group, network: .wifi))
         #expect(!MediaPolicy.autoDownload(image, sender: .group, network: .cellular))
     }
+
+    @Test func groupMediaPreparesForTheGroupIDAndSendsToTheConversation() async throws {
+        let root = temporaryRoot(); defer { try? FileManager.default.removeItem(at: root) }
+        let transport = ProxyTransport { request in
+            switch request.method {
+            case "attachment.enable": return .object([:])
+            case "attachment.prepare.begin":
+                #expect(request.body["kind"] == .string("group")); #expect(request.body["group_id"] == .string("group-9")); #expect(request.body["peer"] == nil)
+                return .object(["prepare_id": .string("p"), "generation": .number(1), "state": .string("staged")])
+            case "conversation.send":
+                #expect(request.body["conversation_id"] == .string("conv-1")); #expect(request.body["group_id"] == .string("group-9"))
+                return .object(["message_id": .string("m"), "conversation_id": .string("conv-1"), "delivery_state": .string("submitted")])
+            default: Issue.record("Unexpected \(request.method)"); return .null
+            }
+        }
+        let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: root, pause: { _ in })
+        let outbox = try #require(await repo.mediaOutbox(account: "a"))
+        let file = outbox.appendingPathComponent("g"); try Data([1]).write(to: file)
+        #expect(await repo.enqueueMedia(account: "a", conversation: "conv-1", groupID: "group-9", caption: "", items: [MediaUpload(file: file, fileName: "a.bin", mime: "application/octet-stream")], operationID: "op") == .success([SendOutcome(messageID: "m", state: .submitted)]))
+    }
 }

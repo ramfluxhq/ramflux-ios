@@ -7,6 +7,8 @@ import AppData
     public internal(set) var state: ChatState
     public let conversation: String
     let account: String
+    /// The group's `group_id` for attachment preparation; nil in a direct chat.
+    let groupID: String?
     let repository: any ChatRepository
     let emit: (ChatEvent) -> Void
     let now: @Sendable () -> Date
@@ -37,7 +39,10 @@ import AppData
     @ObservationIgnored private var lastMarked: MessageOrder?
     @ObservationIgnored private var marking = false
     @ObservationIgnored private var typingSentAt: Date?
-    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+        // A group's conversation id and group_id are equal only for groups this app created; the
+        // host passes the real group_id, and the conversation id stands in only when it has none.
+        self.groupID = isGroup ? (groupID ?? conversation) : nil
         self.repository = repository; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
         var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation
         self.state = initial; self.emit = emit; window = TimelineWindow(capacity: windowCapacity)
