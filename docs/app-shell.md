@@ -71,9 +71,9 @@ keys, message bodies or operation payloads are logged or exported by the shell.
 `FeatureSettings` and `FeatureGroups` each expose Screen, State, Action, Event, ViewModel and Coordinator
 types. Screens render State and emit Action; ViewModels own cancellable asynchronous
 work. AppData owns repositories shared over one RamfluxClient and maps SDK responses
-into application records. One visible feature observes the native event subscription;
-replacement stops and joins the previous subscription before resetting and reloading
-the projection. UIKit owns the message timeline (a `UITableViewController` whose cells host
+into application records. Every visible feature observes account invalidations through
+the shared event fan-out (`NativeUpdateSource`, see `docs/bridge.md`), so a list and a
+detail can be live at once. UIKit owns the message timeline (a `UITableViewController` whose cells host
 SwiftUI `MessageBubble`s) and the secure input editors. The composer is the
 SwiftUI `KitComposer`, a `TextField` that grows vertically. Message text is system
 text (`KitMessageText`): selectable, with detected links, and running in the

@@ -76,6 +76,32 @@ reserved under the mutex, so cancellation and concurrent admission remain respon
 leave foreground retryable.
 Foreground reacquires the core. Extensions must never construct a NativeCore.
 
+## Shared event fan-out (AppData)
+
+Features never open a native subscription. They call `observe(account:)` on their
+repository, which forwards to the one `NativeUpdateSource` shared by every repository
+built over the client (`AppDataFactory`). The hub keeps one native subscription per
+active account and multicasts to any number of `RepositoryObservation`s:
+
+- `observe(account:) async -> RepositoryObservation` registers an observer. The first
+  observer resets the event slot and opens the subscription; later observers join it.
+  Every observer receives `.invalidated` once it is live.
+- `observation.stream` is an `AsyncStream<RepositoryUpdate>` buffering only the newest
+  update: `.invalidated` means "reload your visible window"; `.failed(AppFailure)` is
+  terminal and the stream finishes after it.
+- `observation.stop()` is idempotent; cancelling the consuming task also removes the
+  observer. When the last observer leaves, the hub stops and joins the native
+  subscription. Subscribe on appear and stop on disappear.
+- A lag notification, queue overflow or byte-credit exhaustion (`resyncRequired`)
+  never reaches features as a failure: the hub stops the stream, resets, resubscribes
+  and sends `.invalidated` to every observer so each reloads from read models. After
+  four consecutive resubscriptions without a delivered event it reports `.failed`.
+- Observing a different account finishes the previous account's observers and joins
+  their native stop before resetting and subscribing for the new account.
+- The topic list is fixed in `NativeUpdateSource.topics`; there is no `*` subscription.
+  Events carry no payload to observers: a feature that needs to filter (for example a
+  chat that only cares about its own conversation) re-reads its window and compares.
+
 ## Secrets and app storage
 
 `SecretBytes` is single-use, non-Codable and redacted. Its private allocation is

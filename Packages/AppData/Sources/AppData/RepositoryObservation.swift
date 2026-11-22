@@ -1,49 +1,115 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Foundation
 import RamfluxCore
 import Synchronization
 public enum RepositoryUpdate: Equatable, Sendable { case invalidated, failed(AppFailure) }
-/// One visible feature owns this observation. Replacement joins the previous native subscription.
+/// One logical observer of account invalidations. Any number may be live at once; `stop()` is idempotent
+/// and returns after the shared native subscription has stopped if this was its last observer.
 public final class RepositoryObservation: Sendable {
     public let stream: AsyncStream<RepositoryUpdate>
-    private let task: Task<Void, Never>?
     private let onStop: @Sendable () async -> Void
     private let stopCalled = Mutex(false)
-    private let subscription: EventSubscription?
-    init(subscription: EventSubscription) {
-        onStop = {}; self.subscription = subscription
-        let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); stream = pair.stream
-        pair.continuation.onTermination = { _ in subscription.cancel() }
-        task = Task {
-            pair.continuation.yield(.invalidated)
-            do {
-                for try await _ in subscription.stream {
-                    guard !Task.isCancelled else { break }; pair.continuation.yield(.invalidated)
-                }
-            } catch { if !Task.isCancelled { pair.continuation.yield(.failed(AppFailure.map(error))) } }
-            pair.continuation.finish(); await subscription.stop()
-        }
-    }
-    public init(failure: AppFailure) { onStop = {}; subscription = nil; task = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
-    public init(stream: AsyncStream<RepositoryUpdate>, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; subscription = nil; task = nil; self.stream = stream }
-    public func stop() async { task?.cancel(); subscription?.cancel(); await task?.value; await subscription?.stop(); let call = stopCalled.withLock { value in let old = value; value = true; return !old }; if call { await onStop() } }
-    deinit { task?.cancel(); subscription?.cancel() }
+    public init(failure: AppFailure) { onStop = {}; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
+    public init(stream: AsyncStream<RepositoryUpdate>, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; self.stream = stream }
+    public func stop() async { let call = stopCalled.withLock { value in let old = value; value = true; return !old }; if call { await onStop() } }
 }
+/// Shared event fan-out: one native subscription per active account, multicast to every observer.
+/// The subscription opens with the first observer and stops with the last. A queue overflow, lag
+/// notification or byte-credit exhaustion (`resyncRequired`) resubscribes automatically and tells every
+/// observer to reload (`.invalidated`); any other failure is broadcast as `.failed` and ends all observers.
+/// Observing a different account ends the previous account's observers before the new subscription opens.
 public actor NativeUpdateSource {
+    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state"]
+    /// Consecutive resubscriptions without a delivered event before the hub reports a failure.
+    static let resyncLimit = 4
     private let client: RamfluxClient
-    private var transition: Task<RepositoryObservation, Never>?
+    private var account: String?
+    private var observers: [UUID: AsyncStream<RepositoryUpdate>.Continuation] = [:]
+    private var subscription: EventSubscription?
+    private var pump: Task<Void, Never>?
+    private var epoch: UInt64 = 0
+    private var resyncs = 0
+    private var tail: Task<Void, Never>?
     public init(client: RamfluxClient) { self.client = client }
+    /// Number of live observers; for tests and diagnostics.
+    public var observerCount: Int { observers.count }
     public func observe(account: String) async -> RepositoryObservation {
-        let previous = transition
-        let task = Task { [client] in
-            if let previous { await previous.value.stop() }
-            do {
-                try await client.resetEvents()
-                let filter = try SubscriptionFilter(accountID: account, topics: ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state"], attendedFrontend: true)
-                return RepositoryObservation(subscription: try await client.events(filter))
-            } catch { return RepositoryObservation(failure: AppFailure.map(error)) }
-        }
-        transition = task; return await task.value
+        let id = UUID()
+        let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        pair.continuation.onTermination = { [weak self] _ in Task { await self?.remove(id) } }
+        await serialized { hub in await hub.join(id: id, account: account, continuation: pair.continuation) }
+        return RepositoryObservation(stream: pair.stream, onStop: { [weak self] in await self?.remove(id) })
     }
-    deinit { transition?.cancel() }
+    private func remove(_ id: UUID) async {
+        await serialized { hub in await hub.leave(id: id) }
+    }
+    /// Membership and native lifecycle changes run one at a time; the pump never awaits this chain.
+    private func serialized(_ work: @escaping @Sendable (NativeUpdateSource) async -> Void) async {
+        let previous = tail
+        let next = Task { await previous?.value; await work(self) }
+        tail = next; await next.value
+    }
+    private func join(id: UUID, account: String, continuation: AsyncStream<RepositoryUpdate>.Continuation) async {
+        if self.account != account { await close(finishing: true); self.account = account }
+        observers[id] = continuation
+        if subscription == nil { await open() } else { continuation.yield(.invalidated) }
+    }
+    private func leave(id: UUID) async {
+        guard let continuation = observers.removeValue(forKey: id) else { return }
+        continuation.finish()
+        if observers.isEmpty { await close(finishing: false); account = nil }
+    }
+    private func open() async {
+        guard let account, !observers.isEmpty else { return }
+        do {
+            try await client.resetEvents()
+            let filter = try SubscriptionFilter(accountID: account, topics: Self.topics, attendedFrontend: true)
+            let opened = try await client.events(filter)
+            epoch &+= 1; let current = epoch
+            subscription = opened
+            pump = Task { [weak self] in
+                do {
+                    for try await _ in opened.stream { await self?.delivered(epoch: current) }
+                    await self?.ended(epoch: current, failure: nil)
+                } catch { await self?.ended(epoch: current, failure: error) }
+            }
+            broadcast(.invalidated)
+        } catch { fail(AppFailure.map(error)) }
+    }
+    private func close(finishing: Bool) async {
+        epoch &+= 1
+        let stopping = subscription, joining = pump
+        subscription = nil; pump = nil
+        stopping?.cancel(); await stopping?.stop(); await joining?.value
+        if finishing { for continuation in observers.values { continuation.finish() }; observers.removeAll(); resyncs = 0 }
+    }
+    private func delivered(epoch current: UInt64) {
+        guard current == epoch else { return }
+        resyncs = 0; broadcast(.invalidated)
+    }
+    private func ended(epoch current: UInt64, failure: (any Error)?) {
+        guard current == epoch else { return }
+        Task { await serialized { hub in await hub.recover(epoch: current, failure: failure) } }
+    }
+    private func recover(epoch current: UInt64, failure: (any Error)?) async {
+        guard current == epoch else { return }
+        let resync = (failure as? BridgeError) == .resyncRequired || (failure as? CoreFailure)?.code == .resyncRequired
+        guard resync, resyncs < Self.resyncLimit else {
+            await close(finishing: false)
+            if let failure { fail(AppFailure.map(failure)) } else { finishAll() }
+            return
+        }
+        resyncs += 1
+        await close(finishing: false)
+        try? await Task.sleep(for: .milliseconds(25 * resyncs))
+        await open()
+    }
+    private func broadcast(_ update: RepositoryUpdate) { for continuation in observers.values { continuation.yield(update) } }
+    private func fail(_ failure: AppFailure) { broadcast(.failed(failure)); finishAll() }
+    private func finishAll() {
+        for continuation in observers.values { continuation.finish() }
+        observers.removeAll(); account = nil; resyncs = 0
+    }
+    deinit { subscription?.cancel(); pump?.cancel() }
 }
