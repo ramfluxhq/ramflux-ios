@@ -59,8 +59,8 @@ import RFDesign
         let gap = max(0, visible - tableView.contentSize.height)
         if abs(tableView.contentInset.top - gap) > 0.5 { tableView.contentInset.top = gap }
     }
-    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false) {
-        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder)
+    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = []) {
+        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed)
         loadViewIfNeeded()
         self.olderAvailable = olderAvailable
         if !loadingOlder { requestedOlderAt = nil }
@@ -102,7 +102,7 @@ import RFDesign
         guard let id = source?.itemIdentifier(for: indexPath) else { return }
         if heightContext != context { heights.removeAll(); heightContext = context }
         heights[id] = cell.bounds.height
-        if case .message(let record)? = entries[id], record.isOwn != true { onAction(.displayed(record.id)) }
+        if case .message(let record, _)? = entries[id], record.isOwn != true { onAction(.displayed(record.id)) }
         if olderAvailable, indexPath.row < 8, requestedOlderAt == nil, !previous.isEmpty {
             requestedOlderAt = indexPath.row
             onAction(.loadOlder)

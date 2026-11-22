@@ -16,13 +16,16 @@ public struct ChatTimeline: UIViewControllerRepresentable {
     public let unreadAnchorID: String?
     public let olderAvailable: Bool
     public let loadingOlder: Bool
-    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, onAction: @escaping (ChatAction) -> Void = { _ in }) {
+    public let media: [String: MediaTransferState]
+    public let revealed: Set<String>
+    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
+        self.media = media; self.revealed = revealed
         self.isGroup = isGroup; self.messages = messages; self.outbox = outbox; self.unreadAnchorID = unreadAnchorID; self.olderAvailable = olderAvailable; self.loadingOlder = loadingOlder; self.onAction = onAction
     }
     public func makeUIViewController(context: Context) -> TimelineController { TimelineController() }
     public func updateUIViewController(_ controller: TimelineController, context: Context) {
         controller.onAction = onAction
-        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder)
+        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder, media: media, revealed: revealed)
     }
 }
 #endif

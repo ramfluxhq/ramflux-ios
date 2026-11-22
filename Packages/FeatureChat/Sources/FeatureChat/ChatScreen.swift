@@ -27,22 +27,24 @@ public struct ChatScreen: View {
             if state.messages.isEmpty && state.outbox.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
-                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, onAction: onAction)
+                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, onAction: onAction)
                 #else
-                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
+                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
                 #endif
                 if state.detached {
                     Button(FeatureChatStrings.text("chat.timeline.jumpToLatest", locale: locale)) { onAction(.jumpToLatest) }
                         .rfFont(.caption).padding(theme.gap).background(theme.surface, in: Capsule()).padding(theme.gap)
                 }
             }
+            if let pending = state.mediaSend { MediaSendRow(pending: pending, onAction: onAction) }
             if state.held != nil && !state.sending { Button(FeatureChatStrings.text("chat.send.retry", locale: locale)) { onAction(.retrySameSend) } }
             KitComposer(
                 value: draft,
                 placeholder: FeatureChatStrings.text("chat.composer.placeholder", locale: locale),
                 onSend: { if composerEnabled { onAction(.send) } },
-                onAttach: { onAction(.unavailableAttachment) },
+                onAttach: { onAction(.attachRequested) },
                 sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                attachEnabled: state.mediaSend == nil,
                 replyAuthor: replyAuthor,
                 replyExcerpt: replyExcerpt,
                 onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
@@ -78,6 +80,18 @@ public struct ChatScreen: View {
                     Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelReaction) }
                 }.padding(theme.gap) } }
             }
+            .sheet(isPresented: Binding(get: { state.attachSheet }, set: { if !$0 { onAction(.closeAttach) } })) { AttachSheet(onAction: onAction) }
+            .sheet(isPresented: Binding(get: { state.preview != nil && state.preview?.isImage == false }, set: { if !$0 { onAction(.closePreview) } })) {
+                #if os(iOS)
+                if let preview = state.preview { QuickLookPreview(file: preview.file).ignoresSafeArea() }
+                #endif
+            }
+            #if os(iOS)
+            .fullScreenCover(isPresented: Binding(get: { state.preview?.isImage == true }, set: { if !$0 { onAction(.closePreview) } })) {
+                if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
+            }
+            .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }
+            #endif
             .sheet(isPresented: Binding(get: { state.details != nil }, set: { if !$0 { onAction(.closeDetails) } })) {
                 if let details = state.details { ChatDetailsSheet(state: details, title: state.displayTitle, conversationID: state.conversationID, isGroup: state.isGroup, onAction: onAction) }
             }

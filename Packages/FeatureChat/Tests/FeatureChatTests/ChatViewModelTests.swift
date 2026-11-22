@@ -92,6 +92,27 @@ actor ChatFake: ChatRepository {
     func setTyping(account: String, conversation: String, active: Bool) -> RepositoryResult<Void> { typing.append(active); return .success(()) }
     func details(account: String, conversation: String, peerAnchor: String?) -> RepositoryResult<ChatDetails> { detailResult }
     func setMuted(account: String, conversation: String, muted value: Bool, operationID: String) -> RepositoryResult<Bool> { muted.append(value); return .success(value) }
+    private(set) var downloads: [String] = []
+    private(set) var revokes: [String] = []
+    private(set) var mediaSends: [(String, [MediaUpload])] = []
+    var stored: [String: URL] = [:]
+    var downloadResult: MediaTransferState?
+    var mediaSendResult: RepositoryResult<SendOutcome> = .success(SendOutcome(messageID: "media-event", state: .submitted))
+    let outboxDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("chat-outbox-\(UUID().uuidString)", isDirectory: true)
+    func setDetails(_ result: RepositoryResult<ChatDetails>) { detailResult = result }
+    func setStored(_ id: String, _ url: URL) { stored[id] = url }
+    func setDownloadResult(_ state: MediaTransferState) { downloadResult = state }
+    func setMediaSendResult(_ result: RepositoryResult<SendOutcome>) { mediaSendResult = result }
+    func mediaState(account: String, attachment: AttachmentRecord) -> MediaTransferState? { stored[attachment.id].map { .ready($0) } }
+    func download(account: String, attachment: AttachmentRecord) -> MediaTransferState {
+        downloads.append(attachment.id)
+        return downloadResult ?? .ready(FileManager.default.temporaryDirectory.appendingPathComponent(attachment.id))
+    }
+    func mediaOutbox(account: String) -> URL? { try? FileManager.default.createDirectory(at: outboxDirectory, withIntermediateDirectories: true); return outboxDirectory }
+    func sendMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) -> RepositoryResult<SendOutcome> {
+        mediaSends.append((operationID, items)); return mediaSendResult
+    }
+    func revokeMedia(account: String, message: String) -> RepositoryResult<Void> { revokes.append(message); return .success(()) }
     func draft(account: String, conversation: String) async -> String { await drafts.draft(account + conversation) }
     func saveDraft(account: String, conversation: String, text: String) async { await drafts.save(account + conversation, text: text) }
     private var listeners: [AsyncStream<RepositoryUpdate>.Continuation] = []

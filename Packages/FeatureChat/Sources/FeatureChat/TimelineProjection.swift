@@ -13,7 +13,7 @@ enum TimelineItem: Equatable, Sendable {
     case day(Date)
     /// The divider above the first unread message.
     case unread
-    case message(MessageRecord)
+    case message(MessageRecord, MessageMedia)
     /// A send the SDK has not admitted yet (queued, sending or failed).
     case outbox(OutboxEntry)
 
@@ -22,10 +22,18 @@ enum TimelineItem: Equatable, Sendable {
         case .history: "history"
         case .day(let start): "day:" + String(Int64(start.timeIntervalSince1970))
         case .unread: "unread"
-        case .message(let record): "message:" + record.id
+        case .message(let record, _): "message:" + record.id
         case .outbox(let entry): "outbox:" + entry.operationID
         }
     }
+}
+
+/// The transfer states of one message's attachments, so a finished download reconfigures only
+/// that row.
+struct MessageMedia: Equatable, Sendable {
+    var states: [String: MediaTransferState] = [:]
+    var revealed: Set<String> = []
+    static let none = MessageMedia()
 }
 
 enum TimelineProjection {
@@ -37,7 +45,7 @@ enum TimelineProjection {
     /// Chronological rows with a day chip where the calendar day changes, the unread divider
     /// above `unreadAnchorID`, and unadmitted sends after the last message. Messages without a
     /// valid timestamp start no new day. Linear in the window size; the window is bounded.
-    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false) -> [TimelineItem] {
+    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = []) -> [TimelineItem] {
         var items: [TimelineItem] = []
         items.reserveCapacity(messages.count + outbox.count + 8)
         if loadingOlder { items.append(.history) }
@@ -48,7 +56,12 @@ enum TimelineProjection {
                 currentDay = day
             }
             if message.id == unreadAnchorID { items.append(.unread) }
-            items.append(.message(message))
+            var slice = MessageMedia.none
+            for attachment in message.attachments {
+                if let value = media[attachment.id] { slice.states[attachment.id] = value }
+                if revealed.contains(attachment.id) { slice.revealed.insert(attachment.id) }
+            }
+            items.append(.message(message, slice))
         }
         for entry in outbox { items.append(.outbox(entry)) }
         return items

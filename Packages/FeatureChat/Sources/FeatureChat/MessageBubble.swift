@@ -28,8 +28,10 @@ public struct MessageBubble: View {
     @Environment(\.layoutDirection) private var layoutDirection
     public let isGroup: Bool
     public let message: MessageRecord
+    let media: MessageMedia
     public let onAction: (ChatAction) -> Void
-    public init(message: MessageRecord, isGroup: Bool = false, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.isGroup = isGroup; self.message = message; self.onAction = onAction }
+    public init(message: MessageRecord, isGroup: Bool = false, onAction: @escaping (ChatAction) -> Void = { _ in }) { self.init(message: message, isGroup: isGroup, media: .none, onAction: onAction) }
+    init(message: MessageRecord, isGroup: Bool, media: MessageMedia, onAction: @escaping (ChatAction) -> Void) { self.isGroup = isGroup; self.message = message; self.media = media; self.onAction = onAction }
     public var body: some View {
         if message.kind == .callHistory {
             Label(FeatureChatStrings.text("chat.message.callHistory", locale: locale), systemImage: "phone").rfFont(.caption).frame(maxWidth: .infinity).padding(theme.gap)
@@ -41,11 +43,10 @@ public struct MessageBubble: View {
                     KitBubble(text, kind: own ? .own : .incoming, time: clock, edited: message.edited ? FeatureChatStrings.text("chat.edited", locale: locale) : nil, sender: isGroup && !own ? message.sender : nil,
                               read: message.delivery == .read, sentOnly: own && (message.delivery ?? .sent) == .sent && message.kind != .deleted, tag: message.id)
                 }
-                ForEach(message.attachments) { attachment in
-                    Button { onAction(.unavailableAttachment) } label: {
-                        KitBubble("", kind: .file, time: clock, fileName: attachment.name, fileMeta: ChatAttachmentText.meta(attachment, locale: locale), fileIcon: ChatAttachmentText.icon(attachment), tag: attachment.id)
+                if message.kind != .deleted {
+                    ForEach(message.attachments) { attachment in
+                        MediaAttachmentView(attachment: attachment, state: media.states[attachment.id] ?? .idle, revealed: media.revealed.contains(attachment.id), isOwn: own, time: clock, onAction: onAction)
                     }
-                    .buttonStyle(.plain)
                 }
                 if !message.reactions.isEmpty {
                     HStack(spacing: theme.gap / 2) {
@@ -176,8 +177,8 @@ struct TimelineRow: View {
         case .unread:
             KitUnreadDivider(FeatureChatStrings.text("chat.timeline.unreadDivider", locale: locale))
                 .padding(.horizontal, theme.gap)
-        case .message(let record):
-            MessageBubble(message: record, isGroup: isGroup, onAction: onAction)
+        case .message(let record, let media):
+            MessageBubble(message: record, isGroup: isGroup, media: media, onAction: onAction)
         case .outbox(let entry):
             OutboxBubble(entry: entry, onAction: onAction)
         }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Foundation
 import SwiftUI
 import AppData
 import RFDesign
@@ -23,7 +24,21 @@ public enum ChatPreviews {
         var failed = direct[3]
         failed.outbox = [OutboxEntry(operationID: "f1", text: "I have read it and will add comments later.", created: 1_767_258_000, state: .failed(.typedRefusal("peer_upgrade_required")))]
         var actions = direct[3]; actions.actionTarget = "two"
-        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted, mixedDirection, queued, failed, actions]
+        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted, mixedDirection, queued, failed, actions, media]
+    }()
+
+    /// Media states: a photo to download with its size, one downloading, a stranger's hidden
+    /// photo, an expired and a removed photo, and a file (MOB-B13 to MOB-B15 are not designed yet).
+    public static let media: ChatState = {
+        func photo(_ id: String, own: Bool = false, ratio: (Int, Int)? = nil, name: String = "IMG_20260101_101500.jpg", mime: String = "image/jpeg") -> MessageRecord {
+            let thumbnail = ratio.map { AttachmentThumbnail(mime: "image/png", width: $0.0, height: $0.1, data: Data()) }
+            return MessageRecord(id: id, sender: "Alex", kind: .text(""), isOwn: own, timestamp: 1_767_258_000, attachments: [AttachmentRecord(id: id + "#0", name: name, mime: mime, messageID: id, index: 0, size: 2_400_000, thumbnail: thumbnail)])
+        }
+        var state = ChatState(messages: [photo("p6", name: "Quarterly report.pdf", mime: "application/pdf"), photo("p5", own: true), photo("p4"), photo("p3", ratio: (3, 4)), photo("p2", ratio: (16, 9)), photo("p1")])
+        state.conversationID = "preview-media"; state.displayTitle = "Alex"
+        state.media = ["p1#0": .idle, "p2#0": .downloading, "p3#0": .blockedByPolicy, "p4#0": .expired, "p5#0": .removed, "p6#0": .idle]
+        state.mediaSend = MediaSendState(operationID: "s", items: [], failure: .typedRefusal("recipient_limit"))
+        return state
     }()
 
     /// Mixed-direction fixture: Arabic and English messages on both sides, a mention, a link, a

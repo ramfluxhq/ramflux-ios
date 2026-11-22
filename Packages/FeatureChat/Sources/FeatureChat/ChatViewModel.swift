@@ -4,12 +4,17 @@ import Foundation
 import Observation
 import AppData
 @Observable @MainActor public final class ChatViewModel {
-    public private(set) var state: ChatState
+    public internal(set) var state: ChatState
     public let conversation: String
-    private let account: String
-    private let repository: any ChatRepository
-    private let emit: (ChatEvent) -> Void
-    private let now: @Sendable () -> Date
+    let account: String
+    let repository: any ChatRepository
+    let emit: (ChatEvent) -> Void
+    let now: @Sendable () -> Date
+    /// Media steps: per-attachment imports, the trust lookup and the send pipeline.
+    @ObservationIgnored var mediaTasks: [String: Task<Void, Never>] = [:]
+    @ObservationIgnored var trust: MediaPolicy.Sender?
+    @ObservationIgnored var pendingSave: URL?
+    @ObservationIgnored let network: @Sendable () -> MediaPolicy.Network
     @ObservationIgnored private var window: TimelineWindow
     @ObservationIgnored private var load: Task<Void, Never>?
     @ObservationIgnored private var older: Task<Void, Never>?
@@ -18,7 +23,7 @@ import AppData
     @ObservationIgnored private var outboxTask: Task<Void, Never>?
     @ObservationIgnored private var detailsTask: Task<Void, Never>?
     @ObservationIgnored private var sideTasks: [Task<Void, Never>] = []
-    @ObservationIgnored private var epoch: UInt64 = 0
+    @ObservationIgnored var epoch: UInt64 = 0
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
@@ -27,8 +32,8 @@ import AppData
     @ObservationIgnored private var lastMarked: MessageOrder?
     @ObservationIgnored private var marking = false
     @ObservationIgnored private var typingSentAt: Date?
-    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, emit: @escaping (ChatEvent) -> Void) {
-        self.repository = repository; self.account = account; self.conversation = conversation; self.now = now
+    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+        self.repository = repository; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
         var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation
         self.state = initial; self.emit = emit; window = TimelineWindow(capacity: windowCapacity)
     }
@@ -74,7 +79,8 @@ import AppData
             state.pendingDelete = PendingMessageDelete(messageID: id, scope: scope)
         case .cancelDelete: state.pendingDelete = nil
         case .confirmDelete: confirmDelete()
-        case .unavailableAttachment: state.failure = repository.unavailable(.attachmentTransfer)
+        case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .retryMediaSend, .discardMediaSend, .permissionResolved, .photoSaved:
+            handleMedia(action)
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil
         case .setMuted(let muted): setMuted(muted)
@@ -91,6 +97,7 @@ import AppData
             state.composer = nil; state.reactionTarget = nil; state.reactionRemove = false; state.held = nil; state.actionTarget = nil; state.details = nil
             state.olderAvailable = false; state.detached = false
             // Concealed UI keeps no message text; the draft stays in the repository's memory store.
+            stopMedia(conceal: action == .conceal)
             if action == .conceal { state.draft = "" }
         }
     }
@@ -189,7 +196,14 @@ import AppData
         let operationID = UUID().uuidString
         state.pendingDelete = nil
         state.held = .deletion(operationID: operationID, messageID: pending.messageID, scope: pending.scope)
-        runHeld { [repository, account, conversation] in await repository.delete(account: account, conversation: conversation, message: pending.messageID, scope: pending.scope, operationID: operationID) }
+        // Erase for everyone also retires the attachment grants on the relay until the SDK does
+        // it itself (request R7); a failed revoke leaves the grants to expire after 24 hours.
+        let revoke = pending.scope == .everyone && state.messages.contains { $0.id == pending.messageID && !$0.attachments.isEmpty }
+        runHeld { [repository, account, conversation] in
+            let result = await repository.delete(account: account, conversation: conversation, message: pending.messageID, scope: pending.scope, operationID: operationID)
+            if case .success = result, revoke { _ = await repository.revokeMedia(account: account, message: pending.messageID) }
+            return result
+        }
     }
     private func runHeld(_ work: @escaping @Sendable () async -> RepositoryResult<Void>) {
         state.sending = true; state.failure = nil; let current = epoch; let held = state.held
@@ -313,6 +327,7 @@ import AppData
     private func publish(_ next: TimelineWindow) {
         window = next
         state.messages = next.records; state.olderAvailable = next.hasOlder; state.detached = next.detached
+        syncMedia()
     }
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let current = watchID

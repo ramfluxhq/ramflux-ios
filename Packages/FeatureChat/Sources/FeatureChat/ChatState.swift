@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Foundation
 import AppData
 public enum ComposerIntent: Equatable, Sendable {
     case reply(messageID: String, preview: String)
@@ -22,6 +23,29 @@ public struct ChatDetailsState: Equatable, Sendable {
     public var failure: AppFailure?
     public var muting = false
     public init(loading: Bool = true, details: ChatDetails? = nil, failure: AppFailure? = nil) { self.loading = loading; self.details = details; self.failure = failure }
+}
+/// A file the user picked, copied by the view layer into the app's temporary directory.
+public struct PickedMedia: Equatable, Sendable {
+    public enum Kind: Equatable, Sendable { case photo, file }
+    public let url: URL
+    public let kind: Kind
+    /// The original file name; sent unchanged only for files, never for compressed photos.
+    public let name: String
+    public init(url: URL, kind: Kind, name: String) { self.url = url; self.kind = kind; self.name = name }
+}
+/// An attachment send in progress or failed; a retry reuses the operation and staged files.
+public struct MediaSendState: Equatable, Sendable {
+    public let operationID: String
+    public let items: [MediaUpload]
+    public var failure: AppFailure?
+    public init(operationID: String, items: [MediaUpload], failure: AppFailure? = nil) { self.operationID = operationID; self.items = items; self.failure = failure }
+}
+/// What the full-screen viewer or Quick Look shows.
+public struct MediaPreview: Equatable, Sendable {
+    public let attachmentID: String
+    public let file: URL
+    public let isImage: Bool
+    public init(attachmentID: String, file: URL, isImage: Bool) { self.attachmentID = attachmentID; self.file = file; self.isImage = isImage }
 }
 public struct ChatState: Equatable, Sendable {
     public var isGroup = false
@@ -53,5 +77,16 @@ public struct ChatState: Equatable, Sendable {
     public var reactionRemove = false
     public var held: HeldMutation?
     public var details: ChatDetailsState?
+    /// Transfer state per attachment id, only for attachments in the window.
+    public var media: [String: MediaTransferState] = [:]
+    /// Untrusted senders' thumbnails the user chose to show.
+    public var revealed: Set<String> = []
+    public var preview: MediaPreview?
+    public var attachSheet = false
+    /// True after the camera permission is granted; the screen presents the system camera.
+    public var cameraActive = false
+    public var mediaSend: MediaSendState?
+    /// The result of the last "save to Photos"; nil when nothing to report.
+    public var photoSaved: Bool?
     public init(messages: [MessageRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.messages = messages; self.loading = loading; self.failure = failure }
 }

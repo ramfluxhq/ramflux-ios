@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.attach.camera</key>
+	<string>Camera</string>
+	<key>chat.attach.file</key>
+	<string>File</string>
+	<key>chat.attach.photos</key>
+	<string>Photos</string>
+	<key>chat.attach.title</key>
+	<string>Attach</string>
 	<key>chat.attachment.typeSize</key>
 	<string>%1$@ · %2$@</string>
 	<key>chat.composer.cancel</key>
@@ -52,6 +60,48 @@
 	<string>No messages yet</string>
 	<key>chat.loading</key>
 	<string>Loading messages</string>
+	<key>chat.media.accessibility</key>
+	<string>%1$@, %2$@</string>
+	<key>chat.media.download</key>
+	<string>Download</string>
+	<key>chat.media.downloading</key>
+	<string>Downloading</string>
+	<key>chat.media.expired</key>
+	<string>No longer available</string>
+	<key>chat.media.failed</key>
+	<string>Download failed, tap to retry</string>
+	<key>chat.media.notAvailable</key>
+	<string>Not available on this device</string>
+	<key>chat.media.open</key>
+	<string>Tap to open</string>
+	<key>chat.media.peerUpgrade</key>
+	<string>The other person needs to update Ramflux to receive attachments.</string>
+	<key>chat.media.photo</key>
+	<string>Photo</string>
+	<key>chat.media.recipientLimit</key>
+	<string>This group is too large for attachments.</string>
+	<key>chat.media.removed</key>
+	<string>Removed by sender</string>
+	<key>chat.media.save</key>
+	<string>Save to Photos</string>
+	<key>chat.media.saveFailed</key>
+	<string>Could not save to Photos</string>
+	<key>chat.media.saved</key>
+	<string>Saved to Photos</string>
+	<key>chat.media.sending</key>
+	<string>Sending attachment</string>
+	<key>chat.media.share</key>
+	<string>Share</string>
+	<key>chat.media.show</key>
+	<string>Show</string>
+	<key>chat.media.storageFull</key>
+	<string>Not enough storage to send this attachment.</string>
+	<key>chat.media.tapToDownload</key>
+	<string>Tap to download, %@</string>
+	<key>chat.media.tooLarge</key>
+	<string>This file is too large to send.</string>
+	<key>chat.media.untrusted</key>
+	<string>From someone not in your contacts</string>
 	<key>chat.message.actions</key>
 	<string>Message actions</string>
 	<key>chat.message.callHistory</key>
