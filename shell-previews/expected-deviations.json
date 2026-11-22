@@ -207,7 +207,7 @@
     },
     "MOB-B01-zh-CN-dark": {
       "status": "deviates",
-      "reason": "Dark proof MOB-DK03. Same deviations as MOB-B01 light: Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Strangers row title and icon, 44 pt avatars (text dx -8), group avatar, muted badge colour, dark Nova tile is white in the design. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Dark proof MOB-DK03. Same deviations as MOB-B01 light: Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Strangers row title and icon, 44 pt avatars (text dx -8), group avatar, muted badge colour, dark Nova tile is white in the design. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -215,6 +215,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            18
           ]
         },
         {
@@ -227,288 +235,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            17
-          ]
-        },
-        {
-          "rect": [
-            15,
-            65,
-            92,
-            56
-          ]
-        },
-        {
-          "rect": [
-            300,
-            77,
-            31,
-            24
-          ]
-        },
-        {
-          "rect": [
-            351,
-            78,
-            23,
-            23
-          ]
-        },
-        {
-          "rect": [
-            116,
-            148,
-            53,
-            20
-          ]
-        },
-        {
-          "rect": [
-            51,
-            149,
-            5,
-            9
-          ]
-        },
-        {
-          "rect": [
-            71,
-            202,
-            142,
-            45
-          ]
-        },
-        {
-          "rect": [
-            27,
-            211,
-            28,
-            25
-          ]
-        },
-        {
-          "rect": [
-            351,
-            226,
-            28,
-            22
-          ]
-        },
-        {
-          "rect": [
-            70,
-            274,
-            257,
-            45
-          ]
-        },
-        {
-          "rect": [
-            348,
-            278,
-            31,
-            42
-          ]
-        },
-        {
-          "rect": [
-            28,
-            284,
-            26,
-            25
-          ]
-        },
-        {
-          "rect": [
-            14,
-            339,
-            172,
-            56
-          ]
-        },
-        {
-          "rect": [
-            355,
-            351,
-            21,
-            10
-          ]
-        },
-        {
-          "rect": [
-            70,
-            418,
-            167,
-            45
-          ]
-        },
-        {
-          "rect": [
-            360,
-            423,
-            17,
-            38
-          ]
-        },
-        {
-          "rect": [
-            27,
-            427,
-            26,
-            24
-          ]
-        },
-        {
-          "rect": [
-            70,
-            490,
-            140,
-            45
-          ]
-        },
-        {
-          "rect": [
-            365,
-            496,
-            13,
-            6
-          ]
-        },
-        {
-          "rect": [
-            28,
-            501,
-            25,
-            24
-          ]
-        },
-        {
-          "rect": [
-            71,
-            561,
-            115,
-            46
-          ]
-        },
-        {
-          "rect": [
-            351,
-            567,
-            28,
-            41
-          ]
-        },
-        {
-          "rect": [
-            29,
-            571,
-            26,
-            24
-          ]
-        },
-        {
-          "rect": [
-            36,
-            772,
-            32,
-            48
-          ]
-        },
-        {
-          "rect": [
-            143,
-            778,
-            14,
-            17
-          ]
-        },
-        {
-          "rect": [
-            237,
-            779,
-            20,
-            23
-          ]
-        },
-        {
-          "rect": [
-            340,
-            786,
-            7,
-            8
-          ]
-        },
-        {
-          "rect": [
-            143,
-            805,
             16,
-            14
-          ]
-        },
-        {
-          "rect": [
-            333,
-            805,
-            11,
-            5
-          ]
-        },
-        {
-          "rect": [
-            243,
-            813,
-            8,
-            5
-          ]
-        },
-        {
-          "rect": [
-            134,
-            833,
-            125,
-            9
-          ]
-        }
-      ]
-    },
-    "MOB-B01-zh-CN-light": {
-      "status": "deviates",
-      "reason": "Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. First row is '陌生人' with a user icon instead of '消息请求' with user-search. Avatars are 44 pt instead of 52 pt, so every text column starts 8 pt left of the design (ink dx -8) and the row pitch differs. The group row has no group avatar kind (initial instead of the users icon). The muted badge is black instead of grey; the latest time is not bold. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
-      "regions": [
-        {
-          "rect": [
-            344,
-            20,
-            26,
-            19
-          ]
-        },
-        {
-          "rect": [
-            298,
-            21,
-            37,
-            17
-          ]
-        },
-        {
-          "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
-            15,
-            65,
-            92,
-            56
+            64,
+            66,
+            53
           ]
         },
         {
@@ -529,6 +259,14 @@
         },
         {
           "rect": [
+            92,
+            102,
+            13,
+            15
+          ]
+        },
+        {
+          "rect": [
             116,
             148,
             53,
@@ -540,15 +278,15 @@
             51,
             149,
             5,
-            16
+            9
           ]
         },
         {
           "rect": [
             71,
-            202,
+            200,
             142,
-            45
+            47
           ]
         },
         {
@@ -562,17 +300,17 @@
         {
           "rect": [
             351,
-            226,
+            225,
             28,
-            22
+            23
           ]
         },
         {
           "rect": [
             70,
-            274,
+            272,
             257,
-            45
+            47
           ]
         },
         {
@@ -601,26 +339,26 @@
         },
         {
           "rect": [
-            355,
-            351,
-            21,
-            11
+            360,
+            349,
+            14,
+            9
           ]
         },
         {
           "rect": [
             70,
-            418,
+            416,
             167,
-            45
+            47
           ]
         },
         {
           "rect": [
-            348,
+            360,
             423,
-            29,
-            38
+            14,
+            7
           ]
         },
         {
@@ -633,18 +371,26 @@
         },
         {
           "rect": [
-            70,
-            489,
-            140,
-            46
+            363,
+            441,
+            14,
+            19
           ]
         },
         {
           "rect": [
-            354,
-            493,
-            24,
-            13
+            71,
+            488,
+            139,
+            47
+          ]
+        },
+        {
+          "rect": [
+            366,
+            499,
+            7,
+            6
           ]
         },
         {
@@ -658,9 +404,279 @@
         {
           "rect": [
             71,
-            561,
+            560,
             115,
-            46
+            47
+          ]
+        },
+        {
+          "rect": [
+            354,
+            564,
+            8,
+            6
+          ]
+        },
+        {
+          "rect": [
+            29,
+            571,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            583,
+            28,
+            25
+          ]
+        },
+        {
+          "rect": [
+            36,
+            772,
+            32,
+            48
+          ]
+        },
+        {
+          "rect": [
+            143,
+            778,
+            5,
+            7
+          ]
+        },
+        {
+          "rect": [
+            227,
+            779,
+            31,
+            39
+          ]
+        },
+        {
+          "rect": [
+            333,
+            787,
+            21,
+            8
+          ]
+        },
+        {
+          "rect": [
+            335,
+            805,
+            19,
+            15
+          ]
+        },
+        {
+          "rect": [
+            150,
+            808,
+            10,
+            12
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            125,
+            9
+          ]
+        }
+      ]
+    },
+    "MOB-B01-zh-CN-light": {
+      "status": "deviates",
+      "reason": "Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. First row is '陌生人' with a user icon instead of '消息请求' with user-search. Avatars are 44 pt instead of 52 pt, so every text column starts 8 pt left of the design (ink dx -8) and the row pitch differs. The group row has no group avatar kind (initial instead of the users icon). The muted badge is black instead of grey; the latest time is not bold. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            37,
+            17
+          ]
+        },
+        {
+          "rect": [
+            15,
+            64,
+            90,
+            53
+          ]
+        },
+        {
+          "rect": [
+            300,
+            77,
+            31,
+            24
+          ]
+        },
+        {
+          "rect": [
+            351,
+            78,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            116,
+            148,
+            53,
+            20
+          ]
+        },
+        {
+          "rect": [
+            51,
+            149,
+            5,
+            16
+          ]
+        },
+        {
+          "rect": [
+            71,
+            200,
+            142,
+            47
+          ]
+        },
+        {
+          "rect": [
+            27,
+            211,
+            28,
+            25
+          ]
+        },
+        {
+          "rect": [
+            351,
+            225,
+            28,
+            23
+          ]
+        },
+        {
+          "rect": [
+            70,
+            272,
+            257,
+            47
+          ]
+        },
+        {
+          "rect": [
+            348,
+            277,
+            31,
+            43
+          ]
+        },
+        {
+          "rect": [
+            28,
+            284,
+            26,
+            25
+          ]
+        },
+        {
+          "rect": [
+            14,
+            339,
+            172,
+            56
+          ]
+        },
+        {
+          "rect": [
+            360,
+            349,
+            14,
+            13
+          ]
+        },
+        {
+          "rect": [
+            70,
+            416,
+            167,
+            47
+          ]
+        },
+        {
+          "rect": [
+            348,
+            421,
+            30,
+            39
+          ]
+        },
+        {
+          "rect": [
+            27,
+            427,
+            26,
+            24
+          ]
+        },
+        {
+          "rect": [
+            71,
+            488,
+            139,
+            47
+          ]
+        },
+        {
+          "rect": [
+            359,
+            496,
+            19,
+            11
+          ]
+        },
+        {
+          "rect": [
+            28,
+            501,
+            25,
+            24
+          ]
+        },
+        {
+          "rect": [
+            71,
+            560,
+            115,
+            47
           ]
         },
         {
@@ -689,42 +705,34 @@
         },
         {
           "rect": [
-            135,
-            777,
-            25,
-            43
+            138,
+            778,
+            22,
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -739,7 +747,7 @@
     },
     "MOB-B01L-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows five skeleton rows; the app shows a spinner with '正在加载会话' above the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The design shows five skeleton rows; the app shows a spinner with '正在加载会话' above the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -747,6 +755,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -759,18 +775,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            65,
-            92,
-            56
+            64,
+            90,
+            53
           ]
         },
         {
@@ -824,9 +832,9 @@
         {
           "rect": [
             71,
-            258,
+            257,
             54,
-            21
+            20
           ]
         },
         {
@@ -847,42 +855,34 @@
         },
         {
           "rect": [
-            135,
-            777,
-            25,
-            43
+            138,
+            778,
+            22,
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -897,7 +897,7 @@
     },
     "MOB-B01X-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred wifi-off icon, title '暂时无法连接' and a compact outline '重试加载' button. The app shows a large icon tile, left-aligned title and message, a full-width retry button with no side padding, and the strangers row below. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The design shows a centred wifi-off icon, title '暂时无法连接' and a compact outline '重试加载' button. The app shows a large icon tile, left-aligned title and message, a full-width retry button with no side padding, and the strangers row below. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -905,6 +905,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -917,18 +925,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            65,
-            92,
-            56
+            64,
+            90,
+            53
           ]
         },
         {
@@ -990,7 +990,7 @@
         {
           "rect": [
             71,
-            418,
+            417,
             54,
             21
           ]
@@ -1013,42 +1013,34 @@
         },
         {
           "rect": [
-            135,
-            777,
-            25,
-            43
+            138,
+            778,
+            22,
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -1063,7 +1055,7 @@
     },
     "MOB-B02-zh-CN-dark": {
       "status": "deviates",
-      "reason": "Dark proof MOB-DK01. Same deviations as MOB-B02 light; the own bubble is near-black in the app and dark grey (#3A3A38-like) in the design. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Dark proof MOB-DK01. Same deviations as MOB-B02 light; the own bubble is near-black in the app and dark grey (#3A3A38-like) in the design. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the timeline now draws the '今天' date chip; bubbles use system text and hug their text, wrapping at 0.78 of the content width (282 pt on the 393 pt board) where the design shows the 300 pt maximum, so the first and third messages wrap one character earlier and the own bubble is taller; with the timeline still top-anchored, the file row moves down to y 362 and its old rectangle is gone.",
       "regions": [
         {
           "rect": [
@@ -1075,17 +1067,17 @@
         },
         {
           "rect": [
-            298,
+            23,
             21,
-            35,
-            17
+            33,
+            18
           ]
         },
         {
           "rect": [
-            23,
-            22,
-            33,
+            298,
+            21,
+            35,
             17
           ]
         },
@@ -1115,14 +1107,6 @@
         },
         {
           "rect": [
-            77,
-            80,
-            18,
-            19
-          ]
-        },
-        {
-          "rect": [
             348,
             85,
             17,
@@ -1131,42 +1115,42 @@
         },
         {
           "rect": [
+            79,
+            89,
+            7,
+            9
+          ]
+        },
+        {
+          "rect": [
+            183,
+            137,
             27,
-            129,
-            274,
-            44
+            16
           ]
         },
         {
           "rect": [
-            76,
-            186,
-            302,
-            42
-          ]
-        },
-        {
-          "rect": [
-            26,
-            243,
-            277,
-            44
+            27,
+            179,
+            351,
+            169
           ]
         },
         {
           "rect": [
             17,
-            301,
+            362,
             23,
             28
           ]
         },
         {
           "rect": [
-            55,
-            306,
-            103,
-            23
+            54,
+            365,
+            93,
+            21
           ]
         },
         {
@@ -1253,7 +1237,7 @@
     },
     "MOB-B02-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app timeline is anchored to the top; the design anchors messages to the bottom above the composer. The design shows a '今天' date chip and the '以下为未读消息' unread divider, which no data field drives. The attachment is a file card (icon tile, name, 'PDF 10:24') in the design and a plain icon and name in the app. Composer placeholder '消息' vs '输入消息…', composer 4 pt higher; header avatar and title offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The app timeline is anchored to the top; the design anchors messages to the bottom above the composer. The design shows a '今天' date chip and the '以下为未读消息' unread divider, which no data field drives. The attachment is a file card (icon tile, name, 'PDF 10:24') in the design and a plain icon and name in the app. Composer placeholder '消息' vs '输入消息…', composer 4 pt higher; header avatar and title offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the timeline now draws the '今天' date chip; bubbles use system text and hug their text, wrapping at 0.78 of the content width (282 pt on the 393 pt board) where the design shows the 300 pt maximum, so the first and third messages wrap one character earlier and the own bubble is taller; with the timeline still top-anchored, the file row moves down to y 362 and its old rectangle is gone.",
       "regions": [
         {
           "rect": [
@@ -1261,6 +1245,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -1273,18 +1265,18 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             290,
             77,
             25,
             25
+          ]
+        },
+        {
+          "rect": [
+            77,
+            79,
+            18,
+            19
           ]
         },
         {
@@ -1305,14 +1297,6 @@
         },
         {
           "rect": [
-            77,
-            80,
-            19,
-            19
-          ]
-        },
-        {
-          "rect": [
             348,
             85,
             17,
@@ -1321,42 +1305,34 @@
         },
         {
           "rect": [
+            183,
+            137,
             27,
-            129,
-            274,
-            44
+            16
           ]
         },
         {
           "rect": [
-            75,
-            185,
-            304,
-            44
-          ]
-        },
-        {
-          "rect": [
-            26,
-            243,
-            277,
-            44
+            27,
+            179,
+            352,
+            169
           ]
         },
         {
           "rect": [
             17,
-            301,
+            362,
             23,
             28
           ]
         },
         {
           "rect": [
-            55,
-            306,
-            103,
-            23
+            54,
+            365,
+            93,
+            21
           ]
         },
         {
@@ -1633,7 +1609,7 @@
     },
     "MOB-B12-en-light": {
       "status": "deviates",
-      "reason": "Same as the zh board: centred empty state with 'Add contact' in the design; search field, left-aligned unavailable view and 'Strangers' row in the app; header actions contacts and refresh instead of square-pen and ellipsis; subtitle separator spacing differs. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Same as the zh board: centred empty state with 'Add contact' in the design; search field, left-aligned unavailable view and 'Strangers' row in the app; header actions contacts and refresh instead of square-pen and ellipsis; subtitle separator spacing differs. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision.",
       "regions": [
         {
           "rect": [
@@ -1641,6 +1617,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -1653,18 +1637,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            67,
+            68,
             152,
-            53
+            48
           ]
         },
         {
@@ -1726,9 +1702,9 @@
         {
           "rect": [
             71,
-            498,
+            497,
             81,
-            22
+            21
           ]
         },
         {
@@ -1742,49 +1718,41 @@
         {
           "rect": [
             23,
-            776,
+            777,
             53,
-            45
+            42
           ]
         },
         {
           "rect": [
             130,
-            777,
-            38,
-            43
+            778,
+            31,
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            785,
-            22,
-            10
+            787,
+            21,
+            8
           ]
         },
         {
           "rect": [
             329,
-            808,
+            807,
             30,
             11
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
           ]
         },
         {
@@ -1799,7 +1767,7 @@
     },
     "MOB-B12-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred empty state (icon tile, title, two-line message, primary 'add contact' button) with no search field and no strangers row. The app shows the search field, a left-aligned unavailable view without an action, and the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The design shows a centred empty state (icon tile, title, two-line message, primary 'add contact' button) with no search field and no strangers row. The app shows the search field, a left-aligned unavailable view without an action, and the strangers row. Header actions are contacts and refresh instead of square-pen and ellipsis; subtitle copy '当前账号' vs '当前账户'; search placeholder '搜索消息' vs '搜索消息或会话'. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -1807,6 +1775,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -1819,18 +1795,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            65,
-            92,
-            56
+            64,
+            90,
+            53
           ]
         },
         {
@@ -1892,7 +1860,7 @@
         {
           "rect": [
             71,
-            496,
+            495,
             54,
             21
           ]
@@ -1908,49 +1876,41 @@
         {
           "rect": [
             36,
-            776,
-            26,
-            44
-          ]
-        },
-        {
-          "rect": [
-            135,
             777,
-            25,
+            26,
             43
           ]
         },
         {
           "rect": [
-            233,
+            138,
+            778,
+            22,
+            42
+          ]
+        },
+        {
+          "rect": [
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -1965,7 +1925,7 @@
     },
     "MOB-C01-zh-CN-light": {
       "status": "deviates",
-      "reason": "Rows: the design has plain title and subtitle rows ('3 位成员 · #general', '频道与帖子') without the leading icon tile; the app shows the group id as subtitle (GroupRecord carries no member count or channel summary that the row shows). Header: the app shows refresh, the design has no action. Search placeholder '筛选群组' vs '搜索名称或频道…'. The design adds the 'permissions follow the current group' info row and an outline button; the app shows a footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Rows: the design has plain title and subtitle rows ('3 位成员 · #general', '频道与帖子') without the leading icon tile; the app shows the group id as subtitle (GroupRecord carries no member count or channel summary that the row shows). Header: the app shows refresh, the design has no action. Search placeholder '筛选群组' vs '搜索名称或频道…'. The design adds the 'permissions follow the current group' info row and an outline button; the app shows a footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -1985,10 +1945,10 @@
         },
         {
           "rect": [
-            14,
-            73,
-            68,
-            35
+            15,
+            72,
+            67,
+            36
           ]
         },
         {
@@ -2010,9 +1970,9 @@
         {
           "rect": [
             14,
-            201,
+            200,
             172,
-            51
+            52
           ]
         },
         {
@@ -2026,9 +1986,9 @@
         {
           "rect": [
             14,
-            275,
+            273,
             294,
-            80
+            82
           ]
         },
         {
@@ -2074,41 +2034,33 @@
         {
           "rect": [
             135,
-            777,
+            778,
             25,
-            43
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -2123,7 +2075,7 @@
     },
     "MOB-C15-en-light": {
       "status": "deviates",
-      "reason": "Same as the zh board: centred empty state without search field and refresh in the design; message copy differs ('wait for someone to invite you' vs 'wait for an invitation to join one'). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Same as the zh board: centred empty state without search field and refresh in the design; message copy differs ('wait for someone to invite you' vs 'wait for an invitation to join one'). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision.",
       "regions": [
         {
           "rect": [
@@ -2131,6 +2083,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -2143,18 +2103,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            75,
+            77,
             115,
-            37
+            34
           ]
         },
         {
@@ -2207,50 +2159,42 @@
         },
         {
           "rect": [
-            23,
-            776,
-            53,
-            45
+            29,
+            777,
+            47,
+            41
           ]
         },
         {
           "rect": [
             127,
-            777,
+            778,
             42,
-            43
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            785,
-            22,
-            10
+            787,
+            21,
+            8
           ]
         },
         {
           "rect": [
             329,
-            808,
+            807,
             30,
             11
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
           ]
         },
         {
@@ -2265,7 +2209,7 @@
     },
     "MOB-C15-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred empty state (icon tile, title, one-line message, compact 'create group' button) and no search field or header action. The app shows refresh, the search field, a left-aligned empty state with a full-width button and a permissions footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The design shows a centred empty state (icon tile, title, one-line message, compact 'create group' button) and no search field or header action. The app shows refresh, the search field, a left-aligned empty state with a full-width button and a permissions footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -2273,6 +2217,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -2285,18 +2237,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            74,
-            67,
-            34
+            72,
+            66,
+            36
           ]
         },
         {
@@ -2350,49 +2294,41 @@
         {
           "rect": [
             36,
-            776,
-            26,
-            44
-          ]
-        },
-        {
-          "rect": [
-            135,
             777,
-            25,
+            26,
             43
           ]
         },
         {
           "rect": [
-            233,
+            135,
+            778,
+            25,
+            42
+          ]
+        },
+        {
+          "rect": [
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             333,
-            786,
-            21,
+            787,
+            22,
             8
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            18,
-            9
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -2407,7 +2343,7 @@
     },
     "MOB-D01-zh-CN-light": {
       "status": "deviates",
-      "reason": "Header: the design has ellipsis and plus (plus is out of scope: phones do not create agents, owner 2026-11-22); the app has none. Search field and rows sit about 4 pt lower in the design; the footnote and the multi-agent row sit about 8 pt higher and the multi-agent label is larger; the app draws row separators. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "Header: the design has ellipsis and plus (plus is out of scope: phones do not create agents, owner 2026-11-22); the app has none. Search field and rows sit about 4 pt lower in the design; the footnote and the multi-agent row sit about 8 pt higher and the multi-agent label is larger; the app draws row separators. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it). The large 'Agents' page header is in the UI face for the same reason. The secondary line of each agent row sits 2-3 pt higher than the design after the scalable Kit row typography (minimum heights, natural line height).",
       "regions": [
         {
           "rect": [
@@ -2415,6 +2351,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -2427,18 +2371,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
-            15,
+            14,
             75,
-            102,
-            35
+            110,
+            36
           ]
         },
         {
@@ -2469,64 +2405,24 @@
           "rect": [
             14,
             198,
-            117,
+            246,
             50
-          ]
-        },
-        {
-          "rect": [
-            178,
-            228,
-            75,
-            18
           ]
         },
         {
           "rect": [
             14,
             280,
-            117,
+            246,
             48
-          ]
-        },
-        {
-          "rect": [
-            177,
-            310,
-            77,
-            18
-          ]
-        },
-        {
-          "rect": [
-            158,
-            322,
-            9,
-            6
           ]
         },
         {
           "rect": [
             14,
             362,
-            119,
+            216,
             49
-          ]
-        },
-        {
-          "rect": [
-            177,
-            392,
-            53,
-            18
-          ]
-        },
-        {
-          "rect": [
-            152,
-            395,
-            15,
-            15
           ]
         },
         {
@@ -2555,34 +2451,34 @@
         },
         {
           "rect": [
-            135,
-            777,
-            25,
-            43
-          ]
-        },
-        {
-          "rect": [
-            226,
-            779,
-            37,
+            138,
+            778,
+            22,
             42
           ]
         },
         {
           "rect": [
-            333,
-            786,
-            21,
-            8
+            225,
+            779,
+            40,
+            41
           ]
         },
         {
           "rect": [
             333,
-            805,
-            18,
-            9
+            787,
+            22,
+            8
+          ]
+        },
+        {
+          "rect": [
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -2889,7 +2785,7 @@
     },
     "MOB-G01-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app lists two rows the board does not have (账户, 开源声明). The design header has an ellipsis action. The permissions icon is shield-check in the design and shield in the app; settings subtitle copy '账号' vs '账户'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The app lists two rows the board does not have (账户, 开源声明). The design header has an ellipsis action. The permissions icon is shield-check in the design and shield in the app; settings subtitle copy '账号' vs '账户'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -2897,6 +2793,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -2909,18 +2813,10 @@
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
-          ]
-        },
-        {
-          "rect": [
             15,
-            75,
+            72,
             66,
-            33
+            36
           ]
         },
         {
@@ -3093,42 +2989,34 @@
         },
         {
           "rect": [
-            135,
-            777,
-            25,
-            43
+            138,
+            778,
+            22,
+            42
           ]
         },
         {
           "rect": [
-            233,
+            227,
             779,
-            24,
-            23
+            31,
+            40
           ]
         },
         {
           "rect": [
             332,
-            785,
+            786,
             23,
             9
           ]
         },
         {
           "rect": [
-            333,
-            805,
-            23,
-            15
-          ]
-        },
-        {
-          "rect": [
-            237,
-            811,
-            14,
-            7
+            332,
+            804,
+            24,
+            16
           ]
         },
         {
@@ -3385,7 +3273,7 @@
     },
     "MOB-N01-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design page uses the grouped background (warm grey) with white cards; the app uses the page background. The node row chevron is not in the design. Header separator and 1 pt offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The design page uses the grouped background (warm grey) with white cards; the app uses the page background. The node row chevron is not in the design. Header separator and 1 pt offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the display-name field label and note and the recovery-phrase tip text sit 3-4 pt higher than the design after the scalable Kit typography (minimum heights, natural line height).",
       "regions": [
         {
           "rect": [
@@ -3393,6 +3281,14 @@
             20,
             26,
             19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
           ]
         },
         {
@@ -3405,18 +3301,10 @@
         },
         {
           "rect": [
-            22,
-            22,
-            34,
-            16
-          ]
-        },
-        {
-          "rect": [
             67,
-            79,
+            77,
             82,
-            23
+            25
           ]
         },
         {
@@ -3429,15 +3317,15 @@
         },
         {
           "rect": [
-            28,
-            138,
-            32,
-            16
+            15,
+            135,
+            55,
+            18
           ]
         },
         {
           "rect": [
-            27,
+            26,
             175,
             37,
             20
@@ -3445,90 +3333,50 @@
         },
         {
           "rect": [
-            15,
-            216,
-            102,
-            17
+            14,
+            213,
+            204,
+            20
           ]
         },
         {
           "rect": [
             15,
-            251,
-            29,
-            16
+            249,
+            28,
+            18
           ]
         },
         {
           "rect": [
-            73,
-            294,
-            139,
-            41
+            74,
+            292,
+            138,
+            42
           ]
         },
         {
           "rect": [
             36,
-            303,
+            301,
             22,
-            21
+            22
           ]
         },
         {
           "rect": [
             350,
-            307,
+            306,
             8,
-            12
+            11
           ]
         },
         {
           "rect": [
-            27,
-            370,
-            102,
-            35
-          ]
-        },
-        {
-          "rect": [
-            187,
-            370,
-            10,
-            14
-          ]
-        },
-        {
-          "rect": [
-            326,
-            370,
-            29,
-            16
-          ]
-        },
-        {
-          "rect": [
-            138,
-            371,
-            17,
-            15
-          ]
-        },
-        {
-          "rect": [
-            239,
-            371,
-            49,
-            15
-          ]
-        },
-        {
-          "rect": [
-            302,
-            372,
-            11,
-            13
+            28,
+            366,
+            327,
+            38
           ]
         },
         {
