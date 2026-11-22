@@ -40,6 +40,8 @@ packages:
     path: Packages/RFDesign
   AppData:
     path: Packages/AppData
+  RFLocalization:
+    path: Packages/RFLocalization
 targets:
   Ramflux:
     type: application
@@ -74,6 +76,7 @@ targets:
       - package: RFDesign
       - package: FeatureAppShell
       - package: AppData
+      - package: RFLocalization
     settings:
       configs:
         Debug:

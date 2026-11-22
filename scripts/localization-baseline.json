@@ -92,8 +92,7 @@
       "copy.d47d7cb0e4f8",
       "copy.d6e645b7d2b2",
       "copy.f42e0f66017d",
-      "copy.f67cb7740d52",
-      "copy.f6f4688ff23d"
+      "copy.f67cb7740d52"
     ],
     "Packages/FeatureContacts/Sources/FeatureContacts/Resources/Localizable.xcstrings": [
       "copy.0013e6984bf6",
@@ -617,8 +616,7 @@
       "copy.d47d7cb0e4f8",
       "copy.d6e645b7d2b2",
       "copy.f42e0f66017d",
-      "copy.f67cb7740d52",
-      "copy.f6f4688ff23d"
+      "copy.f67cb7740d52"
     ],
     "Packages/FeatureContacts/Sources/FeatureContacts/Resources/Localizable.xcstrings": [
       "copy.0013e6984bf6",
@@ -1070,32 +1068,12 @@
   },
   "assembly": [
     {
-      "path": "App/RamfluxAppStrings.swift",
-      "line": "return expanded ? \"［\" + value + \" · \" + value + \"］\" : value"
-    },
-    {
-      "path": "App/RamfluxAppStrings.swift",
-      "line": "return locale.identifier.replacingOccurrences(of: \"-\", with: \"_\") == \"en_XA\" ? \"［\" + value + \" · \" + value + \"］\" : value"
-    },
-    {
       "path": "Packages/AppData/Sources/AppData/MessagePage.swift",
       "line": "}.joined(separator: \" · \")"
     },
     {
       "path": "Packages/FeatureCalls/Sources/FeatureCalls/CallsScreen.swift",
       "line": "KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: \"phone\", value: copy(row.direction.rawValue) + \" · \" + copy(row.phase.rawValue), tag: row.id)"
-    },
-    {
-      "path": "Packages/FeatureChat/Sources/FeatureChat/ChatScreen.swift",
-      "line": "RFHostConfirmationActions(summary: FeatureChatStrings.text(summary, locale: locale) + \" · \" + pending.messageID, enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)"
-    },
-    {
-      "path": "Packages/FeatureChat/Sources/FeatureChat/FeatureChatStrings.swift",
-      "line": "return expanded ? \"［\" + value + \" · \" + value + \"］\" : value"
-    },
-    {
-      "path": "Packages/FeatureChat/Sources/FeatureChat/FeatureChatStrings.swift",
-      "line": "return locale.identifier.replacingOccurrences(of: \"-\", with: \"_\") == \"en_XA\" ? \"［\" + value + \" · \" + value + \"］\" : value"
     },
     {
       "path": "Packages/FeatureContacts/Sources/FeatureContacts/ContactsScreen.swift",
@@ -1124,14 +1102,6 @@
     {
       "path": "Packages/FeatureTasks/Sources/FeatureTasks/TasksScreen.swift",
       "line": "RFHostConfirmationActions(summary: copy(confirmation.attempt.arguments.kind.rawValue) + \" · \" + confirmation.attempt.arguments.task.title + \" · \" + confirmation.attempt.arguments.task.id, enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)"
-    },
-    {
-      "path": "Packages/RFDesign/Sources/RFDesignStrings.swift",
-      "line": "return expanded ? \"［\" + value + \" · \" + value + \"］\" : value"
-    },
-    {
-      "path": "Packages/RFDesign/Sources/RFDesignStrings.swift",
-      "line": "return locale.identifier.replacingOccurrences(of: \"-\", with: \"_\") == \"en_XA\" ? \"［\" + value + \" · \" + value + \"］\" : value"
     }
   ]
 }

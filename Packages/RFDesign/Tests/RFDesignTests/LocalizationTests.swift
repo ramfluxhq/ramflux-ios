@@ -11,4 +11,10 @@ struct LocalizationTests {
         let expanded = RFDesignStrings.text(key, locale: Locale(identifier: "en-XA"))
         #expect(english != key); #expect(chinese != key); #expect(chinese != english); #expect(expanded.count > english.count)
     }
+    @Test func localeWithoutTranslationsShowsEnglishNotTheKey() {
+        let key = "copy.a2538eaa411f"
+        let english = RFDesignStrings.text(key, locale: Locale(identifier: "en"))
+        #expect(RFDesignStrings.text(key, locale: Locale(identifier: "ar")) == english)
+        #expect(RFDesignStrings.text(key, locale: Locale(identifier: "de-DE")) == english)
+    }
 }

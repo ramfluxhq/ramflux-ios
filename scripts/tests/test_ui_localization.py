@@ -94,6 +94,18 @@ class LocalizationGuardTests(unittest.TestCase):
         self.assertIn('plural two is not a CLDR category of ru', result.stderr)
         self.assertIn('no CLDR plural data for xx', result.stderr)
 
+    def test_bundle_localizations_must_follow_the_catalogs(self):
+        strings = {'a.title': {'comment': 'c', 'localizations': {'en': unit('Title'), 'zh-CN': unit('标题'), 'ar': unit('عنوان')}}}
+        stale = 'info:\n  properties:\n    CFBundleDevelopmentRegion: en\n    CFBundleLocalizations: [en, zh-CN]\n'
+        result = self.check(strings=strings, extra={'project.yml': stale})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("CFBundleLocalizations ['en', 'zh-CN'] must equal the catalog locales ['ar', 'en', 'zh-CN']", result.stderr)
+        current = 'info:\n  properties:\n    CFBundleDevelopmentRegion: en\n    CFBundleLocalizations: [ar, en, zh-CN]\n'
+        self.assertEqual(self.check(strings=strings, extra={'project.yml': current}).returncode, 0)
+        wrong_region = current.replace('Region: en', 'Region: zh-CN')
+        result = self.check(strings=strings, extra={'project.yml': wrong_region})
+        self.assertIn("CFBundleDevelopmentRegion must be the fallback language 'en'", result.stderr)
+
     def test_every_key_needs_the_english_fallback(self):
         result = self.check(strings={'a.title': {'comment': 'c', 'localizations': {'zh-CN': unit('标题')}}})
         self.assertNotEqual(result.returncode, 0)

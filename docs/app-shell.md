@@ -101,11 +101,14 @@ platform compatibility extensions remain in RFDesign/Sources.
 ## Localization and themes
 
 Every package owns a String Catalog; English is the development and fallback
-language. Package `*Strings` helpers look keys up through
-`RFLocalization.CatalogLookup`, which picks the best localisation for the
-locale and falls back to the English entry (with English plural rules) for any
-key the localisation lacks, so a missing translation never shows a raw key. The
-RFDesign and FeatureChat helpers still use their own lookup without fallback.
+language. Every package `*Strings` helper and the app's `RamfluxAppStrings` look
+keys up through `RFLocalization.CatalogLookup`, which picks the best localisation
+for the locale and falls back to the English entry (with English plural rules)
+for any key the localisation lacks, so a missing translation never shows a raw
+key. The app's `CFBundleLocalizations` in `project.yml` must list exactly the
+locales present in the catalogs and `CFBundleDevelopmentRegion` must be the
+fallback language; the UI copy check fails otherwise, so adding a language
+updates that list in the same change.
 `export-localizations.py` compiles catalogs into checked portable `.strings`/`.stringsdict`
 resources for SwiftPM native CLI compatibility. Catalogs remain the sole source;
 CI verifies exported semantics with the pinned Apple catalog compiler.

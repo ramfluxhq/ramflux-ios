@@ -16,6 +16,9 @@ the catalogs: adding a language is adding its translations, never a change here.
 - Localised text must not be assembled in code (`+` next to a lookup, or a
   literal " · " separator). Existing exceptions are listed in the baseline.
 - Every package with a catalog has a locale-resolution test.
+- The app's Info.plist declarations in project.yml follow the catalogs:
+  CFBundleLocalizations lists exactly the shipped locales and
+  CFBundleDevelopmentRegion is the fallback language.
 """
 from collections import Counter
 import json
@@ -157,6 +160,20 @@ for name, keys in sorted(baseline_hashed.items()):
     for key in sorted(keys - set(present)):
         notes.append(f'baseline hashed key no longer present, remove it: {name}:{key}')
 
+project = ROOT / 'project.yml'
+if project.is_file():
+    text = project.read_text()
+    declared = re.search(r'^\s*CFBundleLocalizations:\s*\[([^\]]*)\]', text, re.M)
+    region = re.search(r'^\s*CFBundleDevelopmentRegion:\s*(\S+)', text, re.M)
+    if declared is None:
+        failures.append('project.yml: CFBundleLocalizations must list the shipped catalog locales')
+    else:
+        listed = [item.strip().strip('\'"') for item in declared.group(1).split(',') if item.strip()]
+        if sorted(listed) != sorted(shipped):
+            failures.append(f'project.yml: CFBundleLocalizations {sorted(listed)} must equal the catalog locales {sorted(shipped)}')
+    if region is None or region.group(1).strip('\'"') != fallback:
+        failures.append(f'project.yml: CFBundleDevelopmentRegion must be the fallback language {fallback!r}')
+
 for path, _ in catalogs:
     parts = path.relative_to(ROOT).parts
     if parts[0] != 'Packages':
@@ -172,4 +189,5 @@ if failures:
     raise SystemExit(1)
 print(f'UI_LOCALIZATION_OK: {len(catalogs)} catalogs complete for {", ".join(sorted(shipped))} (fallback {fallback}); '
       f'CLDR plural categories; {hashed_count} baselined hashed keys, no new ones; '
-      f'{sum(baseline_assembly.values())} baselined assembly sites, no new ones; no literal presentation copy; package locale tests present')
+      f'{sum(baseline_assembly.values())} baselined assembly sites, no new ones; no literal presentation copy; package locale tests present; '
+      f'CFBundleLocalizations matches the catalogs')
