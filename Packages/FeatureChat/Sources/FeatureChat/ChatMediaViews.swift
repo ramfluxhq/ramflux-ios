@@ -7,6 +7,8 @@ import AppData
 import RFDesign
 import RFLocalization
 import RFMedia
+import AVKit
+import Synchronization
 #if os(iOS)
 import PhotosUI
 import QuickLook
@@ -25,7 +27,7 @@ struct MediaAttachmentView: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     var body: some View {
-        if attachment.kind == .image || attachment.kind == .animated {
+        if attachment.kind != .file {
             imageBox
         } else {
             Button { onAction(.mediaTapped(attachment.id)) } label: {
@@ -51,7 +53,7 @@ struct MediaAttachmentView: View {
     }
     @ViewBuilder private var content: some View {
         if case .ready(let url) = state {
-            PipelineImage(source: .file(url), maxPixel: ChatMediaText.bubblePixels)
+            if attachment.kind == .video { VideoPoster(file: url) } else { PipelineImage(source: .file(url), maxPixel: ChatMediaText.bubblePixels) }
         } else if let thumbnail = attachment.thumbnail, state != .blockedByPolicy || revealed, state != .removed {
             PipelineImage(source: .data(thumbnail.data, attachment.id), maxPixel: ChatMediaText.bubblePixels).blur(radius: 6)
         } else {
@@ -60,7 +62,7 @@ struct MediaAttachmentView: View {
     }
     @ViewBuilder private var status: some View {
         switch state {
-        case .ready: EmptyView()
+        case .ready: if attachment.kind == .video { KitIcon(name: "play", size: KitMetrics.iconInfo, tint: theme.text).padding(theme.gap).background(theme.overlay, in: Circle()) }
         case .downloading:
             ProgressView().padding(theme.gap).background(theme.scrim, in: Circle())
                 .onTapGesture { onAction(.cancelMedia(attachment.id)) }
@@ -137,10 +139,27 @@ struct MediaViewer: View {
     @State private var scale: CGFloat = 1
     @State private var settled: CGFloat = 1
     @State private var drag: CGSize = .zero
+    /// One player per viewer; playback stops when the viewer closes (no background playback).
+    @State private var player: AVPlayer?
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            PipelineImage(source: .file(preview.file), maxPixel: ChatMediaText.viewerPixels)
+            switch preview.kind {
+            case .video: VideoPlayer(player: player).accessibilityLabel(Text(FeatureChatStrings.text("chat.media.video", locale: locale))).onDisappear { player?.pause() }
+            default: zoomable
+            }
+            chrome
+        }
+        .task(id: preview.file) { if preview.kind == .video, player == nil { player = AVPlayer(url: preview.file) } }
+    }
+    @ViewBuilder private var zoomable: some View {
+        Group {
+            if preview.kind == .animated, AnimatedImage.shouldAnimate(file: preview.file, reduceMotion: reduceMotion, lowPower: ProcessInfo.processInfo.isLowPowerModeEnabled) {
+                AnimatedFrames(file: preview.file)
+            } else {
+                PipelineImage(source: .file(preview.file), maxPixel: ChatMediaText.viewerPixels)
+            }
+        }
                 .scaledToFit()
                 .scaleEffect(scale)
                 .offset(y: drag.height)
@@ -150,6 +169,8 @@ struct MediaViewer: View {
                 })
                 .onTapGesture(count: 2) { withAnimation(reduceMotion ? nil : .default) { scale = scale > 1 ? 1 : 2.5; settled = scale } }
                 .accessibilityLabel(Text(FeatureChatStrings.text("chat.media.photo", locale: locale)))
+    }
+    private var chrome: some View {
             VStack {
                 HStack {
                     Button(FeatureChatStrings.text("chat.details.close", locale: locale)) { onAction(.closePreview) }
@@ -163,9 +184,50 @@ struct MediaViewer: View {
                     Text(FeatureChatStrings.text(saved ? "chat.media.saved" : "chat.media.saveFailed", locale: locale)).rfFont(.caption).foregroundStyle(.white).padding(KitMetrics.gutter)
                 }
             }
-        }
     }
 }
+
+/// A received video's first frame and duration, derived on this device after download because
+/// the message carries neither (request R2).
+struct VideoPoster: View {
+    let file: URL
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    @State private var poster: (image: CGImage, duration: Double)?
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            if let poster { Image(decorative: poster.image, scale: 1).resizable().scaledToFill() } else { theme.surface }
+            if let duration = poster?.duration {
+                // Media time is not text: Western digits, left to right.
+                Text(Duration.seconds(duration).formatted(.time(pattern: duration >= 3600 ? .hourMinuteSecond : .minuteSecond)))
+                    .environment(\.locale, Locale(identifier: "en_US_POSIX")).environment(\.layoutDirection, .leftToRight)
+                    .rfFont(.caption).padding(.horizontal, theme.gap / 2).background(theme.overlay, in: Capsule()).padding(theme.gap / 2)
+            }
+        }
+        .task(id: file) { poster = await VideoMedia.poster(file: file, maxPixel: ChatMediaText.bubblePixels) }
+    }
+}
+
+/// Plays an animated image's frames with ImageIO's own timing; stops when the view goes away.
+struct AnimatedFrames: View {
+    let file: URL
+    @State private var frame: CGImage?
+    var body: some View {
+        Group { if let frame { Image(decorative: frame, scale: 1).resizable() } else { Color.clear } }
+            .task(id: file) {
+                let frames = AsyncStream<CGImage> { continuation in
+                    let stop = AnimationStop()
+                    continuation.onTermination = { _ in stop.flag.withLock { $0 = true } }
+                    CGAnimateImageAtURLWithBlock(file as CFURL, nil) { _, image, halt in
+                        continuation.yield(image)
+                        if stop.flag.withLock({ $0 }) { halt.pointee = true; continuation.finish() }
+                    }
+                }
+                for await image in frames { frame = image }
+            }
+    }
+}
+final class AnimationStop: Sendable { let flag = Mutex(false) }
 
 /// The attachment sheet (MOB-B17 is not designed yet): the system photo picker (no library
 /// permission), the system file picker and the camera (through the shared permission flow).
@@ -181,14 +243,18 @@ struct AttachSheet: View {
         RFPage { VStack(alignment: .leading, spacing: theme.gap) {
             Text(FeatureChatStrings.text("chat.attach.title", locale: locale)).rfFont(.page)
             #if os(iOS)
-            PhotosPicker(selection: $selection, maxSelectionCount: 16, matching: .images, preferredItemEncoding: .current) {
+            PhotosPicker(selection: $selection, maxSelectionCount: 16, matching: .any(of: [.images, .videos]), preferredItemEncoding: .current) {
                 KitRow(FeatureChatStrings.text("chat.attach.photos", locale: locale), icon: "images", trailing: .none).allowsHitTesting(false)
             }
             .onChange(of: selection) { _, items in
                 guard !items.isEmpty else { return }
                 Task { @MainActor in
                     var picked: [PickedMedia] = []
-                    for item in items { if let file = try? await item.loadTransferable(type: PickedFile.self) { picked.append(PickedMedia(url: file.url, kind: .photo, name: "")) } }
+                    for item in items {
+                        if item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) }) {
+                            if let file = try? await item.loadTransferable(type: PickedMovie.self) { picked.append(PickedMedia(url: file.url, kind: .video, name: "")) }
+                        } else if let file = try? await item.loadTransferable(type: PickedFile.self) { picked.append(PickedMedia(url: file.url, kind: .photo, name: "")) }
+                    }
                     selection = []
                     onAction(.attachPicked(picked))
                 }
@@ -217,11 +283,26 @@ struct PickedFile: Transferable {
         }
     }
     static func copy(_ url: URL) -> PickedMedia? {
+        PickedFile.copyFile(url)
+    }
+    private static func copyFile(_ url: URL) -> PickedMedia? {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
         let target = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         guard (try? FileManager.default.copyItem(at: url, to: target)) != nil else { return nil }
         return PickedMedia(url: target, kind: .file, name: url.lastPathComponent)
+    }
+}
+
+/// A picked video, copied into the temporary directory like `PickedFile`.
+struct PickedMovie: Transferable {
+    let url: URL
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .movie) { received in
+            let target = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try FileManager.default.copyItem(at: received.file, to: target)
+            return PickedMovie(url: target)
+        }
     }
 }
 

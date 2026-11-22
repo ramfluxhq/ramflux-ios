@@ -1273,6 +1273,23 @@
           }
         }
       }
+    },
+    "chat.media.video": {
+      "comment": "Accessibility name of a video attachment and of the video player.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频"
+          }
+        }
+      }
     }
   }
 }

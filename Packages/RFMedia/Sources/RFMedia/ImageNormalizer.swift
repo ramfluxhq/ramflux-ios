@@ -41,6 +41,8 @@ public enum ImageNormalizer {
         return Result(file: file, fileName: name(now, ext: alpha ? "png" : "jpg"), mime: alpha ? "image/png" : "image/jpeg", width: image.width, height: image.height)
     }
 
+    /// A generated name for bytes sent unchanged (animated images).
+    public static func generatedName(ext: String, now: Date = Date()) -> String { name(now, ext: ext) }
     /// `IMG_<local timestamp>.<ext>`, generated on this device.
     static func name(_ date: Date, ext: String) -> String {
         let formatter = DateFormatter()

@@ -102,6 +102,8 @@
 	<string>文件过大，无法发送。</string>
 	<key>chat.media.untrusted</key>
 	<string>来自非联系人</string>
+	<key>chat.media.video</key>
+	<string>视频</string>
 	<key>chat.message.actions</key>
 	<string>消息操作</string>
 	<key>chat.message.callHistory</key>

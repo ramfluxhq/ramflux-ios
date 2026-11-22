@@ -2,12 +2,24 @@
 // Copyright (c) 2026 Span Brain
 import Testing
 import Foundation
+import ImageIO
+import CoreGraphics
+import UniformTypeIdentifiers
 @testable import AppData
 @testable import FeatureChat
 
 private func photoMessage(_ id: String, own: Bool = false, size: Int64 = 100_000, until: Int64? = 4_000_000_000, mime: String = "image/jpeg") -> MessageRecord {
     let attachment = AttachmentRecord(id: id + "#0", name: "p.jpg", mime: mime, messageID: id, index: 0, size: size, availableUntil: until)
     return MessageRecord(id: id, sender: "peer", kind: .text(""), isOwn: own, timestamp: 1, attachments: [attachment], authorAnchor: own ? nil : "peer-anchor", order: MessageOrder(milliseconds: 1_000))
+}
+
+private func tinyPNG() throws -> URL {
+    let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    let context = try #require(CGContext(data: nil, width: 4, height: 4, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+    let destination = try #require(CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil))
+    CGImageDestinationAddImage(destination, try #require(context.makeImage()), nil)
+    #expect(CGImageDestinationFinalize(destination))
+    return url
 }
 
 @Suite(.timeLimit(.minutes(1))) @MainActor struct ChatMediaViewModelTests {
@@ -48,7 +60,8 @@ private func photoMessage(_ id: String, own: Bool = false, size: Int64 = 100_000
         model.send(.mediaTapped("old#0")); await model.settle()
         #expect(await fake.downloads.isEmpty)
         model.send(.mediaTapped("mine#0"))
-        #expect(model.state.preview?.attachmentID == "mine#0"); #expect(model.state.preview?.isImage == false)
+        #expect(model.state.preview?.attachmentID == "mine#0"); #expect(model.state.preview?.kind == .file)
+        #expect(ChatViewModel.previewKind(stored) == .file)
         model.send(.closePreview); #expect(model.state.preview == nil)
         model.send(.disappeared)
     }
@@ -75,12 +88,14 @@ private func photoMessage(_ id: String, own: Bool = false, size: Int64 = 100_000
 
     @Test func savingAPhotoGoesThroughTheSharedPermissionFlow() async throws {
         var events: [ChatEvent] = []
-        let stored = FileManager.default.temporaryDirectory.appendingPathComponent("photo")
+        let stored = try tinyPNG()
+        defer { try? FileManager.default.removeItem(at: stored) }
         let fake = ChatFake(history: [photoMessage("mine", own: true)])
         await fake.setStored("mine#0", stored)
         let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { events.append($0) })
         model.send(.appeared)
         try await settleMedia(model, fake) { model.state.media["mine#0"] == .ready(stored) }
+        #expect(ChatViewModel.previewKind(stored) == .image)
         model.send(.saveToPhotos("mine#0"))
         #expect(events.contains(.requestPermission(.photoAdd)))
         model.send(.permissionResolved(.photoAdd, granted: false))

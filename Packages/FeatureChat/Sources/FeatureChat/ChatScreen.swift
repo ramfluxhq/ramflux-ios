@@ -81,13 +81,13 @@ public struct ChatScreen: View {
                 }.padding(theme.gap) } }
             }
             .sheet(isPresented: Binding(get: { state.attachSheet }, set: { if !$0 { onAction(.closeAttach) } })) { AttachSheet(onAction: onAction) }
-            .sheet(isPresented: Binding(get: { state.preview != nil && state.preview?.isImage == false }, set: { if !$0 { onAction(.closePreview) } })) {
+            .sheet(isPresented: Binding(get: { state.preview?.kind == .file }, set: { if !$0 { onAction(.closePreview) } })) {
                 #if os(iOS)
                 if let preview = state.preview { QuickLookPreview(file: preview.file).ignoresSafeArea() }
                 #endif
             }
             #if os(iOS)
-            .fullScreenCover(isPresented: Binding(get: { state.preview?.isImage == true }, set: { if !$0 { onAction(.closePreview) } })) {
+            .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
                 if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
             }
             .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }

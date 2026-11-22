@@ -20,7 +20,7 @@ extension ChatViewModel {
             Task { [repository, account] in await repository.cancelDownload(account: account, attachment: attachment) }
         case .closePreview: state.preview = nil; state.photoSaved = nil
         case .saveToPhotos(let id):
-            guard case .ready(let url)? = state.media[id], attachment(id)?.kind == .image || attachment(id)?.kind == .animated else { return }
+            guard case .ready(let url)? = state.media[id], [.image, .animated, .video].contains(Self.previewKind(url)) else { return }
             pendingSave = url; state.photoSaved = nil
             emit(.requestPermission(.photoAdd))
         case .attachRequested: state.attachSheet = true
@@ -107,13 +107,20 @@ extension ChatViewModel {
         guard let item = attachment(id) else { return }
         switch state.media[id] {
         case .ready(let url)?:
-            state.preview = MediaPreview(attachmentID: id, file: url, isImage: (item.kind == .image || item.kind == .animated) && MediaSniffer.format(of: url).isImage)
+            state.preview = MediaPreview(attachmentID: id, file: url, kind: Self.previewKind(url))
         case .idle?, .blockedByPolicy?, nil:
             state.revealed.insert(id); download(item)
         case .failed(_, let retryable)? where retryable:
             download(item)
         default: break
         }
+    }
+
+    nonisolated static func previewKind(_ url: URL) -> MediaPreview.Kind {
+        let format = MediaSniffer.format(of: url)
+        if format.isVideo { return .video }
+        guard format.isImage else { return .file }
+        return (MediaSniffer.header(of: url)?.frames ?? 1) > 1 ? .animated : .image
     }
 
     private func download(_ item: AttachmentRecord) {
@@ -149,15 +156,24 @@ extension ChatViewModel {
                 for item in picked.prefix(16) {
                     do {
                         switch item.kind {
+                        case .photo where MediaSniffer.format(of: item.url) == .gif:
+                            // Animated images keep their bytes (no re-encode), capped at 15 MB.
+                            guard ((try? item.url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? .max) <= 15 * 1_048_576 else { throw ImageNormalizer.Failure.tooLarge }
+                            let target = outbox.appendingPathComponent(UUID().uuidString)
+                            try FileManager.default.copyItem(at: item.url, to: target)
+                            uploads.append(MediaUpload(file: target, fileName: ImageNormalizer.generatedName(ext: "gif"), mime: "image/gif"))
                         case .photo:
                             let result = try ImageNormalizer.normalize(source: item.url, into: outbox)
+                            uploads.append(MediaUpload(file: result.file, fileName: result.fileName, mime: result.mime))
+                        case .video:
+                            let result = try await VideoMedia.transcode(source: item.url, into: outbox)
                             uploads.append(MediaUpload(file: result.file, fileName: result.fileName, mime: result.mime))
                         case .file:
                             let target = outbox.appendingPathComponent(UUID().uuidString)
                             try FileManager.default.copyItem(at: item.url, to: target)
                             uploads.append(MediaUpload(file: target, fileName: ChatFileNames.sendable(item.name), mime: ChatFileNames.mime(for: target, name: item.name)))
                         }
-                    } catch ImageNormalizer.Failure.tooLarge {
+                    } catch ImageNormalizer.Failure.tooLarge, VideoMedia.Failure.tooLarge, VideoMedia.Failure.tooLong {
                         for upload in uploads { try? FileManager.default.removeItem(at: upload.file) }
                         return .failure(.typedRefusal("file_too_large"))
                     } catch {

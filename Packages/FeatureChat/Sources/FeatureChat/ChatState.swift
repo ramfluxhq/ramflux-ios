@@ -26,7 +26,7 @@ public struct ChatDetailsState: Equatable, Sendable {
 }
 /// A file the user picked, copied by the view layer into the app's temporary directory.
 public struct PickedMedia: Equatable, Sendable {
-    public enum Kind: Equatable, Sendable { case photo, file }
+    public enum Kind: Equatable, Sendable { case photo, video, file }
     public let url: URL
     public let kind: Kind
     /// The original file name; sent unchanged only for files, never for compressed photos.
@@ -42,10 +42,13 @@ public struct MediaSendState: Equatable, Sendable {
 }
 /// What the full-screen viewer or Quick Look shows.
 public struct MediaPreview: Equatable, Sendable {
+    /// Decided from the stored bytes, never from the declared type.
+    public enum Kind: Equatable, Sendable { case image, animated, video, file }
     public let attachmentID: String
     public let file: URL
-    public let isImage: Bool
-    public init(attachmentID: String, file: URL, isImage: Bool) { self.attachmentID = attachmentID; self.file = file; self.isImage = isImage }
+    public let kind: Kind
+    public var isFullScreen: Bool { kind != .file }
+    public init(attachmentID: String, file: URL, kind: Kind) { self.attachmentID = attachmentID; self.file = file; self.kind = kind }
 }
 public struct ChatState: Equatable, Sendable {
     public var isGroup = false
