@@ -19,3 +19,35 @@ records the subset method.
 The resource names preserve the original font metadata and copyright notices.
 Registration and resolution checks use the actual PostScript names, including the
 Noto Sans SC variable regular instance. Font assets never come from a device cache.
+
+## Face per script
+
+Kit text never forces a bundled face on text that face cannot draw. `KitTypeface`
+(Packages/RFDesign/Sources/Kit/KitType.swift) chooses the face from the text and
+the active locale; callers name only a role (UI, Latin, mono).
+
+| Text | Face |
+|---|---|
+| Latin and Simplified Chinese UI text | Noto Sans SC subset, as the design specifies |
+| Latin role (times, the Agents label) | Hanken Grotesk |
+| UI text in a Latin-script locale whose exemplar letters the Noto Sans SC subset lacks (French œ, Turkish ğ ı ş, Vietnamese) | Hanken Grotesk for all UI text of that locale, so one screen keeps one face |
+| Identifiers and code | JetBrains Mono |
+| Text with a letter no bundled face draws: Arabic, Hebrew, Cyrillic, Greek, Hangul, Devanagari, Thai, ideographs outside the subset | System font |
+| CJK text (ideographs, kana, hangul) under Traditional Chinese, Japanese or Korean locales | System font, which uses the locale's Han glyph forms |
+| Editable text (fields, composer) | Bundled face for Latin and Simplified Chinese locales whose letters it covers, system font otherwise |
+| Screen text outside the Kit | `rfFont(.body / .caption / .page)`, same rule by locale; `RFTheme.bodyFont`, `captionFont` and `pageFont` are the bundled face only and remain for Latin and Simplified Chinese callers until they migrate |
+
+Coverage measured on the bundled files: the Noto Sans SC subset covers the exemplar
+letters of en, es, de, pt-BR, it and id, not fr, tr or vi, and no Cyrillic, Greek or
+Arabic-Indic digits. Hanken Grotesk covers en, es, fr, de, pt-BR, it, id, tr and vi,
+not Cyrillic or Greek. JetBrains Mono covers Latin, Cyrillic and Greek.
+
+## Size and line height
+
+Kit text sizes are the design sizes at the default (`large`) text size and follow
+Dynamic Type through `UIFontMetrics` for the text style nearest the design size.
+Text inside fixed shapes (avatar initials, reaction emoji, the simulated status
+bar) keeps the design size. Bundled faces take the exact design line height on
+iOS 26 and later. System faces are never given less than their own ascent plus
+descent: the design line height only adds spacing, so Arabic marks and other tall
+glyphs are not clipped. Message text has no maximum line height.

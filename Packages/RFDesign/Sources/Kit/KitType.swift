@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import CoreText
+import Synchronization
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -26,36 +27,38 @@ enum KitFace: Equatable, Sendable {
 
 /// Chooses a face per text and locale.
 ///
-/// - Latin and Simplified Chinese use the bundled faces the design specifies.
-/// - Text with any letter a bundled face cannot draw (Arabic, Hangul, Devanagari, Cyrillic,
-///   ideographs outside the subset, ...) uses the system font with its own line metrics.
-/// - Ideographs under a locale whose script has its own Han glyph forms (Traditional Chinese,
-///   Japanese, Korean) use the system font, which picks the locale's forms.
+/// - Latin and Simplified Chinese use the bundled faces the design specifies: Noto Sans SC for
+///   UI text, Hanken Grotesk for the Latin role. A Latin-script locale whose letters Noto Sans SC
+///   cannot draw (Turkish, Vietnamese) uses Hanken Grotesk for all its UI text, so one screen
+///   keeps one face.
+/// - Text with any letter no bundled face can draw (Arabic, Hebrew, Hangul, Devanagari,
+///   Cyrillic, Greek, ideographs outside the subset, ...) uses the system font with its own line
+///   metrics.
+/// - CJK text (ideographs, kana, hangul) under a locale whose script has its own Han glyph forms
+///   (Traditional Chinese, Japanese, Korean) uses the system font, which picks the locale's forms
+///   and keeps one face across the screen.
 enum KitTypeface {
     private static let ownHanForms: Set<String> = ["Hant", "Jpan", "Kore"]
-    private static let bundledScripts: Set<String> = ["Latn", "Hans"]
 
     static func face(for role: KitFontRole, text: String, locale: Locale) -> KitFace {
-        let preferred = bundledFace(role)
         let script = localeScript(locale)
-        var hasIdeograph = false
-        var coveredByPreferred = true
-        var coveredByUI = true
-        for scalar in text.unicodeScalars where counts(scalar) {
-            if scalar.properties.isIdeographic { hasIdeograph = true }
-            if coveredByPreferred && !covers(preferred, scalar) { coveredByPreferred = false }
-            if role == .latin && coveredByUI && !covers(bundledFace(.ui), scalar) { coveredByUI = false }
+        let counted = text.unicodeScalars.filter(counts)
+        if let script, ownHanForms.contains(script), counted.contains(where: isCJK) { return systemFace(role) }
+        for face in candidates(role, locale: locale, script: script) where counted.allSatisfy({ covers(face, $0) }) {
+            return .bundled(face)
         }
-        if hasIdeograph, let script, ownHanForms.contains(script) { return systemFace(role) }
-        if coveredByPreferred { return .bundled(preferred) }
-        if role == .latin && coveredByUI { return .bundled(bundledFace(.ui)) }
         return systemFace(role)
     }
 
     /// The face for editable text, where the content is not known in advance.
     static func face(for role: KitFontRole, locale: Locale) -> KitFace {
-        guard let script = localeScript(locale), bundledScripts.contains(script) else { return systemFace(role) }
-        return .bundled(bundledFace(role))
+        let script = localeScript(locale)
+        guard script == "Latn" || script == "Hans" else { return systemFace(role) }
+        if script == "Hans" { return .bundled(bundledFace(role == .mono ? .mono : .ui)) }
+        for face in candidates(role, locale: locale, script: script) where KitCoverage.coversLocale(face, locale) {
+            return .bundled(face)
+        }
+        return systemFace(role)
     }
 
     static func localeScript(_ locale: Locale) -> String? {
@@ -69,6 +72,21 @@ enum KitTypeface {
         case .latin: DesignFonts.face(for: "Hanken Grotesk")
         case .mono: DesignFonts.face(for: "JetBrains Mono")
         }
+    }
+
+    private static func candidates(_ role: KitFontRole, locale: Locale, script: String?) -> [String] {
+        let ui = bundledFace(.ui), latin = bundledFace(.latin)
+        switch role {
+        case .mono: return [bundledFace(.mono)]
+        case .latin: return [latin, ui]
+        case .ui: return script == "Latn" && !KitCoverage.coversLocale(ui, locale) ? [latin, ui] : [ui, latin]
+        }
+    }
+
+    private static func isCJK(_ scalar: Unicode.Scalar) -> Bool {
+        if scalar.properties.isIdeographic { return true }
+        let ranges: [ClosedRange<UInt32>] = [0x1100...0x11FF, 0x3040...0x30FF, 0x3130...0x318F, 0x31F0...0x31FF, 0xAC00...0xD7AF, 0xFF66...0xFF9F]
+        return ranges.contains { $0.contains(scalar.value) }
     }
 
     private static func systemFace(_ role: KitFontRole) -> KitFace { role == .mono ? .systemMono : .system }
@@ -101,6 +119,20 @@ private enum KitCoverage {
         }
         return sets
     }()
+
+    private static let localeCache = Mutex<[String: Bool]>([:])
+
+    /// True when the face draws every exemplar letter of the locale (CLDR main exemplars).
+    static func coversLocale(_ face: String, _ locale: Locale) -> Bool {
+        let key = face + "|" + locale.identifier
+        if let known = localeCache.withLock({ $0[key] }) { return known }
+        var covered = false
+        if let set = sets[face], let exemplar = (locale as NSLocale).object(forKey: .exemplarCharacterSet) as? CharacterSet {
+            covered = CFCharacterSetIsSupersetOfSet(set, exemplar as NSCharacterSet as CFCharacterSet)
+        }
+        localeCache.withLock { $0[key] = covered }
+        return covered
+    }
 }
 
 func kitCTFont(size: CGFloat, weight: CGFloat, face: KitFace) -> CTFont {
