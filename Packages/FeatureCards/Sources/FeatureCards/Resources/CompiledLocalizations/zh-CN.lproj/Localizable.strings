@@ -2,11 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>cards.approval.pending</key>
+	<string>请在任务中决定</string>
+	<key>cards.approval.request</key>
+	<string>请求</string>
 	<key>cards.checking</key>
 	<string>正在检查可用性</string>
+	<key>cards.closed</key>
+	<string>此卡片已关闭</string>
+	<key>cards.contentUnavailable</key>
+	<string>卡片内容不可用</string>
+	<key>cards.link</key>
+	<string>此应用中链接不可用</string>
+	<key>cards.outOfSync</key>
+	<string>此卡片未同步，操作已暂停</string>
 	<key>cards.retry</key>
 	<string>再次检查</string>
+	<key>cards.sending</key>
+	<string>正在发送…</string>
+	<key>cards.streaming</key>
+	<string>仍在输入</string>
 	<key>cards.title</key>
 	<string>交互卡片</string>
+	<key>cards.unsupported</key>
+	<string>此应用不支持卡片的这一部分</string>
+	<key>cards.unsupportedValue</key>
+	<string>此应用无法显示</string>
 </dict>
 </plist>

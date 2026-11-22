@@ -4,6 +4,7 @@
 import UIKit
 import SwiftUI
 import AppData
+import FeatureCards
 import RFDesign
 
 /// The chat timeline: a UIKit table keyed by stable row ids, anchored to the bottom.
@@ -59,8 +60,8 @@ import RFDesign
         let gap = max(0, visible - tableView.contentSize.height)
         if abs(tableView.contentInset.top - gap) > 0.5 { tableView.contentInset.top = gap }
     }
-    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = []) {
-        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed)
+    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:]) {
+        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards)
         loadViewIfNeeded()
         self.olderAvailable = olderAvailable
         if !loadingOlder { requestedOlderAt = nil }

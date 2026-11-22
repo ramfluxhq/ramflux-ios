@@ -14,6 +14,7 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia])
     case removeDraftItem(Int), draftCaptionChanged(String), sendMediaDraft, cancelMediaDraft, openAlbum(String), closeAlbum
     case openGallery, closeGallery, galleryTab(ChatGalleryState.Tab), galleryMore, clearMediaRequested, clearMediaConfirmed, clearMediaCancelled
+    case surfaceInput(surfaceRef: String, pointer: String, value: SurfaceInput), surfaceButton(surfaceRef: String, buttonID: String)
     case shareMedia(String), shareFinished, forwardRequested(String), forwardTo(messageID: String, conversation: String, groupID: String?)
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
     public var description: String { "ChatAction" }

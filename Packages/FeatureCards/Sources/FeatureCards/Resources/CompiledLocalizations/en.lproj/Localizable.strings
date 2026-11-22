@@ -2,11 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>cards.approval.pending</key>
+	<string>Decide in tasks</string>
+	<key>cards.approval.request</key>
+	<string>Request</string>
 	<key>cards.checking</key>
 	<string>Checking availability</string>
+	<key>cards.closed</key>
+	<string>This card is closed</string>
+	<key>cards.contentUnavailable</key>
+	<string>Card content unavailable</string>
+	<key>cards.link</key>
+	<string>Link not available in this app</string>
+	<key>cards.outOfSync</key>
+	<string>This card is out of sync; actions are paused</string>
 	<key>cards.retry</key>
 	<string>Check again</string>
+	<key>cards.sending</key>
+	<string>Sending…</string>
+	<key>cards.streaming</key>
+	<string>Still writing</string>
 	<key>cards.title</key>
 	<string>Interactive cards</string>
+	<key>cards.unsupported</key>
+	<string>This part of the card is not supported in this app</string>
+	<key>cards.unsupportedValue</key>
+	<string>Not shown in this app</string>
 </dict>
 </plist>

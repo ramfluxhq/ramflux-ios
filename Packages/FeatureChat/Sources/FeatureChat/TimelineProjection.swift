@@ -3,6 +3,7 @@
 import Foundation
 import Synchronization
 import AppData
+import FeatureCards
 
 /// One row of the chat timeline. Every row has a stable id derived from SDK ids (or the local
 /// operation id for unadmitted sends), never from display text or position.
@@ -33,6 +34,8 @@ enum TimelineItem: Equatable, Sendable {
 struct MessageMedia: Equatable, Sendable {
     var states: [String: MediaTransferState] = [:]
     var revealed: Set<String> = []
+    /// The agent surface this message carried, if any.
+    var card: SurfaceCardState?
     static let none = MessageMedia()
 }
 
@@ -45,7 +48,7 @@ enum TimelineProjection {
     /// Chronological rows with a day chip where the calendar day changes, the unread divider
     /// above `unreadAnchorID`, and unadmitted sends after the last message. Messages without a
     /// valid timestamp start no new day. Linear in the window size; the window is bounded.
-    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = []) -> [TimelineItem] {
+    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:]) -> [TimelineItem] {
         var items: [TimelineItem] = []
         items.reserveCapacity(messages.count + outbox.count + 8)
         if loadingOlder { items.append(.history) }
@@ -61,6 +64,7 @@ enum TimelineProjection {
                 if let value = media[attachment.id] { slice.states[attachment.id] = value }
                 if revealed.contains(attachment.id) { slice.revealed.insert(attachment.id) }
             }
+            slice.card = cards[message.id]
             items.append(.message(message, slice))
         }
         for entry in outbox { items.append(.outbox(entry)) }

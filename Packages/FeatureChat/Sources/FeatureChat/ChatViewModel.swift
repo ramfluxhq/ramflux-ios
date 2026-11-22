@@ -3,6 +3,7 @@
 import Foundation
 import Observation
 import AppData
+import FeatureCards
 @Observable @MainActor public final class ChatViewModel {
     public internal(set) var state: ChatState
     public let conversation: String
@@ -10,6 +11,7 @@ import AppData
     /// The group's `group_id` for attachment preparation; nil in a direct chat.
     let groupID: String?
     let repository: any ChatRepository
+    let cards: any CardsRepository
     let emit: (ChatEvent) -> Void
     let now: @Sendable () -> Date
     /// Media steps: per-attachment imports, the trust lookup and the send pipeline.
@@ -26,6 +28,9 @@ import AppData
     @ObservationIgnored private var detailsTask: Task<Void, Never>?
     @ObservationIgnored var galleryTask: Task<Void, Never>?
     @ObservationIgnored var typingTask: Task<Void, Never>?
+    @ObservationIgnored var cardsTask: Task<Void, Never>?
+    @ObservationIgnored var cardsPending = false
+    @ObservationIgnored var cardActions: [String: String] = [:]
     @ObservationIgnored var typingExpiry: Task<Void, Never>?
     @ObservationIgnored var typingPeers: [String: Int64] = [:]
     @ObservationIgnored var galleryCursor: MessageCursor?
@@ -39,18 +44,18 @@ import AppData
     @ObservationIgnored private var lastMarked: MessageOrder?
     @ObservationIgnored private var marking = false
     @ObservationIgnored private var typingSentAt: Date?
-    public init(repository: any ChatRepository, account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+    public init(repository: any ChatRepository, cards: any CardsRepository = UnavailableCardsRepository(), account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
         // A group's conversation id and group_id are equal only for groups this app created; the
         // host passes the real group_id, and the conversation id stands in only when it has none.
         self.groupID = isGroup ? (groupID ?? conversation) : nil
-        self.repository = repository; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
+        self.repository = repository; self.cards = cards; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
         var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation
         self.state = initial; self.emit = emit; window = TimelineWindow(capacity: windowCapacity)
     }
     public func send(_ action: ChatAction) {
         switch action {
         case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
-        case .appeared: restoreDraft(); reload(); observe(); followTyping()
+        case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards()
         case .refresh: reload(); observe()
         case .loadOlder: loadOlder()
         case .jumpToLatest: reload()
@@ -92,6 +97,7 @@ import AppData
         case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo, .removeDraftItem, .draftCaptionChanged, .sendMediaDraft, .cancelMediaDraft, .openAlbum, .closeAlbum:
             handleMedia(action)
         case .openGallery, .closeGallery, .galleryTab, .galleryMore: handleGallery(action)
+        case .surfaceInput, .surfaceButton: handleCards(action)
         case .clearMediaRequested: state.details?.confirmClear = true
         case .clearMediaCancelled: state.details?.confirmClear = false
         case .clearMediaConfirmed: clearConversationMedia()
@@ -111,7 +117,7 @@ import AppData
             state.composer = nil; state.reactionTarget = nil; state.reactionRemove = false; state.held = nil; state.actionTarget = nil; state.details = nil
             state.olderAvailable = false; state.detached = false
             // Concealed UI keeps no message text; the draft stays in the repository's memory store.
-            stopMedia(conceal: action == .conceal); stopTyping()
+            stopMedia(conceal: action == .conceal); stopTyping(); stopCards()
             if action == .conceal { state.draft = "" }
         }
     }
@@ -354,7 +360,7 @@ import AppData
             let observation = await repository.observe(account: account)
             for await event in observation.stream {
                 guard !Task.isCancelled, let self else { break }
-                switch event { case .invalidated: self.refresh(); case .failed(let error): self.state.failure = error }
+                switch event { case .invalidated: self.refresh(); self.loadCards(); case .failed(let error): self.state.failure = error }
             }
             await observation.stop()
             if let self, self.watchID == current { self.observer = nil }

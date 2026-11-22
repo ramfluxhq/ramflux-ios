@@ -27,9 +27,9 @@ public struct ChatScreen: View {
             if state.messages.isEmpty && state.outbox.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
-                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, onAction: onAction)
+                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, onAction: onAction)
                 #else
-                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
+                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
                 #endif
                 if state.detached {
                     Button(FeatureChatStrings.text("chat.timeline.jumpToLatest", locale: locale)) { onAction(.jumpToLatest) }

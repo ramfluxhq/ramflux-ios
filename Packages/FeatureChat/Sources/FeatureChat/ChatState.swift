@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import AppData
+import FeatureCards
 public enum ComposerIntent: Equatable, Sendable {
     case reply(messageID: String, preview: String)
     case edit(messageID: String, previousDraft: String)
@@ -98,6 +99,8 @@ public struct ChatState: Equatable, Sendable {
     public var staging = false
     public var mediaDraft: MediaDraft?
     public var gallery: ChatGalleryState?
+    /// Agent surfaces of the conversation by the id of the message that carried them.
+    public var cards: [String: SurfaceCardState] = [:]
     /// The message whose whole album is open.
     public var album: String?
     /// A temporary copy under the original file name while the share sheet is open.

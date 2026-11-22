@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import SwiftUI
 import AppData
+import FeatureCards
 import RFDesign
 import RFLocalization
 
@@ -51,7 +52,10 @@ public struct MessageBubble: View {
                         MediaAttachmentView(attachment: attachment, state: media.states[attachment.id] ?? .idle, revealed: media.revealed.contains(attachment.id), isOwn: own, time: clock, onAction: onAction)
                     }
                 }
-                if showsTextBubble {
+                if let card = media.card {
+                    SurfaceCardView(card: card, onInput: { onAction(.surfaceInput(surfaceRef: card.surface.surfaceRef, pointer: $0, value: $1)) }, onButton: { onAction(.surfaceButton(surfaceRef: card.surface.surfaceRef, buttonID: $0)) })
+                }
+                if showsTextBubble && media.card == nil {
                     KitBubble(text, kind: own ? .own : .incoming, time: clock, edited: message.edited ? FeatureChatStrings.text("chat.edited", locale: locale) : nil, sender: isGroup && !own ? message.sender : nil,
                               read: message.delivery == .read, sentOnly: own && (message.delivery ?? .sent) == .sent && message.kind != .deleted, tag: message.id)
                 }

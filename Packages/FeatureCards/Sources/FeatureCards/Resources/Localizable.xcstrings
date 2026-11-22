@@ -51,6 +51,176 @@
           }
         }
       }
+    },
+    "cards.contentUnavailable": {
+      "comment": "Shown in an agent card when its content cannot be displayed and it has no fallback text.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card content unavailable"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡片内容不可用"
+          }
+        }
+      }
+    },
+    "cards.closed": {
+      "comment": "Note under an agent card that no longer accepts actions.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This card is closed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片已关闭"
+          }
+        }
+      }
+    },
+    "cards.outOfSync": {
+      "comment": "Note under an agent card whose state is out of sync; its controls are disabled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This card is out of sync; actions are paused"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此卡片未同步，操作已暂停"
+          }
+        }
+      }
+    },
+    "cards.sending": {
+      "comment": "Progress line while an action from an agent card is sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在发送…"
+          }
+        }
+      }
+    },
+    "cards.streaming": {
+      "comment": "Accessibility label of the indicator while the agent is still writing this text.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still writing"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍在输入"
+          }
+        }
+      }
+    },
+    "cards.unsupportedValue": {
+      "comment": "Placeholder for a value in an agent card that this app cannot show.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not shown in this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用无法显示"
+          }
+        }
+      }
+    },
+    "cards.unsupported": {
+      "comment": "Placeholder for a part of an agent card that this app cannot show; the card's summary follows.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This part of the card is not supported in this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用不支持卡片的这一部分"
+          }
+        }
+      }
+    },
+    "cards.link": {
+      "comment": "Placeholder for a link button in an agent card; links are not opened from cards yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link not available in this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用中链接不可用"
+          }
+        }
+      }
+    },
+    "cards.approval.pending": {
+      "comment": "Status of an approval card; the decision is made in the task or approval screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decide in tasks"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在任务中决定"
+          }
+        }
+      }
+    },
+    "cards.approval.request": {
+      "comment": "Label of the request reference in an approval card.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求"
+          }
+        }
+      }
     }
   }
 }
