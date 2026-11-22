@@ -98,6 +98,11 @@ active account and multicasts to any number of `RepositoryObservation`s:
   four consecutive resubscriptions without a delivered event it reports `.failed`.
 - Observing a different account finishes the previous account's observers and joins
   their native stop before resetting and subscribing for the new account.
+- Transient frames: `observe(account:transientFrames: true)` also returns `observation.transient`, an
+  `AsyncStream<TransientFrame>` (newest 32 buffered) carrying the live `message.transient` frames of
+  the account (typing indicators) as the frame topic and its body in JSON bytes. Only observers that
+  ask receive them; a transient frame never sends `.invalidated` and is never replayed after a resync.
+  The stream finishes with the observation.
 - The topic list is fixed in `NativeUpdateSource.topics`; there is no `*` subscription.
   Events carry no payload to observers: a feature that needs to filter (for example a
   chat that only cares about its own conversation) re-reads its window and compares.

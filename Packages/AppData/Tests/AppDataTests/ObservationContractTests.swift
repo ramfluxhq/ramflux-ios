@@ -72,6 +72,26 @@ private func waitFor(_ condition: @Sendable () -> Bool) async {
         #expect(await source.observerCount == 0); #expect(factory.last?.finished.withLock { $0 } == true)
         #expect(factory.count == 1)
     }
+    @Test func transientFramesReachOnlyObserversThatAskAndNeverInvalidate() async {
+        let factory = QueueFactory()
+        let transport = ProxyTransport(onSubscribe: { _ in factory.make() }) { _ in .object([:]) }
+        let source = NativeUpdateSource(client: RamfluxClient(transport: transport))
+        let chat = await source.observe(account: "A", transientFrames: true), list = await source.observe(account: "A")
+        #expect(list.transient == nil)
+        var updates = chat.stream.makeAsyncIterator(), other = list.stream.makeAsyncIterator()
+        guard var frames = chat.transient?.makeAsyncIterator() else { Issue.record("no transient stream"); return }
+        _ = await updates.next(); _ = await other.next()
+        let typing: JSONValue = .object(["kind": .string("event"), "topic": .string("message.transient"), "body": .object(["typing": .bool(true)])])
+        factory.last?.push([typing])
+        let frame = await frames.next()
+        #expect(frame?.topic == "message.transient")
+        #expect(frame.flatMap { try? JSONDecoder().decode(JSONValue.self, from: $0.body) } == .object(["typing": .bool(true)]))
+        factory.last?.push([changed])
+        // The next update after the transient frame is the durable change, not an invalidation for the frame.
+        #expect(await updates.next() == .invalidated); #expect(await other.next() == .invalidated)
+        await chat.stop(); await list.stop()
+        #expect(await frames.next() == nil)
+    }
     @Test func lagResubscribesAutomaticallyAndKeepsEveryObserverLive() async {
         let factory = QueueFactory(), resets = Mutex(0)
         let transport = ProxyTransport(onReset: { resets.withLock { $0 += 1 } }, onSubscribe: { _ in factory.make() }) { _ in .object([:]) }

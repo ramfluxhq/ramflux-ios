@@ -4,14 +4,23 @@ import Foundation
 import RamfluxCore
 import Synchronization
 public enum RepositoryUpdate: Equatable, Sendable { case invalidated, failed(AppFailure) }
+/// A live `message.transient` frame (for example a typing indicator), delivered only to observers that
+/// asked for transient frames. `body` is the frame body as JSON bytes; transient frames are never replayed.
+public struct TransientFrame: Equatable, Sendable {
+    public let topic: String
+    public let body: Data
+    public init(topic: String, body: Data) { self.topic = topic; self.body = body }
+}
 /// One logical observer of account invalidations. Any number may be live at once; `stop()` is idempotent
 /// and returns after the shared native subscription has stopped if this was its last observer.
 public final class RepositoryObservation: Sendable {
     public let stream: AsyncStream<RepositoryUpdate>
+    /// Transient frames; `nil` unless the observer asked for them. It finishes with `stream`.
+    public let transient: AsyncStream<TransientFrame>?
     private let onStop: @Sendable () async -> Void
     private let stopCalled = Mutex(false)
-    public init(failure: AppFailure) { onStop = {}; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
-    public init(stream: AsyncStream<RepositoryUpdate>, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; self.stream = stream }
+    public init(failure: AppFailure) { onStop = {}; transient = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
+    public init(stream: AsyncStream<RepositoryUpdate>, transient: AsyncStream<TransientFrame>? = nil, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; self.stream = stream; self.transient = transient }
     public func stop() async { let call = stopCalled.withLock { value in let old = value; value = true; return !old }; if call { await onStop() } }
 }
 /// Shared event fan-out: one native subscription per active account, multicast to every observer.
@@ -20,12 +29,15 @@ public final class RepositoryObservation: Sendable {
 /// observer to reload (`.invalidated`); any other failure is broadcast as `.failed` and ends all observers.
 /// Observing a different account ends the previous account's observers before the new subscription opens.
 public actor NativeUpdateSource {
-    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state"]
+    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
+    /// Live-only frames (typing indicators). They never invalidate read models.
+    static let transientTopic = "message.transient"
     /// Consecutive resubscriptions without a delivered event before the hub reports a failure.
     static let resyncLimit = 4
     private let client: RamfluxClient
     private var account: String?
     private var observers: [UUID: AsyncStream<RepositoryUpdate>.Continuation] = [:]
+    private var transients: [UUID: AsyncStream<TransientFrame>.Continuation] = [:]
     private var subscription: EventSubscription?
     private var pump: Task<Void, Never>?
     private var epoch: UInt64 = 0
@@ -34,12 +46,15 @@ public actor NativeUpdateSource {
     public init(client: RamfluxClient) { self.client = client }
     /// Number of live observers; for tests and diagnostics.
     public var observerCount: Int { observers.count }
-    public func observe(account: String) async -> RepositoryObservation {
+    /// Registers an observer. With `transientFrames`, the observation also carries the live
+    /// `message.transient` frames of the account (bounded to the newest 32).
+    public func observe(account: String, transientFrames: Bool = false) async -> RepositoryObservation {
         let id = UUID()
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))
         pair.continuation.onTermination = { [weak self] _ in Task { await self?.remove(id) } }
-        await serialized { hub in await hub.join(id: id, account: account, continuation: pair.continuation) }
-        return RepositoryObservation(stream: pair.stream, onStop: { [weak self] in await self?.remove(id) })
+        let frames = transientFrames ? AsyncStream<TransientFrame>.makeStream(bufferingPolicy: .bufferingNewest(32)) : nil
+        await serialized { hub in await hub.join(id: id, account: account, continuation: pair.continuation, transient: frames?.continuation) }
+        return RepositoryObservation(stream: pair.stream, transient: frames?.stream, onStop: { [weak self] in await self?.remove(id) })
     }
     private func remove(_ id: UUID) async {
         await serialized { hub in await hub.leave(id: id) }
@@ -50,14 +65,14 @@ public actor NativeUpdateSource {
         let next = Task { await previous?.value; await work(self) }
         tail = next; await next.value
     }
-    private func join(id: UUID, account: String, continuation: AsyncStream<RepositoryUpdate>.Continuation) async {
+    private func join(id: UUID, account: String, continuation: AsyncStream<RepositoryUpdate>.Continuation, transient: AsyncStream<TransientFrame>.Continuation?) async {
         if self.account != account { await close(finishing: true); self.account = account }
-        observers[id] = continuation
+        observers[id] = continuation; transients[id] = transient
         if subscription == nil { await open() } else { continuation.yield(.invalidated) }
     }
     private func leave(id: UUID) async {
         guard let continuation = observers.removeValue(forKey: id) else { return }
-        continuation.finish()
+        continuation.finish(); transients.removeValue(forKey: id)?.finish()
         if observers.isEmpty { await close(finishing: false); account = nil }
     }
     private func open() async {
@@ -70,7 +85,7 @@ public actor NativeUpdateSource {
             subscription = opened
             pump = Task { [weak self] in
                 do {
-                    for try await _ in opened.stream { await self?.delivered(epoch: current) }
+                    for try await frame in opened.stream { await self?.delivered(frame, epoch: current) }
                     await self?.ended(epoch: current, failure: nil)
                 } catch { await self?.ended(epoch: current, failure: error) }
             }
@@ -82,11 +97,16 @@ public actor NativeUpdateSource {
         let stopping = subscription, joining = pump
         subscription = nil; pump = nil
         stopping?.cancel(); await stopping?.stop(); await joining?.value
-        if finishing { for continuation in observers.values { continuation.finish() }; observers.removeAll(); resyncs = 0 }
+        if finishing { for continuation in observers.values { continuation.finish() }; observers.removeAll(); finishTransients(); resyncs = 0 }
     }
-    private func delivered(epoch current: UInt64) {
+    private func delivered(_ frame: JSONValue, epoch current: UInt64) {
         guard current == epoch else { return }
-        resyncs = 0; broadcast(.invalidated)
+        resyncs = 0
+        let topic = frame["method"]?.string ?? frame["topic"]?.string
+        guard topic == Self.transientTopic else { broadcast(.invalidated); return }
+        guard !transients.isEmpty, let body = frame["body"], let bytes = try? JSONEncoder().encode(body), bytes.count <= 65_536 else { return }
+        let value = TransientFrame(topic: Self.transientTopic, body: bytes)
+        for continuation in transients.values { continuation.yield(value) }
     }
     private func ended(epoch current: UInt64, failure: (any Error)?) {
         guard current == epoch else { return }
@@ -109,7 +129,8 @@ public actor NativeUpdateSource {
     private func fail(_ failure: AppFailure) { broadcast(.failed(failure)); finishAll() }
     private func finishAll() {
         for continuation in observers.values { continuation.finish() }
-        observers.removeAll(); account = nil; resyncs = 0
+        observers.removeAll(); finishTransients(); account = nil; resyncs = 0
     }
+    private func finishTransients() { for continuation in transients.values { continuation.finish() }; transients.removeAll() }
     deinit { subscription?.cancel(); pump?.cancel() }
 }
