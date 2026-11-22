@@ -106,7 +106,7 @@ enum BoardFixtures {
         // The SDK page is newest first; the timeline reverses it.
         state.messages = [
             MessageRecord(id: "m3", sender: state.displayTitle, kind: .text(text[2]), isOwn: false, timestamp: today(10, 24), attachments: [AttachmentRecord(id: "notes", name: text[3], mime: "application/pdf")]),
-            MessageRecord(id: "m2", sender: "", kind: .text(text[1]), isOwn: true, timestamp: today(10, 23)),
+            MessageRecord(id: "m2", sender: "", kind: .text(text[1]), isOwn: true, timestamp: today(10, 23), delivery: .delivered),
             MessageRecord(id: "m1", sender: state.displayTitle, kind: .text(text[0]), isOwn: false, timestamp: today(10, 21)),
         ]
         return state

@@ -189,23 +189,6 @@
         }
       }
     },
-    "chat.send.submitted": {
-      "comment": "Status after a message was handed to the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Submitted to account service"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已提交到账户服务"
-          }
-        }
-      }
-    },
     "chat.loading": {
       "comment": "Progress label while messages load.",
       "localizations": {
@@ -219,23 +202,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加载消息"
-          }
-        }
-      }
-    },
-    "chat.send.failed": {
-      "comment": "Status when sending a message failed.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delivery failed"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发送失败"
           }
         }
       }
@@ -505,6 +471,380 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "chat.outbox.pending": {
+      "comment": "Meta label on an own message bubble that is queued and waits for the connection before it is sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待发送"
+          }
+        }
+      }
+    },
+    "chat.outbox.sending": {
+      "comment": "Meta label on an own message bubble while the app is handing it to the account service.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送中"
+          }
+        }
+      }
+    },
+    "chat.outbox.failed": {
+      "comment": "Red label under an own message that the account service refused; a Retry button follows it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未发送"
+          }
+        }
+      }
+    },
+    "chat.outbox.retry": {
+      "comment": "Button under an unsent message that sends the same message again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "chat.outbox.discard": {
+      "comment": "Destructive menu action that removes an unsent message from this device without sending it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete unsent message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除未发送的消息"
+          }
+        }
+      }
+    },
+    "chat.outbox.details": {
+      "comment": "Accessibility label of the info button next to an unsent message; it opens the reason and the delete action.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送详情"
+          }
+        }
+      }
+    },
+    "chat.offline.banner": {
+      "comment": "Banner at the top of a chat while the account service cannot be reached and messages are queued.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline · messages will be sent when the connection returns"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前离线 · 消息将在恢复连接后发送"
+          }
+        }
+      }
+    },
+    "chat.message.copy": {
+      "comment": "Menu action that copies the text of a message to the clipboard.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy text"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制文字"
+          }
+        }
+      }
+    },
+    "chat.message.actions": {
+      "comment": "Accessibility action that opens the action menu of a message (reactions, reply, copy, edit, delete).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message actions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息操作"
+          }
+        }
+      }
+    },
+    "chat.timeline.loadingOlder": {
+      "comment": "Progress label at the top of the chat while earlier messages load.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading earlier messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更早的消息"
+          }
+        }
+      }
+    },
+    "chat.timeline.jumpToLatest": {
+      "comment": "Button shown after scrolling far back in history; it returns to the newest messages.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump to latest"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回到最新"
+          }
+        }
+      }
+    },
+    "chat.attachment.typeSize": {
+      "comment": "Meta line of a file attachment: %1$@ is the file type such as PDF, %2$@ is the formatted size.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "chat.details.title": {
+      "comment": "Title of the conversation details sheet opened from the chat header's more button.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话详情"
+          }
+        }
+      }
+    },
+    "chat.details.conversationID": {
+      "comment": "Caption above the conversation identifier in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation ID"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话 ID"
+          }
+        }
+      }
+    },
+    "chat.details.members": {
+      "comment": "Section caption for the people in the conversation, in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "chat.details.you": {
+      "comment": "Member row for the account using this phone, in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你"
+          }
+        }
+      }
+    },
+    "chat.details.groupMembers": {
+      "comment": "Text in the details of a group conversation; members and roles are managed in the group screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the group to manage members and roles."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在群组中管理成员和角色。"
+          }
+        }
+      }
+    },
+    "chat.details.mute": {
+      "comment": "Switch label that mutes notifications for this conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute notifications"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息免打扰"
+          }
+        }
+      }
+    },
+    "chat.details.muteUnknown": {
+      "comment": "Shown when the account service has no mute state for this conversation yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute state is not available for this conversation yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此会话暂时没有免打扰状态。"
+          }
+        }
+      }
+    },
+    "chat.details.safety": {
+      "comment": "Row that opens the safety number of the other person in a direct conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safety number"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全码"
+          }
+        }
+      }
+    },
+    "chat.details.safetyUnavailable": {
+      "comment": "Shown instead of the safety number row when the other person is not a contact or has not written yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The safety number is available once this person is a contact and has written to you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方成为联系人并给你发过消息后，才能查看安全码。"
+          }
+        }
+      }
+    },
+    "chat.details.close": {
+      "comment": "Button that closes the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }

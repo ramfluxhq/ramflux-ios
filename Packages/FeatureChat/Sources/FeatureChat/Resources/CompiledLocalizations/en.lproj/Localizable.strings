@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.attachment.typeSize</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.composer.cancel</key>
 	<string>Cancel</string>
 	<key>chat.composer.placeholder</key>
@@ -20,6 +22,26 @@
 	<string>Delete message</string>
 	<key>chat.delete.mine.title</key>
 	<string>Delete from your own devices?</string>
+	<key>chat.details.close</key>
+	<string>Done</string>
+	<key>chat.details.conversationID</key>
+	<string>Conversation ID</string>
+	<key>chat.details.groupMembers</key>
+	<string>Open the group to manage members and roles.</string>
+	<key>chat.details.members</key>
+	<string>Members</string>
+	<key>chat.details.mute</key>
+	<string>Mute notifications</string>
+	<key>chat.details.muteUnknown</key>
+	<string>Mute state is not available for this conversation yet.</string>
+	<key>chat.details.safety</key>
+	<string>Safety number</string>
+	<key>chat.details.safetyUnavailable</key>
+	<string>The safety number is available once this person is a contact and has written to you.</string>
+	<key>chat.details.title</key>
+	<string>Conversation details</string>
+	<key>chat.details.you</key>
+	<string>You</string>
 	<key>chat.edit.banner</key>
 	<string>Editing</string>
 	<key>chat.edited</key>
@@ -30,8 +52,12 @@
 	<string>No messages yet</string>
 	<key>chat.loading</key>
 	<string>Loading messages</string>
+	<key>chat.message.actions</key>
+	<string>Message actions</string>
 	<key>chat.message.callHistory</key>
 	<string>Call history</string>
+	<key>chat.message.copy</key>
+	<string>Copy text</string>
 	<key>chat.message.deleteMine</key>
 	<string>Delete from my devices</string>
 	<key>chat.message.deleted</key>
@@ -40,6 +66,20 @@
 	<string>Edit</string>
 	<key>chat.message.react</key>
 	<string>React</string>
+	<key>chat.offline.banner</key>
+	<string>Offline · messages will be sent when the connection returns</string>
+	<key>chat.outbox.details</key>
+	<string>Send details</string>
+	<key>chat.outbox.discard</key>
+	<string>Delete unsent message</string>
+	<key>chat.outbox.failed</key>
+	<string>Not sent</string>
+	<key>chat.outbox.pending</key>
+	<string>Pending</string>
+	<key>chat.outbox.retry</key>
+	<string>Retry</string>
+	<key>chat.outbox.sending</key>
+	<string>Sending</string>
 	<key>chat.reaction.add</key>
 	<string>Add reaction</string>
 	<key>chat.reaction.remove</key>
@@ -50,12 +90,12 @@
 	<string>Replying</string>
 	<key>chat.reply.quote</key>
 	<string>Reply</string>
-	<key>chat.send.failed</key>
-	<string>Delivery failed</string>
 	<key>chat.send.retry</key>
 	<string>Retry original send</string>
-	<key>chat.send.submitted</key>
-	<string>Submitted to account service</string>
+	<key>chat.timeline.jumpToLatest</key>
+	<string>Jump to latest</string>
+	<key>chat.timeline.loadingOlder</key>
+	<string>Loading earlier messages</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>Unread messages below</string>
 	<key>common.action.refresh</key>

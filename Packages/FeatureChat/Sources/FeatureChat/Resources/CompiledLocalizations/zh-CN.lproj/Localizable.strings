@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.attachment.typeSize</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.composer.cancel</key>
 	<string>取消</string>
 	<key>chat.composer.placeholder</key>
@@ -20,6 +22,26 @@
 	<string>删除消息</string>
 	<key>chat.delete.mine.title</key>
 	<string>要从你自己的设备中删除吗？</string>
+	<key>chat.details.close</key>
+	<string>完成</string>
+	<key>chat.details.conversationID</key>
+	<string>会话 ID</string>
+	<key>chat.details.groupMembers</key>
+	<string>请在群组中管理成员和角色。</string>
+	<key>chat.details.members</key>
+	<string>成员</string>
+	<key>chat.details.mute</key>
+	<string>消息免打扰</string>
+	<key>chat.details.muteUnknown</key>
+	<string>此会话暂时没有免打扰状态。</string>
+	<key>chat.details.safety</key>
+	<string>安全码</string>
+	<key>chat.details.safetyUnavailable</key>
+	<string>对方成为联系人并给你发过消息后，才能查看安全码。</string>
+	<key>chat.details.title</key>
+	<string>会话详情</string>
+	<key>chat.details.you</key>
+	<string>你</string>
 	<key>chat.edit.banner</key>
 	<string>正在编辑</string>
 	<key>chat.edited</key>
@@ -30,8 +52,12 @@
 	<string>暂无消息</string>
 	<key>chat.loading</key>
 	<string>正在加载消息</string>
+	<key>chat.message.actions</key>
+	<string>消息操作</string>
 	<key>chat.message.callHistory</key>
 	<string>通话记录</string>
+	<key>chat.message.copy</key>
+	<string>复制文字</string>
 	<key>chat.message.deleteMine</key>
 	<string>从我的设备中删除</string>
 	<key>chat.message.deleted</key>
@@ -40,6 +66,20 @@
 	<string>编辑</string>
 	<key>chat.message.react</key>
 	<string>表情回应</string>
+	<key>chat.offline.banner</key>
+	<string>当前离线 · 消息将在恢复连接后发送</string>
+	<key>chat.outbox.details</key>
+	<string>发送详情</string>
+	<key>chat.outbox.discard</key>
+	<string>删除未发送的消息</string>
+	<key>chat.outbox.failed</key>
+	<string>未发送</string>
+	<key>chat.outbox.pending</key>
+	<string>待发送</string>
+	<key>chat.outbox.retry</key>
+	<string>重试</string>
+	<key>chat.outbox.sending</key>
+	<string>发送中</string>
 	<key>chat.reaction.add</key>
 	<string>添加表情</string>
 	<key>chat.reaction.remove</key>
@@ -50,12 +90,12 @@
 	<string>正在回复</string>
 	<key>chat.reply.quote</key>
 	<string>回复</string>
-	<key>chat.send.failed</key>
-	<string>发送失败</string>
 	<key>chat.send.retry</key>
 	<string>重试原始发送操作</string>
-	<key>chat.send.submitted</key>
-	<string>已提交到账户服务</string>
+	<key>chat.timeline.jumpToLatest</key>
+	<string>回到最新</string>
+	<key>chat.timeline.loadingOlder</key>
+	<string>正在加载更早的消息</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>以下为未读消息</string>
 	<key>common.action.refresh</key>
