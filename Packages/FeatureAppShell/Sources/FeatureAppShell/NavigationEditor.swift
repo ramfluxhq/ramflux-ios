@@ -11,6 +11,7 @@ public struct NavigationEditorScreen: View {
     public var onBack: () -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     public init(order: Binding<String>, hidden: Binding<String>, onBack: @escaping () -> Void) {
         self._order = order
@@ -45,33 +46,42 @@ public struct NavigationEditorScreen: View {
                         .rfFont(.caption)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    // At accessibility text sizes the stacked buttons can be taller than a short
+                    // screen leaves, so they scroll with the content instead of covering it.
+                    if typeSize.isAccessibilitySize { footer.padding(.top, theme.gap) }
                 }
                 .padding(.horizontal, theme.gap)
                 .padding(.top, 20)
                 .padding(.bottom, theme.gap)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            NavigationEditorFooter(spacing: theme.gap) {
-                KitButton(
-                    copy("shell.nav.restore"),
-                    action: {
-                        order = ShellShortcuts.defaultOrder
-                        hidden = ""
-                    },
-                    kind: .secondary,
-                    tag: "shell-nav-restore"
-                )
-                KitButton(copy("shell.nav.done"), action: onBack, tag: "shell-nav-done")
+            if !typeSize.isAccessibilitySize {
+                footer
+                    .padding(.horizontal, theme.gap)
+                    .padding(.vertical, NavigationEditorFooter.verticalPadding)
+                    .frame(maxWidth: .infinity, minHeight: NavigationEditorFooter.minimumHeight)
+                    .background(theme.bg)
             }
-            .padding(.horizontal, theme.gap)
-            .padding(.vertical, NavigationEditorFooter.verticalPadding)
-            .frame(maxWidth: .infinity, minHeight: NavigationEditorFooter.minimumHeight)
-            .background(theme.bg)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg.ignoresSafeArea())
         .shellHidesSystemBar()
         .accessibilityIdentifier("shell-navigation-editor")
+    }
+
+    private var footer: some View {
+        NavigationEditorFooter(spacing: theme.gap) {
+            KitButton(
+                copy("shell.nav.restore"),
+                action: {
+                    order = ShellShortcuts.defaultOrder
+                    hidden = ""
+                },
+                kind: .secondary,
+                tag: "shell-nav-restore"
+            )
+            KitButton(copy("shell.nav.done"), action: onBack, tag: "shell-nav-done")
+        }
     }
 
     private func editorRow(_ id: String, index: Int, last: Int) -> some View {
@@ -106,7 +116,7 @@ public struct NavigationEditorScreen: View {
                 )
             }
         }
-        .frame(height: 64)
+        .frame(minHeight: 64)
         .accessibilityElement(children: .contain)
     }
 
@@ -129,11 +139,12 @@ public struct NavigationEditorScreen: View {
 /// line in half the width, otherwise stacked at full width in reading order. Long labels
 /// (German, Russian, the expanded pseudo-locale) and large text sizes therefore never wrap
 /// inside a half-width button. Placement uses the container's leading edge, so the pair
-/// mirrors under right to left.
+/// mirrors under right to left. At accessibility text sizes the screen puts the footer at the
+/// end of the scrolling content instead of pinning it.
 struct NavigationEditorFooter: Layout {
-    /// The design footer is 74 pt high with a 48 pt button: 13 pt above and below.
+    /// The design footer is 74 pt high around a 52 pt button: 11 pt above and below.
     static let minimumHeight: CGFloat = 74
-    static let verticalPadding: CGFloat = 13
+    static let verticalPadding: CGFloat = 11
     var spacing: CGFloat
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
