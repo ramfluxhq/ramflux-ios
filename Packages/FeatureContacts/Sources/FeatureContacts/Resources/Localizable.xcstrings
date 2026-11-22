@@ -700,6 +700,7 @@
       }
     },
     "request.sentStatus": {
+      "comment": "Status of a sent contact request. %@ is the request state, for example Pending.",
       "localizations": {
         "en": {
           "stringUnit": {

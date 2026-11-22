@@ -83,6 +83,7 @@
       }
     },
     "tasks.loading": {
+      "comment": "Progress label while tasks load.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -115,6 +116,7 @@
       }
     },
     "tasks.more": {
+      "comment": "Button that loads the next page of tasks.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -195,6 +197,7 @@
       }
     },
     "tasks.confirm": {
+      "comment": "Button that confirms the reviewed task action.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -211,6 +214,7 @@
       }
     },
     "tasks.dismiss": {
+      "comment": "Button that closes the task action review without acting.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -227,6 +231,7 @@
       }
     },
     "tasks.version": {
+      "comment": "Label in front of the task revision the app last saw.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -243,6 +248,7 @@
       }
     },
     "tasks.task": {
+      "comment": "Label in front of a task title.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -259,6 +265,7 @@
       }
     },
     "tasks.conversation": {
+      "comment": "Label in front of the conversation the task belongs to.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -275,6 +282,7 @@
       }
     },
     "tasks.requester": {
+      "comment": "Label in front of who requested the task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -291,6 +299,7 @@
       }
     },
     "tasks.assignee": {
+      "comment": "Label in front of the agent or person assigned to the task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -307,6 +316,7 @@
       }
     },
     "tasks.pending": {
+      "comment": "Warning that an earlier task action has no confirmed result yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -323,6 +333,7 @@
       }
     },
     "tasks.reconcile": {
+      "comment": "Button that checks the result of a task action whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -387,6 +398,7 @@
       }
     },
     "tasks.result": {
+      "comment": "Label in front of the result summary of a task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -435,6 +447,7 @@
       }
     },
     "tasks.stalled": {
+      "comment": "Task state: progress stalled by the assignee.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -451,6 +464,7 @@
       }
     },
     "tasks.proposed": {
+      "comment": "Task state: proposed, not started.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -467,6 +481,7 @@
       }
     },
     "tasks.running": {
+      "comment": "Task state: running.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -483,6 +498,7 @@
       }
     },
     "tasks.needs_me": {
+      "comment": "Task state: waiting for the user.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -499,6 +515,7 @@
       }
     },
     "tasks.done": {
+      "comment": "Task state: done.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -515,6 +532,7 @@
       }
     },
     "tasks.failed": {
+      "comment": "Task state: failed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -531,6 +549,7 @@
       }
     },
     "tasks.cancelled": {
+      "comment": "Task state: cancelled.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -547,6 +566,7 @@
       }
     },
     "tasks.unknown": {
+      "comment": "Task state: unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -563,6 +583,7 @@
       }
     },
     "tasks.approval": {
+      "comment": "Title of an approval request from an agent task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -579,6 +600,7 @@
       }
     },
     "tasks.grant": {
+      "comment": "Label in front of an existing permission grant.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -595,6 +617,7 @@
       }
     },
     "tasks.server": {
+      "comment": "Label in front of the service a tool belongs to.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -611,6 +634,7 @@
       }
     },
     "tasks.tool": {
+      "comment": "Label in front of the tool an approval concerns.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -627,6 +651,7 @@
       }
     },
     "tasks.capability": {
+      "comment": "Label in front of the capabilities a permission grants.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -643,6 +668,7 @@
       }
     },
     "tasks.scope": {
+      "comment": "Label in front of the tools a permission covers.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -659,6 +685,7 @@
       }
     },
     "tasks.hash": {
+      "comment": "Label in front of a technical hash of the task arguments.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -675,6 +702,7 @@
       }
     },
     "tasks.expiry": {
+      "comment": "Label in front of the expiry time of a permission.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -707,6 +735,7 @@
       }
     },
     "tasks.account": {
+      "comment": "Label in front of the account identifier.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -723,6 +752,7 @@
       }
     },
     "tasks.status": {
+      "comment": "Label in front of a task status.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -755,6 +785,7 @@
       }
     },
     "tasks.startProposed": {
+      "comment": "Button that starts a proposed task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -803,6 +834,7 @@
       }
     },
     "tasks.receipt": {
+      "comment": "Label in front of the receipt for a decision.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -819,6 +851,7 @@
       }
     },
     "tasks.delivery": {
+      "comment": "Label in front of the delivery state of a decision.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -835,6 +868,7 @@
       }
     },
     "tasks.decision": {
+      "comment": "Label in front of the decision taken on an approval.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -851,6 +885,7 @@
       }
     },
     "tasks.step": {
+      "comment": "Label in front of one step of a task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -867,6 +902,7 @@
       }
     },
     "tasks.revoked": {
+      "comment": "Permission state: revoked.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -883,6 +919,7 @@
       }
     },
     "tasks.notRevoked": {
+      "comment": "Permission state: not marked as revoked.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -899,6 +936,7 @@
       }
     },
     "tasks.permission.pending": {
+      "comment": "Permission request state: pending.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -915,6 +953,7 @@
       }
     },
     "tasks.permission.approved": {
+      "comment": "Permission request state: approved.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -931,6 +970,7 @@
       }
     },
     "tasks.permission.denied": {
+      "comment": "Permission request state: denied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -947,6 +987,7 @@
       }
     },
     "tasks.permission.submitted": {
+      "comment": "Permission request state: submitted.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -963,6 +1004,7 @@
       }
     },
     "tasks.permission.applied": {
+      "comment": "Permission request state: applied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -979,6 +1021,7 @@
       }
     },
     "tasks.permission.rejected": {
+      "comment": "Permission request state: rejected.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -995,6 +1038,7 @@
       }
     },
     "tasks.permission.failed": {
+      "comment": "Permission request state: failed.",
       "localizations": {
         "en": {
           "stringUnit": {

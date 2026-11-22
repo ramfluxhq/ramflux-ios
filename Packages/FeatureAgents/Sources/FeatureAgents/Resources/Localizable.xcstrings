@@ -67,6 +67,7 @@
       }
     },
     "agents.advanced": {
+      "comment": "Section title: advanced agent settings that can only be viewed on the phone. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -99,6 +100,7 @@
       }
     },
     "agents.goal": {
+      "comment": "Field label: the responsibility or goal of an agent (an automated assistant).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -131,6 +133,7 @@
       }
     },
     "agents.collaboration": {
+      "comment": "Section title: how agents work together.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -179,6 +182,7 @@
       }
     },
     "agents.pause": {
+      "comment": "Action that pauses an agent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -195,6 +199,7 @@
       }
     },
     "agents.hide": {
+      "comment": "Action that hides an agent from the list without removing it.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -211,6 +216,7 @@
       }
     },
     "agents.name": {
+      "comment": "Field label: the name of an agent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -243,6 +249,7 @@
       }
     },
     "agents.retry": {
+      "comment": "Button that checks agent availability again.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -291,6 +298,7 @@
       }
     },
     "agents.nameLimit": {
+      "comment": "Validation message. Keep \"Unicode scalars\" and \"UTF-8 bytes\" as technical limits.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -323,6 +331,7 @@
       }
     },
     "agents.goalLimit": {
+      "comment": "Validation message. Keep \"256 UTF-8 bytes\" as a technical limit.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -403,6 +412,7 @@
       }
     },
     "agents.multi": {
+      "comment": "Action that starts one conversation with several agents.",
       "localizations": {
         "en": {
           "stringUnit": {

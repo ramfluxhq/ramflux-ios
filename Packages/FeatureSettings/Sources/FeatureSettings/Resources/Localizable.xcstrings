@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "backup.jobSummary": {
+      "comment": "Summary of a backup job. The first %@ is the job kind (Backup or Restore), the second is its state. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -19,6 +20,7 @@
       }
     },
     "calls.title": {
+      "comment": "Settings row that opens the Calls section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -35,6 +37,7 @@
       }
     },
     "cards.title": {
+      "comment": "Settings row that opens interactive cards (rich message cards with buttons).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -867,6 +870,7 @@
       }
     },
     "privacy.requestApproval": {
+      "comment": "Current contact-request policy. %@ is the policy, for example Manual approval.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -899,6 +903,7 @@
       }
     },
     "settings.reconcile": {
+      "comment": "Button that checks the result of a settings action whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -931,6 +936,7 @@
       }
     },
     "settings.version": {
+      "comment": "App version line. %1$@ is the version number, %2$@ is the build number.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -947,6 +953,7 @@
       }
     },
     "tasks.title": {
+      "comment": "Settings row that opens Tasks.",
       "localizations": {
         "en": {
           "stringUnit": {

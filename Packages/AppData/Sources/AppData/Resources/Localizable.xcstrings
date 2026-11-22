@@ -734,6 +734,7 @@
       }
     },
     "status.backup": {
+      "comment": "Noun: the kind of a backup job.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -750,6 +751,7 @@
       }
     },
     "status.restore": {
+      "comment": "Noun: the kind of a restore job.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -766,6 +768,7 @@
       }
     },
     "status.preparing": {
+      "comment": "Job progress: preparing.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -782,6 +785,7 @@
       }
     },
     "status.writing": {
+      "comment": "Job progress: writing the archive.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -798,6 +802,7 @@
       }
     },
     "status.verifying": {
+      "comment": "Job progress: verifying the archive.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -814,6 +819,7 @@
       }
     },
     "status.verified": {
+      "comment": "Job progress: the archive was verified.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -830,6 +836,7 @@
       }
     },
     "status.installing": {
+      "comment": "Job progress: installing a restored archive.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -846,6 +853,7 @@
       }
     },
     "status.done": {
+      "comment": "State of a job that finished.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -862,6 +870,7 @@
       }
     },
     "status.failed": {
+      "comment": "State of a job that failed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -878,6 +887,7 @@
       }
     },
     "status.cancelled": {
+      "comment": "State of a job that was cancelled.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -894,6 +904,7 @@
       }
     },
     "status.pending": {
+      "comment": "State of a request or job that is waiting.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -910,6 +921,7 @@
       }
     },
     "status.accepted": {
+      "comment": "State of a contact request that was accepted.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -926,6 +938,7 @@
       }
     },
     "status.declined": {
+      "comment": "State of a contact request that was declined.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -942,6 +955,7 @@
       }
     },
     "status.blocked": {
+      "comment": "State of a request whose sender was blocked.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -958,6 +972,7 @@
       }
     },
     "status.manual": {
+      "comment": "Request policy: each contact request needs manual approval.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -974,6 +989,7 @@
       }
     },
     "status.auto_accept": {
+      "comment": "Request policy: contact requests are accepted automatically.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -990,6 +1006,7 @@
       }
     },
     "status.accept": {
+      "comment": "Verb: the decision to accept a contact request, shown in a confirmation summary.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1006,6 +1023,7 @@
       }
     },
     "status.decline": {
+      "comment": "Verb: the decision to decline a contact request, shown in a confirmation summary.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1022,6 +1040,7 @@
       }
     },
     "status.block": {
+      "comment": "Verb: the decision to block the sender of a request, shown in a confirmation summary.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1038,6 +1057,7 @@
       }
     },
     "status.sent": {
+      "comment": "Message delivery state: sent, not yet delivered.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1054,6 +1074,7 @@
       }
     },
     "status.delivered": {
+      "comment": "Message delivery state: delivered to the device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1070,6 +1091,7 @@
       }
     },
     "status.read": {
+      "comment": "Message delivery state: read on the device (past participle).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1086,6 +1108,7 @@
       }
     },
     "status.unavailable": {
+      "comment": "Shown when a state is unknown or cannot be read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1102,6 +1125,7 @@
       }
     },
     "receipt.deviceState": {
+      "comment": "Delivery receipt for one device. %1$@ is the device name or id, %2$@ is its delivery state (for example Delivered or Read).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1345,6 +1369,7 @@
       }
     },
     "onboarding.refusal.title": {
+      "comment": "Title of an error during account setup.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1489,6 +1514,7 @@
       }
     },
     "onboarding.sdkRefusal": {
+      "comment": "Shown when the account service refused a setup request. %@ is a technical refusal code; keep it as is.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1521,6 +1547,7 @@
       }
     },
     "request.refusal.title": {
+      "comment": "Title of an error when a request to the account service could not complete.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1953,6 +1980,7 @@
       }
     },
     "refusal.ephemeral_unavailable.title": {
+      "comment": "Title when disappearing messages are not available.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2049,6 +2077,7 @@
       }
     },
     "refusal.internal.title": {
+      "comment": "Title of an unexpected error.",
       "localizations": {
         "en": {
           "stringUnit": {

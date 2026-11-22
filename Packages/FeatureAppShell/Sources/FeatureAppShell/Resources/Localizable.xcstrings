@@ -240,6 +240,7 @@
       }
     },
     "common.nav.contacts": {
+      "comment": "Shortcut in the edit-navigation list that opens Contacts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -256,6 +257,7 @@
       }
     },
     "common.nav.settings": {
+      "comment": "Shortcut in the edit-navigation list that opens Settings.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -272,6 +274,7 @@
       }
     },
     "common.nav.tasks": {
+      "comment": "Shortcut in the edit-navigation list that opens Tasks.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -288,6 +291,7 @@
       }
     },
     "common.perm.title": {
+      "comment": "Title of the More hub entry for permissions and access.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -304,6 +308,7 @@
       }
     },
     "settings.more.hub.access.preview": {
+      "comment": "Subtitle of the permissions entry in the More hub, listing what it covers.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -320,6 +325,7 @@
       }
     },
     "settings.more.hub.contacts.preview": {
+      "comment": "Subtitle of the Contacts entry in the More hub.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -336,6 +342,7 @@
       }
     },
     "settings.more.hub.settings.preview": {
+      "comment": "Subtitle of the Settings entry in the More hub.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -352,6 +359,7 @@
       }
     },
     "settings.more.hub.tasks.preview": {
+      "comment": "Subtitle of the Tasks entry in the More hub.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -368,6 +376,7 @@
       }
     },
     "shell.accounts.preview": {
+      "comment": "Subtitle of the Accounts entry in the More hub.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -384,6 +393,7 @@
       }
     },
     "shell.notices.preview": {
+      "comment": "Subtitle of the open-source notices entry.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -416,6 +426,7 @@
       }
     },
     "shell.more.navigation": {
+      "comment": "More hub entry that opens the edit-navigation screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -432,6 +443,7 @@
       }
     },
     "shell.more.navigation.detail": {
+      "comment": "Subtitle of the edit-navigation entry.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -448,6 +460,7 @@
       }
     },
     "shell.nav.title": {
+      "comment": "Title of the screen for editing the bottom navigation on the phone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -464,6 +477,7 @@
       }
     },
     "shell.nav.note": {
+      "comment": "Note under the edit-navigation list. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -480,6 +494,7 @@
       }
     },
     "shell.nav.add": {
+      "comment": "Button that adds a shortcut to the bottom navigation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -496,6 +511,7 @@
       }
     },
     "shell.nav.core": {
+      "comment": "Note on the edit-navigation screen that the three core tabs cannot be removed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -512,6 +528,7 @@
       }
     },
     "shell.nav.restore": {
+      "comment": "Button that restores the default navigation order. It may wrap or stack in narrow layouts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -528,6 +545,7 @@
       }
     },
     "shell.nav.done": {
+      "comment": "Button that closes the edit-navigation screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -544,6 +562,7 @@
       }
     },
     "shell.nav.up": {
+      "comment": "Accessibility action that moves a shortcut up one place.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -560,6 +579,7 @@
       }
     },
     "shell.nav.down": {
+      "comment": "Accessibility action that moves a shortcut down one place.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -576,6 +596,7 @@
       }
     },
     "shell.nav.remove": {
+      "comment": "Button that removes a shortcut from the bottom navigation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -592,6 +613,7 @@
       }
     },
     "shell.nav.lock": {
+      "comment": "Accessibility label of the lock icon on a core tab that cannot be removed.",
       "localizations": {
         "en": {
           "stringUnit": {

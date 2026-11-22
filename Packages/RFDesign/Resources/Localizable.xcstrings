@@ -71,6 +71,7 @@
       }
     },
     "theme.light": {
+      "comment": "Appearance option: light.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -87,6 +88,7 @@
       }
     },
     "theme.dark": {
+      "comment": "Appearance option: dark.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -103,6 +105,7 @@
       }
     },
     "confirmation.confirm": {
+      "comment": "Button that confirms the displayed action.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -119,6 +122,7 @@
       }
     },
     "confirmation.cancel": {
+      "comment": "Button that cancels a confirmation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -135,6 +139,7 @@
       }
     },
     "confirmation.action": {
+      "comment": "Accessibility label of the confirm button. %@ is the summary of the action being confirmed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -151,6 +156,7 @@
       }
     },
     "kit.back": {
+      "comment": "Accessibility label of the back button in a header.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -167,6 +173,7 @@
       }
     },
     "kit.call": {
+      "comment": "Accessibility label of a header button that starts a call.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -183,6 +190,7 @@
       }
     },
     "kit.info": {
+      "comment": "Accessibility label of a header button that opens details.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -199,6 +207,7 @@
       }
     },
     "kit.clear": {
+      "comment": "Accessibility label of the button that clears a search field.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -215,6 +224,7 @@
       }
     },
     "kit.send": {
+      "comment": "Accessibility label of the send button in the composer.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -231,6 +241,7 @@
       }
     },
     "kit.copy": {
+      "comment": "Accessibility label of a button that copies a value.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -247,6 +258,7 @@
       }
     },
     "kit.close": {
+      "comment": "Accessibility label of a close button.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -263,6 +275,7 @@
       }
     },
     "kit.more": {
+      "comment": "Accessibility label of a header button that opens more actions.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -279,6 +292,7 @@
       }
     },
     "kit.search": {
+      "comment": "Accessibility label of a search button or field.",
       "localizations": {
         "en": {
           "stringUnit": {

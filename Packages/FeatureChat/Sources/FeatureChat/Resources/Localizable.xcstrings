@@ -292,6 +292,7 @@
       }
     },
     "chat.delete.everyone": {
+      "comment": "Menu action that deletes a message for everyone in the conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -324,6 +325,7 @@
       }
     },
     "chat.delete.everyone.summary": {
+      "comment": "Summary of the confirmation that deletes a message for everyone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -340,6 +342,7 @@
       }
     },
     "chat.reply.banner": {
+      "comment": "Banner above the composer while a reply is being written.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -356,6 +359,7 @@
       }
     },
     "chat.edit.banner": {
+      "comment": "Banner above the composer while an own message is being edited.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -372,6 +376,7 @@
       }
     },
     "chat.composer.cancel": {
+      "comment": "Button in the composer that cancels a reply or an edit.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -420,6 +425,7 @@
       }
     },
     "chat.reaction.title": {
+      "comment": "Title of the emoji reaction picker.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -436,6 +442,7 @@
       }
     },
     "chat.edited": {
+      "comment": "Small label on a message that was edited.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -452,6 +459,7 @@
       }
     },
     "chat.reply.quote": {
+      "comment": "Small label above the quoted message inside a reply.",
       "localizations": {
         "en": {
           "stringUnit": {

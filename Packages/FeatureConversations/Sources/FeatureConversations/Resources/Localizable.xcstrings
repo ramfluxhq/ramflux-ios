@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "conversations.account.current": {
+      "comment": "Label for the account currently in use, shown in the conversation list header.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -155,6 +156,7 @@
       }
     },
     "conversations.unread %llu": {
+      "comment": "Accessibility description of the unread badge on a conversation row.",
       "localizations": {
         "en": {
           "variations": {

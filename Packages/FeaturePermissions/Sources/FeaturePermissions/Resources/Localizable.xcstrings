@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "title": {
+      "comment": "Title of the permissions screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -51,6 +52,7 @@
       }
     },
     "cancel": {
+      "comment": "Button that closes the permission explanation without asking.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -67,6 +69,7 @@
       }
     },
     "continue": {
+      "comment": "Button that continues to the system permission prompt.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -83,6 +86,7 @@
       }
     },
     "loading": {
+      "comment": "Progress label while permission states are read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -132,6 +136,7 @@
       "comment": "If the public Settings link opens at the root, direct the user to the per-app page on iOS 18 and later."
     },
     "status.allowed": {
+      "comment": "Permission state: allowed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -148,6 +153,7 @@
       }
     },
     "status.limited": {
+      "comment": "Permission state: limited (for example provisional notifications).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -164,6 +170,7 @@
       }
     },
     "status.denied": {
+      "comment": "Permission state: denied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -180,6 +187,7 @@
       }
     },
     "status.notAsked": {
+      "comment": "Permission state: not asked yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -196,6 +204,7 @@
       }
     },
     "status.notRequired": {
+      "comment": "Permission state: no permission is needed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -212,6 +221,7 @@
       }
     },
     "status.unavailable": {
+      "comment": "Permission state: not available on this device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -228,6 +238,7 @@
       }
     },
     "notifications": {
+      "comment": "Permission row title: notifications.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -324,6 +335,7 @@
       }
     },
     "notifications.needed": {
+      "comment": "Title when notifications are turned off.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -356,6 +368,7 @@
       }
     },
     "microphone": {
+      "comment": "Permission row title: microphone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -452,6 +465,7 @@
       }
     },
     "microphone.needed": {
+      "comment": "Title when microphone access was denied and is needed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -468,6 +482,7 @@
       }
     },
     "camera": {
+      "comment": "Permission row title: camera.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -564,6 +579,7 @@
       }
     },
     "camera.needed": {
+      "comment": "Title when camera access was denied and is needed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -580,6 +596,7 @@
       }
     },
     "photoAdd": {
+      "comment": "Permission row title: saving images to the photo library.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -676,6 +693,7 @@
       }
     },
     "photoAdd.needed": {
+      "comment": "Title when saving to Photos is not allowed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -692,6 +710,7 @@
       }
     },
     "incomingCalls": {
+      "comment": "Permission row title: the system screen for incoming calls.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -724,6 +743,7 @@
       }
     },
     "photoPicker": {
+      "comment": "Permission row title: picking a photo with the system picker.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -756,6 +776,7 @@
       }
     },
     "files": {
+      "comment": "Permission row title: files and storage.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -788,6 +809,7 @@
       }
     },
     "background": {
+      "comment": "Permission row: delivery of notifications in the background.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -820,6 +842,7 @@
       }
     },
     "status.restricted": {
+      "comment": "Permission state: restricted by the system, for example by parental controls.",
       "localizations": {
         "en": {
           "stringUnit": {

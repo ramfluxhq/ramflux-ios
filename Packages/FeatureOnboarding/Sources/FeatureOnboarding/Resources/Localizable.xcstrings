@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "onboarding.n01.header": {
+      "comment": "Header title of the create-account screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -19,6 +20,7 @@
       }
     },
     "onboarding.n01.create": {
+      "comment": "Button that creates the account.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -67,6 +69,7 @@
       }
     },
     "onboarding.n01.node": {
+      "comment": "Label of the node (server) the new account will use.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -83,6 +86,7 @@
       }
     },
     "onboarding.n01.node.official": {
+      "comment": "Name of the official node run by Ramflux.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -99,6 +103,7 @@
       }
     },
     "onboarding.n01.node.selected": {
+      "comment": "Label shown on the node (server) that is currently selected.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1168,6 +1173,7 @@
       }
     },
     "recovery.word.position": {
+      "comment": "Label of a recovery word field. %@ is the position number of the word in the phrase.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1200,6 +1206,7 @@
       }
     },
     "node.operatorKey": {
+      "comment": "Field label for the node public key given by the node operator.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1216,6 +1223,7 @@
       }
     },
     "node.confirmOperator": {
+      "comment": "Button that confirms the operator key and saves the node.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1232,6 +1240,7 @@
       }
     },
     "node.reviewFingerprint": {
+      "comment": "Title of the step that shows the node fingerprint for checking.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1248,6 +1257,7 @@
       }
     },
     "node.confirmFingerprint": {
+      "comment": "Button that confirms the node fingerprint and pins (remembers) that node. A node is the server the account connects to.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1280,6 +1290,7 @@
       }
     },
     "node.editOperatorKey": {
+      "comment": "Button that goes back to edit the operator key.",
       "localizations": {
         "en": {
           "stringUnit": {

@@ -179,6 +179,7 @@
       }
     },
     "groups.invites": {
+      "comment": "Section title: group invitations received.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -227,6 +228,7 @@
       }
     },
     "groups.requests": {
+      "comment": "Section title: requests to change the group.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -243,6 +245,7 @@
       }
     },
     "groups.rename": {
+      "comment": "Title of the confirmation for renaming the group.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -259,6 +262,7 @@
       }
     },
     "groups.history": {
+      "comment": "Group section: threads and posts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -307,6 +311,7 @@
       }
     },
     "groups.historyPolicy": {
+      "comment": "Setting: how much earlier history new members can see.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -355,6 +360,7 @@
       }
     },
     "groups.epoch": {
+      "comment": "Label in front of the group version number.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -499,6 +505,7 @@
       }
     },
     "groups.acknowledged": {
+      "comment": "Status after the account service acknowledged a group change.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -531,6 +538,7 @@
       }
     },
     "groups.reconcile": {
+      "comment": "Button that checks the result of a group operation whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -547,6 +555,7 @@
       }
     },
     "groups.add": {
+      "comment": "Title of the section that adds one of the user's contacts to the group.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -579,6 +588,7 @@
       }
     },
     "groups.promote": {
+      "comment": "Title of the confirmation for making a member an administrator.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -595,6 +605,7 @@
       }
     },
     "groups.demote": {
+      "comment": "Title of the confirmation for changing a member to a lower role.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -611,6 +622,7 @@
       }
     },
     "groups.remove": {
+      "comment": "Title of the confirmation for removing a member device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -627,6 +639,7 @@
       }
     },
     "groups.inactive": {
+      "comment": "Label of a member device excluded from the group.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -643,6 +656,7 @@
       }
     },
     "groups.owner": {
+      "comment": "Group role: owner.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -659,6 +673,7 @@
       }
     },
     "groups.admin": {
+      "comment": "Group role: administrator.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -675,6 +690,7 @@
       }
     },
     "groups.member": {
+      "comment": "Group role: member.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -691,6 +707,7 @@
       }
     },
     "groups.bot": {
+      "comment": "Group member type: an automated bot.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -707,6 +724,7 @@
       }
     },
     "groups.unknownRole": {
+      "comment": "Shown when a member role is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -723,6 +741,7 @@
       }
     },
     "groups.accept": {
+      "comment": "Title of the confirmation for accepting a group invitation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -739,6 +758,7 @@
       }
     },
     "groups.decline": {
+      "comment": "Title of the confirmation for declining a group invitation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -755,6 +775,7 @@
       }
     },
     "groups.expires": {
+      "comment": "Label in front of an invitation expiry time.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -771,6 +792,7 @@
       }
     },
     "groups.creator": {
+      "comment": "Label in front of the identity of the group creator.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -787,6 +809,7 @@
       }
     },
     "groups.inviter": {
+      "comment": "Label in front of the identity of the person who sent the invitation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -819,6 +842,7 @@
       }
     },
     "groups.requestPending": {
+      "comment": "State of a change request: waiting for the group owner.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -835,6 +859,7 @@
       }
     },
     "groups.requestApplied": {
+      "comment": "State of a change request: applied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -851,6 +876,7 @@
       }
     },
     "groups.requestExpired": {
+      "comment": "State of a change request: expired.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -867,6 +893,7 @@
       }
     },
     "groups.requestRefused": {
+      "comment": "State of a change request: not applied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -883,6 +910,7 @@
       }
     },
     "groups.requestUnknown": {
+      "comment": "State of a change request: unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -899,6 +927,7 @@
       }
     },
     "groups.review": {
+      "comment": "Title of the confirmation screen that shows the exact group operation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -931,6 +960,7 @@
       }
     },
     "groups.account": {
+      "comment": "Label in front of the account identifier.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -947,6 +977,7 @@
       }
     },
     "groups.id": {
+      "comment": "Label in front of a technical group identifier.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -963,6 +994,7 @@
       }
     },
     "groups.principal": {
+      "comment": "Label in front of the account a member device belongs to.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -979,6 +1011,7 @@
       }
     },
     "groups.root": {
+      "comment": "Label in front of an identity commitment, a technical identity value.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -995,6 +1028,7 @@
       }
     },
     "groups.device": {
+      "comment": "Label in front of a member device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1011,6 +1045,7 @@
       }
     },
     "groups.newRole": {
+      "comment": "Label in front of the role requested for a member.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1043,6 +1078,7 @@
       }
     },
     "groups.cancel": {
+      "comment": "Button that cancels a pending group operation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1155,6 +1191,7 @@
       }
     },
     "groups.messages": {
+      "comment": "Button that opens the group conversation.",
       "localizations": {
         "en": {
           "stringUnit": {

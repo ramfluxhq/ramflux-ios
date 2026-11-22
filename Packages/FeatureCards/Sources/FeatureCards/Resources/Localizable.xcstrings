@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "cards.title": {
+      "comment": "Title of the interactive cards feature (rich message cards with buttons).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -35,6 +36,7 @@
       }
     },
     "cards.retry": {
+      "comment": "Button that checks again whether interactive cards are available.",
       "localizations": {
         "en": {
           "stringUnit": {
