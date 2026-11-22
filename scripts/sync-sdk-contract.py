@@ -114,6 +114,9 @@ def generate(sdk, commit, update_pin=False, check=False):
     # operations as keyed is conservative and never fabricates a mutation identity.
     reads.update(row["name"] for row in rows if row["name"].endswith(".hidden_challenge"))
     reads.update(row["name"] for row in rows if row["name"].startswith(("account.create.", "account.custody.", "account.recover.")))
+    # The agent configuration plane refuses any operation id (bus/agent_methods.rs `apply`: a request
+    # with `operation_id` is CustodySetupInvalid), so agent methods are sent without one.
+    reads.update(row["name"] for row in rows if row["name"].startswith("agent."))
     lines = [LICENSE, "// Generated from the pinned SDK method policy. Do not edit.\n",
              "public enum SDKOperation: String, CaseIterable, Sendable {\n"]
     for row in callable_rows:
