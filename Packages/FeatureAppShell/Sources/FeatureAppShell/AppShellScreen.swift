@@ -21,7 +21,7 @@ public struct AppShellScreen: View {
         RFPage {
             if state.privacyShield {
                 Text(FeatureAppShellStrings.text("common.appName", locale: locale))
-                    .font(theme.pageFont)
+                    .rfFont(.page)
                     .accessibilityLabel(FeatureAppShellStrings.text("shell.locked.accessibility", locale: locale))
             } else {
                 VStack(spacing: 0) {
@@ -41,7 +41,7 @@ public struct AppShellScreen: View {
 
     private var placeholder: some View {
         VStack(spacing: 0) {
-            KitPageHeader(state.tab.title(locale: locale), large: true, latin: state.tab == .agents, tag: "shell-header")
+            KitPageHeader(state.tab.title(locale: locale), large: true, tag: "shell-header")
             ScrollView {
                 VStack(alignment: .leading, spacing: KitMetrics.rowGap) {
                     sessionStatus
@@ -68,7 +68,7 @@ public struct AppShellScreen: View {
         switch tab {
         case .messages: KitTab(icon: "messages-square", label: tab.title(locale: locale), hitTag: "tab-messages")
         case .groups: KitTab(icon: "users-round", label: tab.title(locale: locale), hitTag: "tab-groups")
-        case .agents: KitTab(icon: "bot", label: tab.title(locale: locale), latin: true, hitTag: "tab-agents")
+        case .agents: KitTab(icon: "bot", label: tab.title(locale: locale), hitTag: "tab-agents")
         case .more: KitTab(icon: "ellipsis", label: tab.title(locale: locale), hitTag: "tab-more")
         }
     }
@@ -103,8 +103,8 @@ public struct AppShellScreen: View {
     private func emptyBlock(title: String, body: String, icon: String) -> some View {
         VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
             KitStatusHero(icon: icon, tag: "shell-empty")
-            Text(title).font(theme.bodyFont.weight(.semibold)).foregroundStyle(theme.text)
-            Text(body).font(theme.captionFont).foregroundStyle(theme.secondary)
+            Text(title).rfFont(.body, weight: .semibold).foregroundStyle(theme.text)
+            Text(body).rfFont(.caption).foregroundStyle(theme.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

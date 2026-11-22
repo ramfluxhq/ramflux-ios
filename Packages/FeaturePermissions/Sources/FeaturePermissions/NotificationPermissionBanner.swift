@@ -12,7 +12,7 @@ public struct NotificationPermissionBanner: View {
     public var body: some View {
         if state.snapshot[.notifications] == .denied {
             VStack(alignment: .leading, spacing: theme.gap / 2) {
-                Text(FeaturePermissionsStrings.text("notifications.off", locale: locale)).font(theme.captionFont)
+                Text(FeaturePermissionsStrings.text("notifications.off", locale: locale)).rfFont(.caption)
                 Button(FeaturePermissionsStrings.text("openSettings", locale: locale)) { onAction(.openSettings) }
             }.padding(theme.gap).frame(maxWidth: .infinity, alignment: .leading).background(theme.danger_bg)
         }

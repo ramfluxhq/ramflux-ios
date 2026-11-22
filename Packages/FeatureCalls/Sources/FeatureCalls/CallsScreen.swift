@@ -24,12 +24,12 @@ public struct CallsScreen: View {
             if state.busy { ProgressView(copy("applying")) }
             if let failure = state.audioFailure { RFUnavailableView(title: copy("dial"), message: failure.message(locale: locale)) }
             if let pending = state.pending {
-                Text(copy("pending")).font(theme.bodyFont.weight(.semibold))
+                Text(copy("pending")).rfFont(.body, weight: .semibold)
                 Text(pending.expected.peerID).textSelection(.enabled)
                 LabeledContent(copy("id"), value: pending.expected.id)
                 Button(copy("reconcile")) { onAction(.reconcile(pending.operationID)) }.disabled(state.busy)
             }
-            if !state.fresh && !state.calls.isEmpty { Text(copy("stale")).font(theme.captionFont) }
+            if !state.fresh && !state.calls.isEmpty { Text(copy("stale")).rfFont(.caption) }
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             Button(copy("permissions")) { onAction(.mode(.permissions)) }
@@ -44,7 +44,7 @@ public struct CallsScreen: View {
                 RFUnavailableView(title: copy("empty"), message: copy("empty.message"))
             }
             ForEach(state.visibleCalls) { row in
-                KitRow(row.peerID, action: { onAction(.mode(.detail(row.id))) }, icon: "phone", value: FeatureCallsStrings.sentence("calls.row.summary", [.localized(copy(row.direction.rawValue)), .localized(copy(row.phase.rawValue))], locale: locale), tag: row.id)
+                KitRow(RFIdentifier.display(row.peerID), action: { onAction(.mode(.detail(row.id))) }, icon: "phone", value: FeatureCallsStrings.sentence("calls.row.summary", [.localized(copy(row.direction.rawValue)), .localized(copy(row.phase.rawValue))], locale: locale), tag: row.id)
             }
         case .dial(let conversation):
             LabeledContent(copy("conversation"), value: conversation)
@@ -52,7 +52,7 @@ public struct CallsScreen: View {
         case .detail:
             if let row = state.selected { detail(row) }
         case .permissions:
-            Text(copy("permissions")).font(theme.pageFont)
+            Text(copy("permissions")).rfFont(.page)
             Text(copy("permission.message"))
             LabeledContent(copy("microphone"), value: copy(state.microphone == .unavailable ? "permissionUnavailable" : state.microphone.rawValue))
             Button(copy("settings")) { onAction(.openSettings) }
@@ -60,9 +60,9 @@ public struct CallsScreen: View {
     }
     private func detail(_ row: CallRecord) -> some View {
         VStack(alignment: .leading, spacing: theme.gap) {
-            Text(row.peerID).font(theme.pageFont).textSelection(.enabled)
-            Text(copy(row.phase.rawValue)).font(theme.bodyFont.weight(.semibold))
-            Text(copy("noAudio")).font(theme.captionFont)
+            Text(row.peerID).rfFont(.page).textSelection(.enabled)
+            Text(copy(row.phase.rawValue)).rfFont(.body, weight: .semibold)
+            Text(copy("noAudio")).rfFont(.caption)
             LabeledContent(copy("id"), value: row.id)
             time("created", row.createdAt)
             if let answered = row.answeredAt { time("answered", answered) }

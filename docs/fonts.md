@@ -24,7 +24,9 @@ Noto Sans SC variable regular instance. Font assets never come from a device cac
 
 Kit text never forces a bundled face on text that face cannot draw. `KitTypeface`
 (Packages/RFDesign/Sources/Kit/KitType.swift) chooses the face from the text and
-the active locale; callers name only a role (UI, Latin, mono).
+the active locale; callers name only a role (UI, Latin, mono). Feature screens never pass
+the Latin role or `latin: true` for translatable text; the Latin role is used only inside
+the Kit for times and for Kit masters that reproduce the design.
 
 | Text | Face |
 |---|---|
@@ -35,7 +37,7 @@ the active locale; callers name only a role (UI, Latin, mono).
 | Text with a letter no bundled face draws: Arabic, Hebrew, Cyrillic, Greek, Hangul, Devanagari, Thai, ideographs outside the subset | System font |
 | CJK text (ideographs, kana, hangul) under Traditional Chinese, Japanese or Korean locales | System font, which uses the locale's Han glyph forms |
 | Editable text (fields, composer) | Bundled face for Latin and Simplified Chinese locales whose letters it covers, system font otherwise |
-| Screen text outside the Kit | `rfFont(.body / .caption / .page)`, same rule by locale; `RFTheme.bodyFont`, `captionFont` and `pageFont` are the bundled face only and remain for Latin and Simplified Chinese callers until they migrate |
+| Screen text outside the Kit | `rfFont(.body / .caption / .page / .size(token) / .fixed(token), weight:)`, same rule by locale; it is the only font API for screens (the former bundled-only `RFTheme.bodyFont`, `captionFont` and `pageFont` are removed) |
 
 Coverage measured on the bundled files: the Noto Sans SC subset covers the exemplar
 letters of en, es, de, pt-BR, it and id, not fr, tr or vi, and no Cyrillic, Greek or

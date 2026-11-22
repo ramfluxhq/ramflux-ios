@@ -136,6 +136,14 @@ public struct RFUntrustedText: Equatable, Sendable {
     }
 }
 
+public extension RFUntrustedText {
+    /// The neutralised text alone, for a label that shows nothing but this value. Text placed
+    /// inside a sentence goes through `RFSentence` (or `RFBidi.isolate`) instead.
+    static func clean(_ raw: String, kind: Kind = .identity) -> String {
+        RFUntrustedText(raw, kind: kind).text
+    }
+}
+
 /// A file name split so the extension cannot be hidden or disguised.
 public struct RFFileName: Equatable, Sendable {
     /// The name before the extension, controls removed.

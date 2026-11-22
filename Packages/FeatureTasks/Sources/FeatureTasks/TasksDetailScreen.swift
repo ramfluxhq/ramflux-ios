@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 /// E02/E04 keep task facts and progress bounded between native navigation and action chrome.
 struct TasksDetailScreen: View {
     @Environment(\.locale) private var locale
@@ -17,7 +18,7 @@ struct TasksDetailScreen: View {
         RFPage { VStack(spacing: 0) {
             KitPageHeader(status(row.status), onBack: { onAction(.mode(.conversations)) }, actionLabel: copy("refresh"), onAction: { onAction(.refresh) }, tag: "task-detail-header")
             ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-                Text(row.title).font(.custom(theme.font, size: theme.size_title).weight(.semibold))
+                Text(untrusted: row.title).rfFont(.size(theme.size_title), weight: .semibold)
                 VStack(alignment: .leading, spacing: theme.gap) {
                     LabeledContent(copy("status"), value: status(row.status))
                     LabeledContent(copy("assignee"), value: row.assignee)
@@ -29,20 +30,20 @@ struct TasksDetailScreen: View {
                     VStack(alignment: .leading, spacing: theme.gap) {
                         ForEach(row.steps) { step in
                             VStack(alignment: .leading, spacing: theme.gap / 2) {
-                                LabeledContent(step.title, value: status(step.status))
+                                LabeledContent(RFUntrustedText.clean(step.title), value: status(step.status))
                                 if step.interventionKind != nil { Button(copy("intervention")) { onAction(.unavailable) } }
                             }
                         }
                     }.padding(theme.gap).frame(maxWidth: .infinity, alignment: .leading).background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_card))
                 }
-                Text(copy("operationBoundary")).font(theme.captionFont).foregroundStyle(theme.secondary)
+                Text(copy("operationBoundary")).rfFont(.caption).foregroundStyle(theme.secondary)
                 if state.loading || state.busy { ProgressView(copy("loading")) }
                 if !state.fresh { Text(copy("stale")) }
                 if row.stalled { Text(copy("stalled")) }
                 if row.pendingResolution { Text(copy("waiting")) }
                 if let result = row.result { LabeledContent(copy("result"), value: result) }
                 if let outcome = state.outcome { Text(copy(outcome.pending ? "waiting" : "submitted")) }
-                if let pending = state.pending { Text(copy("pending")); Text(pending.arguments.task.title); Text(pending.arguments.task.id) }
+                if let pending = state.pending { Text(copy("pending")); Text(untrusted: pending.arguments.task.title); Text(pending.arguments.task.id) }
                 if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 Button(copy("conversations")) { onAction(.mode(.conversations)) }
             }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) }

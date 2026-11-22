@@ -22,8 +22,8 @@ public struct ContactsScreen: View {
             .privacySensitive().rfHidesNavigationBar()
             .sheet(item: Binding(get: { state.pending }, set: { if $0 == nil { onAction(.cancelDecision) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {
-                    Text(pending.request.name).font(theme.bodyFont.weight(.semibold))
-                    Text(pending.request.principal).textSelection(.enabled)
+                    Text(untrusted: pending.request.name).rfFont(.body, weight: .semibold)
+                    KitIdentifierText(pending.request.principal).textSelection(.enabled)
                     Text(pending.action == .accept ? FeatureContactsStrings.text("contacts.decision.confirmAccept", locale: locale) : FeatureContactsStrings.text("contacts.decision.confirmOther", locale: locale))
                     RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(AppDataStrings.status(pending.action.rawValue, locale: locale)), .untrusted(pending.request.name), .identifier(pending.request.principal)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
                     if state.busy { ProgressView(FeatureContactsStrings.text("contacts.decision.applying", locale: locale)) }
@@ -51,7 +51,7 @@ public struct ContactsScreen: View {
             Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))
             Button(FeatureContactsStrings.text("contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty)
         case .strangers, .sent:
-            Text(FeatureContactsStrings.text("contacts.strangers.replyNote", locale: locale)).font(theme.captionFont)
+            Text(FeatureContactsStrings.text("contacts.strangers.replyNote", locale: locale)).rfFont(.caption)
             if state.mode == .strangers { Button(FeatureContactsStrings.text("contacts.strangers.batch", locale: locale)) { onAction(.unavailable(.batch)) } }
             let requests = state.visibleRequests
             if requests.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.requests.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.requests.empty.message", locale: locale)) }
@@ -61,15 +61,15 @@ public struct ContactsScreen: View {
             else { Text(FeatureContactsStrings.text("contacts.request.missing", locale: locale)) }
         case .profile(let id):
             if let contact = state.contacts.first(where: { $0.id == id }) {
-                Text(contact.displayName).font(theme.pageFont); Text(contact.id).textSelection(.enabled)
+                Text(untrusted: contact.displayName).rfFont(.page); KitIdentifierText(contact.id).textSelection(.enabled)
                 Label(contact.verified == true ? FeatureContactsStrings.text("contacts.profile.verified", locale: locale) : FeatureContactsStrings.text("contacts.profile.notVerified", locale: locale), systemImage: contact.verified == true ? "checkmark.shield" : "shield")
                 Button(FeatureContactsStrings.text("contacts.profile.viewSafety", locale: locale)) { onAction(.mode(.safety(id))) }
             } else { Text(FeatureContactsStrings.text("contacts.profile.missing", locale: locale)) }
         case .safety:
             if let safety = state.safety, state.safetyPrincipal != nil, !state.safetyStale {
                 if safety.requiresReview { Label(FeatureContactsStrings.text("contacts.safety.identityChanged", locale: locale), systemImage: "exclamationmark.shield").foregroundStyle(theme.danger) }
-                Text(safety.number).monospaced().textSelection(.enabled)
-                Text(safety.fingerprint).font(theme.captionFont).textSelection(.enabled)
+                KitIdentifierText(safety.number, tag: "contacts-safety-number").textSelection(.enabled)
+                KitIdentifierText(safety.fingerprint, color: theme.secondary, tag: "contacts-safety-fingerprint").textSelection(.enabled)
                 Label(safety.verified ? FeatureContactsStrings.text("contacts.safety.verified", locale: locale) : FeatureContactsStrings.text("contacts.safety.notVerified", locale: locale), systemImage: safety.verified ? "checkmark.shield" : "shield")
                 Text(FeatureContactsStrings.text("contacts.safety.compareInstructions", locale: locale))
                 Button(FeatureContactsStrings.text("contacts.safety.markCompared", locale: locale)) { onAction(.unavailable(.atomicSafetyVerification)) }
@@ -77,14 +77,14 @@ public struct ContactsScreen: View {
         }
     }
     private func requestRow(_ request: ContactRequestRecord) -> some View {
-        KitRow(request.name, action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : request.principal, tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
+        KitRow(RFUntrustedText.clean(request.name), action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : RFIdentifier.display(request.principal), tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
     }
     private func requestDetails(_ request: ContactRequestRecord) -> some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             Label(FeatureContactsStrings.text("contacts.request.firstContact", locale: locale), systemImage: "exclamationmark.shield")
-            Text(request.name).font(theme.bodyFont.weight(.semibold)); Text(request.principal).textSelection(.enabled)
-            if let number = request.safetyNumber { LabeledContent(FeatureContactsStrings.text("contacts.safety.title", locale: locale), value: number) }
-            if let preview = request.preview { Text(preview) }
+            Text(untrusted: request.name).rfFont(.body, weight: .semibold); KitIdentifierText(request.principal).textSelection(.enabled)
+            if let number = request.safetyNumber { LabeledContent { KitIdentifierText(number) } label: { Text(FeatureContactsStrings.text("contacts.safety.title", locale: locale)) } }
+            if let preview = request.preview { Text(untrusted: preview, kind: .messageBody) }
             Text(AppDataStrings.status(request.state, locale: locale))
             if request.direction == "inbound" && request.state == "pending" {
                 HStack {

@@ -106,6 +106,15 @@ class LocalizationGuardTests(unittest.TestCase):
         result = self.check(strings=strings, extra={'project.yml': wrong_region})
         self.assertIn("CFBundleDevelopmentRegion must be the fallback language 'en'", result.stderr)
 
+    def test_identifiers_must_use_the_identifier_view(self):
+        swift = 'Text(safety.number).monospaced()\nText(state.nodeFingerprint)\nText(device.id)\nKitIdentifierText(safety.fingerprint)\nText(contact.displayName)\n'
+        result = self.check(swift=swift)
+        self.assertNotEqual(result.returncode, 0)
+        for identifier in ('safety.number', 'state.nodeFingerprint', 'device.id'):
+            self.assertIn(f"identifier '{identifier}' shown with Text", result.stderr)
+        self.assertNotIn('displayName', result.stderr)
+        self.assertNotIn('safety.fingerprint', result.stderr)
+
     def test_every_key_needs_the_english_fallback(self):
         result = self.check(strings={'a.title': {'comment': 'c', 'localizations': {'zh-CN': unit('标题')}}})
         self.assertNotEqual(result.returncode, 0)

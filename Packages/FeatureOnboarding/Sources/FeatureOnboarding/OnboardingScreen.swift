@@ -20,8 +20,8 @@ public struct OnboardingScreen: View {
     }
     private var catalog: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            Text(FeatureOnboardingStrings.text("common.appName", locale: locale)).font(theme.captionFont)
-            Text(state.stage.title(locale: locale)).font(theme.pageFont).accessibilityAddTraits(.isHeader)
+            Text(FeatureOnboardingStrings.text("common.appName", locale: locale)).rfFont(.caption)
+            Text(state.stage.title(locale: locale)).rfFont(.page).accessibilityAddTraits(.isHeader)
             content
             if state.busy { ProgressView(FeatureOnboardingStrings.text("onboarding.busy", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
@@ -42,7 +42,7 @@ public struct OnboardingScreen: View {
                         tag: "n01-name"
                     )
                     Text(copy("onboarding.n01.node"))
-                        .font(.custom(theme.font, size: theme.size_secondary).weight(.semibold))
+                        .rfFont(.size(theme.size_secondary), weight: .semibold)
                         .foregroundStyle(theme.secondary)
                     nodeCard
                     KitTipBar(copy("onboarding.n01.phrase"), icon: "pencil-line", tag: "n01-phrase")
@@ -58,7 +58,7 @@ public struct OnboardingScreen: View {
                 .padding(.horizontal, theme.gap)
                 .padding(.bottom, 8)
         }
-        .font(theme.bodyFont)
+        .rfFont(.body)
         .foregroundStyle(theme.text)
         .tint(theme.primary)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -71,10 +71,10 @@ public struct OnboardingScreen: View {
                 KitIconTile(icon: "server")
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(node.isDefault ? copy("onboarding.n01.node.official") : node.origin)
-                        .font(.custom(theme.font, size: theme.size_mobile_body))
+                        .rfFont(.size(theme.size_mobile_body))
                         .foregroundStyle(theme.text)
                     Text(copy("onboarding.n01.node.selected"))
-                        .font(.custom(theme.font, size: theme.size_secondary))
+                        .rfFont(.size(theme.size_secondary))
                         .foregroundStyle(theme.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,10 +112,10 @@ public struct OnboardingScreen: View {
             }
         case .identity:
             if let candidate = state.candidate {
-                Text(candidate.origin).textSelection(.enabled)
+                Text(untrusted: candidate.origin).textSelection(.enabled)
                 if let fingerprint = state.visibleNodeFingerprint {
                     Text(FeatureOnboardingStrings.text("node.fingerprintInstructions", locale: locale))
-                    Text(fingerprint).font(theme.captionFont).textSelection(.enabled)
+                    KitIdentifierText(fingerprint, tag: "onboarding-node-fingerprint").textSelection(.enabled)
                     RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.confirmFingerprint.summary", [.untrusted(candidate.origin), .identifier(fingerprint)], locale: locale), enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
                     action(FeatureOnboardingStrings.text("node.editOperatorKey", locale: locale), .expectedNodeKeyChanged(""))
                 } else {
@@ -155,7 +155,7 @@ public struct OnboardingScreen: View {
             #endif
         case .recover:
             if let metadata = state.metadata, let anchor = metadata.anchor {
-                Text(anchor).textSelection(.enabled)
+                KitIdentifierText(anchor, tag: "onboarding-recover-fingerprint").textSelection(.enabled)
                 Text(FeatureOnboardingStrings.text("onboarding.recover.warning", locale: locale))
                 Toggle(FeatureOnboardingStrings.text("onboarding.recover.fingerprintChecked", locale: locale), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
                 #if os(iOS)
@@ -167,7 +167,7 @@ public struct OnboardingScreen: View {
                 action(FeatureOnboardingStrings.text("onboarding.recover.readFingerprint", locale: locale), .beginRecovery)
             }
         case .complete:
-            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(theme.captionFont); Text(account.networking == .live ? FeatureOnboardingStrings.text("onboarding.complete.connected", locale: locale) : FeatureOnboardingStrings.text("onboarding.complete.notConnected", locale: locale)) }
+            if let account = state.completedAccount { Text(untrusted: account.displayName); KitIdentifierText(account.id, color: theme.secondary); Text(account.networking == .live ? FeatureOnboardingStrings.text("onboarding.complete.connected", locale: locale) : FeatureOnboardingStrings.text("onboarding.complete.notConnected", locale: locale)) }
             action(FeatureOnboardingStrings.text("onboarding.complete.continue", locale: locale), .done)
         case .link:
             Text(FeatureOnboardingStrings.text("onboarding.link.unavailable", locale: locale))
@@ -180,7 +180,7 @@ public struct OnboardingScreen: View {
     @ViewBuilder private var nodeChoices: some View {
         if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("onboarding.node.noneConfirmed", locale: locale)) }
         ForEach(state.nodes) { node in
-            Button { onAction(.nodeSelected(node.id)) } label: { Label(node.origin, systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
+            Button { onAction(.nodeSelected(node.id)) } label: { Label(RFUntrustedText.clean(node.origin), systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
                 .disabled(!node.canCreateAccount || state.busy)
         }
         action(FeatureOnboardingStrings.text("onboarding.node.other", locale: locale), .customNode)

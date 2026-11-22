@@ -55,6 +55,16 @@ public struct KitIdentifierText: View {
     }
 }
 
+public extension Text {
+    /// Peer-controlled text shown on its own (a display name, a group name, a node origin, a
+    /// task title, a request preview): directional controls are removed so the value cannot
+    /// reorder the screen's text, and it runs in its own natural direction. Identifiers use
+    /// `KitIdentifierText`; text inside a sentence uses `RFSentence`.
+    init(untrusted raw: String, kind: RFUntrustedText.Kind = .identity) {
+        self.init(verbatim: RFUntrustedText.clean(raw, kind: kind))
+    }
+}
+
 /// An untrusted file name whose extension stays visible and cannot be disguised.
 ///
 /// Directional controls are removed, the stem truncates in the middle, and the extension is a

@@ -135,11 +135,11 @@ private struct MoreHubRow: View {
                     .background(theme.surface, in: Circle())
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(title)
-                        .font(.custom(theme.font, size: theme.size_mobile_body).weight(.semibold))
+                        .rfFont(.size(theme.size_mobile_body), weight: .semibold)
                         .foregroundStyle(theme.text)
                     if !summary.isEmpty {
                         Text(summary)
-                            .font(.custom(theme.font, size: theme.size_body))
+                            .rfFont(.size(theme.size_body))
                             .foregroundStyle(theme.secondary)
                     }
                 }

@@ -17,6 +17,8 @@ the catalogs: adding a language is adding its translations, never a change here.
   listed in scripts/localization-baseline.json.
 - Localised text must not be assembled in code (`+` next to a lookup, or a
   literal " · " separator). Existing exceptions are listed in the baseline.
+- Compared identifiers (safety numbers, fingerprints, device ids) reach the
+  screen only through KitIdentifierText, never through a plain Text.
 - Every package with a catalog has a locale-resolution test.
 - The app's Info.plist declarations in project.yml follow the catalogs:
   CFBundleLocalizations lists exactly the shipped locales and
@@ -81,6 +83,7 @@ assembly = [
     re.compile(r'(?<![+=])\+\s*' + lookup_call),
     re.compile(r'"\s*·\s*"'),
 ]
+identifier_text = re.compile(r'\bText\(\s*(?:verbatim:\s*)?([\w.]*(?:safetyNumber|safety\.number|[fF]ingerprint|device\.id|deviceID))\s*\)')
 baseline_assembly = Counter((item['path'], item['line']) for item in BASELINE.get('assembly', []))
 found_assembly = Counter()
 for path in swift_sources():
@@ -94,6 +97,8 @@ for path in swift_sources():
     for match in re.finditer(r'\b(?:title|subtitle|description|message|label)\s*:\s*"([^"\n]+)"', source):
         if match.group(1):
             failures.append(f'{name}: literal presentation parameter {match.group(1)!r}')
+    for match in identifier_text.finditer(source):
+        failures.append(f'{name}: identifier {match.group(1)!r} shown with Text; use KitIdentifierText')
     for match in re.finditer(r'"([^"\n]*)"', source):
         if HASHED.search(match.group(1)):
             failures.append(f'{name}: hashed key {match.group(1)!r}; use a readable key feature.screen.element')

@@ -26,7 +26,7 @@ public struct NavigationEditorScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: theme.gap) {
                     Text(copy("shell.nav.note"))
-                        .font(theme.captionFont)
+                        .rfFont(.caption)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     VStack(spacing: 12) {
@@ -42,7 +42,7 @@ public struct NavigationEditorScreen: View {
                         tag: "shell-nav-add"
                     )
                     Text(copy("shell.nav.core"))
-                        .font(theme.captionFont)
+                        .rfFont(.caption)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -78,7 +78,7 @@ public struct NavigationEditorScreen: View {
         let core = ShellShortcuts.isCore(id)
         return HStack(spacing: 0) {
             Text(shortcutLabel(id))
-                .font(theme.bodyFont)
+                .rfFont(.body)
                 .foregroundStyle(theme.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
             KitIconButton(

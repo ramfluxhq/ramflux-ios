@@ -21,7 +21,7 @@ public struct TasksScreen: View {
         }.privacySensitive().rfHidesNavigationBar()
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-                Text(copy("review")).font(theme.pageFont); facts(confirmation.attempt)
+                Text(copy("review")).rfFont(.page); facts(confirmation.attempt)
                 RFHostConfirmationActions(summary: FeatureTasksStrings.sentence("tasks.confirm.summary", [.localized(copy(confirmation.attempt.arguments.kind.rawValue)), .untrusted(confirmation.attempt.arguments.task.title), .identifier(confirmation.attempt.arguments.task.id)], locale: locale), enabled: state.fresh && !state.busy && state.pending == nil, cancelEnabled: !state.busy, confirm: { onAction(.confirm(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
             }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
         }
@@ -30,7 +30,7 @@ public struct TasksScreen: View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             KitPageHeader(copy("title"), onBack: { dismiss() }, actionLabel: copy("refresh"), onAction: { onAction(.refresh) }, tag: "tasks-header")
             if state.loading || state.busy { ProgressView(copy("loading")) }
-            if !state.fresh { Text(copy("stale")).font(theme.captionFont) }
+            if !state.fresh { Text(copy("stale")).rfFont(.caption) }
             if let pending = state.pending { Text(copy("pending")); facts(pending); Button(copy("reconcile")) { onAction(.reconcile(pending.operationID)) }.disabled(state.busy) }
             if let outcome = state.outcome { Text(copy(outcome.pending ? "waiting" : "submitted")) }
             content
@@ -43,23 +43,23 @@ public struct TasksScreen: View {
         switch state.mode {
         case .conversations:
             Text(copy("context"))
-            ForEach(state.conversations) { row in Button(row.title) { onAction(.mode(.list(row.id))) } }
+            ForEach(state.conversations) { row in Button(RFUntrustedText.clean(row.title)) { onAction(.mode(.list(row.id))) } }
             Button(copy("create")) { onAction(.unavailable) }
         case .list(let conversation):
-            Text(conversation).font(theme.captionFont)
+            Text(conversation).rfFont(.caption)
             if state.rows.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
-            ForEach(state.rows) { row in KitRow(row.title, action: { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) }, icon: "list-checks", value: status(row.status), tag: row.id) }
+            ForEach(state.rows) { row in KitRow(RFUntrustedText.clean(row.title), action: { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) }, icon: "list-checks", value: status(row.status), tag: row.id) }
             if state.nextCursor != nil { Button(copy("more")) { onAction(.loadMore) }.disabled(state.loading || state.busy) }
         case .detail: EmptyView()
         case .permissions:
-            Text(copy("noAuthority")).font(theme.captionFont)
+            Text(copy("noAuthority")).rfFont(.caption)
             if state.permissions.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
             ForEach(state.permissions) { row in Button { onAction(.mode(.permission(row.id))) } label: {
                 VStack(alignment: .leading) {
                     switch row {
-                    case .grant(let grant): Text(grant.state.tool); Text(copy("grant")); Text(grant.state.server).font(theme.captionFont)
-                    case .approval(let approval): Text(approval.tool); Text(copy("approval")); Text(approval.server).font(theme.captionFont)
-                    case .receipt(let receipt): Text(copy("receipt")); Text(receipt.binding.taskID).font(theme.captionFont)
+                    case .grant(let grant): Text(grant.state.tool); Text(copy("grant")); Text(grant.state.server).rfFont(.caption)
+                    case .approval(let approval): Text(approval.tool); Text(copy("approval")); Text(approval.server).rfFont(.caption)
+                    case .receipt(let receipt): Text(copy("receipt")); Text(receipt.binding.taskID).rfFont(.caption)
                     }
                 }
             } }
@@ -75,9 +75,9 @@ public struct TasksScreen: View {
             LabeledContent(copy("account"), value: state.accountID)
             LabeledContent(copy("conversation"), value: attempt.arguments.task.conversationID)
             LabeledContent(copy("task"), value: attempt.arguments.task.id)
-            Text(attempt.arguments.task.title)
+            Text(untrusted: attempt.arguments.task.title)
             LabeledContent(copy("version"), value: attempt.arguments.task.version.formatted(.number.locale(locale)))
-            Text(copy(attempt.arguments.kind.rawValue)).font(theme.bodyFont.weight(.semibold))
+            Text(copy(attempt.arguments.kind.rawValue)).rfFont(.body, weight: .semibold)
         }
     }
 }

@@ -11,8 +11,8 @@ struct RFStatusNote: View {
     var body: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             KitStatusHero(icon: icon, tint: tint)
-            Text(title).font(theme.bodyFont.weight(.semibold))
-            if !message.isEmpty { Text(message).font(theme.captionFont).foregroundStyle(theme.secondary) }
+            Text(title).rfFont(.body, weight: .semibold)
+            if !message.isEmpty { Text(message).rfFont(.caption).foregroundStyle(theme.secondary) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .contain)
@@ -46,8 +46,8 @@ public struct RFLoadingView: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             ProgressView().accessibilityLabel(RFDesignStrings.text("kit.load.loading", locale: locale))
-            Text(RFDesignStrings.text("kit.load.loading", locale: locale)).font(theme.bodyFont.weight(.semibold))
-            Text(RFDesignStrings.text("kit.load.readingRecords", locale: locale)).font(theme.captionFont).foregroundStyle(theme.secondary)
+            Text(RFDesignStrings.text("kit.load.loading", locale: locale)).rfFont(.body, weight: .semibold)
+            Text(RFDesignStrings.text("kit.load.readingRecords", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .contain)

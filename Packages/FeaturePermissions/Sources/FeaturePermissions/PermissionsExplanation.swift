@@ -13,11 +13,11 @@ public struct PermissionsExplanation: View {
     private func copy(_ key: String) -> String { FeaturePermissionsStrings.text(key, locale: locale) }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            Text(copy(permission.rawValue + ".title")).font(theme.pageFont)
+            Text(copy(permission.rawValue + ".title")).rfFont(.page)
             Text(copy(permission.rawValue + ".why"))
             Text(copy(permission.rawValue + ".scope"))
             Text(copy(permission.rawValue + ".without"))
-            Text(copy("promptBoundary")).font(theme.captionFont)
+            Text(copy("promptBoundary")).rfFont(.caption)
             RFHostConfirmationActions(summary: copy(permission.rawValue + ".title"), confirmLabel: copy("continue"), enabled: !busy, cancelEnabled: !busy, confirm: { onAction(.confirmExplanation) }, cancel: { onAction(.cancelExplanation) })
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
     }

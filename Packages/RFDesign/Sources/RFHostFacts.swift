@@ -31,11 +31,11 @@ public struct RFHostFacts<Controls: View>: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
-            Text(title).font(theme.bodyFont.weight(.semibold))
+            Text(title).rfFont(.body, weight: .semibold)
             Text(origin).textSelection(.enabled)
             ForEach(facts) { fact in
                 VStack(alignment: .leading, spacing: theme.gap / 2) {
-                    Text(fact.label).font(theme.captionFont).foregroundStyle(theme.secondary)
+                    Text(fact.label).rfFont(.caption).foregroundStyle(theme.secondary)
                     Text(fact.value).textSelection(.enabled)
                 }
             }

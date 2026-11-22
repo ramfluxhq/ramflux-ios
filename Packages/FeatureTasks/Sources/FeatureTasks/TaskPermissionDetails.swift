@@ -12,7 +12,7 @@ struct TaskPermissionDetails: View {
     private func status(_ value: String) -> String { copy(["pending", "approved", "denied", "submitted", "applied", "rejected", "failed"].contains(value) ? "permission." + value : "unknown") }
     var body: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
-            Text(copy(kind)).font(theme.pageFont)
+            Text(copy(kind)).rfFont(.page)
             Text(row.referenceID).textSelection(.enabled)
             switch row {
             case .grant(let grant):

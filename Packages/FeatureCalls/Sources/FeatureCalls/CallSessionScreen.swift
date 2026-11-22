@@ -16,13 +16,13 @@ struct CallSessionScreen<Facts: View>: View {
         RFPage { ScrollView { VStack(spacing: theme.gap) {
             KitPageHeader(copy("dial"), onBack: { onAction(.mode(.history)) }, actionLabel: copy("history"), onAction: { onAction(.mode(.history)) }, tag: "call-session-header")
             VStack(spacing: theme.gap) {
-                Text(String(row.peerID.prefix(1))).font(.custom(theme.font, size: theme.size_metric)).foregroundStyle(theme.on_avatar_person)
+                Text(String(row.peerID.prefix(1))).rfFont(.fixed(theme.size_metric)).foregroundStyle(theme.on_avatar_person)
                     .frame(width: theme.row_conversation + theme.gap, height: theme.row_conversation + theme.gap).background(theme.avatar_person, in: Circle()).accessibilityHidden(true)
-                Text(row.peerID).font(.custom(theme.font, size: theme.size_page).weight(.semibold)).textSelection(.enabled)
-                Text(copy(row.phase.rawValue)).font(theme.bodyFont).foregroundStyle(theme.secondary)
+                Text(row.peerID).rfFont(.size(theme.size_page), weight: .semibold).textSelection(.enabled)
+                Text(copy(row.phase.rawValue)).rfFont(.body).foregroundStyle(theme.secondary)
             }.frame(maxWidth: .infinity, minHeight: theme.row_conversation * 3 + theme.size_page).padding(.vertical, theme.gap)
             if let unavailable = state.audioFailure { RFUnavailableView(title: copy("dial"), message: unavailable.message(locale: locale)) }
-            Text(copy("noAudio")).font(theme.captionFont)
+            Text(copy("noAudio")).rfFont(.caption)
             if !state.fresh { Text(copy("stale")) }
             if row.phase == .active || row.phase == .connecting {
                 ViewThatFits(in: .horizontal) {
@@ -46,8 +46,8 @@ struct CallSessionScreen<Facts: View>: View {
         ForEach(["mute", "speaker", "share"], id: \.self) { key in
             Button { onAction(.audioControl) } label: { VStack(spacing: theme.gap / 2) {
                 Image(systemName: key == "mute" ? "mic.slash" : key == "speaker" ? "speaker.wave.2" : "rectangle.on.rectangle")
-                    .font(theme.bodyFont).padding(theme.gap).background(theme.surface, in: Circle())
-                Text(copy(key)).font(theme.captionFont)
+                    .rfFont(.body).padding(theme.gap).background(theme.surface, in: Circle())
+                Text(copy(key)).rfFont(.caption)
             } }.buttonStyle(.plain).accessibilityHint(state.audioFailure?.message(locale: locale) ?? copy("noAudio"))
         }
     }
@@ -61,9 +61,9 @@ struct CallSessionScreen<Facts: View>: View {
     }
     private func action(_ key: String, symbol: String, destructive: Bool, enabled: Bool, perform: @escaping () -> Void) -> some View {
         Button(action: perform) { VStack(spacing: theme.gap / 2) {
-            Image(systemName: symbol).font(theme.bodyFont).foregroundStyle(destructive ? theme.on_danger : theme.on_success)
+            Image(systemName: symbol).rfFont(.body).foregroundStyle(destructive ? theme.on_danger : theme.on_success)
                 .frame(width: theme.row_conversation, height: theme.row_conversation).background(destructive ? theme.danger : theme.success, in: Circle())
-            Text(copy(key)).font(theme.bodyFont)
+            Text(copy(key)).rfFont(.body)
         }.frame(maxWidth: .infinity) }.buttonStyle(.plain).disabled(!enabled)
     }
 }

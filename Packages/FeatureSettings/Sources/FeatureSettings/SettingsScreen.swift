@@ -17,7 +17,7 @@ public struct SettingsScreen: View {
             KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureSettingsStrings.text("common.action.refresh", locale: locale), action: { onAction(.refresh) })], tag: "settings-header")
             if let pending = state.pendingMutation {
                 Text(FeatureSettingsStrings.text("settings.pending", locale: locale))
-                Text(pending.operationID).font(theme.captionFont)
+                Text(pending.operationID).rfFont(.caption)
                 Button(FeatureSettingsStrings.text("settings.reconcile", locale: locale)) { onAction(.reconcileOriginal(pending.operationID)) }.disabled(state.busy)
             }
             if state.loading { ProgressView(FeatureSettingsStrings.text("settings.loading", locale: locale)) }
@@ -54,9 +54,9 @@ public struct SettingsScreen: View {
             }
         case .device(let id):
             if let device = state.snapshot.devices.first(where: { $0.id == id }) {
-                Text(device.id).textSelection(.enabled); Text(device.isLocal ? FeatureSettingsStrings.text("settings.devices.thisDevice", locale: locale) : FeatureSettingsStrings.text("settings.devices.linked", locale: locale))
-                ForEach(device.capabilities, id: \.self) { Text($0).font(theme.captionFont) }
-                if let origin = device.webOrigin { Text(origin).textSelection(.enabled); Text(FeatureSettingsStrings.text("settings.devices.webOriginWarning", locale: locale)).foregroundStyle(theme.danger) }
+                KitIdentifierText(device.id).textSelection(.enabled); Text(device.isLocal ? FeatureSettingsStrings.text("settings.devices.thisDevice", locale: locale) : FeatureSettingsStrings.text("settings.devices.linked", locale: locale))
+                ForEach(device.capabilities, id: \.self) { Text($0).rfFont(.caption) }
+                if let origin = device.webOrigin { Text(untrusted: origin).textSelection(.enabled); Text(FeatureSettingsStrings.text("settings.devices.webOriginWarning", locale: locale)).foregroundStyle(theme.danger) }
                 if !device.isLocal { Button(FeatureSettingsStrings.text("settings.devices.revoke", locale: locale), role: .destructive) { onAction(.requestRevoke(device.id)) }.disabled(state.busy || state.unknownMutation) }
             } else { Text(FeatureSettingsStrings.text("settings.devices.missing", locale: locale)) }
         case .nodes:
@@ -65,8 +65,8 @@ public struct SettingsScreen: View {
             Button(FeatureSettingsStrings.text("settings.nodes.add", locale: locale)) { onAction(.open(.onboarding)) }
         case .node(let id):
             if let node = state.snapshot.nodes.first(where: { $0.id == id }) {
-                Text(node.origin).textSelection(.enabled); Text(node.id)
-                if let key = node.publicKey { Text(key).font(theme.captionFont).textSelection(.enabled) }
+                Text(untrusted: node.origin).textSelection(.enabled); KitIdentifierText(node.id)
+                if let key = node.publicKey { Text(key).rfFont(.caption).textSelection(.enabled) }
                 Text(node.enabled ? FeatureSettingsStrings.text("settings.nodes.enabled", locale: locale) : FeatureSettingsStrings.text("settings.nodes.disabled", locale: locale))
                 Button(FeatureSettingsStrings.text("settings.nodes.useAsDefault", locale: locale)) { onAction(.setDefault(node.id)) }.disabled(state.busy || state.unknownMutation || !node.enabled)
             }
@@ -87,7 +87,7 @@ public struct SettingsScreen: View {
                 Text(FeatureSettingsStrings.text("settings.privacy.retention.oneHour", locale: locale)).tag(Int64(3600)); Text(FeatureSettingsStrings.text("settings.privacy.retention.oneDay", locale: locale)).tag(Int64(86400)); Text(FeatureSettingsStrings.text("settings.privacy.retention.sevenDays", locale: locale)).tag(Int64(604800))
             }
             Button(FeatureSettingsStrings.text("settings.privacy.retention.save", locale: locale)) { onAction(.saveRetention) }.disabled(state.busy || state.unknownMutation || state.snapshot.accountID == nil)
-            Text(FeatureSettingsStrings.text("settings.privacy.retention.note", locale: locale)).font(theme.captionFont)
+            Text(FeatureSettingsStrings.text("settings.privacy.retention.note", locale: locale)).rfFont(.caption)
         case .privacy:
             Text(FeatureSettingsStrings.format("privacy.requestApproval", AppDataStrings.status(state.snapshot.requestPolicy, locale: locale), locale: locale))
             if state.snapshot.requestPolicy == "auto_accept" { Button(FeatureSettingsStrings.text("settings.privacy.requireApproval", locale: locale)) { onAction(.manualRequests) }.disabled(state.busy || state.unknownMutation) }
@@ -97,9 +97,9 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))
             Button(FeatureSettingsStrings.text("settings.connectedServices.manage", locale: locale)) { onAction(.unavailable(.connectedServices)) }
         case .about:
-            Text(FeatureSettingsStrings.text("common.appName", locale: locale)).font(theme.pageFont); Text(FeatureSettingsStrings.text("settings.about.license", locale: locale))
+            Text(FeatureSettingsStrings.text("common.appName", locale: locale)).rfFont(.page); Text(FeatureSettingsStrings.text("settings.about.license", locale: locale))
             Text(FeatureSettingsStrings.text("settings.about.notificationPrivacy", locale: locale))
-            Text(FeatureSettingsStrings.format("settings.version", Self.appVersion, Self.appBuild, locale: locale)).font(theme.captionFont).accessibilityIdentifier("about-version")
+            Text(FeatureSettingsStrings.format("settings.version", Self.appVersion, Self.appBuild, locale: locale)).rfFont(.caption).accessibilityIdentifier("about-version")
             Button(FeatureSettingsStrings.text("settings.about.exportDiagnostics", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
         default:
             ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .systemPermissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }
@@ -111,8 +111,8 @@ public struct SettingsScreen: View {
     @ViewBuilder private func modalContent(_ modal: SettingsModal) -> some View {
         switch modal {
         case .revoke(let device):
-            Text(FeatureSettingsStrings.text("settings.devices.revoke.title", locale: locale)).font(theme.pageFont); Text(device.id).textSelection(.enabled)
-            if let origin = device.webOrigin { Text(origin).textSelection(.enabled) }
+            Text(FeatureSettingsStrings.text("settings.devices.revoke.title", locale: locale)).rfFont(.page); KitIdentifierText(device.id).textSelection(.enabled)
+            if let origin = device.webOrigin { Text(untrusted: origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("settings.devices.revoke.fact", locale: locale))
             RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.devices.revoke.summary", [.identifier(device.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
         case .backup, .share: backupContent
