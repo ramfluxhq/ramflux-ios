@@ -18,8 +18,16 @@
 	<string>Account code</string>
 	<key>accountCode.failure.trivial</key>
 	<string>This code is too easy to guess (repeated digits or a straight run). Choose another.</string>
-	<key>agents.unavailable</key>
-	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
+	<key>agents.unavailable.access</key>
+	<string>Changing who can reach this agent is not available on this phone yet.</string>
+	<key>agents.unavailable.creationDecision</key>
+	<string>Approving or declining this agent creation is not available on this phone yet. Decide on the desktop that started it.</string>
+	<key>agents.unavailable.goal</key>
+	<string>Goal settings are not available yet.</string>
+	<key>agents.unavailable.hide</key>
+	<string>Hiding an agent is not available yet.</string>
+	<key>agents.unavailable.pause</key>
+	<string>Pausing an agent is not available yet.</string>
 	<key>backup.import.tooLarge</key>
 	<string>This archive exceeds the 256 MiB mobile import limit.</string>
 	<key>calls.audioUnavailable</key>

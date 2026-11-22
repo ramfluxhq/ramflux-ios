@@ -2,56 +2,62 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>agents.advanced</key>
-	<string>Advanced configuration · read only</string>
-	<key>agents.chat</key>
-	<string>Agent conversation</string>
-	<key>agents.collaboration</key>
-	<string>Collaboration</string>
-	<key>agents.create</key>
-	<string>Create Agent</string>
+	<key>agents.access</key>
+	<string>Who can reach this agent</string>
+	<key>agents.access.change</key>
+	<string>Change access</string>
+	<key>agents.access.dm</key>
+	<string>Direct messages</string>
+	<key>agents.access.groups</key>
+	<string>Group invitations</string>
+	<key>agents.cancel</key>
+	<string>Cancel</string>
+	<key>agents.creation.approve</key>
+	<string>Approve</string>
+	<key>agents.creation.decline</key>
+	<string>Decline</string>
+	<key>agents.creation.expires</key>
+	<string>Expires</string>
+	<key>agents.creation.message</key>
+	<string>Your desktop asked to create an agent with this account. Review the request before it expires.</string>
+	<key>agents.creation.title</key>
+	<string>Agent creation waiting for you</string>
 	<key>agents.desktop</key>
 	<string>Create agents on your desktop</string>
-	<key>agents.directory</key>
-	<string>Agent directory</string>
 	<key>agents.directory.note</key>
 	<string>Collaboration settings and task status are shown separately.</string>
 	<key>agents.edit</key>
 	<string>Edit basics</string>
+	<key>agents.edit.confirm</key>
+	<string>Save these profile changes? Everyone who can reach this agent sees the new name and responsibility.</string>
 	<key>agents.empty.message</key>
 	<string>Try another name or keyword.</string>
 	<key>agents.empty.title</key>
 	<string>No agents found</string>
-	<key>agents.explanation</key>
-	<string>Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client.</string>
 	<key>agents.goal</key>
 	<string>Responsibility</string>
-	<key>agents.goalLimit</key>
-	<string>Responsibility must be at most 256 UTF-8 bytes.</string>
-	<key>agents.goalRequired</key>
-	<string>Enter a responsibility.</string>
-	<key>agents.hide</key>
-	<string>Hide Agent</string>
 	<key>agents.loading</key>
-	<string>Checking Agent availability</string>
-	<key>agents.manage</key>
-	<string>Manage Agent</string>
+	<string>Loading agents</string>
+	<key>agents.loadingMore</key>
+	<string>Loading more agents</string>
 	<key>agents.multi</key>
 	<string>Start a multi-agent chat</string>
 	<key>agents.name</key>
 	<string>Name</string>
-	<key>agents.nameLimit</key>
-	<string>Use at most 40 Unicode scalars and 256 UTF-8 bytes.</string>
-	<key>agents.nameRequired</key>
-	<string>Enter a name.</string>
-	<key>agents.pause</key>
-	<string>Pause Agent</string>
+	<key>agents.none.message</key>
+	<string>Create an agent on your desktop. It appears here once it is ready.</string>
+	<key>agents.none.title</key>
+	<string>No agents yet</string>
 	<key>agents.profile</key>
 	<string>Agent profile</string>
 	<key>agents.remove</key>
 	<string>Remove Agent</string>
+	<key>agents.remove.confirm</key>
+	<string>Delete this agent? Its keys on this account are erased and it can no longer be reached. This cannot be undone.</string>
 	<key>agents.retry</key>
 	<string>Retry</string>
+	<key>agents.save</key>
+	<string>Save</string>
 	<key>agents.search</key>
 	<string>Search by name…</string>
 	<key>agents.title</key>

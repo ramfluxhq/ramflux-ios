@@ -6,6 +6,12 @@ public enum RepositoryResult<Value: Sendable>: Sendable {
     case failure(AppFailure)
 }
 extension RepositoryResult: Equatable where Value: Equatable {}
+public extension RepositoryResult {
+    /// Transforms a success value; a failure passes through.
+    func map<Other: Sendable>(_ transform: (Value) -> Other) -> RepositoryResult<Other> {
+        switch self { case .success(let value): .success(transform(value)); case .failure(let failure): .failure(failure) }
+    }
+}
 public enum UnavailableReason: String, Sendable, Equatable {
     case nativeCoreMissing, featureNotInstalled, custodyProviderPending
     public var message: String { message(locale: .current) }

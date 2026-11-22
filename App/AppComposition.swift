@@ -77,7 +77,7 @@ import Observation
     func agents(account: String) -> AgentsCoordinator {
         if let currentAgents, currentAgents.0 == account { return currentAgents.1 }
         currentAgents?.1.send(.disappeared)
-        let coordinator = AgentsCoordinator(repository: repositories.agents, account: account)
+        let coordinator = AgentsCoordinator(repository: repositories.agents, account: account) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
         currentAgents = (account, coordinator); return coordinator
     }
     @ObservationIgnored private var currentTasks: (String, Bool, TasksCoordinator)?

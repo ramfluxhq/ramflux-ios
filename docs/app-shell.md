@@ -130,6 +130,18 @@ layer. `group.members` returns the whole roster in one response, so the members 
 growing window of projected rows (50 more per scroll step) over the roster held by the detail; the
 add-member picker pages contacts through `contactsPage`. The SDK has no `group.leave`: a non-owner's
 `group.member.remove` is staged as a change request to the owner, so leaving stays unavailable.
+Agents read `agent.list` page by page (cursor `next`) into the bounded window; the search filters the
+held window because `agent.list` takes no query. Account invalidations carry no agent topic, so on
+each one the directory asks `agent.watch` for records changed since its journal cursor and patches
+them by id. The profile reads `agent.get`; editing the name and responsibility sends
+`agent.persona.edit` and deleting sends `agent.delete`, both with `confirmed` after a confirmation.
+Agent methods carry no operation id (the SDK refuses one). A pending desktop-started creation
+(`agent.operation.get` with an empty id) is shown with its request id and expiry, but approving or
+declining is unavailable: `agent.creation.decide` needs `request_hash`, which the CLI computes from the
+plan bytes with Rust code the C ABI does not expose. Changing access is unavailable because
+`agent.access.set` needs the record's event identity as `base` and the wire record does not carry it.
+Pausing, hiding and goal settings have no SDK methods. Opening an agent's chat navigates to the
+conversation whose id is the agent anchor; this is an assumption not yet verified against a node.
 Local search, phone pairing, attachment transfer, replying to a stranger without accepting,
 stranger reporting and batch request actions are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published

@@ -18,38 +18,6 @@
         }
       }
     },
-    "agents.directory": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agent directory"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "智能体列表"
-          }
-        }
-      }
-    },
-    "agents.create": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create Agent"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "创建智能体"
-          }
-        }
-      }
-    },
     "agents.profile": {
       "localizations": {
         "en": {
@@ -62,39 +30,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "智能体资料"
-          }
-        }
-      }
-    },
-    "agents.advanced": {
-      "comment": "Section title: advanced agent settings that can only be viewed on the phone. Keep the separator style natural for the language.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Advanced configuration · read only"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "高级配置 · 只读"
-          }
-        }
-      }
-    },
-    "agents.chat": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agent conversation"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "智能体会话"
           }
         }
       }
@@ -112,39 +47,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "职责"
-          }
-        }
-      }
-    },
-    "agents.manage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manage Agent"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "管理智能体"
-          }
-        }
-      }
-    },
-    "agents.collaboration": {
-      "comment": "Section title: how agents work together.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Collaboration"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "协作"
           }
         }
       }
@@ -181,40 +83,6 @@
         }
       }
     },
-    "agents.pause": {
-      "comment": "Action that pauses an agent.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pause Agent"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂停智能体"
-          }
-        }
-      }
-    },
-    "agents.hide": {
-      "comment": "Action that hides an agent from the list without removing it.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide Agent"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隐藏智能体"
-          }
-        }
-      }
-    },
     "agents.name": {
       "comment": "Field label: the name of an agent.",
       "localizations": {
@@ -233,17 +101,18 @@
       }
     },
     "agents.loading": {
+      "comment": "Progress label while the agent list loads.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checking Agent availability"
+            "value": "Loading agents"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查智能体功能"
+            "value": "正在加载智能体"
           }
         }
       }
@@ -261,88 +130,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "重试"
-          }
-        }
-      }
-    },
-    "agents.explanation": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agent configuration requires the Agent SDK contract. No Agent has been created or changed. Advanced configuration belongs to the desktop client."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "智能体配置需要专用 SDK 接口。尚未创建或更改智能体。高级配置由桌面客户端管理。"
-          }
-        }
-      }
-    },
-    "agents.nameRequired": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter a name."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请输入名称。"
-          }
-        }
-      }
-    },
-    "agents.nameLimit": {
-      "comment": "Validation message. Keep \"Unicode scalars\" and \"UTF-8 bytes\" as technical limits.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use at most 40 Unicode scalars and 256 UTF-8 bytes."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "名称最多 40 个 Unicode 标量且不超过 256 个 UTF-8 字节。"
-          }
-        }
-      }
-    },
-    "agents.goalRequired": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter a responsibility."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请输入职责。"
-          }
-        }
-      }
-    },
-    "agents.goalLimit": {
-      "comment": "Validation message. Keep \"256 UTF-8 bytes\" as a technical limit.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Responsibility must be at most 256 UTF-8 bytes."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "职责不得超过 256 个 UTF-8 字节。"
           }
         }
       }
@@ -440,6 +227,278 @@
           "stringUnit": {
             "state": "translated",
             "value": "协作设置与任务状态分别显示。"
+          }
+        }
+      }
+    },
+    "agents.loadingMore": {
+      "comment": "Progress label at the end of the agent list while the next page loads.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading more agents"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更多智能体"
+          }
+        }
+      }
+    },
+    "agents.none.title": {
+      "comment": "Title of the agent directory when the account has no agents.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No agents yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有智能体"
+          }
+        }
+      }
+    },
+    "agents.none.message": {
+      "comment": "Explains that agents are created on the desktop and then appear on the phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create an agent on your desktop. It appears here once it is ready."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在桌面端创建智能体，创建完成后会显示在这里。"
+          }
+        }
+      }
+    },
+    "agents.save": {
+      "comment": "Button that saves the edited agent profile.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
+        }
+      }
+    },
+    "agents.edit.confirm": {
+      "comment": "Confirmation text before saving a changed agent profile.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save these profile changes? Everyone who can reach this agent sees the new name and responsibility."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存这些资料修改？所有可以联系此智能体的人都会看到新的名称和职责。"
+          }
+        }
+      }
+    },
+    "agents.remove.confirm": {
+      "comment": "Confirmation text before deleting an agent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this agent? Its keys on this account are erased and it can no longer be reached. This cannot be undone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除此智能体？它在此账户上的密钥将被清除，之后无法再联系它。此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "agents.cancel": {
+      "comment": "Button that closes a confirmation without changing anything.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "agents.access": {
+      "comment": "Section title on the agent profile: who may reach the agent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Who can reach this agent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "谁可以联系此智能体"
+          }
+        }
+      }
+    },
+    "agents.access.dm": {
+      "comment": "Label of the direct-message access policy of an agent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "私信"
+          }
+        }
+      }
+    },
+    "agents.access.groups": {
+      "comment": "Label of the group-invitation access policy of an agent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group invitations"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组邀请"
+          }
+        }
+      }
+    },
+    "agents.access.change": {
+      "comment": "Button that would change who may reach an agent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change access"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改访问权限"
+          }
+        }
+      }
+    },
+    "agents.creation.title": {
+      "comment": "Title of the card for an agent creation started on the desktop that waits for this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent creation waiting for you"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有智能体创建等待你处理"
+          }
+        }
+      }
+    },
+    "agents.creation.message": {
+      "comment": "Explains the pending agent creation card.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your desktop asked to create an agent with this account. Review the request before it expires."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的桌面端请求使用此账户创建智能体。请在请求过期前处理。"
+          }
+        }
+      }
+    },
+    "agents.creation.expires": {
+      "comment": "Label before the expiry time of a pending agent creation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过期时间"
+          }
+        }
+      }
+    },
+    "agents.creation.approve": {
+      "comment": "Button that approves a desktop-started agent creation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准"
+          }
+        }
+      }
+    },
+    "agents.creation.decline": {
+      "comment": "Button that declines a desktop-started agent creation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
           }
         }
       }

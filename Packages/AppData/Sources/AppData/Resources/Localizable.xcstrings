@@ -1236,22 +1236,6 @@
         }
       }
     },
-    "agents.unavailable": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。"
-          }
-        }
-      }
-    },
     "tasks.unavailable": {
       "localizations": {
         "en": {
@@ -2241,6 +2225,91 @@
           "stringUnit": {
             "state": "translated",
             "value": "该联系人已不存在。请刷新联系人。"
+          }
+        }
+      }
+    },
+    "agents.unavailable.access": {
+      "comment": "Failure message: changing who may reach an agent is not possible from the phone yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing who can reach this agent is not available on this phone yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机暂不支持更改谁可以联系此智能体。"
+          }
+        }
+      }
+    },
+    "agents.unavailable.creationDecision": {
+      "comment": "Failure message: approving or declining a desktop-started agent creation is not possible from the phone yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approving or declining this agent creation is not available on this phone yet. Decide on the desktop that started it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机暂不支持批准或拒绝此智能体创建。请在发起创建的桌面端处理。"
+          }
+        }
+      }
+    },
+    "agents.unavailable.pause": {
+      "comment": "Failure message: pausing agents is not supported.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausing an agent is not available yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持暂停智能体。"
+          }
+        }
+      }
+    },
+    "agents.unavailable.hide": {
+      "comment": "Failure message: hiding agents is not supported.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiding an agent is not available yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持隐藏智能体。"
+          }
+        }
+      }
+    },
+    "agents.unavailable.goal": {
+      "comment": "Failure message: goal settings for agents are not supported.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal settings are not available yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持目标设置。"
           }
         }
       }
