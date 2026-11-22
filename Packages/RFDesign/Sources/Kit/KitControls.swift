@@ -20,13 +20,12 @@ public struct KitSwitch: View {
 
     public var body: some View {
         KitHit(enabled: enabled, label: label, hitTag: tag.map { $0 + "-hit" }, action: { onChecked(!checked) }) {
-            ZStack(alignment: .leading) {
+            ZStack(alignment: checked ? .trailing : .leading) {
                 Capsule().fill(checked ? theme.primary : theme.line_strong)
                 Circle()
                     .fill(checked ? theme.on_primary : theme.surface_white)
                     .frame(width: KitMetrics.switchKnob, height: KitMetrics.switchKnob)
                     .padding(KitMetrics.switchInset)
-                    .offset(x: checked ? KitMetrics.switchWidth - KitMetrics.switchKnob - KitMetrics.switchInset * 2 : 0)
             }
             .frame(width: KitMetrics.switchWidth, height: KitMetrics.switchHeight)
             .opacity(enabled ? 1 : KitMetrics.disabledAlpha)

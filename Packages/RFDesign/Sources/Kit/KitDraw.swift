@@ -64,6 +64,8 @@ func kitPath(_ ops: [KitIconOp]) -> Path {
     return path
 }
 
+/// A hand-drawn Lucide icon. Directional icons mirror under right-to-left layout according to
+/// `KitIconMirroring`; callers cannot override it.
 public struct KitIcon: View {
     var name: String
     var size: CGFloat
@@ -83,6 +85,7 @@ public struct KitIcon: View {
             }
         }
         .frame(width: size, height: size)
+        .flipsForRightToLeftLayoutDirection(KitIconMirroring.mirrorsInRightToLeft(name))
         .accessibilityHidden(true)
     }
 }

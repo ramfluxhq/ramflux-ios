@@ -199,6 +199,42 @@ struct KitLayoutTests {
         #expect(abs(size.height - 62) < 2.5, "height \(size.height)")
     }
 
+    @Test func mirroringTableNamesOnlyDrawnIcons() {
+        for name in KitIconMirroring.mirrored { #expect(KitIconPaths.glyphs[name] != nil, "\(name) is not a Kit icon") }
+        for name in ["chevron-left", "chevron-right", "reply", "forward"] { #expect(KitIconMirroring.mirrorsInRightToLeft(name)) }
+        for name in ["play", "pause", "check", "check-check", "clock-3", "timer", "history", "arrow-up", "plus", "x", "qr-code", "loader-circle"] {
+            #expect(!KitIconMirroring.mirrorsInRightToLeft(name), "\(name) must not mirror")
+        }
+    }
+
+    /// chevron-right points at x = 15 in its 24 pt box. Mirrored, the point is at x = 9.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func directionalIconsMirrorWithTheLayout(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 24, direction: direction) { KitIcon(name: "chevron-right", size: 24, tint: .black) }
+        let tip = try channel(rep, direction == .rightToLeft ? 9 : 15, 12)
+        let tail = try channel(rep, direction == .rightToLeft ? 15 : 9, 12)
+        #expect(tip < 0.5, "tip \(tip) \(direction)")
+        #expect(tail > 0.5, "tail \(tail) \(direction)")
+    }
+
+    /// clock-3's hand points to the right (x = 16) in both directions.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func neutralIconsKeepTheirDrawing(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 24, direction: direction) { KitIcon(name: "clock-3", size: 24, tint: .black) }
+        #expect(try channel(rep, 15, 12) < 0.5)
+        #expect(try channel(rep, 8, 12) > 0.5)
+    }
+
+    @Test func switchKnobFollowsTheLayoutDirection() throws {
+        let ltr = try render(width: 51) { KitSwitch(checked: true) }
+        let rtl = try render(width: 51, direction: .rightToLeft) { KitSwitch(checked: true) }
+        // The knob is the light disc; the track is the dark primary fill.
+        let ltrTrailing = try channel(ltr, 36, 15), ltrLeading = try channel(ltr, 14, 15)
+        let rtlTrailing = try channel(rtl, 14, 15), rtlLeading = try channel(rtl, 36, 15)
+        #expect(ltrTrailing > ltrLeading, "ltr knob \(ltrTrailing) track \(ltrLeading)")
+        #expect(rtlTrailing > rtlLeading, "rtl knob \(rtlTrailing) track \(rtlLeading)")
+    }
+
     @Test func bundledWeightsSelectTheAxis() {
         for weight in [CGFloat(400), 500, 600, 700] {
             let font = kitCTFont(size: 17, weight: weight, role: .ui)
@@ -242,9 +278,10 @@ private func measureHits(width: CGFloat, dark: Bool = false, @ViewBuilder conten
 
 #if canImport(AppKit)
 @MainActor
-private func render(width: CGFloat, dark: Bool = false, pressed: Bool = false, @ViewBuilder content: () -> some View) throws -> NSBitmapImageRep {
+private func render(width: CGFloat, dark: Bool = false, pressed: Bool = false, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) throws -> NSBitmapImageRep {
     let theme: RFTheme = dark ? .dark : .light
     let view = content()
+        .environment(\.layoutDirection, direction)
         .environment(\.rfTheme, theme)
         .environment(\.kitPreviewPressed, pressed)
         .environment(\.kitSpinnerAnimated, false)

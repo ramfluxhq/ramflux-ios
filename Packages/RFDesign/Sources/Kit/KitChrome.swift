@@ -224,7 +224,8 @@ public struct KitTabBar: View {
                                         .padding(.horizontal, KitMetrics.tabBadgePad)
                                         .frame(minWidth: KitMetrics.tabBadgeMin, minHeight: KitMetrics.tabBadge)
                                         .background(theme.badge, in: RoundedRectangle(cornerRadius: theme.radius_md))
-                                        .offset(x: KitMetrics.badgeX, y: KitMetrics.badgeY)
+                                        .alignmentGuide(.trailing) { $0[.trailing] - KitMetrics.badgeX }
+                                        .alignmentGuide(.top) { $0[.top] - KitMetrics.badgeY }
                                 }
                             }
                             .frame(width: KitMetrics.tabIcon, height: KitMetrics.tabIcon)
