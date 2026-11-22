@@ -65,7 +65,7 @@ public struct NativeChatRepository: ChatRepository {
     }
     public func messages(account: String, conversation: String) async -> RepositoryResult<[MessageRecord]> {
         do {
-            let body = try await gateway.call(.messageList, account: account, body: .object(["conversation_id": .string(conversation), "read_model": .bool(true), "limit": .number(100)]))
+            let body = try await gateway.call(.messageRead, account: account, body: .object(["conversation_id": .string(conversation), "read_model": .bool(true), "limit": .number(100)]))
             return .success(try MessagePage.records(body: body, conversation: conversation))
         } catch { return .failure(AppFailure.map(error)) }
     }

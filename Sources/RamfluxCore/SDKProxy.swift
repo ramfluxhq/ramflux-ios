@@ -43,7 +43,7 @@ public extension SDKProxyProtocol {
 
 public struct SDKProxy: AccountProxy, NodeProxy, ConversationProxy, MessageProxy, ContactProxy,
     GroupProxy, CallProxy, BotProxy, DeviceProxy, ObjectProxy, SurfaceProxy, GrantProxy, TaskProxy,
-    MCPProxy, A2IProxy, A2UIProxy, SyncProxy, StreamProxy, IdentityProxy, BusProxy, DaemonProxy, SubscriptionProxy {
+    AgentProxy, AttachmentProxy, DiagProxy, MCPProxy, A2IProxy, SyncProxy, StreamProxy, IdentityProxy, BusProxy, DaemonProxy, SubscriptionProxy {
     public let client: RamfluxClient
     public init(client: RamfluxClient) { self.client = client }
 }

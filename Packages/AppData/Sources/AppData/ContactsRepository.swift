@@ -51,7 +51,7 @@ public struct NativeContactsRepository: ContactsRepository {
         }
     }
     public func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> {
-        let operation: SDKOperation = switch decision { case .accept: .contactRequestAccept; case .decline: .contactRequestDecline; case .block: .contactRequestBlock }
+        let operation: SDKOperation = switch decision { case .accept: .contactAccept; case .decline: .contactDecline; case .block: .contactBlock }
         return await mutations.run(scope: account, arguments: .decide(request, decision), operationID: operationID) { [gateway] in
         do { _ = try await gateway.call(operation, account: account, body: .object(["request_id": .string(request)]), operationID: operationID); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
