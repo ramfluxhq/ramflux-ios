@@ -168,6 +168,8 @@ struct PipelineImage: View {
 struct MediaViewer: View {
     let preview: MediaPreview
     let saved: Bool?
+    /// The temporary share copy while the share sheet is open over the viewer.
+    let shareFile: URL?
     let onAction: (ChatAction) -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -187,6 +189,9 @@ struct MediaViewer: View {
             chrome
         }
         .task(id: preview.file) { if preview.kind == .video, player == nil { player = AVPlayer(url: preview.file) } }
+        .sheet(isPresented: Binding(get: { shareFile != nil }, set: { if !$0 { onAction(.shareFinished) } })) {
+            if let shareFile { ShareSheet(file: shareFile) { onAction(.shareFinished) }.ignoresSafeArea() }
+        }
     }
     @ViewBuilder private var zoomable: some View {
         Group {

@@ -1498,6 +1498,244 @@
           }
         }
       }
+    },
+    "chat.gallery.title": {
+      "comment": "Title of the sheet and the details row that list a conversation's photos, videos and files.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media and files"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体和文件"
+          }
+        }
+      }
+    },
+    "chat.gallery.media": {
+      "comment": "Gallery tab with photos and videos.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体"
+          }
+        }
+      }
+    },
+    "chat.gallery.files": {
+      "comment": "Gallery tab with files.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件"
+          }
+        }
+      }
+    },
+    "chat.gallery.newest": {
+      "comment": "Gallery button that reloads from the newest items after older ones replaced them.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to newest"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回到最新"
+          }
+        }
+      }
+    },
+    "chat.gallery.empty": {
+      "comment": "Gallery state when the conversation has no items of the selected tab.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无内容"
+          }
+        }
+      }
+    },
+    "chat.gallery.more": {
+      "comment": "Gallery button that reads older messages for more items.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load older items"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载更早的内容"
+          }
+        }
+      }
+    },
+    "chat.storage.conversation": {
+      "comment": "Details row with the size of this conversation's downloaded media on this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本设备上的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clear": {
+      "comment": "Destructive button that removes downloaded media from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clearAll": {
+      "comment": "Storage screen button that removes all downloaded media of the account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clearFact": {
+      "comment": "Confirmation text before clearing downloaded media.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded photos, videos and files are removed from this device. Items older than a day may no longer be available to download again. Messages waiting to be sent are kept."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的照片、视频和文件将从本设备移除。超过一天的内容可能无法再次下载。等待发送的消息会保留。"
+          }
+        }
+      }
+    },
+    "chat.storage.title": {
+      "comment": "Title of the media storage screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media storage"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体存储"
+          }
+        }
+      }
+    },
+    "chat.storage.downloaded": {
+      "comment": "Storage row with the size of downloaded media.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.waiting": {
+      "comment": "Storage row with the size of attachments waiting to be sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting to be sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待发送"
+          }
+        }
+      }
+    },
+    "chat.storage.policy": {
+      "comment": "Explanation of the storage policy on the media storage screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded media stays on this device until you or the sender delete it, or you clear it here. Nothing is removed automatically."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的媒体会保留在本设备上，直到你或发送者删除，或你在此处清除。不会自动删除任何内容。"
+          }
+        }
+      }
     }
   }
 }

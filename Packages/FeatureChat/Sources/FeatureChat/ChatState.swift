@@ -22,6 +22,9 @@ public struct ChatDetailsState: Equatable, Sendable {
     public var details: ChatDetails?
     public var failure: AppFailure?
     public var muting = false
+    /// Bytes of downloaded media of this conversation on this device; nil until measured.
+    public var storage: Int64?
+    public var confirmClear = false
     public init(loading: Bool = true, details: ChatDetails? = nil, failure: AppFailure? = nil) { self.loading = loading; self.details = details; self.failure = failure }
 }
 /// A file the user picked, copied by the view layer into the app's temporary directory.
@@ -92,6 +95,7 @@ public struct ChatState: Equatable, Sendable {
     /// True while picked media is normalised and staged in the outbox.
     public var staging = false
     public var mediaDraft: MediaDraft?
+    public var gallery: ChatGalleryState?
     /// The message whose whole album is open.
     public var album: String?
     /// A temporary copy under the original file name while the share sheet is open.

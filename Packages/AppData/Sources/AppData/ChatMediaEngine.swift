@@ -6,8 +6,17 @@ import RamfluxCore
 
 /// The private media store: decrypted originals and the send outbox, per account, under
 /// Application Support (not Caches: after the relay window the local copy is the only copy),
-/// excluded from backup, with complete-unless-open file protection on iOS. Files are named
-/// `<hash of message id>-<index>`; a sender's file name is never used as a path.
+/// excluded from backup, with complete-unless-open file protection on iOS. Originals live in
+/// `originals/<hash of conversation id>/<hash of message id>-<index>`; a sender's file name is
+/// never used as a path.
+///
+/// Eviction policy: originals are never evicted silently. They leave the device only when the
+/// sender erases the message, the user deletes it, or the user clears media in storage
+/// management (per conversation or for the account); a cleared item whose relay window has
+/// passed cannot be downloaded again. Staged outbox files leave when their send is admitted or
+/// discarded, and unreferenced staged files older than ten minutes are swept after unlock.
+/// Share copies are removed when the sheet closes. Decoded images live only in the bounded
+/// memory cache of the image pipeline; there is no derived disk cache.
 struct MediaStore: Sendable {
     let base: URL
     init(base: URL? = nil) {
@@ -18,11 +27,13 @@ struct MediaStore: Sendable {
     func outbox(_ account: String) -> URL { accountRoot(account).appendingPathComponent("outbox", isDirectory: true) }
     /// Transient copies for the share sheet, removed when the sheet closes.
     func share(_ account: String) -> URL { accountRoot(account).appendingPathComponent("share", isDirectory: true) }
-    func file(_ account: String, message: String, index: Int) -> URL {
-        originals(account).appendingPathComponent(Self.hash(MessagePage.normalizeIdentifier(message)) + "-" + String(index))
+    func conversation(_ account: String, _ conversation: String) -> URL { originals(account).appendingPathComponent(Self.hash(conversation), isDirectory: true) }
+    func file(_ account: String, conversation: String, message: String, index: Int) -> URL {
+        self.conversation(account, conversation).appendingPathComponent(Self.hash(MessagePage.normalizeIdentifier(message)) + "-" + String(index))
     }
-    func existing(_ account: String, message: String, index: Int) -> URL? {
-        let url = file(account, message: message, index: index)
+    func file(_ account: String, _ attachment: AttachmentRecord) -> URL { file(account, conversation: attachment.conversationID, message: attachment.messageID, index: attachment.index) }
+    func existing(_ account: String, _ attachment: AttachmentRecord) -> URL? {
+        let url = file(account, attachment)
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
     func prepare(_ directory: URL) throws {
@@ -31,15 +42,35 @@ struct MediaStore: Sendable {
         var values = URLResourceValues(); values.isExcludedFromBackup = true
         try? root.setResourceValues(values)
     }
-    /// Removes every stored original of a message (all indexes).
+    /// Removes every stored original of a message (all indexes, in whichever conversation).
     func purge(_ account: String, message: String) {
         let prefix = Self.hash(MessagePage.normalizeIdentifier(message)) + "-"
-        let directory = originals(account)
-        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
-        for name in names where name.hasPrefix(prefix) { try? FileManager.default.removeItem(at: directory.appendingPathComponent(name)) }
+        let root = originals(account)
+        guard let groups = try? FileManager.default.contentsOfDirectory(atPath: root.path) else { return }
+        for group in groups {
+            let directory = root.appendingPathComponent(group, isDirectory: true)
+            guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { continue }
+            for name in names where name.hasPrefix(prefix) { try? FileManager.default.removeItem(at: directory.appendingPathComponent(name)) }
+        }
+    }
+    func purgeConversation(_ account: String, conversation: String) { try? FileManager.default.removeItem(at: self.conversation(account, conversation)) }
+    /// Downloaded originals and share copies only; staged files of queued sends stay.
+    func purgeOriginals(_ account: String) {
+        try? FileManager.default.removeItem(at: originals(account)); try? FileManager.default.removeItem(at: share(account))
     }
     func purgeAccount(_ account: String) { try? FileManager.default.removeItem(at: accountRoot(account)) }
     func usage(_ account: String) -> MediaUsage { MediaUsage(originals: Self.size(originals(account)), outbox: Self.size(outbox(account))) }
+    func usage(_ account: String, conversation: String) -> Int64 { Self.size(self.conversation(account, conversation)) }
+    /// Removes staged files no queued send refers to and older than `age` seconds.
+    func sweepOutbox(_ account: String, keeping: Set<String>, age: TimeInterval = 600, now: Date = Date()) {
+        let directory = outbox(account)
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
+        for name in names where !keeping.contains(name) {
+            let url = directory.appendingPathComponent(name)
+            let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate) ?? now
+            if now.timeIntervalSince(modified) >= age { try? FileManager.default.removeItem(at: url) }
+        }
+    }
     static func size(_ directory: URL) -> Int64 {
         guard let items = FileManager.default.enumerator(at: directory, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
         var total: Int64 = 0
@@ -81,12 +112,12 @@ actor ChatMediaEngine {
     }
 
     func state(_ account: String, _ attachment: AttachmentRecord) -> MediaTransferState? {
-        if let url = store.existing(account, message: attachment.messageID, index: attachment.index) { return .ready(url) }
+        if let url = store.existing(account, attachment) { return .ready(url) }
         return imports[key(account, attachment)] == nil ? nil : .downloading
     }
 
     func download(_ account: String, _ attachment: AttachmentRecord, now: Date = Date()) async -> MediaTransferState {
-        if let url = store.existing(account, message: attachment.messageID, index: attachment.index) { return .ready(url) }
+        if let url = store.existing(account, attachment) { return .ready(url) }
         if attachment.isExpired(now: now) { return .expired }
         let id = key(account, attachment)
         if let task = imports[id] { return await task.value }
@@ -123,7 +154,7 @@ actor ChatMediaEngine {
                 try await pause(delay); delay = min(delay * 2, 2_000)
             }
             guard let total = length else { throw AppFailure.invalidData }
-            let directory = store.originals(account)
+            let directory = store.conversation(account, attachment.conversationID)
             try store.prepare(directory)
             let temporary = directory.appendingPathComponent(UUID().uuidString + ".part")
             guard FileManager.default.createFile(atPath: temporary.path, contents: nil, attributes: MediaStore.attributes) else { throw AppFailure.localStorage }
@@ -144,7 +175,7 @@ actor ChatMediaEngine {
                 try handle.synchronize(); try handle.close()
             } catch { try? handle.close(); throw error }
             guard offset == total else { throw AppFailure.invalidData }
-            let final = store.file(account, message: attachment.messageID, index: attachment.index)
+            let final = store.file(account, attachment)
             try? FileManager.default.removeItem(at: final)
             try FileManager.default.moveItem(at: temporary, to: final)
             _ = try? await gateway.call(.attachmentImportFinish, account: account, body: .object(["import_id": .string(id)]))

@@ -247,4 +247,58 @@ private func tinyPNG() throws -> URL {
         model.send(.closeAlbum); #expect(model.state.album == nil)
         model.send(.disappeared)
     }
+
+    @Test func theGalleryPagesTheReadModelInBoundedStepsAndHidesStrangersMedia() async throws {
+        // 50,000 rows, every tenth with a photo and every fiftieth with a file.
+        let rows: [MessageRecord] = (0..<50_000).map { index in
+            let id = "g\(index)"
+            var items: [AttachmentRecord] = []
+            if index % 10 == 0 { items.append(AttachmentRecord(id: id + "#0", name: "p.jpg", mime: "image/jpeg", messageID: id, index: 0, size: 1_000, availableUntil: 4_000_000_000)) }
+            if index % 50 == 0 { items.append(AttachmentRecord(id: id + "#1", name: "f.pdf", mime: "application/pdf", messageID: id, index: 1, size: 1_000, availableUntil: 4_000_000_000)) }
+            return MessageRecord(id: id, sender: "peer", kind: .text("row"), isOwn: false, timestamp: 1, attachments: items, authorAnchor: "peer-anchor", order: MessageOrder(milliseconds: Int64(50_000 - index)))
+        }
+        let fake = ChatFake(history: rows)
+        await fake.setDetails(.success(ChatDetails(muted: false)))
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        let before = await fake.pageRequests.count
+        let clock = ContinuousClock()
+        let started = clock.now
+        model.send(.openGallery)
+        try await settleMedia(model, fake) { model.state.gallery?.loading == false }
+        let first = clock.now - started
+        let gallery = try #require(model.state.gallery)
+        #expect(gallery.media.count == 40); #expect(gallery.files.count == 8)
+        #expect(await fake.pageRequests.count - before <= ChatViewModel.galleryPagesPerStep)
+        #expect(gallery.media.allSatisfy { model.state.media[$0.id] == .blockedByPolicy })
+        for _ in 0..<49 {
+            model.send(.galleryMore)
+            try await settleMedia(model, fake) { model.state.gallery?.loading == false }
+        }
+        let paged = try #require(model.state.gallery)
+        #expect(paged.media.count + paged.files.count == ChatViewModel.galleryCapacity); #expect(paged.detached)
+        print("GALLERY_SCALE first step \(first), after 50 steps media=\(paged.media.count) files=\(paged.files.count) detached=\(paged.detached) elapsed=\(clock.now - started)")
+        model.send(.closeGallery); #expect(model.state.gallery == nil)
+        model.send(.disappeared)
+    }
+
+    @Test func conversationAndAccountStorageAreClearedOnlyAfterConfirmation() async throws {
+        let fake = ChatFake()
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        model.send(.detailsRequested); await model.settle()
+        #expect(model.state.details?.storage == 4_096)
+        model.send(.clearMediaConfirmed); await model.settle()
+        #expect(await fake.purgedConversations.isEmpty)
+        model.send(.clearMediaRequested); model.send(.clearMediaConfirmed); await model.settle()
+        #expect(await fake.purgedConversations == ["c"]); #expect(model.state.details?.storage == 0)
+        model.send(.disappeared)
+
+        let storage = MediaStorageViewModel(repository: ChatFake(), account: "a")
+        storage.send(.appeared); await storage.settle()
+        #expect(storage.state.usage == MediaUsage(originals: 4_096, outbox: 10))
+        storage.send(.clearConfirmed); await storage.settle(); #expect(storage.state.usage?.originals == 4_096)
+        storage.send(.clearRequested); storage.send(.clearConfirmed); await storage.settle()
+        #expect(storage.state.usage == MediaUsage(originals: 0, outbox: 10))
+    }
 }

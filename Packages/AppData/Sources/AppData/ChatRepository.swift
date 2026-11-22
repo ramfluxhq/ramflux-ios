@@ -74,7 +74,11 @@ public protocol ChatRepository: Sendable {
     /// Retires a message's attachment grants on the relay and drops local copies. The revoke is
     /// remembered until it succeeds and retried on the next flush or after unlock.
     func revokeMedia(account: String, message: String) async -> RepositoryResult<Void>
+    /// Clears downloaded originals of the account (staged files of queued sends stay).
     func purgeAccountMedia(account: String) async
+    func mediaUsage(account: String, conversation: String) async -> Int64
+    /// Clears downloaded originals of one conversation.
+    func purgeConversationMedia(account: String, conversation: String) async
     /// Restores the account's sealed unsent state after unlock and resumes queued sends in every
     /// conversation with their original operation ids, plus pending revokes.
     func resumeAfterUnlock(account: String) async -> [SendOutcome]
@@ -98,6 +102,7 @@ public struct NativeChatRepository: ChatRepository {
     private let sends = RetainedMutation<String, SendOutcome>()
     private let mutations = RetainedMutation<ChatMutationKey, Void>()
     private let queue: ChatOutbox
+    private let background: any MediaBackgroundAssertion
     private let devices = OwnDeviceCache()
     private let media: ChatMediaEngine
     public func sendState(account: String, conversation: String) async -> PendingChatSend? {
@@ -112,9 +117,10 @@ public struct NativeChatRepository: ChatRepository {
     private let updates: NativeUpdateSource
     public init(client: RamfluxClient, updates: NativeUpdateSource) { self.init(client: client, updates: updates, mediaRoot: nil, vaultKeys: KeychainChatVaultKeys()) }
     /// Without `vaultKeys` unsent state stays in process memory (tests).
-    init(client: RamfluxClient, updates: NativeUpdateSource, mediaRoot: URL?, vaultRoot: URL? = nil, vaultKeys: (any ChatVaultKeys)? = nil, pause: @escaping @Sendable (Int) async throws -> Void = { try await Task.sleep(for: .milliseconds($0)) }) {
+    init(client: RamfluxClient, updates: NativeUpdateSource, mediaRoot: URL?, vaultRoot: URL? = nil, vaultKeys: (any ChatVaultKeys)? = nil, background: any MediaBackgroundAssertion = MediaBackgroundTransfer.system,
+         pause: @escaping @Sendable (Int) async throws -> Void = { try await Task.sleep(for: .milliseconds($0)) }) {
         let gateway = ProxyGateway(proxy: SDKProxy(client: client))
-        self.gateway = gateway; self.updates = updates
+        self.gateway = gateway; self.updates = updates; self.background = background
         let store = MediaStore(base: mediaRoot)
         media = ChatMediaEngine(gateway: gateway, store: store, pause: pause)
         queue = ChatOutbox(vault: vaultKeys.map { ChatVault(base: vaultRoot, keys: $0, outbox: { store.outbox($0) }) })
@@ -165,9 +171,11 @@ public struct NativeChatRepository: ChatRepository {
     }
     public func flushOutbox(account: String, conversation: String) async -> [SendOutcome] {
         await retryRevokes(account)
-        return await queue.flush(account, conversation) { [media] entry in
+        return await queue.flush(account, conversation) { [media, background] entry in
             guard !entry.media.isEmpty else { return await send(account: account, conversation: conversation, text: entry.text, operationID: entry.operationID) }
-            return await media.send(account, conversation: conversation, groupID: entry.groupID, caption: entry.text, items: entry.media, operationID: entry.operationID)
+            return await MediaBackgroundTransfer.run(background, name: "ramflux.media.upload") {
+                await media.send(account, conversation: conversation, groupID: entry.groupID, caption: entry.text, items: entry.media, operationID: entry.operationID)
+            }
         }
     }
     public func retryOutbox(account: String, conversation: String, operationID: String) async -> [SendOutcome] {
@@ -183,6 +191,7 @@ public struct NativeChatRepository: ChatRepository {
         var admitted: [SendOutcome] = []
         await retryRevokes(account)
         for conversation in await queue.pendingConversations(account) { admitted += await flushOutbox(account: account, conversation: conversation) }
+        media.store.sweepOutbox(account, keeping: Set(await queue.allEntries(account).flatMap { $0.media.map(\.file.lastPathComponent) }))
         return admitted
     }
     public func sealForLock(account: String) async { await queue.seal(account) }
@@ -193,7 +202,7 @@ public struct NativeChatRepository: ChatRepository {
     }
     public func shareCopy(account: String, file: URL, name: String) async -> URL? {
         let originals = media.store.originals(account).standardizedFileURL.path
-        guard file.standardizedFileURL.deletingLastPathComponent().path == originals else { return nil }
+        guard file.standardizedFileURL.deletingLastPathComponent().deletingLastPathComponent().path == originals else { return nil }
         let directory = media.store.share(account).appendingPathComponent(UUID().uuidString, isDirectory: true)
         let target = directory.appendingPathComponent(MediaFileName.sanitized(name))
         do {
@@ -301,7 +310,7 @@ public struct NativeChatRepository: ChatRepository {
     public func mediaState(account: String, attachment: AttachmentRecord) async -> MediaTransferState? { await media.state(account, attachment) }
     public func download(account: String, attachment: AttachmentRecord) async -> MediaTransferState {
         guard Self.identity(attachment.messageID), (0..<MessagePage.maxAttachments).contains(attachment.index) else { return .failed(.invalidInput, retryable: false) }
-        return await media.download(account, attachment)
+        return await MediaBackgroundTransfer.run(background, name: "ramflux.media.download") { await media.download(account, attachment) }
     }
     public func cancelDownload(account: String, attachment: AttachmentRecord) async { await media.cancel(account, attachment) }
     public func mediaOutbox(account: String) async -> URL? {
@@ -315,8 +324,14 @@ public struct NativeChatRepository: ChatRepository {
         if case .success = result { await queue.removeRevoke(account, message: message) }
         return result
     }
-    public func purgeAccountMedia(account: String) async { media.store.purgeAccount(account) }
+    public func purgeAccountMedia(account: String) async { await media.cancelAll(account); media.store.purgeOriginals(account) }
     public func mediaUsage(account: String) async -> MediaUsage { media.store.usage(account) }
+    public func mediaUsage(account: String, conversation: String) async -> Int64 { media.store.usage(account, conversation: conversation) }
+    public func purgeConversationMedia(account: String, conversation: String) async {
+        guard Self.identity(conversation) else { return }
+        await media.cancelAll(account)
+        media.store.purgeConversation(account, conversation: conversation)
+    }
     /// Erased rows lose their local media at once (erase for everyone, local delete, expiry).
     private func purgeErased(_ account: String, _ records: [MessageRecord]) {
         for record in records where record.kind == .deleted { media.store.purge(account, message: record.id) }
@@ -429,6 +444,8 @@ public extension ChatRepository {
     func enqueueMedia(account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<[SendOutcome]> { .failure(unavailable(.attachmentTransfer)) }
     func revokeMedia(account: String, message: String) async -> RepositoryResult<Void> { .failure(unavailable(.attachmentTransfer)) }
     func purgeAccountMedia(account: String) async {}
+    func mediaUsage(account: String, conversation: String) async -> Int64 { 0 }
+    func purgeConversationMedia(account: String, conversation: String) async {}
     func resumeAfterUnlock(account: String) async -> [SendOutcome] { [] }
     func sealForLock(account: String) async {}
     func purgeAccount(account: String) async {}

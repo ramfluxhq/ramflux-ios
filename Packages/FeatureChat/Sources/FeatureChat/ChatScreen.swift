@@ -80,32 +80,7 @@ public struct ChatScreen: View {
                     Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelReaction) }
                 }.padding(theme.gap) } }
             }
-            .sheet(isPresented: Binding(get: { state.attachSheet }, set: { if !$0 { onAction(.closeAttach) } })) { AttachSheet(onAction: onAction) }
-            .sheet(isPresented: Binding(get: { state.preview?.kind == .file }, set: { if !$0 { onAction(.closePreview) } })) {
-                #if os(iOS)
-                if let preview = state.preview { QuickLookPreview(file: preview.file).ignoresSafeArea() }
-                #endif
-            }
-            #if os(iOS)
-            .sheet(isPresented: Binding(get: { state.mediaDraft != nil }, set: { if !$0 { onAction(.cancelMediaDraft) } })) {
-                if let draft = state.mediaDraft { MediaDraftSheet(draft: draft, onAction: onAction) }
-            }
-            .sheet(isPresented: Binding(get: { state.album != nil }, set: { if !$0 { onAction(.closeAlbum) } })) {
-                if let id = state.album, let message = state.messages.first(where: { $0.id == id }) {
-                    MediaAlbumSheet(items: message.attachments.filter { $0.kind != .file }, states: state.media, revealed: state.revealed, onAction: onAction)
-                        .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
-                            if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
-                        }
-                }
-            }
-            .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true && state.album == nil }, set: { if !$0 { onAction(.closePreview) } })) {
-                if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
-            }
-            .sheet(isPresented: Binding(get: { state.shareFile != nil }, set: { if !$0 { onAction(.shareFinished) } })) {
-                if let file = state.shareFile { ShareSheet(file: file) { onAction(.shareFinished) }.ignoresSafeArea() }
-            }
-            .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }
-            #endif
+            .modifier(ChatMediaSheets(state: state, onAction: onAction))
             .sheet(isPresented: Binding(get: { state.details != nil }, set: { if !$0 { onAction(.closeDetails) } })) {
                 if let details = state.details { ChatDetailsSheet(state: details, title: state.displayTitle, conversationID: state.conversationID, isGroup: state.isGroup, onAction: onAction) }
             }
@@ -175,5 +150,49 @@ struct ChatActionsOverlay: View {
             list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.delete.everyone", locale: locale), icon: "trash-2", danger: true), run: { onAction(.requestDelete(message.id, .everyone)) }))
         }
         return list
+    }
+}
+
+/// The media presentations of the chat: attach sheet, send preview, album, gallery, viewer,
+/// Quick Look, share sheet and camera. Each sheet that can open media carries its own viewer.
+struct ChatMediaSheets: ViewModifier {
+    let state: ChatState
+    let onAction: (ChatAction) -> Void
+    func body(content: Content) -> some View {
+        content
+        .sheet(isPresented: Binding(get: { state.attachSheet }, set: { if !$0 { onAction(.closeAttach) } })) { AttachSheet(onAction: onAction) }
+        .sheet(isPresented: Binding(get: { state.preview?.kind == .file && state.gallery == nil }, set: { if !$0 { onAction(.closePreview) } })) {
+            #if os(iOS)
+            if let preview = state.preview { QuickLookPreview(file: preview.file).ignoresSafeArea() }
+            #endif
+        }
+        #if os(iOS)
+        .sheet(isPresented: Binding(get: { state.mediaDraft != nil }, set: { if !$0 { onAction(.cancelMediaDraft) } })) {
+            if let draft = state.mediaDraft { MediaDraftSheet(draft: draft, onAction: onAction) }
+        }
+        .sheet(isPresented: Binding(get: { state.album != nil }, set: { if !$0 { onAction(.closeAlbum) } })) {
+            if let id = state.album, let message = state.messages.first(where: { $0.id == id }) {
+                MediaAlbumSheet(items: message.attachments.filter { $0.kind != .file }, states: state.media, revealed: state.revealed, onAction: onAction)
+                    .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
+                        if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, shareFile: state.shareFile, onAction: onAction) }
+                    }
+            }
+        }
+        .sheet(isPresented: Binding(get: { state.gallery != nil }, set: { if !$0 { onAction(.closeGallery) } })) {
+            if let gallery = state.gallery {
+                ChatGallerySheet(gallery: gallery, states: state.media, revealed: state.revealed, onAction: onAction)
+                    .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
+                        if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, shareFile: state.shareFile, onAction: onAction) }
+                    }
+                    .sheet(isPresented: Binding(get: { state.preview?.kind == .file }, set: { if !$0 { onAction(.closePreview) } })) {
+                        if let preview = state.preview { QuickLookPreview(file: preview.file).ignoresSafeArea() }
+                    }
+            }
+        }
+        .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true && state.album == nil && state.gallery == nil }, set: { if !$0 { onAction(.closePreview) } })) {
+            if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, shareFile: state.shareFile, onAction: onAction) }
+        }
+        .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }
+        #endif
     }
 }

@@ -90,6 +90,8 @@ actor ChatOutbox {
 
     func entries(_ account: String, _ conversation: String) async -> [OutboxEntry] { await self.account(account).queues[conversation] ?? [] }
 
+    func allEntries(_ account: String) async -> [OutboxEntry] { await self.account(account).queues.values.flatMap { $0 } }
+
     /// Conversations with entries waiting to be sent automatically.
     func pendingConversations(_ account: String) async -> [String] {
         await self.account(account).queues.filter { $0.value.contains { $0.state == .queued } }.keys.sorted()

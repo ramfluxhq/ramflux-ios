@@ -98,6 +98,22 @@ erases the file, the key, staged files and stored media. Staged media lives in t
 account media outbox (complete-unless-open, excluded from backup). Shared files are
 temporary copies under the sanitised original name, removed when the sheet closes.
 
+Downloaded originals live in `RamfluxMedia/<account>/originals/<conversation>/` (hashed
+names, complete-unless-open, excluded from backup). Eviction policy: nothing is evicted
+silently. Originals leave the device when the sender erases the message, the user deletes
+it, or the user clears media in storage management (the chat details sheet per
+conversation, `MediaStorageScreen` for the account, both behind a confirmation); staged
+files of queued sends are never cleared there, and unreferenced staged files older than
+ten minutes are swept after unlock. Decoded images live only in the bounded memory cache
+of the image pipeline. The conversation gallery pages the message read model (the SDK has
+no media filter yet) in bounded steps and keeps at most 2,000 items.
+
+Background transfer: uploads and downloads run inside the SDK over its gateway session,
+so a background URL session cannot carry them. Each active transfer holds a
+`UIApplication` background task assertion; when iOS ends it (about 30 seconds) the app is
+suspended, the queued send stays sealed and resumes with the same operation id on the next
+activation, and an import restarts because the SDK keeps import handles in memory only.
+
 Local search, phone pairing, stranger reporting and
 atomic safety-fingerprint verification are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published

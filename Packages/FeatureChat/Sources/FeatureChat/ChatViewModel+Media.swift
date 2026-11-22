@@ -67,7 +67,7 @@ extension ChatViewModel {
     func stopMedia(conceal: Bool) {
         for task in mediaTasks.values { task.cancel() }
         mediaTasks = [:]; trust = nil; pendingSave = nil
-        discardDraft(); state.album = nil
+        discardDraft(); state.album = nil; galleryTask?.cancel(); galleryTask = nil; state.gallery = nil; galleryCursor = nil
         state.media = [:]; state.revealed = []; state.preview = nil; state.attachSheet = false; state.cameraActive = false; state.photoSaved = nil; state.staging = false
         if state.shareFile != nil { state.shareFile = nil; Task { [repository, account] in await repository.removeShareCopy(account: account) } }
         if conceal { ImagePipeline.shared.purge() }
@@ -75,7 +75,7 @@ extension ChatViewModel {
 
     private func attachment(_ id: String) -> AttachmentRecord? {
         for message in state.messages { if let found = message.attachments.first(where: { $0.id == id }) { return found } }
-        return nil
+        return state.gallery.flatMap { gallery in gallery.media.first { $0.id == id } ?? gallery.files.first { $0.id == id } }
     }
 
     /// Reconciles transfer states with the window: drops states of attachments that left it,
@@ -86,7 +86,8 @@ extension ChatViewModel {
         for message in state.messages where message.kind != .deleted {
             for item in message.attachments { present[item.id] = item; owners[item.id] = message.isOwn == true }
         }
-        for id in state.media.keys where present[id] == nil { state.media[id] = nil; mediaTasks[id]?.cancel(); mediaTasks[id] = nil }
+        let gallery = state.gallery?.ids ?? []
+        for id in state.media.keys where present[id] == nil && !gallery.contains(id) { state.media[id] = nil; mediaTasks[id]?.cancel(); mediaTasks[id] = nil }
         let fresh = present.values.filter { state.media[$0.id] == nil && mediaTasks[$0.id] == nil }
         guard !fresh.isEmpty else { return }
         let current = epoch
@@ -112,7 +113,7 @@ extension ChatViewModel {
 
     /// Contacts, groups and everyone else. A direct peer counts as a contact only when the
     /// details lookup matches a contact by root commitment; otherwise media stays behind a tap.
-    private func resolveTrust() async -> MediaPolicy.Sender {
+    func resolveTrust() async -> MediaPolicy.Sender {
         if let trust { return trust }
         if state.isGroup { trust = .group; return .group }
         let anchor = state.messages.first { $0.isOwn == false && $0.authorAnchor != nil }?.authorAnchor

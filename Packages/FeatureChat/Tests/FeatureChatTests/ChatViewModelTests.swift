@@ -126,6 +126,13 @@ actor ChatFake: ChatRepository {
         return downloadResult ?? .ready(FileManager.default.temporaryDirectory.appendingPathComponent(attachment.id))
     }
     func mediaOutbox(account: String) -> URL? { try? FileManager.default.createDirectory(at: outboxDirectory, withIntermediateDirectories: true); return outboxDirectory }
+    private(set) var purgedConversations: [String] = []
+    private(set) var accountPurges = 0
+    var storedBytes: Int64 = 4_096
+    func mediaUsage(account: String, conversation: String) -> Int64 { storedBytes }
+    func mediaUsage(account: String) -> MediaUsage { MediaUsage(originals: storedBytes, outbox: 10) }
+    func purgeConversationMedia(account: String, conversation: String) { purgedConversations.append(conversation); storedBytes = 0 }
+    func purgeAccountMedia(account: String) { accountPurges += 1; storedBytes = 0 }
     func shareCopy(account: String, file: URL, name: String) -> URL? { shared.append((file, name)); return file.deletingLastPathComponent().appendingPathComponent(name) }
     func removeShareCopy(account: String) { shareRemovals += 1 }
     func forward(account: String, text: String, attachments: [AttachmentRecord], to conversation: String, groupID: String?, operationID: String) -> RepositoryResult<[SendOutcome]> {

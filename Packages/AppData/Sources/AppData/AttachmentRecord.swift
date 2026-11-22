@@ -19,6 +19,9 @@ public struct AttachmentRecord: Identifiable, Equatable, Sendable, CustomStringC
     /// `<message id>#<index>`; stable across reloads.
     public let id: String
     public let messageID: String
+    /// The conversation the message belongs to; stored originals are grouped by it so storage
+    /// can be shown and cleared per conversation.
+    public let conversationID: String
     public let index: Int
     public let name: String
     public let mime: String?
@@ -26,8 +29,8 @@ public struct AttachmentRecord: Identifiable, Equatable, Sendable, CustomStringC
     public let thumbnail: AttachmentThumbnail?
     /// Unix seconds after which the relay refuses the import (the grant's hard deadline).
     public let availableUntil: Int64?
-    public init(id: String, name: String, mime: String? = nil, messageID: String = "", index: Int = 0, size: Int64? = nil, thumbnail: AttachmentThumbnail? = nil, availableUntil: Int64? = nil) {
-        self.id = id; self.name = name; self.mime = mime; self.messageID = messageID; self.index = index; self.size = size; self.thumbnail = thumbnail; self.availableUntil = availableUntil
+    public init(id: String, name: String, mime: String? = nil, messageID: String = "", conversationID: String = "", index: Int = 0, size: Int64? = nil, thumbnail: AttachmentThumbnail? = nil, availableUntil: Int64? = nil) {
+        self.id = id; self.name = name; self.mime = mime; self.messageID = messageID; self.conversationID = conversationID; self.index = index; self.size = size; self.thumbnail = thumbnail; self.availableUntil = availableUntil
     }
     /// The placeholder kind chosen from the declared type. The bytes decide the renderer after
     /// download; a declared image that is not an image falls back to a file bubble.

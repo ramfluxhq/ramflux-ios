@@ -20,6 +20,12 @@ final class MemoryVaultKeys: ChatVaultKeys {
     var count: Int { keys.withLock { $0.count } }
 }
 
+final class RecordingAssertion: MediaBackgroundAssertion {
+    let log = Mutex<[String]>([])
+    private struct Token: MediaBackgroundToken { let owner: RecordingAssertion; func end() async { owner.log.withLock { $0.append("end") } } }
+    func begin(_ name: String) async -> any MediaBackgroundToken { log.withLock { $0.append(name) }; return Token(owner: self) }
+}
+
 @Suite(.timeLimit(.minutes(1))) struct ChatVaultTests {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent("rf-vault-\(UUID().uuidString)", isDirectory: true)
 
@@ -168,18 +174,63 @@ final class MemoryVaultKeys: ChatVaultKeys {
         }
         let repo = repository(transport, keys: MemoryVaultKeys())
         let store = MediaStore(base: root.appendingPathComponent("media"))
-        try store.prepare(store.originals("a"))
-        try Data("pdf".utf8).write(to: store.file("a", message: "msg", index: 0))
-        let attachment = AttachmentRecord(id: "msg#0", name: ".re\u{202E}port.pdf", mime: "application/pdf", messageID: "msg", index: 0)
+        try store.prepare(store.conversation("a", "c"))
+        try Data("pdf".utf8).write(to: store.file("a", conversation: "c", message: "msg", index: 0))
+        let attachment = AttachmentRecord(id: "msg#0", name: ".re\u{202E}port.pdf", mime: "application/pdf", messageID: "msg", conversationID: "c", index: 0)
         #expect(await repo.forward(account: "a", text: "see this", attachments: [attachment], to: "other", groupID: nil, operationID: "fwd-op") == .success([SendOutcome(messageID: "fwd", state: .submitted)]))
-        #expect(store.existing("a", message: "msg", index: 0) != nil)
+        #expect(store.existing("a", attachment) != nil)
         #expect(!methods.withLock { $0 }.contains("attachment.import.begin"))
 
         // Share uses a temporary copy under the sanitised original name, removed afterwards.
-        let copy = try #require(await repo.shareCopy(account: "a", file: store.file("a", message: "msg", index: 0), name: attachment.name))
+        let copy = try #require(await repo.shareCopy(account: "a", file: store.file("a", attachment), name: attachment.name))
         #expect(copy.lastPathComponent == "report.pdf"); #expect(try Data(contentsOf: copy) == Data("pdf".utf8))
         #expect(await repo.shareCopy(account: "a", file: root.appendingPathComponent("elsewhere"), name: "x") == nil)
         await repo.removeShareCopy(account: "a")
         #expect(!FileManager.default.fileExists(atPath: copy.path))
+    }
+
+    @Test func storageIsMeasuredAndClearedPerConversationAndAccountWithoutTouchingQueuedSends() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let transport = ProxyTransport { _ in throw CoreFailure(code: 9, effect: .none) }
+        let repo = repository(transport, keys: MemoryVaultKeys())
+        let store = MediaStore(base: root.appendingPathComponent("media"))
+        for (conversation, size) in [("c1", 100), ("c2", 50)] {
+            try store.prepare(store.conversation("a", conversation))
+            try Data(count: size).write(to: store.file("a", conversation: conversation, message: "m-" + conversation, index: 0))
+        }
+        let outbox = try #require(await repo.mediaOutbox(account: "a"))
+        let staged = outbox.appendingPathComponent("queued"); try Data(count: 7).write(to: staged)
+        _ = await repo.enqueueMedia(account: "a", conversation: "c1", groupID: nil, caption: "", items: [MediaUpload(file: staged, fileName: "a.bin", mime: "application/octet-stream")], operationID: "op")
+        let orphan = outbox.appendingPathComponent("orphan"); try Data(count: 3).write(to: orphan)
+        try FileManager.default.setAttributes([.modificationDate: Date(timeIntervalSinceNow: -3_600)], ofItemAtPath: orphan.path)
+        let fresh = outbox.appendingPathComponent("fresh"); try Data(count: 3).write(to: fresh)
+        #expect(await repo.mediaUsage(account: "a", conversation: "c1") == 100)
+        #expect(await repo.mediaUsage(account: "a") == MediaUsage(originals: 150, outbox: 13))
+        await repo.purgeConversationMedia(account: "a", conversation: "c1")
+        #expect(await repo.mediaUsage(account: "a", conversation: "c1") == 0); #expect(await repo.mediaUsage(account: "a", conversation: "c2") == 50)
+        await repo.purgeAccountMedia(account: "a")
+        #expect(await repo.mediaUsage(account: "a").originals == 0)
+        #expect(FileManager.default.fileExists(atPath: staged.path))
+        _ = await repo.resumeAfterUnlock(account: "a")
+        #expect(!FileManager.default.fileExists(atPath: orphan.path)); #expect(FileManager.default.fileExists(atPath: fresh.path)); #expect(FileManager.default.fileExists(atPath: staged.path))
+    }
+
+    @Test func transfersRunUnderABackgroundAssertionThatEndsWithThem() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let transport = ProxyTransport { request in
+            switch request.method {
+            case "attachment.enable": return .object([:])
+            case "attachment.prepare.begin": return .object(["prepare_id": .string("p"), "generation": .number(1), "state": .string("staged")])
+            case "conversation.send": return .object(["message_id": .string("m"), "conversation_id": .string("c"), "delivery_state": .string("submitted")])
+            default: throw CoreFailure(code: 9, effect: .none, typedName: "not_grantee")
+            }
+        }
+        let assertion = RecordingAssertion()
+        let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: root, background: assertion, pause: { _ in })
+        let outbox = try #require(await repo.mediaOutbox(account: "a"))
+        let file = outbox.appendingPathComponent("f"); try Data([1]).write(to: file)
+        _ = await repo.enqueueMedia(account: "a", conversation: "c", groupID: nil, caption: "", items: [MediaUpload(file: file, fileName: "a.bin", mime: "application/octet-stream")], operationID: "op")
+        _ = await repo.download(account: "a", attachment: AttachmentRecord(id: "x#0", name: "", mime: "image/jpeg", messageID: "x", conversationID: "c", availableUntil: 4_000_000_000))
+        #expect(assertion.log.withLock { $0 } == ["ramflux.media.upload", "end", "ramflux.media.download", "end"])
     }
 }

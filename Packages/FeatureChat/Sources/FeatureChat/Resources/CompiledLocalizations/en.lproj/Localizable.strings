@@ -64,6 +64,18 @@
 	<string>Messages in this conversation will appear here.</string>
 	<key>chat.empty.title</key>
 	<string>No messages yet</string>
+	<key>chat.gallery.empty</key>
+	<string>Nothing here yet</string>
+	<key>chat.gallery.files</key>
+	<string>Files</string>
+	<key>chat.gallery.media</key>
+	<string>Media</string>
+	<key>chat.gallery.more</key>
+	<string>Load older items</string>
+	<key>chat.gallery.newest</key>
+	<string>Back to newest</string>
+	<key>chat.gallery.title</key>
+	<string>Media and files</string>
 	<key>chat.loading</key>
 	<string>Loading messages</string>
 	<key>chat.media.accessibility</key>
@@ -152,6 +164,22 @@
 	<string>Reply</string>
 	<key>chat.send.retry</key>
 	<string>Retry original send</string>
+	<key>chat.storage.clear</key>
+	<string>Clear downloaded media</string>
+	<key>chat.storage.clearAll</key>
+	<string>Clear all downloaded media</string>
+	<key>chat.storage.clearFact</key>
+	<string>Downloaded photos, videos and files are removed from this device. Items older than a day may no longer be available to download again. Messages waiting to be sent are kept.</string>
+	<key>chat.storage.conversation</key>
+	<string>Media on this device</string>
+	<key>chat.storage.downloaded</key>
+	<string>Downloaded media</string>
+	<key>chat.storage.policy</key>
+	<string>Downloaded media stays on this device until you or the sender delete it, or you clear it here. Nothing is removed automatically.</string>
+	<key>chat.storage.title</key>
+	<string>Media storage</string>
+	<key>chat.storage.waiting</key>
+	<string>Waiting to be sent</string>
 	<key>chat.timeline.jumpToLatest</key>
 	<string>Jump to latest</string>
 	<key>chat.timeline.loadingOlder</key>

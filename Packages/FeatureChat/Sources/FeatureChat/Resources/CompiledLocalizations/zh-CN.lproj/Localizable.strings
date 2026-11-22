@@ -64,6 +64,18 @@
 	<string>此会话的消息将在这里显示。</string>
 	<key>chat.empty.title</key>
 	<string>暂无消息</string>
+	<key>chat.gallery.empty</key>
+	<string>暂无内容</string>
+	<key>chat.gallery.files</key>
+	<string>文件</string>
+	<key>chat.gallery.media</key>
+	<string>媒体</string>
+	<key>chat.gallery.more</key>
+	<string>加载更早的内容</string>
+	<key>chat.gallery.newest</key>
+	<string>回到最新</string>
+	<key>chat.gallery.title</key>
+	<string>媒体和文件</string>
 	<key>chat.loading</key>
 	<string>正在加载消息</string>
 	<key>chat.media.accessibility</key>
@@ -152,6 +164,22 @@
 	<string>回复</string>
 	<key>chat.send.retry</key>
 	<string>重试原始发送操作</string>
+	<key>chat.storage.clear</key>
+	<string>清除已下载的媒体</string>
+	<key>chat.storage.clearAll</key>
+	<string>清除全部已下载的媒体</string>
+	<key>chat.storage.clearFact</key>
+	<string>已下载的照片、视频和文件将从本设备移除。超过一天的内容可能无法再次下载。等待发送的消息会保留。</string>
+	<key>chat.storage.conversation</key>
+	<string>本设备上的媒体</string>
+	<key>chat.storage.downloaded</key>
+	<string>已下载的媒体</string>
+	<key>chat.storage.policy</key>
+	<string>已下载的媒体会保留在本设备上，直到你或发送者删除，或你在此处清除。不会自动删除任何内容。</string>
+	<key>chat.storage.title</key>
+	<string>媒体存储</string>
+	<key>chat.storage.waiting</key>
+	<string>等待发送</string>
 	<key>chat.timeline.jumpToLatest</key>
 	<string>回到最新</string>
 	<key>chat.timeline.loadingOlder</key>

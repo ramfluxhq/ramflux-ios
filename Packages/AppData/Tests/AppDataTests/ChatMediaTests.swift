@@ -142,12 +142,12 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: root, pause: { _ in })
         let store = MediaStore(base: root)
-        try store.prepare(store.originals("a"))
-        for message in ["msg", "gone"] { try Data([1, 2]).write(to: store.file("a", message: message, index: 0)) }
+        try store.prepare(store.conversation("a", "c"))
+        for message in ["msg", "gone"] { try Data([1, 2]).write(to: store.file("a", conversation: "c", message: message, index: 0)) }
         guard case .success = await repo.revokeMedia(account: "a", message: "msg") else { Issue.record("Revoke must succeed"); return }
-        #expect(store.existing("a", message: "msg", index: 0) == nil)
+        #expect(store.existing("a", AttachmentRecord(id: "msg#0", name: "", messageID: "msg", conversationID: "c")) == nil)
         _ = await repo.messages(account: "a", conversation: "c", before: nil)
-        #expect(store.existing("a", message: "gone", index: 0) == nil)
+        #expect(store.existing("a", AttachmentRecord(id: "gone#0", name: "", messageID: "gone", conversationID: "c")) == nil)
     }
 
     @Test func policyNeverDownloadsForStrangersAndCapsGroupsAndCellular() {

@@ -22,6 +22,8 @@ import AppData
     @ObservationIgnored private var observer: Task<Void, Never>?
     @ObservationIgnored private var outboxTask: Task<Void, Never>?
     @ObservationIgnored private var detailsTask: Task<Void, Never>?
+    @ObservationIgnored var galleryTask: Task<Void, Never>?
+    @ObservationIgnored var galleryCursor: MessageCursor?
     @ObservationIgnored private var sideTasks: [Task<Void, Never>] = []
     @ObservationIgnored var epoch: UInt64 = 0
     @ObservationIgnored private var readID: UInt64 = 0
@@ -81,6 +83,10 @@ import AppData
         case .confirmDelete: confirmDelete()
         case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo, .removeDraftItem, .draftCaptionChanged, .sendMediaDraft, .cancelMediaDraft, .openAlbum, .closeAlbum:
             handleMedia(action)
+        case .openGallery, .closeGallery, .galleryTab, .galleryMore: handleGallery(action)
+        case .clearMediaRequested: state.details?.confirmClear = true
+        case .clearMediaCancelled: state.details?.confirmClear = false
+        case .clearMediaConfirmed: clearConversationMedia()
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil
         case .setMuted(let muted): setMuted(muted)
@@ -397,11 +403,29 @@ import AppData
         detailsTask?.cancel()
         detailsTask = Task { [weak self, repository, account, conversation] in
             let result = await repository.details(account: account, conversation: conversation, peerAnchor: anchor)
+            let storage = await repository.mediaUsage(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.state.details != nil else { return }
             switch result {
             case .success(let details): self.state.details = ChatDetailsState(loading: false, details: details)
             case .failure(let error): self.state.details = ChatDetailsState(loading: false, failure: error)
             }
+            self.state.details?.storage = storage
+        }
+    }
+    /// Clears this conversation's downloaded media after the user confirmed; items whose relay
+    /// window passed cannot be downloaded again.
+    private func clearConversationMedia() {
+        guard state.details?.confirmClear == true else { return }
+        state.details?.confirmClear = false
+        for task in mediaTasks.values { task.cancel() }
+        mediaTasks = [:]
+        detailsTask = Task { [weak self, repository, account, conversation] in
+            await repository.purgeConversationMedia(account: account, conversation: conversation)
+            let storage = await repository.mediaUsage(account: account, conversation: conversation)
+            guard !Task.isCancelled, let self else { return }
+            self.state.details?.storage = storage
+            self.state.media = [:]; self.state.preview = nil
+            self.syncMedia()
         }
     }
     private func setMuted(_ muted: Bool) {

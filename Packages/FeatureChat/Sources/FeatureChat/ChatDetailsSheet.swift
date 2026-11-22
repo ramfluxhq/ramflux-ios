@@ -47,6 +47,21 @@ struct ChatDetailsSheet: View {
                     }
                 }
             }
+            KitRow(FeatureChatStrings.text("chat.gallery.title", locale: locale), action: { onAction(.openGallery) }, icon: "images", tag: "chat-details-gallery")
+            if let storage = state.storage {
+                KitRow(FeatureChatStrings.text("chat.storage.conversation", locale: locale), icon: "database", value: storage.formatted(.byteCount(style: .file).locale(locale)), trailing: .none)
+                if storage > 0 {
+                    if state.confirmClear {
+                        Text(FeatureChatStrings.text("chat.storage.clearFact", locale: locale)).rfFont(.caption)
+                        HStack(spacing: theme.gap) {
+                            KitButton(FeatureChatStrings.text("chat.composer.cancel", locale: locale), action: { onAction(.clearMediaCancelled) }, kind: .secondary, size: .compact, tag: "chat-storage-cancel")
+                            KitButton(FeatureChatStrings.text("chat.storage.clear", locale: locale), action: { onAction(.clearMediaConfirmed) }, kind: .destructive, size: .compact, tag: "chat-storage-confirm")
+                        }
+                    } else {
+                        KitRow(FeatureChatStrings.text("chat.storage.clear", locale: locale), action: { onAction(.clearMediaRequested) }, icon: "trash-2", tag: "chat-storage-clear")
+                    }
+                }
+            }
             Button(FeatureChatStrings.text("chat.details.close", locale: locale)) { onAction(.closeDetails) }
         }.padding(theme.gap) } }
     }

@@ -147,7 +147,7 @@ enum MessagePage {
             text = overlay.text
             edited = true
         }
-        let attachments = media(message, messageID: id)
+        let attachments = media(message, messageID: id, conversation: conversation)
         let kind: MessageRecord.Kind
         if let text, text.utf8.count <= 65_536 { kind = .text(text) }
         else { kind = .unsupported(AppDataStrings.text("chat.message.unsupported")) }
@@ -160,7 +160,7 @@ enum MessagePage {
 
     /// Parses `content.message.media[]`. Generated content uses protobuf JSON (camelCase); the
     /// snake_case spelling is accepted too. Items that fail validation are skipped, never guessed.
-    static func media(_ message: JSONValue?, messageID: String) -> [AttachmentRecord] {
+    static func media(_ message: JSONValue?, messageID: String, conversation: String = "") -> [AttachmentRecord] {
         guard case .array(let items)? = message?["media"], items.count <= maxAttachments else { return [] }
         return items.enumerated().compactMap { index, item in
             func field(_ camel: String, _ snake: String) -> JSONValue? { item[camel] ?? item[snake] }
@@ -171,7 +171,7 @@ enum MessagePage {
             let manifest = field("largeManifest", "large_manifest")
             let expires = ProxyGateway.integer(manifest?["expiresAt"] ?? manifest?["expires_at"]).flatMap { $0 > 0 ? $0 : nil }
             let length = ProxyGateway.integer(manifest?["plaintextLength"] ?? manifest?["plaintext_length"])
-            return AttachmentRecord(id: messageID + "#" + String(index), name: name, mime: mime.lowercased(), messageID: messageID, index: index,
+            return AttachmentRecord(id: messageID + "#" + String(index), name: name, mime: mime.lowercased(), messageID: messageID, conversationID: conversation, index: index,
                                     size: size ?? length, thumbnail: thumbnail(field("inlineThumbnail", "inline_thumbnail")), availableUntil: expires)
         }
     }
