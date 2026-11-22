@@ -79,7 +79,7 @@ import AppData
             state.pendingDelete = PendingMessageDelete(messageID: id, scope: scope)
         case .cancelDelete: state.pendingDelete = nil
         case .confirmDelete: confirmDelete()
-        case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo:
+        case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo, .removeDraftItem, .draftCaptionChanged, .sendMediaDraft, .cancelMediaDraft, .openAlbum, .closeAlbum:
             handleMedia(action)
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil

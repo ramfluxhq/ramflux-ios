@@ -50,6 +50,12 @@
 	<string>会话详情</string>
 	<key>chat.details.you</key>
 	<string>你</string>
+	<key>chat.draft.caption</key>
+	<string>添加说明</string>
+	<key>chat.draft.remove</key>
+	<string>移除</string>
+	<key>chat.draft.send</key>
+	<string>发送</string>
 	<key>chat.edit.banner</key>
 	<string>正在编辑</string>
 	<key>chat.edited</key>

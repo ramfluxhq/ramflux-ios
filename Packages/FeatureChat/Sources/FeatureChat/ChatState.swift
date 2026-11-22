@@ -33,6 +33,14 @@ public struct PickedMedia: Equatable, Sendable {
     public let name: String
     public init(url: URL, kind: Kind, name: String) { self.url = url; self.kind = kind; self.name = name }
 }
+/// Picked media staged in the outbox and shown in the send preview; nothing is queued until the
+/// user sends. Cancel, removal and leaving the chat erase the staged files.
+public struct MediaDraft: Equatable, Sendable {
+    public let operationID: String
+    public var items: [MediaUpload]
+    public var caption: String
+    public init(operationID: String, items: [MediaUpload], caption: String = "") { self.operationID = operationID; self.items = items; self.caption = caption }
+}
 /// What the full-screen viewer or Quick Look shows.
 public struct MediaPreview: Equatable, Sendable {
     /// Decided from the stored bytes, never from the declared type.
@@ -83,6 +91,9 @@ public struct ChatState: Equatable, Sendable {
     public var cameraActive = false
     /// True while picked media is normalised and staged in the outbox.
     public var staging = false
+    public var mediaDraft: MediaDraft?
+    /// The message whose whole album is open.
+    public var album: String?
     /// A temporary copy under the original file name while the share sheet is open.
     public var shareFile: URL?
     /// The result of the last "save to Photos"; nil when nothing to report.

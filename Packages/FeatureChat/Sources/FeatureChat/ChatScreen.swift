@@ -87,7 +87,18 @@ public struct ChatScreen: View {
                 #endif
             }
             #if os(iOS)
-            .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
+            .sheet(isPresented: Binding(get: { state.mediaDraft != nil }, set: { if !$0 { onAction(.cancelMediaDraft) } })) {
+                if let draft = state.mediaDraft { MediaDraftSheet(draft: draft, onAction: onAction) }
+            }
+            .sheet(isPresented: Binding(get: { state.album != nil }, set: { if !$0 { onAction(.closeAlbum) } })) {
+                if let id = state.album, let message = state.messages.first(where: { $0.id == id }) {
+                    MediaAlbumSheet(items: message.attachments.filter { $0.kind != .file }, states: state.media, revealed: state.revealed, onAction: onAction)
+                        .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true }, set: { if !$0 { onAction(.closePreview) } })) {
+                            if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
+                        }
+                }
+            }
+            .fullScreenCover(isPresented: Binding(get: { state.preview?.isFullScreen == true && state.album == nil }, set: { if !$0 { onAction(.closePreview) } })) {
                 if let preview = state.preview { MediaViewer(preview: preview, saved: state.photoSaved, onAction: onAction) }
             }
             .sheet(isPresented: Binding(get: { state.shareFile != nil }, set: { if !$0 { onAction(.shareFinished) } })) {

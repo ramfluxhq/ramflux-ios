@@ -38,12 +38,29 @@ struct MediaAttachmentView: View {
         }
     }
     private var imageBox: some View {
-        Color.clear
+        MediaTile(attachment: attachment, state: state, revealed: revealed, compact: false, onAction: onAction)
             .aspectRatio(attachment.aspectRatio ?? 4.0 / 3.0, contentMode: .fit)
             .frame(maxWidth: ChatMediaText.boxWidth)
+            .clipShape(RoundedRectangle(cornerRadius: theme.radius_bubble))
+    }
+}
+
+/// One visual attachment filling the space its parent gives it (a single bubble box or an album
+/// cell), with its transfer state on top. Compact tiles show state as an icon only; the full
+/// sentence is in the accessibility label.
+struct MediaTile: View {
+    let attachment: AttachmentRecord
+    let state: MediaTransferState
+    let revealed: Bool
+    let compact: Bool
+    let onAction: (ChatAction) -> Void
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    var body: some View {
+        Color.clear
             .overlay { content.background(theme.surface) }
             .overlay { status }
-            .clipShape(RoundedRectangle(cornerRadius: theme.radius_bubble))
+            .clipped()
             .contentShape(Rectangle())
             .onTapGesture { onAction(.mediaTapped(attachment.id)) }
             .accessibilityElement(children: .ignore)
@@ -53,7 +70,11 @@ struct MediaAttachmentView: View {
     }
     @ViewBuilder private var content: some View {
         if case .ready(let url) = state {
-            if attachment.kind == .video { VideoPoster(file: url) } else { PipelineImage(source: .file(url), maxPixel: ChatMediaText.bubblePixels) }
+            switch attachment.kind {
+            case .video: VideoPoster(file: url)
+            case .animated: TimelineAnimation(id: attachment.id, file: url)
+            default: PipelineImage(source: .file(url), maxPixel: compact ? ChatMediaText.bubblePixels / 2 : ChatMediaText.bubblePixels)
+            }
         } else if let thumbnail = attachment.thumbnail, state != .blockedByPolicy || revealed, state != .removed {
             PipelineImage(source: .data(thumbnail.data, attachment.id), maxPixel: ChatMediaText.bubblePixels).blur(radius: 6)
         } else {
@@ -64,26 +85,63 @@ struct MediaAttachmentView: View {
         switch state {
         case .ready: if attachment.kind == .video { KitIcon(name: "play", size: KitMetrics.iconInfo, tint: theme.text).padding(theme.gap).background(theme.overlay, in: Circle()) }
         case .downloading:
+            // Indeterminate: the SDK reports no download bytes, so no percentage is shown.
             ProgressView().padding(theme.gap).background(theme.scrim, in: Circle())
                 .onTapGesture { onAction(.cancelMedia(attachment.id)) }
         case .idle, .failed:
-            VStack(spacing: theme.gap / 2) {
-                KitIcon(name: state == .idle ? "download" : "refresh-cw", size: KitMetrics.iconInfo, tint: theme.text)
-                Text(ChatMediaText.stateLine(attachment, state: state, locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
-            }.padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            if compact {
+                KitIcon(name: state == .idle ? "download" : "refresh-cw", size: KitMetrics.iconInfo, tint: theme.text).padding(theme.gap / 2).background(theme.overlay, in: Circle())
+            } else {
+                VStack(spacing: theme.gap / 2) {
+                    KitIcon(name: state == .idle ? "download" : "refresh-cw", size: KitMetrics.iconInfo, tint: theme.text)
+                    Text(ChatMediaText.stateLine(attachment, state: state, locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
+                }.padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            }
         case .blockedByPolicy:
-            VStack(spacing: theme.gap / 2) {
-                Text(FeatureChatStrings.text("chat.media.untrusted", locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
-                HStack(spacing: theme.gap) {
-                    if attachment.thumbnail != nil && !revealed { Button(FeatureChatStrings.text("chat.media.show", locale: locale)) { onAction(.revealMedia(attachment.id)) } }
-                    Button(FeatureChatStrings.text("chat.media.download", locale: locale)) { onAction(.mediaTapped(attachment.id)) }
-                }.rfFont(.caption)
-            }.padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            if compact {
+                KitIcon(name: "eye", size: KitMetrics.iconInfo, tint: theme.text).padding(theme.gap / 2).background(theme.overlay, in: Circle())
+            } else {
+                VStack(spacing: theme.gap / 2) {
+                    Text(FeatureChatStrings.text("chat.media.untrusted", locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
+                    HStack(spacing: theme.gap) {
+                        if attachment.thumbnail != nil && !revealed { Button(FeatureChatStrings.text("chat.media.show", locale: locale)) { onAction(.revealMedia(attachment.id)) } }
+                        Button(FeatureChatStrings.text("chat.media.download", locale: locale)) { onAction(.mediaTapped(attachment.id)) }
+                    }.rfFont(.caption)
+                }.padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            }
         case .expired, .removed, .notAvailable:
-            Text(ChatMediaText.stateLine(attachment, state: state, locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
-                .padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            if compact {
+                KitIcon(name: "ban", size: KitMetrics.iconInfo, tint: theme.secondary).padding(theme.gap / 2).background(theme.overlay, in: Circle())
+            } else {
+                Text(ChatMediaText.stateLine(attachment, state: state, locale: locale)).rfFont(.caption).multilineTextAlignment(.center)
+                    .padding(theme.gap).background(theme.overlay, in: RoundedRectangle(cornerRadius: theme.radius_md))
+            }
         }
     }
+}
+
+/// A received animated image in the timeline: plays only with an autoplay slot (visible rows,
+/// at most two) and when the policy allows it; otherwise the first frame with a play badge.
+struct TimelineAnimation: View {
+    let id: String
+    let file: URL
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.rfTheme) private var theme
+    @State private var playing = false
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            if playing { AnimatedFrames(file: file).scaledToFill() } else { PipelineImage(source: .file(file), maxPixel: ChatMediaText.bubblePixels) }
+            if !playing { KitIcon(name: "play", size: KitMetrics.iconInfo, tint: theme.text).padding(theme.gap / 2).background(theme.overlay, in: Circle()).padding(theme.gap / 2) }
+        }
+        .task(id: TaskKey(file: file, reduceMotion: reduceMotion)) {
+            let motion = reduceMotion, constrained = ChatNetwork.shared.current == .constrained
+            let allowed = await Task.detached { AutoplaySlots.allowed(file: file, reduceMotion: motion, lowPower: ProcessInfo.processInfo.isLowPowerModeEnabled, constrained: constrained) }.value
+            guard !Task.isCancelled else { return }
+            playing = allowed && AutoplaySlots.timeline.acquire(id)
+        }
+        .onDisappear { playing = false; AutoplaySlots.timeline.release(id) }
+    }
+    private struct TaskKey: Equatable { let file: URL; let reduceMotion: Bool }
 }
 
 /// An image decoded by the shared pipeline: downsampled off the main thread, cancelled when the
@@ -332,6 +390,8 @@ enum ChatMediaText {
     /// Side of a staged item tile in an unsent media row.
     static let tileSide: CGFloat = 64
     static let tilePixels = 192
+    /// Minimum cell side in the album and send-preview grids.
+    static let albumCell: CGFloat = 96
     static let bubblePixels = 720
     static let viewerPixels = 2_560
     static func size(_ attachment: AttachmentRecord, locale: Locale) -> String? {

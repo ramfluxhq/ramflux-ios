@@ -113,7 +113,12 @@ private func tinyPNG() throws -> URL {
         let picked = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try Data("report body".utf8).write(to: picked)
         model.send(.attachPicked([PickedMedia(url: picked, kind: .file, name: "re\u{202E}port.pdf")]))
+        try await settleMedia(model, fake) { model.state.mediaDraft != nil }
+        #expect(await fake.mediaSends.isEmpty)
+        model.send(.draftCaptionChanged("the report"))
+        model.send(.sendMediaDraft)
         try await settleMedia(model, fake) { model.state.outbox.first?.state == .queued }
+        #expect(await fake.captions == ["the report"])
         #expect(!FileManager.default.fileExists(atPath: picked.path))
         let first = await fake.mediaSends
         #expect(first.count == 1); #expect(first[0].1.first?.fileName == "report.pdf")
@@ -200,9 +205,46 @@ private func tinyPNG() throws -> URL {
         let picked = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try Data(header + comment + frame).write(to: picked)
         model.send(.attachPicked([PickedMedia(url: picked, kind: .photo, name: "anim.gif")]))
-        try await settleMedia(model, fake) { !model.state.outbox.isEmpty }
+        try await settleMedia(model, fake) { model.state.mediaDraft != nil }
+        model.send(.sendMediaDraft)
+        try await settleMedia(model, fake) { false }
         let sent = try #require(await fake.mediaSends.first?.1.first)
         #expect(sent.mime == "image/gif"); #expect(try Data(contentsOf: sent.file) == Data(header + frame))
+        model.send(.disappeared)
+    }
+
+    @Test func theSendPreviewRemovesItemsAndCancelErasesTheStagedFiles() async throws {
+        let fake = ChatFake()
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared); await model.settle()
+        var picked: [PickedMedia] = []
+        for index in 0..<3 {
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try Data("file \(index)".utf8).write(to: url); picked.append(PickedMedia(url: url, kind: .file, name: "f\(index).txt"))
+        }
+        model.send(.attachPicked(picked))
+        try await settleMedia(model, fake) { model.state.mediaDraft != nil }
+        let staged = try #require(model.state.mediaDraft).items
+        #expect(staged.map(\.fileName) == ["f0.txt", "f1.txt", "f2.txt"])
+        model.send(.removeDraftItem(1))
+        #expect(model.state.mediaDraft?.items.map(\.fileName) == ["f0.txt", "f2.txt"]); #expect(!FileManager.default.fileExists(atPath: staged[1].file.path))
+        model.send(.cancelMediaDraft)
+        #expect(model.state.mediaDraft == nil)
+        #expect(staged.allSatisfy { !FileManager.default.fileExists(atPath: $0.file.path) }); #expect(await fake.mediaSends.isEmpty)
+        model.send(.disappeared)
+    }
+
+    @Test func albumsHaveStableBoxesByCountAndOpenTheWholeAlbum() async throws {
+        #expect(MediaAlbumGrid.layout(2).aspect == 2); #expect(MediaAlbumGrid.layout(3).cells == 3); #expect(MediaAlbumGrid.layout(16).cells == 4); #expect(MediaAlbumGrid.layout(16).aspect == 1)
+        let items = (0..<6).map { AttachmentRecord(id: "al#\($0)", name: "p.jpg", mime: "image/jpeg", messageID: "al", index: $0, size: 1_000, availableUntil: 4_000_000_000) }
+        let album = MessageRecord(id: "al", sender: "peer", kind: .text(""), isOwn: true, timestamp: 1, attachments: items, order: MessageOrder(milliseconds: 1_000))
+        let fake = ChatFake(history: [album])
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.send(.appeared)
+        try await settleMedia(model, fake) { model.state.media.count == 6 && !model.state.media.values.contains(.downloading) }
+        #expect(model.state.media.count == 6)
+        model.send(.openAlbum("al")); #expect(model.state.album == "al")
+        model.send(.closeAlbum); #expect(model.state.album == nil)
         model.send(.disappeared)
     }
 }

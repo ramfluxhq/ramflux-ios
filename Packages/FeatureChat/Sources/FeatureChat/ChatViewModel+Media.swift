@@ -46,6 +46,20 @@ extension ChatViewModel {
             guard let message = state.messages.first(where: { $0.id == id }), message.kind != .deleted, message.kind != .callHistory else { return }
             emit(.chooseForwardTarget(messageID: id))
         case .forwardTo(let id, let target, let isGroup): forward(id, to: target, isGroup: isGroup)
+        case .removeDraftItem(let index):
+            guard var draft = state.mediaDraft, draft.items.indices.contains(index) else { return }
+            try? FileManager.default.removeItem(at: draft.items.remove(at: index).file)
+            state.mediaDraft = draft.items.isEmpty ? nil : draft
+        case .draftCaptionChanged(let text):
+            guard text.utf8.count <= 65_536 else { return }
+            state.mediaDraft?.caption = text
+        case .sendMediaDraft:
+            guard let draft = state.mediaDraft, !draft.items.isEmpty else { return }
+            state.mediaDraft = nil
+            enqueueMedia(draft.items, caption: draft.caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "" : draft.caption, operationID: draft.operationID)
+        case .cancelMediaDraft: discardDraft()
+        case .openAlbum(let id): if state.messages.contains(where: { $0.id == id && $0.attachments.count > 1 }) { state.album = id }
+        case .closeAlbum: state.album = nil
         default: break
         }
     }
@@ -53,6 +67,7 @@ extension ChatViewModel {
     func stopMedia(conceal: Bool) {
         for task in mediaTasks.values { task.cancel() }
         mediaTasks = [:]; trust = nil; pendingSave = nil
+        discardDraft(); state.album = nil
         state.media = [:]; state.revealed = []; state.preview = nil; state.attachSheet = false; state.cameraActive = false; state.photoSaved = nil; state.staging = false
         if state.shareFile != nil { state.shareFile = nil; Task { [repository, account] in await repository.removeShareCopy(account: account) } }
         if conceal { ImagePipeline.shared.purge() }
@@ -145,7 +160,7 @@ extension ChatViewModel {
     /// Photos are normalised (metadata stripped, 2,560 px, JPEG 0.82); files keep their exact
     /// bytes. Both are staged in the protected outbox before anything reaches the SDK.
     private func stage(_ picked: [PickedMedia]) {
-        guard !picked.isEmpty, mediaTasks["send"] == nil else { for item in picked { try? FileManager.default.removeItem(at: item.url) }; return }
+        guard !picked.isEmpty, mediaTasks["send"] == nil, state.mediaDraft == nil else { for item in picked { try? FileManager.default.removeItem(at: item.url) }; return }
         let current = epoch
         let operationID = UUID().uuidString
         state.staging = true
@@ -197,10 +212,16 @@ extension ChatViewModel {
             }
             self.mediaTasks["send"] = nil; self.state.staging = false
             switch staged {
-            case .success(let uploads): self.enqueueMedia(uploads, caption: "", operationID: operationID)
+            case .success(let uploads): self.state.mediaDraft = MediaDraft(operationID: operationID, items: uploads)
             case .failure(let error): self.state.failure = error
             }
         }
+    }
+
+    private func discardDraft() {
+        guard let draft = state.mediaDraft else { return }
+        state.mediaDraft = nil
+        for item in draft.items { try? FileManager.default.removeItem(at: item.file) }
     }
 
     /// Queues staged files as one send in the persistent outbox; it is drawn as a local row with

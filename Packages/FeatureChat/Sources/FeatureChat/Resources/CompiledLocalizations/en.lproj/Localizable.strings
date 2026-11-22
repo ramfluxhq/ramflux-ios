@@ -50,6 +50,12 @@
 	<string>Conversation details</string>
 	<key>chat.details.you</key>
 	<string>You</string>
+	<key>chat.draft.caption</key>
+	<string>Add a caption</string>
+	<key>chat.draft.remove</key>
+	<string>Remove</string>
+	<key>chat.draft.send</key>
+	<string>Send</string>
 	<key>chat.edit.banner</key>
 	<string>Editing</string>
 	<key>chat.edited</key>

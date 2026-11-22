@@ -36,3 +36,22 @@ import ImageIO
         #expect(GIFSanitizer.strip(Data("not a gif at all".utf8)) == nil)
     }
 }
+
+@Suite struct AutoplaySlotsTests {
+    @Test func atMostTwoAnimationsPlayAndSlotsReturnWhenRowsDisappear() {
+        let slots = AutoplaySlots(capacity: 2)
+        #expect(slots.acquire("a")); #expect(slots.acquire("b")); #expect(!slots.acquire("c")); #expect(slots.acquire("a"))
+        slots.release("a")
+        #expect(slots.acquire("c")); #expect(slots.active == 2)
+    }
+
+    @Test func policyRefusesReduceMotionLowPowerConstrainedAndStillImages() throws {
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: file) }
+        try GIFSanitizerTests.sample().expected.write(to: file)
+        #expect(AutoplaySlots.allowed(file: file, reduceMotion: false, lowPower: false, constrained: false))
+        #expect(!AutoplaySlots.allowed(file: file, reduceMotion: true, lowPower: false, constrained: false))
+        #expect(!AutoplaySlots.allowed(file: file, reduceMotion: false, lowPower: true, constrained: false))
+        #expect(!AutoplaySlots.allowed(file: file, reduceMotion: false, lowPower: false, constrained: true))
+    }
+}

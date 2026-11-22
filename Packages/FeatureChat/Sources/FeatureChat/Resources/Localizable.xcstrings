@@ -1342,6 +1342,162 @@
           }
         }
       }
+    },
+    "chat.album.more": {
+      "comment": "Accessibility label of the last album cell that opens the whole album; the number is how many more items it holds.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Show %lld more item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Show %lld more items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "再显示 %lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.album.title": {
+      "comment": "Title of the sheet that shows every photo and video of one message; the number is the item count.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.draft.title": {
+      "comment": "Title of the send preview for picked media; the number is how many items will be sent.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Send %lld item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Send %lld items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "发送 %lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.draft.remove": {
+      "comment": "Accessibility label of the button that removes one item from the send preview.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
+      }
+    },
+    "chat.draft.caption": {
+      "comment": "Placeholder of the caption field in the media send preview.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a caption"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加说明"
+          }
+        }
+      }
+    },
+    "chat.draft.send": {
+      "comment": "Button in the media send preview that queues the message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送"
+          }
+        }
+      }
     }
   }
 }
