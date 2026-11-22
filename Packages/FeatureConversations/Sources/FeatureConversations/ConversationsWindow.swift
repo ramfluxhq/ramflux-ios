@@ -9,13 +9,23 @@ import AppData
 /// only the loaded rows are sorted by `last_activity`; a recent conversation on a page not yet loaded
 /// appears once the user scrolls far enough. The window never fetches the whole directory: it follows
 /// `next_cursor` one page at a time, and a refresh re-reads at most `refreshPages` pages.
+///
+/// The window is bounded: it keeps at most `maxRows` rows. Scrolling past that evicts rows from the
+/// top (the most recent, furthest from the viewport) and remembers only that it did (`evictedAbove`)
+/// and the sort position of the first kept row. While rows are evicted, later pages contribute only
+/// rows that sort below that position, so the window stays one contiguous slice. Reaching the top of
+/// an evicted window reloads the first `refreshPages` pages, as a refresh does.
 public struct ConversationsWindow: Sendable, Equatable {
     public static let pageSize = NativeConversationsRepository.pageLimit
     /// Pages re-read on a refresh (about 300 rows); scrolling further loads more again.
     public static let refreshPages = 6
+    /// Rows kept in memory at most (scale rule 6).
+    public static let maxRows = 300
     public private(set) var rows: [ConversationRecord] = []
     public private(set) var nextCursor: String?
     public private(set) var pages = 0
+    /// True once rows above the first kept row were dropped to bound the window.
+    public private(set) var evictedAbove = false
     public init() {}
     public var canLoadMore: Bool { pages > 0 && nextCursor != nil }
 
@@ -33,6 +43,7 @@ public struct ConversationsWindow: Sendable, Equatable {
         } while cursor != nil && window.pages < max(1, pages)
         window.nextCursor = cursor
         window.rows = project(collected, locale: locale, now: now)
+        window.bound()
         return .success(window)
     }
     /// Appends the page after the current cursor.
@@ -43,8 +54,26 @@ public struct ConversationsWindow: Sendable, Equatable {
         case .success(let page):
             var next = self
             next.pages += 1; next.nextCursor = page.nextCursor
-            next.rows = Self.project(rows + page.rows, locale: locale, now: now)
+            var incoming = page.rows
+            if evictedAbove, let top = rows.first { incoming.removeAll { Self.precedes($0, top) } }
+            next.rows = Self.project(rows + incoming, locale: locale, now: now)
+            next.bound()
             return .success(next)
+        }
+    }
+    /// Drops rows from the top until at most `maxRows` remain.
+    private mutating func bound() {
+        guard rows.count > Self.maxRows else { return }
+        rows.removeFirst(rows.count - Self.maxRows)
+        evictedAbove = true
+    }
+    /// Display order: newest activity first, unknown activity last, then by id.
+    static func precedes(_ lhs: ConversationRecord, _ rhs: ConversationRecord) -> Bool {
+        switch (lhs.lastActivity, rhs.lastActivity) {
+        case let (l?, r?) where l != r: return l > r
+        case (.some, nil): return true
+        case (nil, .some): return false
+        default: return lhs.id < rhs.id
         }
     }
     /// Removes duplicate ids (first wins), sorts by last activity (newest first, unknown last, then by id)
@@ -52,14 +81,7 @@ public struct ConversationsWindow: Sendable, Equatable {
     static func project(_ rows: [ConversationRecord], locale: Locale, now: Date) -> [ConversationRecord] {
         var seen = Set<String>(); seen.reserveCapacity(rows.count)
         let unique = rows.filter { seen.insert($0.id).inserted }
-        let sorted = unique.sorted { lhs, rhs in
-            switch (lhs.lastActivity, rhs.lastActivity) {
-            case let (l?, r?) where l != r: return l > r
-            case (.some, nil): return true
-            case (nil, .some): return false
-            default: return lhs.id < rhs.id
-            }
-        }
+        let sorted = unique.sorted(by: precedes)
         let labels = ConversationTimeLabels(locale: locale, now: now)
         return sorted.map { row in
             ConversationRecord(id: row.id, title: row.title, preview: row.preview, lastActivity: row.lastActivity, unreadCount: row.unreadCount,

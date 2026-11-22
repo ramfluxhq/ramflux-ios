@@ -23,47 +23,22 @@ public struct ConversationsScreen: View {
                 ],
                 tag: "messages-header"
             )
-            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.queryChanged($0)) }), placeholder: FeatureConversationsStrings.text("conversations.search.placeholder", locale: locale), tag: "message-search")
-                .padding(.horizontal, theme.gap)
-                .padding(.top, 20)
-                .padding(.bottom, 12)
-                .onSubmit { onAction(.search) }
-            if state.loading { ProgressView(FeatureConversationsStrings.text("conversations.loading", locale: locale)) }
-            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) { onAction(.refresh) } }
-            if state.rows.isEmpty && (state.strangersUnread ?? 0) == 0 && !state.loading && state.failure == nil { RFUnavailableView(title: FeatureConversationsStrings.text("conversations.empty.title", locale: locale), message: FeatureConversationsStrings.text("conversations.empty.message", locale: locale)) }
-            ScrollView { LazyVStack(spacing: 0) {
-                KitConversationRow(
-                    FeatureConversationsStrings.text("contacts.strangers.title", locale: locale),
-                    preview: FeatureConversationsStrings.pendingRequests(state.strangersUnread ?? 0, locale: locale),
-                    time: "",
-                    badge: badge(state.strangersUnread),
-                    tag: "strangers",
-                    action: { onAction(.strangers) }
-                ) {
-                    KitAvatar("", size: 44, kind: .person, icon: "user-round", tag: "strangers-avatar")
-                }
-                ForEach(state.rows) { row in
-                    KitConversationRow(
-                        row.title,
-                        preview: row.preview,
-                        time: row.timeLabel,
-                        sender: row.sender.isEmpty ? nil : row.sender,
-                        muted: row.muted,
-                        pinned: row.pinned,
-                        read: row.readReceipt,
-                        badge: badge(row.unreadCount),
-                        tag: row.id,
-                        action: { onAction(.open(row.id)) }
-                    ) {
-                        rowAvatar(row)
-                    }
-                    .onAppear { if row.id == state.rows.last?.id { onAction(.loadMore) } }
-                }
-                if state.loadingMore { ProgressView(FeatureConversationsStrings.text("conversations.loadingMore", locale: locale)).padding(theme.gap) }
-                if state.canLoadMore || state.rows.count > ConversationsWindow.pageSize {
-                    Text(FeatureConversationsStrings.text("conversations.order.note", locale: locale)).font(.footnote).foregroundStyle(theme.secondary).padding(theme.gap)
-                }
-            } }
+            switch content {
+            case .loading:
+                searchField
+                ConversationsSkeleton()
+                Spacer(minLength: 0)
+            case .failure(let failure):
+                searchField
+                ConversationsFailure(failure: failure) { onAction(.refresh) }
+                Spacer(minLength: 0)
+            case .empty:
+                ConversationsEmpty { onAction(.addContact) }
+                Spacer(minLength: 0)
+            case .list:
+                searchField
+                list
+            }
         } }
         .confirmationDialog(FeatureConversationsStrings.text("conversations.action.more", locale: locale), isPresented: $showingMore) {
             Button(FeatureConversationsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.strangers) }
@@ -72,6 +47,67 @@ public struct ConversationsScreen: View {
         }
         .rfHidesNavigationBar()
         .privacySensitive()
+    }
+    /// What the area under the header shows. Skeleton and centred states only replace an empty list;
+    /// once rows are loaded a refresh or a failure keeps them visible.
+    enum Content: Equatable { case loading, failure(AppFailure), empty, list }
+    var content: Content {
+        let strangers = (state.strangersUnread ?? 0) > 0
+        if state.rows.isEmpty && !strangers {
+            if let failure = state.failure { return .failure(failure) }
+            if state.loading { return .loading }
+            return .empty
+        }
+        return .list
+    }
+    private var searchField: some View {
+        KitSearchField(value: Binding(get: { state.query }, set: { onAction(.queryChanged($0)) }), placeholder: FeatureConversationsStrings.text("conversations.search.placeholder", locale: locale), tag: "message-search")
+            .padding(.horizontal, theme.gap)
+            .padding(.top, 20)
+            .padding(.bottom, 12)
+            .onSubmit { onAction(.search) }
+    }
+    private var list: some View {
+        ScrollView { LazyVStack(spacing: 0) {
+            if let failure = state.failure {
+                RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) { onAction(.refresh) }
+                    .padding(.horizontal, theme.gap).padding(.bottom, theme.gap)
+            }
+            KitConversationRow(
+                FeatureConversationsStrings.text("contacts.strangers.title", locale: locale),
+                preview: FeatureConversationsStrings.pendingRequests(state.strangersUnread ?? 0, locale: locale),
+                time: "",
+                badge: badge(state.strangersUnread),
+                tag: "strangers",
+                action: { onAction(.strangers) }
+            ) {
+                KitAvatar("", size: 44, kind: .person, icon: "user-round", tag: "strangers-avatar")
+            }
+            ForEach(state.rows) { row in
+                KitConversationRow(
+                    row.title,
+                    preview: row.preview,
+                    time: row.timeLabel,
+                    sender: row.sender.isEmpty ? nil : row.sender,
+                    muted: row.muted,
+                    pinned: row.pinned,
+                    read: row.readReceipt,
+                    badge: badge(row.unreadCount),
+                    tag: row.id,
+                    action: { onAction(.open(row.id)) }
+                ) {
+                    rowAvatar(row)
+                }
+                .onAppear {
+                    if row.id == state.rows.last?.id { onAction(.loadMore) }
+                    if row.id == state.rows.first?.id && state.canLoadBefore { onAction(.loadBefore) }
+                }
+            }
+            if state.loadingMore { ProgressView(FeatureConversationsStrings.text("conversations.loadingMore", locale: locale)).padding(theme.gap) }
+            if state.canLoadMore || state.rows.count > ConversationsWindow.pageSize {
+                Text(FeatureConversationsStrings.text("conversations.order.note", locale: locale)).font(.footnote).foregroundStyle(theme.secondary).padding(theme.gap)
+            }
+        } }
     }
     private var accountSubtitle: String? {
         let name = state.accountTitle.trimmingCharacters(in: .whitespacesAndNewlines)

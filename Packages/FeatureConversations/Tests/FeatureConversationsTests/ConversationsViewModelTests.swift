@@ -33,6 +33,21 @@ private actor DirectoryFake: ConversationsRepository {
         #expect(model.state.failure == .notAvailable("Search unavailable")); #expect(model.state.rows.count == 1)
         model.send(.disappeared)
     }
+    @Test func screenContentFollowsTheBoardStates() {
+        func content(_ state: ConversationsState) -> ConversationsScreen.Content { ConversationsScreen(state: state, onAction: { _ in }).content }
+        #expect(content(ConversationsState(loading: true)) == .loading)
+        #expect(content(ConversationsState(loading: true, failure: .offline)) == .failure(.offline))
+        #expect(content(ConversationsState()) == .empty)
+        var strangers = ConversationsState(); strangers.strangersUnread = 2
+        #expect(content(strangers) == .list)
+        let rows = [ConversationRecord(id: "thread", title: "Thread", preview: "")]
+        #expect(content(ConversationsState(rows: rows, loading: true, failure: .offline)) == .list)
+    }
+    @Test func addContactOpensContacts() {
+        var events: [ConversationsEvent] = []
+        let model = ConversationsViewModel(repository: DirectoryFake(), account: "a", emit: { events.append($0) })
+        model.send(.addContact); #expect(events == [.navigate(.contacts)])
+    }
     @Test func unavailableHasNoRecords() async {
         let model = ConversationsViewModel(repository: UnavailableConversationsRepository(), account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()

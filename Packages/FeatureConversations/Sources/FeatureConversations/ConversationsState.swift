@@ -11,6 +11,8 @@ public struct ConversationsState: Equatable, Sendable {
     public var loading = false
     public var loadingMore = false
     public var canLoadMore = false
+    /// Rows above the window were evicted; reaching the first row reloads the top of the list.
+    public var canLoadBefore = false
     public var failure: AppFailure?
     public var query = ""
     public init(rows: [ConversationRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.rows = rows; self.loading = loading; self.failure = failure }

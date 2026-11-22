@@ -20,7 +20,7 @@
       }
     },
     "conversations.empty.title": {
-      "comment": "Title when there are no conversations.",
+      "comment": "Title of the empty conversation list.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -31,7 +31,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无会话"
+            "value": "还没有会话"
           }
         }
       }
@@ -54,18 +54,18 @@
       }
     },
     "conversations.empty.message": {
-      "comment": "Explains that adding a contact starts a conversation.",
+      "comment": "Explains under the empty conversation list that adding a contact starts a conversation once they accept.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add someone to your contacts to start a conversation."
+            "value": "Add a contact to start a conversation. Once they accept, the conversation appears here."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加联系人即可开始会话。"
+            "value": "添加联系人后就可以开始会话。对方接受后，会话会出现在这里。"
           }
         }
       }
@@ -306,6 +306,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "按最近活动排序（仅限已加载的会话）。"
+          }
+        }
+      }
+    },
+    "conversations.empty.action": {
+      "comment": "Button on the empty conversation list that opens contacts to add one.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加联系人"
+          }
+        }
+      }
+    },
+    "conversations.failure.retry": {
+      "comment": "Button under the conversation list failure that loads the list again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试加载"
           }
         }
       }

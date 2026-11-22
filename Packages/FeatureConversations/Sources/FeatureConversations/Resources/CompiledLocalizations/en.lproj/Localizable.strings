@@ -16,10 +16,14 @@
 	<string>More</string>
 	<key>conversations.action.new</key>
 	<string>New conversation</string>
+	<key>conversations.empty.action</key>
+	<string>Add contact</string>
 	<key>conversations.empty.message</key>
-	<string>Add someone to your contacts to start a conversation.</string>
+	<string>Add a contact to start a conversation. Once they accept, the conversation appears here.</string>
 	<key>conversations.empty.title</key>
 	<string>No conversations yet</string>
+	<key>conversations.failure.retry</key>
+	<string>Retry</string>
 	<key>conversations.loading</key>
 	<string>Loading conversations</string>
 	<key>conversations.loadingMore</key>

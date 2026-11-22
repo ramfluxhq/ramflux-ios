@@ -42,6 +42,18 @@ private final class SyntheticDirectory: ConversationsRepository, Sendable {
         #expect(projected[1].timeLabel == "Yesterday"); #expect(!projected[0].timeLabel.isEmpty); #expect(projected[3].timeLabel.isEmpty)
         #expect(ConversationsWindow.project(rows, locale: Locale(identifier: "zh-CN"), now: now)[1].timeLabel == "昨天")
     }
+    @Test func evictedWindowDropsLaterRowsAboveItsTop() async {
+        let source = SyntheticDirectory(total: 2_000)
+        var window = ConversationsWindow()
+        let locale = Locale(identifier: "en_US"), now = Date()
+        if case .success(let next) = await ConversationsWindow.load(source, account: "a", pages: 1, locale: locale, now: now) { window = next }
+        while window.pages < 12, case .success(let next) = await window.appending(source, account: "a", locale: locale, now: now) { window = next }
+        #expect(window.evictedAbove); #expect(window.rows.count == ConversationsWindow.maxRows)
+        let top = window.rows[0]
+        if case .success(let next) = await window.appending(source, account: "a", locale: locale, now: now) { window = next }
+        #expect(window.rows.allSatisfy { !ConversationsWindow.precedes($0, top) })
+        #expect(window.rows.count == ConversationsWindow.maxRows)
+    }
     @Test @MainActor func fiftyThousandRowSourceLoadsPageByPageAndStaysBounded() async {
         let source = SyntheticDirectory(total: 50_000)
         let model = ConversationsViewModel(repository: source, account: "a", emit: { _ in })
@@ -51,12 +63,23 @@ private final class SyntheticDirectory: ConversationsRepository, Sendable {
         #expect(model.state.strangersUnread == 3)
         var more = Duration.zero
         for _ in 0..<19 { more += await clock.measure { model.send(.loadMore); await model.settle() } }
-        #expect(model.state.rows.count == 1_000); #expect(Set(model.state.rows.map(\.id)).count == 1_000)
+        // 20 pages read, but the window keeps at most maxRows, evicting from the top.
+        #expect(model.state.rows.count == ConversationsWindow.maxRows); #expect(Set(model.state.rows.map(\.id)).count == ConversationsWindow.maxRows)
+        #expect(model.state.canLoadBefore)
         let activity = model.state.rows.compactMap(\.lastActivity)
         #expect(activity == activity.sorted(by: >))
+        // Scroll far: 980 more pages (the whole 50,000-row directory); memory stays bounded.
+        var far = Duration.zero
+        while model.state.canLoadMore { far += await clock.measure { model.send(.loadMore); await model.settle() } }
+        #expect(model.state.rows.count <= ConversationsWindow.maxRows); #expect(!model.state.rows.isEmpty)
+        let tail = model.state.rows.compactMap(\.lastActivity)
+        #expect(tail == tail.sorted(by: >))
+        // Reaching the first row of an evicted window reloads the top of the list.
+        let before = await clock.measure { model.send(.loadBefore); await model.settle() }
+        #expect(model.state.rows.count == ConversationsWindow.refreshPages * ConversationsWindow.pageSize); #expect(!model.state.canLoadBefore)
         let refresh = await clock.measure { model.send(.refresh); await model.settle() }
         #expect(model.state.rows.count == ConversationsWindow.refreshPages * ConversationsWindow.pageSize)
-        print("CONVERSATIONS_50K first=\(first) loadMore19=\(more) refresh=\(refresh) reads=\(source.reads.withLock { $0 })")
+        print("CONVERSATIONS_50K first=\(first) loadMore19=\(more) scrollToEnd=\(far) loadBefore=\(before) refresh=\(refresh) reads=\(source.reads.withLock { $0 })")
         model.send(.disappeared)
     }
 }

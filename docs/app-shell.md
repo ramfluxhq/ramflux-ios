@@ -97,7 +97,11 @@ The conversation list reads `conversation.directory` one page (50 rows) at a tim
 row appears. The SDK orders directory pages by conversation id and offers no activity-ordered
 cursor (`conversation.list` is recent first but unpaged), so `ConversationsWindow` sorts only the
 loaded rows by `last_activity` off the main actor and says so in a footnote; a refresh re-reads at
-most six pages. Time labels come from `last_activity` (Unix seconds); the SDK provides no preview,
+most six pages. The window keeps at most 300 rows: scrolling further evicts rows from the top
+(and, while evicted, drops later rows that would sort above the first kept row); reaching the first
+row of an evicted window reloads the first six pages. With no rows, the list shows the skeleton
+(MOB-B01L) while loading, a centred failure with a retry button (MOB-B01X), or the centred empty
+state with an add-contact action (MOB-B12); once rows exist a failure is shown above them. Time labels come from `last_activity` (Unix seconds); the SDK provides no preview,
 so none is shown. The message-requests row counts pending inbound `contact.requests.list` rows.
 
 Message sending uses the high-level conversation intent. An uncertain send retains

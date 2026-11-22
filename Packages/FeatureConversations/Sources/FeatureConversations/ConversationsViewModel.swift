@@ -42,11 +42,12 @@ import AppData
             }
         case .refresh: if observer == nil { send(.appeared) } else { reload(search: false) }
         case .loadMore: loadMore()
+        case .loadBefore: if window.evictedAbove, state.canLoadBefore, !state.loading, !state.loadingMore { reload(search: false) }
         case .localeChanged(let value): guard value.identifier != locale.identifier else { return }; locale = value; if !state.rows.isEmpty { reload(search: false) }
         case .queryChanged(let query): state.query = String(query.prefix(1024))
         case .search: reload(search: true)
         case .open(let id): if state.rows.contains(where: { $0.id == id }) { emit(.navigate(.conversation(id))) }
-        case .contacts, .newConversation: emit(.navigate(.contacts))
+        case .contacts, .newConversation, .addContact: emit(.navigate(.contacts))
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
             observationID &+= 1; pendingRefresh = false
@@ -66,7 +67,7 @@ import AppData
                 let result = await repository.search(account: account, query: query)
                 guard !Task.isCancelled, let self, self.generation == epoch else { return }
                 self.state.loading = false
-                switch result { case .success(let rows): self.state.rows = rows; case .failure(let error): self.state.failure = error }
+                switch result { case .success(let rows): self.state.rows = rows; self.state.canLoadMore = false; self.state.canLoadBefore = false; case .failure(let error): self.state.failure = error }
                 return
             }
             async let requests = repository.pendingRequests(account: account)
@@ -77,13 +78,13 @@ import AppData
             if case .success(let count) = pending { self.state.strangersUnread = count }
             switch loaded {
             case .success(let next): self.apply(next)
-            case .failure(let error): self.state.failure = error; if error == .locked { self.window = ConversationsWindow(); self.state.rows = []; self.state.canLoadMore = false }
+            case .failure(let error): self.state.failure = error; if error == .locked { self.window = ConversationsWindow(); self.state.rows = []; self.state.canLoadMore = false; self.state.canLoadBefore = false }
             }
             if self.pendingRefresh { self.pendingRefresh = false; self.reload(search: false) }
         }
     }
     private func loadMore() {
-        guard window.canLoadMore, !state.loading, !state.loadingMore else { return }
+        guard window.canLoadMore, state.canLoadMore, !state.loading, !state.loadingMore else { return }
         generation &+= 1; let epoch = generation
         state.loadingMore = true
         let current = window, locale = locale
@@ -96,7 +97,7 @@ import AppData
         }
     }
     private func apply(_ next: ConversationsWindow) {
-        window = next; state.rows = next.rows; state.canLoadMore = next.canLoadMore
+        window = next; state.rows = next.rows; state.canLoadMore = next.canLoadMore; state.canLoadBefore = next.evictedAbove
     }
     public func joinObservation() async { await observer?.value }
     public func settle() async { while true { let current = generation; await work?.value; if current == generation { return } } }
