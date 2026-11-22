@@ -37,6 +37,7 @@ jobs:
       - name: Headless bridge and feature tests
         run: |
           swift test
+          swift test --package-path Packages/RFLocalization
           swift test --package-path Packages/AppData
           swift test --package-path Packages/FeatureAppShell
           swift test --package-path Packages/FeatureOnboarding
