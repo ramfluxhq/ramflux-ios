@@ -263,7 +263,7 @@ final class ChatNetwork: Sendable {
             let network: MediaPolicy.Network = path.status != .satisfied || path.isConstrained || ProcessInfo.processInfo.isLowPowerModeEnabled ? .constrained : (path.isExpensive ? .cellular : .wifi)
             self?.value.withLock { $0 = network }
         }
-        monitor.start(queue: DispatchQueue(label: "org.ramflux.chat.network"))
+        monitor.start(queue: .global(qos: .utility))
     }
     var current: MediaPolicy.Network { value.withLock { $0 } }
 }
