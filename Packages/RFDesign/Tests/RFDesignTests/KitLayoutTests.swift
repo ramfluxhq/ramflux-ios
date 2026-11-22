@@ -308,6 +308,35 @@ struct KitLayoutTests {
         #expect(links == [URL(string: "https://example.org/a")])
     }
 
+    /// Text-holding components keep their design minimum at the default size, grow with
+    /// accessibility sizes, and never exceed the container, at 320, 393 and 744 pt and in both
+    /// directions with long copy.
+    @Test(arguments: [CGFloat(320), 393, 744], [DynamicTypeSize.large, .accessibility3])
+    func textHoldingComponentsUseMinimumHeights(_ width: CGFloat, _ size: DynamicTypeSize) {
+        let long = "Verbindungseinstellungen für dieses Gerät überprüfen"
+        for direction in [LayoutDirection.leftToRight, .rightToLeft] {
+            let frames = measure(width: width, size: size, direction: direction) {
+                VStack(spacing: 0) {
+                    KitPageHeader("Einstellungen", onBack: {}, tag: "header")
+                    KitRow(long, icon: "shield", value: long, tag: "row")
+                    KitConversationRow("Maryam", preview: long, time: "10:24", tag: "conversation") { KitAvatar("M", size: 52, kind: .person) }
+                    KitButton(long, action: {}, tag: "button")
+                    KitSearchField(value: .constant(""), placeholder: long, tag: "search")
+                    KitSegmented(labels: ["Code scannen", "Nummer vergleichen"], selected: 0, tag: "segments")
+                    KitTabBar(tabs: [KitTab(icon: "messages-square", label: "Nachrichten"), KitTab(icon: "ellipsis", label: "Mehr")], selected: 0, onSelect: { _ in }, tag: "tabs")
+                }
+            }
+            let minimums: [String: CGFloat] = ["header": 60, "row": 58, "conversation": 72, "button": 52, "search": 36, "segments": 36, "tabs": 83]
+            for (tag, minimum) in minimums {
+                let frame = frames[tag] ?? .zero
+                #expect(frame.height >= minimum - 0.5, "\(tag) \(frame.height) < \(minimum) at \(width) \(size) \(direction)")
+                #expect(frame.width <= width + 0.5, "\(tag) wider than \(width)")
+                // The tab bar minimum includes the home-indicator band; its scaled content still fits in it.
+                if size == .accessibility3 && tag != "tabs" { #expect(frame.height > minimum + 0.5, "\(tag) does not grow at \(width) \(direction)") }
+            }
+        }
+    }
+
     @Test func bundledWeightsSelectTheAxis() {
         for weight in [CGFloat(400), 500, 600, 700] {
             let font = kitCTFont(size: 17, weight: weight, role: .ui)
@@ -327,14 +356,16 @@ private final class Probe {
 }
 
 @MainActor
-private func measure(width: CGFloat, dark: Bool = false, @ViewBuilder content: () -> some View) -> [String: CGSize] {
-    measureHits(width: width, dark: dark, content: content).frames
+private func measure(width: CGFloat, dark: Bool = false, size: DynamicTypeSize = .large, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) -> [String: CGSize] {
+    measureHits(width: width, dark: dark, size: size, direction: direction, content: content).frames
 }
 
 @MainActor
-private func measureHits(width: CGFloat, dark: Bool = false, @ViewBuilder content: () -> some View) -> (frames: [String: CGSize], hits: [String: Bool]) {
+private func measureHits(width: CGFloat, dark: Bool = false, size: DynamicTypeSize = .large, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) -> (frames: [String: CGSize], hits: [String: Bool]) {
     let probe = Probe()
     let root = content()
+        .environment(\.dynamicTypeSize, size)
+        .environment(\.layoutDirection, direction)
         .environment(\.rfTheme, dark ? .dark : .light)
         .environment(\.kitSpinnerAnimated, false)
         .frame(width: width, alignment: .topLeading)

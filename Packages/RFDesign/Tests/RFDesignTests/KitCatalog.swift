@@ -9,6 +9,72 @@ struct KitBoard {
     var dark = false
     var pressed = false
     var body: AnyView
+    /// Matrix parameters. Nil keeps the catalog defaults (locale from the name, left to right, large).
+    var locale: String? = nil
+    var direction: LayoutDirection = .leftToRight
+    var typeSize: DynamicTypeSize = .large
+}
+
+/// One cell of the capture matrix: sample copy, layout direction, width and text size.
+struct KitMatrixVariant: Sendable, CustomStringConvertible {
+    enum Sample: String, Sendable, CaseIterable { case en, ar, rtlPseudo = "en-rtl", long = "en-XA" }
+    var sample: Sample
+    var width: CGFloat
+    var typeSize: DynamicTypeSize
+
+    var direction: LayoutDirection { sample == .ar || sample == .rtlPseudo ? .rightToLeft : .leftToRight }
+    var locale: String { sample == .ar ? "ar" : "en" }
+    var suffix: String { "\(sample.rawValue)-\(Int(width))-\(typeSize == .large ? "large" : "ax3")-light" }
+    var description: String { suffix }
+
+    static let all: [KitMatrixVariant] = Sample.allCases.flatMap { sample in
+        [CGFloat(320), 393, 744].flatMap { width in
+            [DynamicTypeSize.large, .accessibility3].map { KitMatrixVariant(sample: sample, width: width, typeSize: $0) }
+        }
+    }
+}
+
+/// Sample copy per matrix sample. Arabic includes a Latin name, digits, a mention and a spoofed file name.
+struct KitMatrixCopy {
+    var title, back, row, rowValue, name, preview, ownMessage, incomingMessage, placeholder, button, warnTitle, warnBody, today, unread, field, note, file: String
+    var tabs: [String]
+
+    static func of(_ sample: KitMatrixVariant.Sample) -> KitMatrixCopy {
+        switch sample {
+        case .ar:
+            KitMatrixCopy(
+                title: "الإعدادات", back: "رجوع", row: "رقم الأمان", rowValue: "لم يتم التحقق منه بعد مع Maryam على هذا الجهاز",
+                name: "مريم Maryam", preview: "@Alex تمام، سأرسل الملف قبل الساعة 5", ownMessage: "مرحبا! هل راجعت الملف؟ سأرسل نسخة جديدة اليوم.",
+                incomingMessage: "Hello, I will check it today.", placeholder: "اكتب رسالة…", button: "متابعة إلى التحقق",
+                warnTitle: "تغيّر رقم الأمان لجهة الاتصال", warnBody: "تحقّق من الرقم مع جهة الاتصال قبل إرسال معلومات حساسة.",
+                today: "اليوم", unread: "رسائل غير مقروءة أدناه", field: "اسم العرض", note: "يظهر هذا الاسم لجهات الاتصال.",
+                file: "تقرير\u{202E}fdp.exe", tabs: ["الرسائل", "المجموعات", "الوكلاء", "المزيد"]
+            )
+        case .en, .rtlPseudo:
+            english
+        case .long:
+            english.expanded
+        }
+    }
+
+    private static let english = KitMatrixCopy(
+        title: "Settings", back: "Back", row: "Safety number", rowValue: "Not yet verified with Maryam on this device",
+        name: "Maryam Haddad", preview: "@Alex fine, I will send the file before 5", ownMessage: "Hello! Did you review the file? I will send a new copy today.",
+        incomingMessage: "مرحبا، سأتحقق منه اليوم.", placeholder: "Write a message…", button: "Continue to verification",
+        warnTitle: "This contact's safety number changed", warnBody: "Compare the number with your contact before sending anything sensitive.",
+        today: "Today", unread: "Unread messages below", field: "Display name", note: "Contacts see this name.",
+        file: "report\u{202E}fdp.exe", tabs: ["Messages", "Groups", "Agents", "More"]
+    )
+
+    /// The en-XA expansion the feature catalogs use: every string doubled inside brackets.
+    private var expanded: KitMatrixCopy {
+        func x(_ value: String) -> String { "［" + value + " · " + value + "］" }
+        return KitMatrixCopy(
+            title: x(title), back: x(back), row: x(row), rowValue: x(rowValue), name: name, preview: preview, ownMessage: ownMessage,
+            incomingMessage: incomingMessage, placeholder: x(placeholder), button: x(button), warnTitle: x(warnTitle), warnBody: x(warnBody),
+            today: x(today), unread: x(unread), field: x(field), note: x(note), file: file, tabs: tabs.map(x)
+        )
+    }
 }
 
 @MainActor
@@ -239,6 +305,41 @@ enum KitCatalog {
             item("tab-bar--messages-selected-badge--en", 393) { KitTabBar(tabs: messageTabs(badge: "1"), selected: 0, onSelect: { _ in }) },
             item("search-field--focused", 361) { KitSearchField(value: .constant(""), placeholder: "搜索", focused: true) },
         ]
+    }
+
+    /// Components that hold text, rendered at the variant's width, direction, text size and sample copy.
+    static func matrix(_ variant: KitMatrixVariant) -> [KitBoard] {
+        let copy = KitMatrixCopy.of(variant.sample)
+        let width = variant.width
+        let tabs = zip(["messages-square", "users-round", "bot", "ellipsis"], copy.tabs).enumerated().map { index, pair in
+            KitTab(icon: pair.0, label: pair.1, badge: index == 0 ? "3" : nil)
+        }
+        let boards: [(String, AnyView)] = [
+            ("page-header", AnyView(KitPageHeader(copy.title, onBack: {}, onInfo: {}))),
+            ("page-header-large", AnyView(KitPageHeader(copy.title, large: true, subtitle: copy.name, actions: [KitHeaderAction(icon: "square-pen", action: {})]))),
+            ("chat-header", AnyView(KitChatHeader(copy.name, subtitle: copy.today, onBack: {}, onCall: {}, onMore: {}) { KitAvatar("م", size: 36, kind: .person) })),
+            ("tab-bar", AnyView(KitTabBar(tabs: tabs, selected: 0, onSelect: { _ in }))),
+            ("row", AnyView(KitRow(copy.row, icon: "shield", value: copy.rowValue))),
+            ("conversation-row", AnyView(KitConversationRow(copy.name, preview: copy.preview, time: "10:24", read: true, badge: "12") { KitAvatar("م", size: 52, kind: .person) })),
+            ("bubbles", AnyView(VStack(spacing: KitMetrics.headerGap) {
+                KitBubble(copy.ownMessage, time: "10:23", read: true).frame(maxWidth: .infinity, alignment: .trailing)
+                KitBubble(copy.incomingMessage, kind: .incoming, time: "10:24", sender: copy.name).frame(maxWidth: .infinity, alignment: .leading)
+                KitBubble("", kind: .file, time: "10:25", fileName: copy.file, fileMeta: "PDF").frame(maxWidth: .infinity, alignment: .leading)
+            }.padding(.horizontal, KitMetrics.gutter))),
+            ("timeline-dividers", AnyView(VStack(spacing: 0) { KitDateChip(copy.today); KitUnreadDivider(copy.unread) }.padding(.horizontal, KitMetrics.gutter))),
+            ("composer", AnyView(KitComposer(value: .constant(""), placeholder: copy.placeholder, sendActive: true, replyAuthor: copy.name, replyExcerpt: copy.preview, onCloseReply: {}))),
+            ("identifiers", AnyView(VStack(spacing: KitMetrics.headerGap) {
+                KitPairingCode("4821 7730")
+                KitMonoBlock("05123 48211 99310 27741 66012 33918")
+            }.padding(.horizontal, KitMetrics.gutter))),
+            ("security-warning", AnyView(KitSecurityWarning(copy.warnTitle, body: copy.warnBody, tone: .danger).padding(.horizontal, KitMetrics.gutter))),
+            ("button", AnyView(KitButton(copy.button, action: {}).padding(.horizontal, KitMetrics.gutter))),
+            ("text-field", AnyView(KitTextField(value: .constant(copy.name), label: copy.field, note: copy.note).padding(.horizontal, KitMetrics.gutter))),
+            ("switch-row", AnyView(HStack { KitLabel(copy.row, size: 17, weight: .regular, color: RFDesign.light.text, lines: nil); Spacer(); KitSwitch(checked: true) }.padding(.horizontal, KitMetrics.gutter))),
+        ]
+        return boards.map { name, body in
+            KitBoard(name: "\(name)-\(variant.suffix)", width: width, body: body, locale: variant.locale, direction: variant.direction, typeSize: variant.typeSize)
+        }
     }
 
     private static func item(_ name: String, _ width: CGFloat? = nil, pressed: Bool = false, @ViewBuilder body: () -> some View) -> KitBoard {
