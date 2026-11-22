@@ -19,7 +19,19 @@ import Observation
     let repositories: AppRepositories
     let shell: AppShellCoordinator
     @ObservationIgnored lazy var devicePermissions = NativeDevicePermissionsRepository()
-    @ObservationIgnored lazy var permissions = PermissionsCoordinator(repository: devicePermissions)
+    @ObservationIgnored lazy var permissions = PermissionsCoordinator(repository: devicePermissions) { [weak self] event in self?.permissionSettled(event) }
+    @ObservationIgnored private var permissionWaiters: [DevicePermission: [@MainActor (Bool) -> Void]] = [:]
+    /// Runs the permission explanation and system prompt for a feature and reports whether the
+    /// permission is usable. Feature hosts receive this as their permission-request handler.
+    func requestPermission(_ permission: DevicePermission, resolved: @escaping @MainActor (Bool) -> Void) {
+        permissionWaiters[permission, default: []].append(resolved)
+        permissions.send(.need(permission))
+    }
+    private func permissionSettled(_ event: PermissionsEvent) {
+        let (permission, granted): (DevicePermission, Bool) = switch event { case .ready(let value): (value, true); case .declined(let value): (value, false) }
+        let waiters = permissionWaiters.removeValue(forKey: permission) ?? []
+        waiters.forEach { $0(granted) }
+    }
     @ObservationIgnored lazy var onboarding = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, created: { [weak self] account in self?.permissions.send(.accountCreated(account.id)) }) { [weak self] account in
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }

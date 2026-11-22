@@ -83,6 +83,12 @@ import AppData
         #expect(repo.requests == [.camera]); #expect(events == [.ready(.camera)])
         vm.send(.explanationDismissed); vm.send(.confirmExplanation); await vm.settle(); #expect(repo.requests == [.camera])
     }
+    @Test func cancellingTheExplanationReportsTheRequestDeclined() async {
+        let repo = PermissionsFake(); var events: [PermissionsEvent] = []
+        let vm = PermissionsViewModel(repository: repo, emit: { events.append($0) })
+        vm.send(.need(.camera)); await vm.settle(); #expect(vm.state.explanation == .camera)
+        vm.send(.cancelExplanation); #expect(events == [.declined(.camera)]); #expect(repo.requests.isEmpty)
+    }
     @Test func denialNeedsSettingsAndRevocationOrGrantRefreshesOnForeground() async {
         let repo = PermissionsFake(); repo.next = .denied
         let vm = PermissionsViewModel(repository: repo)

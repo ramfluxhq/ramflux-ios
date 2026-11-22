@@ -4,6 +4,8 @@ public struct AppRepositories: Sendable {
     public let cards: any CardsRepository
     public let tasks: any TasksRepository
     public let agents: any AgentsRepository
+    /// Account lifecycle handlers (lock, removal) for account-scoped stores; shared with the repositories that trigger them.
+    public let lifecycle: AccountLifecycleHooks
     public let calls: any CallsRepository
     public let microphone: any MicrophoneRepository
     public let groups: any GroupsRepository
@@ -16,7 +18,8 @@ public struct AppRepositories: Sendable {
     public let session: any SessionRepository
     public let nodes: any NodeRepository
     public let onboarding: any OnboardingRepository
-    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository(), cards: any CardsRepository = UnavailableCardsRepository()) {
+    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository(), cards: any CardsRepository = UnavailableCardsRepository(), lifecycle: AccountLifecycleHooks = AccountLifecycleHooks()) {
+        self.lifecycle = lifecycle
         self.session = session; self.nodes = nodes; self.onboarding = onboarding; self.conversations = conversations; self.chat = chat; self.contacts = contacts; self.settings = settings; self.backup = backup; self.preferences = preferences; self.groups = groups; self.calls = calls; self.microphone = microphone; self.agents = agents; self.tasks = tasks; self.cards = cards
     }
 }

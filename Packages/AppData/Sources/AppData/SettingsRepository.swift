@@ -27,10 +27,11 @@ public protocol SettingsRepository: Sendable {
 }
 public struct NativeSettingsRepository: SettingsRepository {
     private let gateway: ProxyGateway
+    private let lifecycle: AccountLifecycleHooks
     private let nodes: any NodeRepository
     private let updates: NativeUpdateSource
     private let journal = RetainedMutation<SettingsMutation, Void>()
-    public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates }
+    public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource, lifecycle: AccountLifecycleHooks = AccountLifecycleHooks()) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates; self.lifecycle = lifecycle }
     public func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot> {
         let savedNodes: [NodeRecord]
         switch await nodes.list() { case .success(let rows): savedNodes = rows; case .failure(let failure): return .failure(failure) }
@@ -67,7 +68,10 @@ public struct NativeSettingsRepository: SettingsRepository {
                     guard (3600...604800).contains(seconds) else { return .failure(.invalidInput) }
                     _ = try await gateway.call(.accountConfigSet, account: account, body: .object(["offline_retention_secs": .number(Double(seconds))]), operationID: operationID)
                 case .manualRequests: _ = try await gateway.call(.contactRequestsPolicySet, account: account, body: .object(["contact_requests": .string("manual")]), operationID: operationID)
-                case .lock: _ = try await gateway.call(.accountLock, account: account, operationID: operationID)
+                case .lock:
+                    // Account-scoped stores drop decoded plaintext before the SDK closes the account.
+                    await lifecycle.notify(.willLock(account: account))
+                    _ = try await gateway.call(.accountLock, account: account, operationID: operationID)
                 case .setDefault: break
                 }
                 return .success(())

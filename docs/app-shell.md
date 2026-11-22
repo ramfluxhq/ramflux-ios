@@ -23,6 +23,13 @@ an explicit unavailable presentation.
   bundled and registered by their actual PostScript names before rendering.
   Clean-process tests verify the resolved names and packaged font URLs.
 
+- `AppRepositories.lifecycle` (`AccountLifecycleHooks`) lets account-scoped stores register for
+  `willLock` (awaited before `account.lock` is sent) and `willRemove` (for sign-out or removal; the
+  pinned SDK has no account removal method, so nothing triggers it yet).
+- `AppComposition.requestPermission(_:resolved:)` runs the permission explanation and system prompt for
+  a feature and calls back with whether the permission is usable (`PermissionsEvent.ready` or
+  `.declined`). Feature hosts receive it as their permission-request handler.
+
 ## Build modes
 
 Without `RAMFLUX_CORE_XCFRAMEWORK`, the application factory returns a typed
