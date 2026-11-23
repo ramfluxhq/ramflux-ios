@@ -88,6 +88,23 @@ struct KitLayoutTests {
         #expect(near(frames["segments"], nil, 36))
     }
 
+    /// The design's M/Row instance with a two-line value (row--tag) is 92 pt: the text is centred
+    /// with 16 pt above and below. A row whose copy fits keeps the 58 pt master and its 8 pt inset.
+    /// macOS line metrics put a row with a value up to 1 pt above the iOS capture; the Kit capture
+    /// comparison checks the simulator frames against the masters.
+    @Test func wrappedRowUsesTheWrappedInset() {
+        let frames = measure(width: 361) {
+            VStack(spacing: 0) {
+                KitRow("Chrome · macOS", icon: "globe", value: "chat.example.org · 此节点的运营方可以读取这台设备上的消息。", tagLabel: "网页", tag: "wrapped")
+                KitRow("标题", icon: "user-round", value: "说明", tagLabel: "网页", tag: "single")
+            }
+        }
+        let wrapped = frames["wrapped"] ?? .zero
+        let single = frames["single"] ?? .zero
+        #expect(wrapped.width == 361 && abs(wrapped.height - 92) <= 1, "wrapped \(wrapped)")
+        #expect(single.width == 361 && abs(single.height - 58) <= 1, "single \(single)")
+    }
+
     @Test func nestedHitsStayFortyFourInsideTheMasterFrame() {
         let frames = measure(width: 393) {
             VStack {

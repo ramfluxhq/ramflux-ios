@@ -6,7 +6,6 @@
   "context-menu--default": {"w": 240, "h": 309, "note": "the export canvas includes shadow outside the master"},
   "context-menu--restricted": {"w": 240, "h": 177, "note": "the export canvas includes shadow; four rows plus one divider"},
   "reaction-bar--default": {"w": 320, "h": 44, "note": "emoji ink draws outside the 44 pt master"},
-  "row--tag": {"w": 361, "h": 58, "note": "the 92 pt export is a board instance; the row master is 58"},
   "sheet--default": {"w": 393, "h": 188, "note": "the export canvas includes shadow outside the master"},
   "sheet--no-close": {"w": 393, "h": 496, "note": "the export canvas includes the sheet shadow; this is the link-approval composition frame"}
 }
