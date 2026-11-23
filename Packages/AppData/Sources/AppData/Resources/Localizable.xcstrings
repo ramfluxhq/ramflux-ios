@@ -2688,6 +2688,23 @@
           }
         }
       }
+    },
+    "agents.unavailable.chat": {
+      "comment": "Failure message: no direct conversation can be opened with this agent because its identity is not an account root.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A chat with this agent cannot be opened from this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法在本机打开与此代理的对话。"
+          }
+        }
+      }
     }
   }
 }

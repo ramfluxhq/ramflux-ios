@@ -20,6 +20,8 @@
 	<string>This code is too easy to guess (repeated digits or a straight run). Choose another.</string>
 	<key>agents.unavailable.access</key>
 	<string>Changing who can reach this agent is not available on this phone yet.</string>
+	<key>agents.unavailable.chat</key>
+	<string>A chat with this agent cannot be opened from this phone.</string>
 	<key>agents.unavailable.creationDecision</key>
 	<string>Approving or declining this agent creation is not available on this phone yet. Decide on the desktop that started it.</string>
 	<key>agents.unavailable.goal</key>

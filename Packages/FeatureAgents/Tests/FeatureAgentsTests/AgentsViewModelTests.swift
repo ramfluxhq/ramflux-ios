@@ -28,6 +28,7 @@ private final class SyntheticAgents: AgentsRepository, Sendable {
         return .success(AgentRecord(id: id, persona: persona, lifecycle: "active", role: "assistant", access: AgentAccess(dm: "contacts", groupInviters: "owner", allowedHumans: [])))
     }
     func delete(account: String, agent id: String) async -> RepositoryResult<AgentRecord> { calls.withLock { $0.append("delete:" + id) }; return .success(agent(Int(id.dropFirst()) ?? 0)) }
+    func chatConversation(account: String, agent: String) async -> RepositoryResult<String> { .success("dm:" + agent) }
     func pendingCreation(account: String) async -> RepositoryResult<AgentCreationRequest?> { .success(AgentCreationRequest(id: "req", state: "pending", agentAnchor: nil, expiresAt: 1, failureReason: nil)) }
     func observe(account: String) async -> RepositoryObservation {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))
@@ -60,7 +61,7 @@ private final class SyntheticAgents: AgentsRepository, Sendable {
         model.send(.delete); model.send(.cancelConfirmation); #expect(!model.state.confirmingDelete)
         model.send(.delete); model.send(.confirmDelete); await model.settle()
         #expect(source.calls.withLock { $0 }.last == "delete:a00002"); #expect(model.state.mode == .directory); #expect(!model.state.entries.contains { $0.id == "a00002" })
-        model.send(.chat("a00001")); #expect(events == [.navigate(.conversation("a00001"))])
+        model.send(.chat("a00001")); await model.settle(); #expect(events == [.navigate(.conversation("dm:a00001"))])
         model.send(.draftName("  ")); model.send(.mode(.edit("a00001"))); await model.settle(); model.send(.draftName(" ")); model.send(.save)
         #expect(model.state.failure == .invalidInput); #expect(!model.state.confirmingEdit)
         model.send(.disappeared)

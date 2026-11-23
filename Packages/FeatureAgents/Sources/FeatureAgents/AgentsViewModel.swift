@@ -30,7 +30,15 @@ import AppData
                 if case .edit = mode, let selected = state.selected { state.draft = selected.persona }
                 loadRecord(id)
             }
-        case .chat(let id): emit(.navigate(.conversation(id)))
+        case .chat(let id):
+            guard !state.busy else { return }
+            generation &+= 1; let current = generation; task?.cancel(); state.loading = true; state.failure = nil
+            task = Task { [weak self, repository, account] in
+                let result = await repository.chatConversation(account: account, agent: id)
+                guard !Task.isCancelled, let self, self.generation == current else { return }
+                self.state.loading = false
+                switch result { case .success(let conversation): self.emit(.navigate(.conversation(conversation))); case .failure(let failure): self.state.failure = failure }
+            }
         case .draftName(let value): state.draft.name = String(value.unicodeScalars.prefix(256))
         case .draftResponsibility(let value): state.draft.responsibility = String(value.unicodeScalars.prefix(1024))
         case .save:

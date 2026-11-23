@@ -20,6 +20,8 @@
 	<string>此账户码太容易被猜到（重复数字或连续数字），请另选一个。</string>
 	<key>agents.unavailable.access</key>
 	<string>此手机暂不支持更改谁可以联系此智能体。</string>
+	<key>agents.unavailable.chat</key>
+	<string>无法在本机打开与此代理的对话。</string>
 	<key>agents.unavailable.creationDecision</key>
 	<string>此手机暂不支持批准或拒绝此智能体创建。请在发起创建的桌面端处理。</string>
 	<key>agents.unavailable.goal</key>

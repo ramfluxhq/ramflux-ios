@@ -179,7 +179,11 @@ declining is unavailable: `agent.creation.decide` needs `request_hash`, which th
 plan bytes with Rust code the C ABI does not expose. Changing access is unavailable because
 `agent.access.set` needs the record's event identity as `base` and the wire record does not carry it.
 Pausing, hiding and goal settings have no SDK methods. Opening an agent's chat navigates to the
-conversation whose id is the agent anchor; this is an assumption not yet verified against a node.
+SDK's direct conversation id for this account's root (`account.status` `principal_commitment`) and the agent
+anchor: `"dm:" + base64url(BLAKE3(lp(domain) || lp(lower root) || lp(higher root)))` (`message/dm_scope.rs`),
+derived in AppData (`DirectConversationID`, a single-chunk BLAKE3 checked against the reference crate). The
+SDK creates that conversation only for an accepted contact; whether an owner's agents are always linked
+that way is not verified against a node.
 Local search, phone pairing, attachment transfer, replying to a stranger without accepting,
 stranger reporting and batch request actions are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published

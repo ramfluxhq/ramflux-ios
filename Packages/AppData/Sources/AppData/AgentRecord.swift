@@ -50,6 +50,8 @@ public enum AgentUnavailable: String, Equatable, Sendable, CaseIterable {
     case access
     /// `agent.creation.decide` needs `request_hash`, computed from the plan bytes by Rust code the C ABI does not expose.
     case creationDecision
+    /// The agent anchor is not a root anchor, so no direct conversation id can be derived for it.
+    case chat
     /// No SDK methods: pausing, hiding and goal settings.
     case pause, hide, goal
 }

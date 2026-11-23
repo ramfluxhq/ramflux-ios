@@ -12,6 +12,9 @@ public protocol AgentsRepository: Sendable {
     func delete(account: String, agent: String) async -> RepositoryResult<AgentRecord>
     /// The pending desktop-started creation, if any (`agent.operation.get` with an empty id).
     func pendingCreation(account: String) async -> RepositoryResult<AgentCreationRequest?>
+    /// The direct conversation with an agent: the SDK's DM scope of this account's root
+    /// (`account.status` `principal_commitment`) and the agent anchor, not the anchor itself.
+    func chatConversation(account: String, agent: String) async -> RepositoryResult<String>
     func observe(account: String) async -> RepositoryObservation
     func unavailable(_ capability: AgentUnavailable) -> AppFailure
 }
@@ -48,6 +51,14 @@ public struct NativeAgentsRepository: AgentsRepository {
                                         expiresAt: ProxyGateway.integer(status["expiresAt"]), failureReason: status["error"]?["reasonCode"]?.string)
         }
     }
+    public func chatConversation(account: String, agent: String) async -> RepositoryResult<String> {
+        do {
+            let status = try await gateway.call(.accountStatus, account: account)
+            guard let own = status["principal_commitment"]?.string else { throw AppFailure.invalidData }
+            guard let id = DirectConversationID.derive(own, agent) else { return .failure(unavailable(.chat)) }
+            return .success(id)
+        } catch { return .failure(AppFailure.map(error)) }
+    }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func unavailable(_ capability: AgentUnavailable) -> AppFailure { .unavailableResource("agents.unavailable." + capability.rawValue) }
     private func read<Value: Sendable>(_ body: @Sendable () async throws -> Value) async -> RepositoryResult<Value> {
@@ -73,6 +84,7 @@ public struct NativeAgentsRepository: AgentsRepository {
 }
 public struct UnavailableAgentsRepository: AgentsRepository {
     public init() {}
+    public func chatConversation(account: String, agent: String) async -> RepositoryResult<String> { .failure(.sdkUnavailable) }
     public func page(account: String, cursor: String?, limit: Int) async -> RepositoryResult<AgentPage> { .failure(.sdkUnavailable) }
     public func record(account: String, agent: String) async -> RepositoryResult<AgentRecord> { .failure(.sdkUnavailable) }
     public func changes(account: String, since journalCursor: String) async -> RepositoryResult<AgentPage> { .failure(.sdkUnavailable) }
