@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import UIKit
+import SwiftUI
 import RFDesign
 import AppData
 import FeatureAppShell
@@ -38,6 +39,11 @@ import UserNotifications
         restoreBackup: { [weak self] in self?.shell.send(.open(.backup)) }) { [weak self] account in
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }
+    }
+    /// The locked state of a pushed screen: the known accounts with their unlock action (see LockedScreen).
+    func lockedScreen(message: String) -> some View {
+        LockedScreen(accounts: shell.viewModel.state.session.accounts.filter(\.isLocked), message: message,
+                     onUnlock: { [weak self] id in self?.shell.send(.unlockAccount(id)) }, onAccounts: { [weak self] in self?.shell.send(.openAccounts) })
     }
     @ObservationIgnored private var currentUnlock: (String, OnboardingCoordinator)?
     /// The code-only unlock of a known account (from the device's registry); see docs/app-shell.md.

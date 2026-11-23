@@ -40,24 +40,24 @@ import RFDesign
                 case .systemPermissions: return AnyView(PermissionsHost(coordinator: composition.permissions))
                 case .tasks, .permissions:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .calls(let conversation):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(CallsHost(coordinator: composition.calls(account: account, conversation: conversation))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .groupConversation(let id, let group, let title):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, group: group, title: title))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .mediaStorage:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(MediaStorageHost(repository: composition.repositories.chat, account: account)) }
-                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .contacts, .strangers, .contact, .safetyNumber:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
                         let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
-                    } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
+                    } else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
                 case .unlockAccount(let account): return AnyView(OnboardingHost(coordinator: composition.unlock(account: account)))
                 case .notices: return AnyView(NoticesScreen())

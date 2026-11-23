@@ -28,3 +28,38 @@ public struct LockedAccountsBlock: View {
         }
     }
 }
+
+/// A pushed screen opened while no account is unlocked: the same locked block as the tabs, with the
+/// unlock action of each known account, or the account switcher when the device knows none.
+public struct LockedScreen: View {
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    let accounts: [AccountRecord]
+    let message: String
+    let onUnlock: (String) -> Void
+    let onAccounts: () -> Void
+    public init(accounts: [AccountRecord], message: String, onUnlock: @escaping (String) -> Void, onAccounts: @escaping () -> Void) {
+        self.accounts = accounts; self.message = message; self.onUnlock = onUnlock; self.onAccounts = onAccounts
+    }
+    public var body: some View {
+        RFPage {
+            ScrollView {
+                VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
+                    if accounts.isEmpty {
+                        KitStatusHero(icon: "lock", tag: "shell-locked")
+                        Text(FeatureAppShellStrings.text("shell.locked.title", locale: locale)).rfFont(.body, weight: .semibold).foregroundStyle(theme.text)
+                        Text(message).rfFont(.caption).foregroundStyle(theme.secondary)
+                    } else {
+                        LockedAccountsBlock(accounts: accounts, onUnlock: onUnlock)
+                    }
+                    KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: onAccounts, kind: accounts.isEmpty ? .primary : .secondary, tag: "shell-accounts")
+                }
+                .padding(KitMetrics.gutter)
+                .frame(maxWidth: theme.column_max, alignment: .leading)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("locked-screen")
+    }
+}
