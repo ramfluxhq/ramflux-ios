@@ -15,7 +15,14 @@ private actor SessionFake: SessionRepository {
     private(set) var suspensions = 0
     init(delay: Bool = false) { self.delay = delay }
     func snapshots() -> AsyncStream<SessionSnapshot> { pair.stream }
+    /// After a background close the SDK reopens with every account locked.
+    private var lockedOnActivate = false
+    func lockOnNextActivation() { lockedOnActivate = true }
+    /// The unlock step finished: the session reports the account active (no activation of its own).
+    func unlockFromElsewhere() { lockedOnActivate = false; pair.continuation.yield(Self.ready) }
+    static var locked: SessionSnapshot { SessionSnapshot(phase: .ready, accounts: [AccountRecord(id: "a", displayName: "Account", isLocked: true)], activeAccountID: nil) }
     func activate() async -> RepositoryResult<SessionSnapshot> {
+        if lockedOnActivate { pair.continuation.yield(Self.locked); return .success(Self.locked) }
         if delay {
             return await withCheckedContinuation { blocked = $0; activated = true; entered?.resume(); entered = nil }
         }
@@ -115,6 +122,28 @@ private actor SessionFake: SessionRepository {
         coordinator.path = []
         coordinator.send(.sceneInactive); coordinator.send(.sceneActive); await coordinator.viewModel.settle()
         #expect(coordinator.path.isEmpty)
+        coordinator.send(.disappeared); await coordinator.viewModel.settle()
+    }
+    @Test func screensOpenWhenTheAccountWasLockedInTheBackgroundReopenAfterUnlock() async {
+        let fake = SessionFake()
+        let coordinator = AppShellCoordinator(repository: fake)
+        coordinator.send(.appeared); await coordinator.viewModel.settle()
+        coordinator.send(.open(.conversation("c1")))
+        coordinator.send(.sceneInactive); coordinator.send(.sceneBackground); await coordinator.viewModel.settle()
+        await fake.lockOnNextActivation()
+        coordinator.send(.sceneInactive); coordinator.send(.sceneActive); await coordinator.viewModel.settle()
+        // Locked: nothing of the conversation is open before the unlock.
+        #expect(coordinator.path.isEmpty)
+        coordinator.send(.unlockAccount("a")); #expect(coordinator.path == [.unlockAccount("a")])
+        // The unlock step closes: the conversation replaces it in one path change.
+        await fake.unlockFromElsewhere()
+        coordinator.closeUnlock(reopening: "a")
+        #expect(coordinator.path == [.conversation("c1")])
+        // The retry after the unlock does not open it a second time.
+        coordinator.send(.retry); await coordinator.viewModel.settle()
+        #expect(coordinator.path == [.conversation("c1")])
+        // Another account's unlock reopens nothing.
+        coordinator.closeUnlock(reopening: "b"); #expect(coordinator.path.isEmpty)
         coordinator.send(.disappeared); await coordinator.viewModel.settle()
     }
     @Test func coordinatorOwnsNavigationAndClearsItOnBackground() async {

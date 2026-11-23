@@ -84,6 +84,12 @@ import AppData
         guard let account = concealedAccount, !kept.isEmpty else { return }
         parked = (account, kept)
     }
+    /// The screens parked for `account`, handed over once (the unlock step reopens them itself).
+    public func takeParked(for account: String) -> [AppRoute] {
+        guard let held = parked, held.account == account else { return [] }
+        parked = nil
+        return held.routes
+    }
     private func reopenParked() {
         guard let held = parked, !state.privacyShield, state.session.phase == .ready, let active = state.session.activeAccountID else { return }
         parked = nil

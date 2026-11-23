@@ -53,7 +53,8 @@ import UserNotifications
         let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .unlockKnown(account: account, name: name),
             forget: { [weak self] id in self?.forgetKnownAccount(id) }) { [weak self] unlocked in
             self?.currentUnlock = nil
-            self?.shell.path = []
+            // One path change: the unlock step closes and the screens open before the lock come back.
+            self?.shell.closeUnlock(reopening: unlocked?.id)
             if unlocked != nil { self?.shell.send(.retry) }
         }
         currentUnlock = (account, coordinator); return coordinator
