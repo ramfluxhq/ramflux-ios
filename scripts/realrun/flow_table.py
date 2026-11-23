@@ -33,7 +33,6 @@ FLOWS = [
 # Flows the suite does not script yet, with the reason shown instead of a missing result.
 NOT_SCRIPTED = {
     "04b-offline-queue": "not scripted: needs a network cut for the simulator only; the background flow covers an in-flight send",
-    "05-groups": "not scripted yet: needs bob as a second contact and the group member and invitation steps",
 }
 
 

@@ -372,6 +372,105 @@ final class RealRunFlowTests: RealRunTestCase {
         }
     }
 
+    // MARK: Flow 5: groups with alice and bob
+
+    func test05_groupsWithAliceAndBob() {
+        flow("05-groups") {
+            try ensureReady()
+            guard RunSecrets.phoneCommitment != nil else { throw FlowStop.blocked("needs flow 6 (contact with alice)") }
+            var notes: [String] = []
+            // Bob becomes a second contact, the same way as alice.
+            try addContact(config.bob)
+            notes.append("bob added as a contact")
+            try ensureReady()
+            // Create the group from the phone.
+            let name = "rr-group-" + token()
+            try openTab("groups")
+            if element("groups-empty-create").waitForExistence(timeout: 5) { try tap(element("groups-empty-create"), "Create group") }
+            else { try tap(button("Create group"), "Create group in the Groups header") }
+            let field = try require(textField("group-name"), "group name field")
+            field.tap(); field.typeText(name)
+            try tap(button("Review group creation"), "Review group creation")
+            try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "group creation confirmation", timeout: 30)
+            guard text(containing: "The account service committed the group").waitForExistence(timeout: 60) || text(containing: name).waitForExistence(timeout: 5) else {
+                throw FlowStop.fail("group creation was not acknowledged: \(visibleFailure())")
+            }
+            snap("05-group-created")
+            // Members: add alice and bob from the known contacts.
+            try tap(button("Members and permissions"), "Members and permissions")
+            for peer in [config.alice, config.bob] {
+                try tap(app.buttons.matching(NSPredicate(format: "label == %@", peer.displayName)).firstMatch, "add \(peer.name) to the group", timeout: 30)
+                try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "member add confirmation for \(peer.name)", timeout: 30)
+                guard text(containing: peer.principal.replacingOccurrences(of: "principal-", with: "")).waitForExistence(timeout: 60) || text(containing: peer.principal).exists else {
+                    throw FlowStop.fail("\(peer.name) is not listed as a member after the add: \(visibleFailure())")
+                }
+            }
+            snap("05-group-members")
+            notes.append("members list shows alice and bob")
+            // The group as alice sees it: its group_id and conversation id.
+            var group: [String: Any]?
+            guard eventually(120, every: 4, {
+                group = (self.control.rf("alice", ["group", "list"]).json?["groups"] as? [[String: Any]] ?? []).first { ($0["name"] as? String) == name || ($0["title"] as? String) == name }
+                return group != nil
+            }) else { throw FlowStop.fail("alice never listed the group \(name); \(notes.joined(separator: "; "))") }
+            let groupID = group?["group_id"] as? String ?? ""
+            let conversation = group?["conversation_id"] as? String ?? groupID
+            notes.append("alice lists the group (group_id \(groupID), conversation \(conversation))")
+            // Phone sends; alice and bob read it.
+            back()
+            try tap(button("Open group conversation"), "Open group conversation", timeout: 30)
+            let fromPhone = "rr-gphone-" + token()
+            try send(fromPhone)
+            for peer in ["alice", "bob"] {
+                guard eventually(120, every: 4, { self.groupTexts(peer, group: groupID, conversation: conversation).contains { $0.contains(fromPhone) } }) else {
+                    throw FlowStop.fail("\(peer) did not receive the phone's group message; \(notes.joined(separator: "; "))")
+                }
+            }
+            notes.append("alice and bob received the phone's group message")
+            // Bob sends; the phone shows it.
+            let peers = control.get("config")["peers"] as? [String: [String: Any]] ?? [:]
+            let fromBob = "rr-gbob-" + token()
+            let sent = control.rf("bob", ["group", "send", "--group", groupID, "--conversation", conversation, "--message", "rr-gmsg-" + token(),
+                                          "--sender", peers["bob"]?["device_id"] as? String ?? "", "--body", fromBob], timeout: 120)
+            guard sent.exit == 0 else { throw FlowStop.blocked("bob: rf group send failed (exit \(sent.exit)): \(sent.stderr.suffix(300)); \(notes.joined(separator: "; "))") }
+            guard text(containing: fromBob).waitForExistence(timeout: 90) else { throw FlowStop.fail("bob's group message did not appear on the phone; \(notes.joined(separator: "; "))") }
+            snap("05-group-chat")
+            notes.append("bob's group message appeared on the phone")
+            return notes.joined(separator: "; ")
+        }
+    }
+
+    /// Adds `peer` as a contact by principal id and lets the peer accept with rf.
+    func addContact(_ peer: RealRunConfig.Peer) throws {
+        try openMore()
+        try tap(element("more-contacts"), "Contacts in More")
+        if element(peer.principal).waitForExistence(timeout: 5) { return }
+        try tap(element("contacts-add"), "Add contact")
+        let address = try require(element("contacts-add-address"), "account address field")
+        address.tap(); address.typeText(peer.principal)
+        try tap(element("contacts-add-send"), "Send contact request")
+        var request: [String: Any]?
+        guard eventually(90, every: 3, {
+            request = (self.control.rf(peer.name, ["contact", "list"]).json?["contacts"] as? [[String: Any]] ?? []).first { ($0["display_name"] as? String) == RunSecrets.displayName }
+            return request != nil
+        }) else { throw FlowStop.fail("\(peer.name) never saw a contact request from \(RunSecrets.displayName)") }
+        if (request?["state"] as? String) != "accepted", let principal = request?["principal_id"] as? String {
+            let accepted = control.rf(peer.name, ["contact", "accept", "--principal", principal])
+            guard accepted.exit == 0 else { throw FlowStop.blocked("\(peer.name): rf contact accept failed (exit \(accepted.exit)): \(accepted.stderr.suffix(300))") }
+        }
+        back()
+        try tap(element("more-contacts"), "Contacts in More")
+        guard eventually(90, every: 3, {
+            if self.element(peer.principal).exists { return true }
+            self.element("contacts-header").buttons["Refresh"].firstMatch.tapIfExists(); return false
+        }) else { throw FlowStop.fail("\(peer.name) did not appear in the phone's contacts after accepting") }
+    }
+    func groupTexts(_ peer: String, group: String, conversation: String) -> [String] {
+        let value = control.rf(peer, ["group", "read", "--group", group, "--conversation", conversation])
+        let rows = value.json?["messages"] as? [[String: Any]] ?? []
+        return rows.map(messageText) + [value.stdout]
+    }
+
     func openConversation(_ id: String) throws {
         try openTab("messages")
         try tap(element(id), "conversation row \(id)", timeout: 30)
