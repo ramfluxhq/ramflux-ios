@@ -64,7 +64,7 @@ public struct ContactsScreen: View {
     @ViewBuilder private var content: some View {
         switch state.mode {
         case .contacts:
-            HStack { Button(FeatureContactsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.mode(.strangers)) }; Button(FeatureContactsStrings.text("contacts.sent.title", locale: locale)) { onAction(.mode(.sent)) }; Spacer(); Button(FeatureContactsStrings.text("contacts.add.action", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) } }
+            HStack { Button(FeatureContactsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.mode(.strangers)) }.accessibilityIdentifier("contacts-strangers"); Button(FeatureContactsStrings.text("contacts.sent.title", locale: locale)) { onAction(.mode(.sent)) }.accessibilityIdentifier("contacts-sent"); Spacer(); Button(FeatureContactsStrings.text("contacts.add.action", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) }.accessibilityIdentifier("contacts-add") }
             KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: FeatureContactsStrings.text("contacts.filter.placeholder", locale: locale), tag: "contact-filter")
             let rows = state.contacts
             if rows.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.empty.message", locale: locale)) }
@@ -76,9 +76,9 @@ public struct ContactsScreen: View {
             }
             pagingFooter
         case .add:
-            TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput()
+            TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput().accessibilityIdentifier("contacts-add-address")
             Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))
-            Button(FeatureContactsStrings.text("contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty)
+            Button(FeatureContactsStrings.text("contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty).accessibilityIdentifier("contacts-add-send")
         case .strangers, .sent:
             Text(FeatureContactsStrings.text("contacts.strangers.replyNote", locale: locale)).rfFont(.caption)
             if state.mode == .strangers { Button(FeatureContactsStrings.text("contacts.strangers.batch", locale: locale)) { onAction(.unavailable(.batch)) } }
