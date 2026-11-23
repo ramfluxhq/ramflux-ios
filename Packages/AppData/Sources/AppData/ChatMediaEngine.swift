@@ -210,8 +210,19 @@ actor ChatMediaEngine {
             if outcome.state == .submitted { for item in items { try? FileManager.default.removeItem(at: item.file) } }
             return .success(outcome)
         } catch {
-            let failure = MediaRefusal.sendFailure(Self.code(error), failure: AppFailure.map(error))
+            var failure = MediaRefusal.sendFailure(Self.code(error), failure: AppFailure.map(error))
+            // The SDK's internal failure on conversation.send with prepared attachments (code 16) is a refusal
+            // of this send, not a lost connection: the entry reads "not sent" with a retry under the same
+            // operation id, instead of waiting in the queue behind an offline banner that is not true.
+            if stage == "conversation.send", let core = error as? CoreFailure, core.code == .internalFailure, Self.code(error) == nil {
+                failure = .sdkRefusal(core.rawCode)
+            }
             EventDiagnostics.note("media send failed stage=\(stage) code=\(Self.code(error) ?? "none") mapped=\(failure) raw=\(EventDiagnostics.describe(error))")
+            // The request shape for the SDK team (keys, counts and ids only; no caption text or file bytes).
+            if stage == "conversation.send" {
+                let message = (error as? CoreFailure)?.response?["error"]?["message"]?.string.map { String($0.prefix(300)) } ?? "-"
+                EventDiagnostics.note("media send request method=conversation.send keys=[conversation_id,text,prepares\(groupID == nil ? "" : ",group_id")] kind=\(groupID == nil ? "dm" : "group") conversation=\(conversation) prepares=\(items.count) caption_chars=\(caption.count) operation_id_set=true error_message=\(message)")
+            }
             return .failure(failure)
         }
     }

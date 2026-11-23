@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Chat: a media send that the SDK refuses at `conversation.send` with an internal failure (code 16) reads "not sent" with a retry under the same operation id instead of waiting behind an offline banner; the debug trace records the request shape for the SDK team.
 - Groups: a new group opens the conversation named by the creation reply, without reads that could run before the group list caught up; opening a listed group asks the group's metadata for its conversation before history.
 - Groups: a contact is added to a group by its principal id alone; the explicit root made the SDK read the principal id as a device id and refuse the add (code 16).
 - Backup: once an archive chosen for restore is verified, the install step (new account code, or the merge confirmation) opens by itself.
