@@ -31,8 +31,12 @@ private actor BackupFake: BackupRepository {
         credentials.erase(); created.append(allowMissingAttachments)
         let job = BackupRecord(id: "b\(created.count)", kind: "backup", state: "preparing", sequence: UInt64(created.count)); rows.insert(job, at: 0); return .success(job)
     }
+    var verifyStarts: BackupRecord?
+    func startVerifying(as job: BackupRecord) { verifyStarts = job }
     func verify(account: String?, source: URL, credentials: SensitiveSubmission, operationID: String) -> RepositoryResult<BackupRecord> {
-        credentials.erase(); verified.append(source); return .failure(.backup(.wrongPassphrase))
+        credentials.erase(); verified.append(source)
+        guard let job = verifyStarts else { return .failure(.backup(.wrongPassphrase)) }
+        rows.insert(job, at: 0); return .success(job)
     }
     func install(account: String?, expected: BackupRecord, credentials: SensitiveSubmission?, operationID: String) -> RepositoryResult<BackupRecord> {
         installs.append((expected, credentials != nil)); credentials?.erase()
@@ -86,6 +90,26 @@ private actor BackupFake: BackupRepository {
         #expect(await fake.lastInstallHadSecret == true); #expect(vm.state.step == .restored("restore-1"))
         vm.send(.finish); #expect(events.withLock { $0 } == [.restored("restore-1")])
         vm.send(.disappeared); #expect(vm.state.step == .restored("restore-1"))
+    }
+    @Test func aVerifiedArchiveOpensTheInstallStepWithoutASecondTap() async {
+        let fake = BackupFake(), vm = BackupViewModel(repository: fake, account: nil, emit: { _ in })
+        vm.send(.appeared); fake.live.yield(.invalidated)
+        await waitUntil { vm.state.attended }
+        let running = BackupRecord(id: "v", kind: "restore", state: "verifying", sequence: 1)
+        let verified = BackupRecord(id: "v", kind: "restore", state: "verified", sequence: 2, accountID: "restore-1", merge: false)
+        await fake.startVerifying(as: running)
+        let url = URL(fileURLWithPath: "/tmp/archive.rfb")
+        vm.send(.importSelected(url))
+        vm.send(.submitVerify(SensitiveSubmission(values: ["passphrase": "a long archive passphrase"], archivePassphrase: .existing))); await vm.settleWork()
+        #expect(vm.state.step == .overview)
+        // The job finishes verifying; the poll reads it and the code step opens for that job.
+        await fake.set([verified])
+        await waitUntil { vm.state.step == .installCode(verified) }
+        #expect(vm.state.step == .installCode(verified))
+        // Going back keeps the overview; the step does not reopen on the next read.
+        vm.send(.back); vm.send(.refresh); await vm.settleWork()
+        #expect(vm.state.step == .overview)
+        vm.send(.disappeared)
     }
     @Test func mergeInstallNeedsTheHostConfirmationAndSendsNoSecret() async {
         let verified = BackupRecord(id: "m", kind: "restore", state: "verified", sequence: 3, accountID: "a", merge: true)

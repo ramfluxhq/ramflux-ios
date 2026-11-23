@@ -18,6 +18,9 @@ import AppData
     @ObservationIgnored private var epoch: UInt64 = 0
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var discarded: Set<String> = []
+    /// The restore job this screen asked the SDK to verify; once it reads verified, the install step opens
+    /// by itself (the person chose the archive to restore it), instead of waiting for a second tap.
+    @ObservationIgnored private var verifying: String?
     public init(repository: any BackupRepository, account: String?, emit: @escaping (SettingsEvent) -> Void) {
         self.repository = repository; self.emit = emit; state = BackupState(account: account)
     }
@@ -39,7 +42,8 @@ import AppData
         case .submitVerify(let input):
             guard case .importPassphrase(let url) = state.step, ready(input) else { return }
             let account = state.account
-            run { [repository] in await repository.verify(account: account, source: url, credentials: input, operationID: UUID().uuidString) }
+            run({ [repository] in await repository.verify(account: account, source: url, credentials: input, operationID: UUID().uuidString) },
+                then: { [weak self] job in self?.verifying = job.id })
         case .requestInstall(let id):
             guard !state.busy, let job = state.window.rows.first(where: { $0.id == id && $0.kind == "restore" && $0.state == "verified" }), let merge = job.merge else { return }
             state.failure = nil
@@ -83,14 +87,14 @@ import AppData
         guard state.attended else { input.erase(); state.failure = .backup(.attendanceRequired); return false }
         return true
     }
-    private func run(_ operation: @escaping @Sendable () async -> RepositoryResult<BackupRecord>) {
+    private func run(_ operation: @escaping @Sendable () async -> RepositoryResult<BackupRecord>, then: @escaping @MainActor (BackupRecord) -> Void = { _ in }) {
         state.busy = true; state.failure = nil; let current = epoch
         work = Task { [weak self] in
             let result = await operation()
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.busy = false
             switch result {
-            case .success(let job): self.state.step = .overview; self.state.window = self.state.window.patching(job); self.reload()
+            case .success(let job): self.state.step = .overview; self.state.window = self.state.window.patching(job); then(job); self.reload()
             case .failure(let failure): self.state.failure = failure
             }
         }
@@ -130,6 +134,12 @@ import AppData
         if state.account == nil, case .overview = state.step, let done = rows.first(where: { $0.kind == "restore" && $0.state == "done" && $0.installedAccountID != nil }), let id = done.installedAccountID {
             state.step = .restored(id)
         }
+        if let id = verifying, let job = rows.first(where: { $0.id == id }) {
+            if job.kind == "restore", job.state == "verified", let merge = job.merge {
+                verifying = nil
+                if case .overview = state.step, !state.busy { state.step = merge ? .confirmMerge(job) : .installCode(job) }
+            } else if job.isTerminal { verifying = nil }
+        }
         guard rows.contains(where: \.isRunning) else { return }
         let current = epoch
         poll = Task { [weak self] in
@@ -163,7 +173,7 @@ import AppData
         }
     }
     private func stop() {
-        epoch &+= 1; readID &+= 1
+        epoch &+= 1; readID &+= 1; verifying = nil
         read?.cancel(); work?.cancel(); observer?.cancel(); poll?.cancel(); observer = nil; poll = nil
         let account = state.account, step = state.step
         state = BackupState(account: account)
