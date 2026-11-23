@@ -4,8 +4,10 @@ import Testing
 import Foundation
 @testable import AppData
 
-/// BLAKE3 vectors for inputs of byte i % 251, produced by the official C implementation.
-@Suite struct MediaDigestTests {
+/// BLAKE3 vectors for inputs of byte i % 251, produced by the official C implementation, and
+/// one-shot vectors produced by the reference `blake3` 1.8.7 crate (formerly the direct conversation id's
+/// single-chunk tests).
+@Suite struct BLAKE3Tests {
     static let vectors: [(Int, String)] = [
         (0, "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262"),
         (1, "2d3adedff11b61f14c886e35afa036736dcd87a74d27b5c1510225d0f592e213"),
@@ -31,10 +33,20 @@ import Foundation
     @Test(arguments: [1, 7, 64, 1000, 524_288]) func vectorsMatchForEveryUpdateSize(_ step: Int) {
         for (length, expected) in Self.vectors {
             let input = Data((0..<length).map { UInt8($0 % 251) })
-            var digest = MediaDigest()
+            var digest = BLAKE3()
             var offset = 0
             while offset < input.count { let end = min(input.count, offset + step); digest.update(input[offset..<end]); offset = end }
             #expect(digest.hex() == expected, "length \(length) step \(step)")
         }
+    }
+    private func hex(_ bytes: [UInt8]) -> String { bytes.map { String(format: "%02x", $0) }.joined() }
+    @Test func oneShotHashMatchesTheReferenceCrate() {
+        #expect(hex(BLAKE3.hash([])) == "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262")
+        #expect(hex(BLAKE3.hash(Array("abc".utf8))) == "6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85")
+        #expect(hex(BLAKE3.hash([UInt8](repeating: 1, count: 64))) == "29c04cc4ce7b05d941850b358b7dfd7e6285cc54e63e2e239804c1781c3d2497")
+        #expect(hex(BLAKE3.hash([UInt8](repeating: 7, count: 131))) == "b50716c931c8f7291ac3d5f6839b90ea1a60be115adbb61e473e2a1b542b8fd5")
+        #expect(hex(BLAKE3.hash([UInt8](repeating: 2, count: 1024))) == "fa8af17567c147993830cdd42cea9d8a8f157c9b98b4e7ef5677f417a5d8ae61")
+        let long = (0..<1025).map { UInt8($0 % 251) }
+        #expect(hex(BLAKE3.hash(long)) == "d00278ae47eb27b34faecf67b4fe263f82d5412916c1ffd97c8cb7fb814b8444")
     }
 }

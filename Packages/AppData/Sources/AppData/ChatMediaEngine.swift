@@ -224,7 +224,7 @@ actor ChatMediaEngine {
         let accepted = MessagePage.unsigned(begun["accepted_through"]) ?? 0
         let handle = try FileHandle(forReadingFrom: item.file)
         defer { try? handle.close() }
-        var digest = MediaDigest()
+        var digest = BLAKE3()
         var offset: UInt64 = 0
         while let data = try handle.read(upToCount: Self.chunk), !data.isEmpty {
             try Task.checkCancellation()

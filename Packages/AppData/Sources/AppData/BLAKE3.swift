@@ -2,10 +2,12 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 
-/// Incremental BLAKE3 (unkeyed hash mode, 32-byte output): the SDK's `PlaintextDigester`, whose
-/// lowercase hex `attachment.prepare.finish` requires as `plaintext_digest`. A port of the
-/// BLAKE3 reference implementation; verified against the official test vectors.
-struct MediaDigest {
+/// The app's one BLAKE3 (unkeyed hash mode, 32-byte output, any input length), incremental.
+/// Users: attachment digests (the SDK's `PlaintextDigester`, whose lowercase hex
+/// `attachment.prepare.finish` requires as `plaintext_digest`), card surface hashes and the direct
+/// conversation id (`DirectConversationID`). A port of the BLAKE3 reference implementation; verified
+/// against the official test vectors and the reference crate's outputs in `BLAKE3Tests`.
+struct BLAKE3 {
     private static let iv: [UInt32] = [0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19]
     private static let permutation = [2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8]
     private static let chunkStart: UInt32 = 1, chunkEnd: UInt32 = 2, parent: UInt32 = 4, root: UInt32 = 8
@@ -13,33 +15,33 @@ struct MediaDigest {
 
     private struct Output {
         let chaining: [UInt32]; let block: [UInt32]; let counter: UInt64; let length: UInt32; let flags: UInt32
-        func chainingValue() -> [UInt32] { Array(MediaDigest.compress(chaining, block, counter, length, flags).prefix(8)) }
+        func chainingValue() -> [UInt32] { Array(BLAKE3.compress(chaining, block, counter, length, flags).prefix(8)) }
         func rootBytes() -> [UInt8] {
-            let words = MediaDigest.compress(chaining, block, 0, length, flags | MediaDigest.root)
+            let words = BLAKE3.compress(chaining, block, 0, length, flags | BLAKE3.root)
             return words.prefix(8).flatMap { word in (0..<4).map { UInt8(truncatingIfNeeded: word >> (8 * $0)) } }
         }
     }
     private struct ChunkState {
         var chaining: [UInt32]; let counter: UInt64; var block = [UInt8](repeating: 0, count: 64); var blockLength = 0; var compressed = 0
         init(_ key: [UInt32], _ counter: UInt64) { chaining = key; self.counter = counter }
-        var length: Int { MediaDigest.blockLength * compressed + blockLength }
-        var startFlag: UInt32 { compressed == 0 ? MediaDigest.chunkStart : 0 }
+        var length: Int { BLAKE3.blockLength * compressed + blockLength }
+        var startFlag: UInt32 { compressed == 0 ? BLAKE3.chunkStart : 0 }
         mutating func update(_ input: UnsafeRawBufferPointer) {
             var offset = 0
             while offset < input.count {
-                if blockLength == MediaDigest.blockLength {
-                    chaining = Array(MediaDigest.compress(chaining, MediaDigest.words(block), counter, UInt32(MediaDigest.blockLength), startFlag).prefix(8))
+                if blockLength == BLAKE3.blockLength {
+                    chaining = Array(BLAKE3.compress(chaining, BLAKE3.words(block), counter, UInt32(BLAKE3.blockLength), startFlag).prefix(8))
                     compressed += 1; block = [UInt8](repeating: 0, count: 64); blockLength = 0
                 }
-                let take = min(MediaDigest.blockLength - blockLength, input.count - offset)
+                let take = min(BLAKE3.blockLength - blockLength, input.count - offset)
                 for index in 0..<take { block[blockLength + index] = input[offset + index] }
                 blockLength += take; offset += take
             }
         }
-        func output() -> Output { Output(chaining: chaining, block: MediaDigest.words(block), counter: counter, length: UInt32(blockLength), flags: startFlag | MediaDigest.chunkEnd) }
+        func output() -> Output { Output(chaining: chaining, block: BLAKE3.words(block), counter: counter, length: UInt32(blockLength), flags: startFlag | BLAKE3.chunkEnd) }
     }
 
-    private var chunk = ChunkState(MediaDigest.iv, 0)
+    private var chunk = ChunkState(BLAKE3.iv, 0)
     private var stack: [[UInt32]] = []
 
     mutating func update(_ data: Data) { data.withUnsafeBytes { update($0) } }
@@ -58,11 +60,17 @@ struct MediaDigest {
             offset += take
         }
     }
-    /// The 32-byte digest as lowercase hex.
-    func hex() -> String {
+    /// The 32-byte digest.
+    func digest() -> [UInt8] {
         var output = chunk.output()
         for chaining in stack.reversed() { output = Self.parentOutput(chaining, output.chainingValue()) }
-        return output.rootBytes().map { String(format: "%02x", $0) }.joined()
+        return output.rootBytes()
+    }
+    /// The 32-byte digest as lowercase hex.
+    func hex() -> String { digest().map { String(format: "%02x", $0) }.joined() }
+    /// One-shot digest of `bytes`.
+    static func hash(_ bytes: [UInt8]) -> [UInt8] {
+        var hasher = BLAKE3(); bytes.withUnsafeBytes { hasher.update($0) }; return hasher.digest()
     }
 
     private static func parentOutput(_ left: [UInt32], _ right: [UInt32]) -> Output {

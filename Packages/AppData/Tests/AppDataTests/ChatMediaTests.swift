@@ -75,7 +75,7 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
     @Test func sendStreamsPreparesWithTheBlake3DigestThenSendsOneMessage() async throws {
         let root = temporaryRoot(); defer { try? FileManager.default.removeItem(at: root) }
         let bytes = Data((0..<600_000).map { UInt8($0 % 251) })
-        var digest = MediaDigest(); digest.update(bytes)
+        var digest = BLAKE3(); digest.update(bytes)
         let expected = digest.hex()
         let received = Mutex(Data())
         let transport = ProxyTransport { request in

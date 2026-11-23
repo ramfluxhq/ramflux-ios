@@ -132,7 +132,7 @@ final class RecordingAssertion: MediaBackgroundAssertion {
     @Test func aResumedPrepareStreamsOnlyBytesTheSDKHasNotAcceptedButHashesAll() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
         let bytes = Data((0..<1_200_000).map { UInt8($0 % 249) })
-        var digest = MediaDigest(); digest.update(bytes)
+        var digest = BLAKE3(); digest.update(bytes)
         let expected = digest.hex()
         let offsets = Mutex<[UInt64]>([])
         let transport = ProxyTransport { request in

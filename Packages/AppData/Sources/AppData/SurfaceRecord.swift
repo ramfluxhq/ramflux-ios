@@ -56,7 +56,7 @@ enum CanonicalJSON {
     }
     /// base64url without padding of BLAKE3(domain ‖ canonical bytes).
     static func hash(_ domain: String, _ value: JSONValue) -> String {
-        var digest = MediaDigest()
+        var digest = BLAKE3()
         digest.update(Data(domain.utf8)); digest.update(bytes(value))
         return base64URL(hexBytes(digest.hex()))
     }
