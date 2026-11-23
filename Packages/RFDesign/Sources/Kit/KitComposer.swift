@@ -143,6 +143,7 @@ public struct KitComposer: View {
                             .modifier(KitFieldFont(size: theme.size_mobile_body))
                             .foregroundStyle(theme.text)
                             .multilineTextAlignment(KitMessageText.direction(of: value, surrounding: layoutDirection) == layoutDirection ? .leading : .trailing)
+                            .accessibilityIdentifier(tag.map { $0 + "-input" } ?? "")
                     }
                     KitHit(enabled: sendActive, label: RFDesignStrings.text("kit.send"), hitTag: tag.map { $0 + "-send" }, action: onSend) {
                         KitIcon(name: "arrow-up", size: KitMetrics.sendIcon, tint: sendActive ? theme.on_accent : theme.control)
@@ -164,6 +165,6 @@ public struct KitComposer: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(theme.bg)
         .kitHairline(theme.line, top: true)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }

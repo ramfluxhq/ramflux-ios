@@ -36,6 +36,7 @@ public struct OnboardingScreen: View {
         .foregroundStyle(theme.text)
         .tint(theme.primary)
         .privacySensitive()
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier(state.stage.board)
     }
 

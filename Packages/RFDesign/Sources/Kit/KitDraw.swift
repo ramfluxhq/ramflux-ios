@@ -26,6 +26,9 @@ extension EnvironmentValues {
 
 extension View {
     func kitTag(_ id: String?) -> some View { modifier(KitTag(id: id)) }
+    /// The tag of a view that holds its own tagged controls (headers, bars, menus, composer). An identifier
+    /// on a plain container replaces the identifiers of the elements inside it; containing keeps them.
+    func kitContainerTag(_ id: String?) -> some View { accessibilityElement(children: .contain).kitTag(id) }
 
     func kitHairline(_ color: Color, top: Bool = false) -> some View {
         overlay(alignment: top ? .top : .bottom) {

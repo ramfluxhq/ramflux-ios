@@ -66,6 +66,7 @@ public struct NavigationEditorScreen: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg.ignoresSafeArea())
         .shellHidesSystemBar()
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("shell-navigation-editor")
     }
 

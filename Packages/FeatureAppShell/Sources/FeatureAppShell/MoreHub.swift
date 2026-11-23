@@ -109,6 +109,7 @@ public struct MoreHubScreen: View {
             }
         }
         .shellHidesSystemBar()
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("more-hub")
     }
 

@@ -44,7 +44,7 @@ public struct KitContextMenu: View {
         .frame(minWidth: KitMetrics.menu, idealWidth: KitMetrics.menu, maxWidth: KitMetrics.menu)
         .background(theme.overlay, in: shape)
         .overlay { shape.strokeBorder(theme.overlay_border, lineWidth: KitMetrics.stroke) }
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 
     private var menuGroups: [[(offset: Int, entry: KitMenuEntry)]] {
@@ -122,7 +122,7 @@ public struct KitReactionBar: View {
         .frame(minHeight: KitMetrics.reaction)
         .background(theme.overlay, in: shape)
         .overlay { shape.strokeBorder(theme.overlay_border, lineWidth: KitMetrics.stroke) }
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }
 

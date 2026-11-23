@@ -36,6 +36,8 @@ public struct AppShellScreen: View {
             }
         }
         .privacySensitive()
+        // A screen identifier on a plain container replaces its children's own identifiers; containing keeps them.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("app-shell")
     }
 
