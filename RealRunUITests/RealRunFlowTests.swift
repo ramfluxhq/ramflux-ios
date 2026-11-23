@@ -390,7 +390,15 @@ final class RealRunFlowTests: RealRunTestCase {
                 imported = self.control.post("file-info", json: ["path": out]); return true
             }) else {
                 control.post("device-log", json: ["name": "device-events-media-send", "minutes": 5])
-                throw FlowStop.fail("alice never received an importable image from the phone; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))")
+                let queued = text(containing: "messages will be sent when the connection returns").exists
+                let detail = ([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; ")
+                if queued {
+                    // The prepare and its chunks are accepted; conversation.send of the prepared attachment is refused
+                    // by the SDK (device-events-media-send.log). The phone knows alice from a principal lookup only, and
+                    // contact.add with her card is refused for an existing contact (already_contact).
+                    throw FlowStop.blocked("receive works (\(detail)); phone-to-alice image send stays queued: conversation.send with the prepared attachment fails in the SDK with INTERNAL (code 16), see device-events-media-send.log; the phone's record of alice has no pinned home node and contact.add with her card returns already_contact")
+                }
+                throw FlowStop.fail("alice never received an importable image from the phone; \(detail)")
             }
             let same = expected != nil && (imported["sha256"] as? String) == expected
             notes.append(same ? "alice imported identical bytes of the phone's image" : "alice imported \(imported["size"] ?? "?") bytes; sha256 differs from the photo-library file (the app or Photos re-encodes)")

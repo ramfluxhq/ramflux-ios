@@ -35,6 +35,13 @@ public struct NativeGroupsRepository: GroupsRepository {
     }
     public func conversation(account: String, group: String) async -> RepositoryResult<String> {
         do {
+            // The group row names its conversation (`conversation_id`); for a group created on this phone it
+            // differs from the group id, and group.history refuses the group id as conversation (invalid_argument).
+            let rows = try ProxyGateway.rows(try await gateway.call(.groupList, account: account), "groups")
+            if let row = rows.first(where: { $0["group_id"]?.string == group || $0["id"]?.string == group }),
+               let conversation = row["conversation_id"]?.string, !conversation.isEmpty, conversation.utf8.count <= 256 {
+                return .success(conversation)
+            }
             let body = try await gateway.call(.groupHistory, account: account, body: .object(["group_id": .string(group), "conversation_id": .string(group), "limit": .number(0)]))
             guard body["group_id"] == .string(group) else { throw AppFailure.invalidData }
             return .success(try ProxyGateway.text(body, "conversation_id"))

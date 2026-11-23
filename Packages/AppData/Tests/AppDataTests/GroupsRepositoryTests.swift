@@ -29,6 +29,16 @@ import RamfluxCore
             }
         }
     }
+    /// A group created on the phone has a conversation id of its own; the row names it and history is not asked.
+    @Test func theGroupRowNamesItsConversation() async {
+        let transport = ProxyTransport { request in
+            #expect(request.method == "group.list")
+            return .object(["groups": .array([.object(["group_id": .string("g-uuid"), "conversation_id": .string("group-thread")])])])
+        }
+        let client = RamfluxClient(transport: transport)
+        let repository = NativeGroupsRepository(client: client, updates: NativeUpdateSource(client: client))
+        #expect(await repository.conversation(account: "a", group: "g-uuid") == .success("group-thread"))
+    }
     @Test func exactEpochRootQualifiedTargetAndPendingOwnerOutcomeArePreserved() async {
         let fixture = transport(), client = RamfluxClient(transport: transport())
         let repository = NativeGroupsRepository(client: RamfluxClient(transport: fixture), updates: NativeUpdateSource(client: client))
