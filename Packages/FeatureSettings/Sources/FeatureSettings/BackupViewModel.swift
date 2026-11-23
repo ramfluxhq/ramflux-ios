@@ -130,6 +130,9 @@ import AppData
     /// finished new-install restore.
     private func settle(_ rows: [BackupRecord]) {
         poll?.cancel(); poll = nil
+        for job in rows where job.failure != nil {
+            EventDiagnostics.note("backup job kind=\(job.kind) state=\(job.state) failure=\(job.failure?.code ?? "-") retryable=\(job.failure?.retryable ?? false)")
+        }
         for job in rows where job.kind == "restore" && job.isTerminal && !discarded.contains(job.id) { discard(job, quietly: true) }
         if state.account == nil, case .overview = state.step, let done = rows.first(where: { $0.kind == "restore" && $0.state == "done" && $0.installedAccountID != nil }), let id = done.installedAccountID {
             state.step = .restored(id)
