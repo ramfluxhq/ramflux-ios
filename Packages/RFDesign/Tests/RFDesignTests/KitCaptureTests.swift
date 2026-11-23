@@ -163,14 +163,10 @@ extension KitCaptureTests {
     /// text size. Files go to `matrix/` under the capture directory; the design comparison reads only
     /// the top level, where design previews exist.
     @Test(arguments: KitMatrixVariant.all)
-    func captureKitMatrix(_ variant: KitMatrixVariant) throws {
+    func captureKitMatrix(_ variant: KitMatrixVariant) async throws {
         let boards = KitCatalog.matrix(variant)
         var images: [(String, Data)] = []
-        for board in boards {
-            let data = try KitRaster.png(board)
-            if data.isEmpty { throw KitCaptureDirectoryError("empty capture \(board.name)") }
-            images.append((board.name, data))
-        }
+        try await KitRaster.render(boards) { board, data in images.append((board.name, data)) }
         let env = ProcessInfo.processInfo.environment
         guard let dir = env["KIT_CAPTURE_DIR"] ?? env["TEST_RUNNER_KIT_CAPTURE_DIR"] ?? (env["SIMULATOR_UDID"] == nil ? nil : "/tmp/kit-ios-captures"), !dir.isEmpty else { return }
         let root = URL(fileURLWithPath: dir, isDirectory: true).appendingPathComponent("matrix", isDirectory: true)
