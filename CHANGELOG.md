@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+- SDK pin: core `next` commit `e39111de54737e8ae2d545a3b256e70f43c5aec5` (header, method policy and generated adapters synced; 219 bridge operations, new: `account.sign_out`, `account.remove_local`, `card.session.*`, `agent.retire`, and `ramflux_v2_set_credential_provider` in the header).
+- Accounts: the account list comes from the SDK's `account.list`, which now returns every account on the phone with its display name and lock state; the app's own registry of known accounts (`known-accounts.json`) is removed.
+- Accounts: after too many wrong account codes the unlock step names the wait the SDK reports instead of "wait a while".
+- Accounts: the account screen offers sign-out (`account.sign_out`) and removal of the account from this phone (`account.remove_local`, after a confirmation); the unlock step's removal of an account the SDK refuses now erases it through the SDK after a confirmation instead of hiding a registry entry.
+- Chat: own replies rely on the SDK's `is_own` (fixed in the SDK); the author-device fallback is removed. A media send refused with an internal failure is no longer special-cased; the debug trace keeps the typed failure.
+- Real-run suite: before the media flows the phone adds the peer's contact card to the accepted contact, which pins the peer's home node that attachments need; the media flows report a refused send as a failure with the typed cause instead of the earlier SDK block.
 - Real-run harness: every machine-specific input (node facts, peers, rf CLI, conversation id helper, optional node check, peer control, clock container, toolchain file) is an environment variable, read from an untracked `scripts/realrun.local.env` (see the committed example); a missing input stops the script with a message naming it.
 - Shell: after the code unlock that follows a return from the background, the screens that were open (for example the chat) come back in the same navigation change that closes the unlock step; before, the stack finished popping the unlock step after the chat was pushed and dropped it.
 - Chat: a media send that the SDK refuses at `conversation.send` with an internal failure (code 16) reads "not sent" with a retry under the same operation id instead of waiting behind an offline banner; the debug trace records the request shape for the SDK team.

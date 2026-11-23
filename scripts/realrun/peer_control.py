@@ -33,6 +33,7 @@ import os
 import re
 import shlex
 import subprocess
+import tempfile
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -52,6 +53,22 @@ STATUSES = {"PASS", "FAIL", "BLOCKED", "NOT RUN"}
 
 
 BUNDLE = "org.ramflux.ios"
+
+
+def image_info(path: Path):
+    """Format and pixel size of an image as macOS decodes it (sips), or None when it is not a decodable image."""
+    try:
+        shown = subprocess.run(["sips", "-g", "format", "-g", "pixelWidth", "-g", "pixelHeight", str(path)],
+                               capture_output=True, text=True, timeout=30)
+        fields = dict(line.strip().split(": ", 1) for line in shown.stdout.splitlines()[1:] if ": " in line)
+        with tempfile.TemporaryDirectory() as folder:
+            decoded = subprocess.run(["sips", "-s", "format", "png", str(path), "--out", str(Path(folder) / "decoded.png")],
+                                     capture_output=True, text=True, timeout=30)
+        if shown.returncode != 0 or decoded.returncode != 0 or "pixelWidth" not in fields:
+            return None
+        return {"format": fields.get("format", ""), "width": int(fields["pixelWidth"]), "height": int(fields["pixelHeight"])}
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
 
 
 class Harness:
@@ -130,8 +147,11 @@ class Harness:
         target = Path(path).resolve()
         if not str(target).startswith(str((self.out / "files").resolve())):
             raise ValueError("path outside the run folder")
-        return {"exists": target.exists(), "sha256": sha256(target) if target.exists() else None,
+        info = {"exists": target.exists(), "sha256": sha256(target) if target.exists() else None,
                 "size": target.stat().st_size if target.exists() else 0}
+        if target.exists():
+            info["image"] = image_info(target)
+        return info
 
     def simctl(self, *args, timeout: float = 120) -> str:
         return subprocess.run(["xcrun", "simctl", *args], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()

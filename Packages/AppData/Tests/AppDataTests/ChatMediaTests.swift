@@ -129,25 +129,6 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         #expect(!FileManager.default.fileExists(atPath: file.path))
     }
 
-    @Test func anInternalFailureOfTheSendWithPreparedAttachmentsReadsNotSentWithARetry() async throws {
-        let root = temporaryRoot(); defer { try? FileManager.default.removeItem(at: root) }
-        let transport = ProxyTransport { request in
-            switch request.method {
-            case "attachment.prepare.begin": return .object(["prepare_id": .string("p1"), "generation": .unsigned(1), "state": .string("ready")])
-            case "conversation.send": throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue)
-            default: return .object([:])
-            }
-        }
-        let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)), mediaRoot: root, pause: { _ in })
-        let outbox = try #require(await repo.mediaOutbox(account: "a"))
-        let file = outbox.appendingPathComponent("f"); try Data([1]).write(to: file)
-        _ = await repo.enqueueMedia(account: "a", conversation: "c", groupID: "g", caption: "", items: [MediaUpload(file: file, fileName: "a.png", mime: "image/png")], operationID: "op")
-        // Not queued behind an offline state: failed, retryable, with the staged file kept for the retry.
-        let entry = await repo.outbox(account: "a", conversation: "c").first
-        #expect(entry?.state == .failed(.sdkRefusal(16)))
-        #expect(AppFailure.sdkRefusal(16).canRetry)
-        #expect(FileManager.default.fileExists(atPath: file.path))
-    }
     @Test func revokeRetiresGrantsAndErasedRowsDropLocalCopies() async throws {
         let root = temporaryRoot(); defer { try? FileManager.default.removeItem(at: root) }
         let transport = ProxyTransport { request in

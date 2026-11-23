@@ -144,8 +144,24 @@
 	<string>网络连接尚未确认</string>
 	<key>settings.account.openOrCreate</key>
 	<string>打开或创建账户</string>
+	<key>settings.account.removeLocal</key>
+	<string>从此手机移除</string>
+	<key>settings.account.removeLocal.detail</key>
+	<string>清除此手机上该账户的数据和密钥</string>
+	<key>settings.account.removeLocal.fact</key>
+	<string>此账户的消息、密钥和设置将从此手机清除。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。</string>
+	<key>settings.account.removeLocal.summary</key>
+	<string>从此手机移除 · %@</string>
+	<key>settings.account.removeLocal.title</key>
+	<string>要从此手机移除此账户吗？</string>
 	<key>settings.account.security</key>
 	<string>安全</string>
+	<key>settings.account.signOut</key>
+	<string>退出登录</string>
+	<key>settings.account.signOut.detail</key>
+	<string>在此关闭账户；输入账户密码即可再次打开</string>
+	<key>settings.account.thisPhone</key>
+	<string>在此手机上</string>
 	<key>settings.account.title</key>
 	<string>账户与安全</string>
 	<key>settings.appearance.system</key>

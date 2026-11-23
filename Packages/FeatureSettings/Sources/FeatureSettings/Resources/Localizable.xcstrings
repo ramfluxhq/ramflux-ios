@@ -3144,6 +3144,142 @@
           }
         }
       }
+    },
+    "settings.account.thisPhone": {
+      "comment": "Section title on the account screen for actions that only affect this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此手机上"
+          }
+        }
+      }
+    },
+    "settings.account.signOut": {
+      "comment": "Row on the account screen: signs out of the account on this phone. The account code opens it again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出登录"
+          }
+        }
+      }
+    },
+    "settings.account.signOut.detail": {
+      "comment": "Detail under the sign-out row on the account screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close the account here; your account code opens it again"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此关闭账户；输入账户密码即可再次打开"
+          }
+        }
+      }
+    },
+    "settings.account.removeLocal": {
+      "comment": "Row on the account screen: erases this account's data from this phone after a confirmation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从此手机移除"
+          }
+        }
+      }
+    },
+    "settings.account.removeLocal.detail": {
+      "comment": "Detail under the remove-from-this-phone row on the account screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erase this account's data and keys on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除此手机上该账户的数据和密钥"
+          }
+        }
+      }
+    },
+    "settings.account.removeLocal.title": {
+      "comment": "Title of the confirmation that removes the account from this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove this account from this phone?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要从此手机移除此账户吗？"
+          }
+        }
+      }
+    },
+    "settings.account.removeLocal.fact": {
+      "comment": "Explanation on the confirmation that removes the account from this phone; other devices and the account itself are not affected.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages, keys and settings of this account are erased from this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此账户的消息、密钥和设置将从此手机清除。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。"
+          }
+        }
+      }
+    },
+    "settings.account.removeLocal.summary": {
+      "comment": "Summary on the confirmation that removes the account from this phone. %@ is the account identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from this phone · %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从此手机移除 · %@"
+          }
+        }
+      }
     }
   }
 }

@@ -37,7 +37,13 @@
 	<key>onboarding.a01.unauthorized.detail</key>
 	<string>See the ways to join that are available now</string>
 	<key>onboarding.a02.forget</key>
-	<string>Remove from this phone's list</string>
+	<string>Remove from this phone</string>
+	<key>onboarding.a02.forget.confirm</key>
+	<string>Remove</string>
+	<key>onboarding.a02.forget.fact</key>
+	<string>This erases the account's messages, keys and settings on this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup.</string>
+	<key>onboarding.a02.forget.keep</key>
+	<string>Keep the account</string>
 	<key>onboarding.a02.info</key>
 	<string>View device unlock info</string>
 	<key>onboarding.a02.knownAccount</key>

@@ -3079,6 +3079,23 @@
           }
         }
       }
+    },
+    "accountCode.failure.wait": {
+      "comment": "Shown after too many wrong account codes. %@ is how long to wait before the next try, for example 5 minutes.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Try again in %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请在 %@ 后再试。"
+          }
+        }
+      }
     }
   }
 }

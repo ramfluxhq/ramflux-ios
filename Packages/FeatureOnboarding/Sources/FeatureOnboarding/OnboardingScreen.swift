@@ -148,8 +148,12 @@ public struct OnboardingScreen: View {
             if state.failure == .accountCode(.attemptsExhausted) || state.failure == .accountCode(.deviceUnlockUnavailable) {
                 KitButton(copy("onboarding.stage.recover"), action: { onAction(.recover) }, kind: .secondary, enabled: !state.busy, tag: "a02-recover")
             }
-            // The SDK refused this known account for a reason other than the code: offer to drop it from the list.
-            if state.knownAccountName != nil, let failure = state.failure, !failure.isAccountCodeEntry {
+            // The SDK refused this account for a reason other than the code: offer to remove it from this phone.
+            if state.confirmingForget {
+                Text(copy("onboarding.a02.forget.fact")).rfFont(.size(theme.size_body)).foregroundStyle(theme.text)
+                KitButton(copy("onboarding.a02.forget.confirm"), action: { onAction(.confirmForget(true)) }, kind: .destructive, enabled: !state.busy, tag: "a02-forget-confirm")
+                KitButton(copy("onboarding.a02.forget.keep"), action: { onAction(.confirmForget(false)) }, kind: .text, enabled: !state.busy, tag: "a02-forget-keep")
+            } else if state.knownAccountName != nil, let failure = state.failure, !failure.isAccountCodeEntry {
                 KitButton(copy("onboarding.a02.forget"), action: { onAction(.forgetKnownAccount) }, kind: .secondary, enabled: !state.busy, tag: "a02-forget")
             }
         } footer: {

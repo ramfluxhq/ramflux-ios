@@ -48,7 +48,8 @@ struct BridgeTests {
             case 1: rows[0]["secret_output"] = !(rows[0]["secret_output"] as? Bool ?? false)
             case 2: rows[0]["show_once"] = !(rows[0]["show_once"] as? Bool ?? false)
             case 3: rows[0]["capability"] = "wrong"
-            case 4: rows.removeLast()
+            // Drop a callable row; the bridge compares the callable inventory, and the pinned policy ends with a denied one.
+            case 4: if let last = rows.lastIndex(where: { $0["bridge_allowed"] as? Bool == true }) { rows.remove(at: last) }
             case 5: rows.append(original[0])
             case 6: rows[0].removeValue(forKey: "secret_output")
             case 7: rows[0]["key_export"] = !(rows[0]["key_export"] as? Bool ?? false)

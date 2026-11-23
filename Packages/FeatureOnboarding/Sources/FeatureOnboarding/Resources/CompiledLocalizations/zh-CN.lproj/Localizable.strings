@@ -37,7 +37,13 @@
 	<key>onboarding.a01.unauthorized.detail</key>
 	<string>查看当前可用的接入方式</string>
 	<key>onboarding.a02.forget</key>
-	<string>从此手机的列表中移除</string>
+	<string>从此手机移除</string>
+	<key>onboarding.a02.forget.confirm</key>
+	<string>移除</string>
+	<key>onboarding.a02.forget.fact</key>
+	<string>这会清除此手机上该账户的消息、密钥和设置。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。</string>
+	<key>onboarding.a02.forget.keep</key>
+	<string>保留账户</string>
 	<key>onboarding.a02.info</key>
 	<string>查看设备解锁说明</string>
 	<key>onboarding.a02.knownAccount</key>

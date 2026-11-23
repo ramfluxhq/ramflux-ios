@@ -11,9 +11,8 @@ public actor NativeSessionRepository: SessionRepository {
     private var observer: AsyncStream<SessionSnapshot>.Continuation?
     private var current = SessionSnapshot(phase: .stopped)
     private var revision: UInt64 = 0
-    private let known: any KnownAccountRegistry
-    public init(client: RamfluxClient, dataRoot: URL, known: any KnownAccountRegistry = MemoryKnownAccountRegistry()) {
-        self.client = client; self.known = known; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
+    public init(client: RamfluxClient, dataRoot: URL) {
+        self.client = client; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
         observer?.finish()
@@ -28,7 +27,7 @@ public actor NativeSessionRepository: SessionRepository {
         do {
             try await lifecycle.foreground()
             let sealed = try await proxy.accountList(context: context())
-            let snapshot = SessionSnapshot.merging(try Self.decodeAccounts(sealed), known: await known.all())
+            let snapshot = try Self.decodeAccounts(sealed)
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             publish(snapshot); return .success(snapshot)
         } catch {
@@ -62,13 +61,16 @@ public actor NativeSessionRepository: SessionRepository {
             let completion = try JSONDecoder().decode(JSONValue.self, from: Data(bytes))
             guard completion["code"] == .number(0), completion["response"]?["ok"] == .bool(true),
                   let body = completion["response"]?["body"], case .array(let values) = body["accounts"], values.count <= 4096 else { throw AppFailure.invalidData }
+            // Every account held on this phone, open or locked, with its display name (`account.list` rows
+            // `{id, display_name, locked}`); the active account is always an open one.
             let accounts = try values.map { value in
-                guard let id = value.string, !id.isEmpty, id.utf8.count <= 256 else { throw AppFailure.invalidData }
-                return AccountRecord(id: id, displayName: id, isLocked: false)
+                guard let id = value["id"]?.string, !id.isEmpty, id.utf8.count <= 256, let locked = value["locked"]?.bool else { throw AppFailure.invalidData }
+                let name = value["display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? id
+                return AccountRecord(id: id, displayName: name, isLocked: locked)
             }
             guard Set(accounts.map(\.id)).count == accounts.count else { throw AppFailure.invalidData }
             let active = body["active_account_id"]?.string
-            guard active == nil || accounts.contains(where: { $0.id == active }) else { throw AppFailure.invalidData }
+            guard active == nil || accounts.contains(where: { $0.id == active && !$0.isLocked }) else { throw AppFailure.invalidData }
             return SessionSnapshot(phase: .ready, accounts: accounts, activeAccountID: active)
         }
     }

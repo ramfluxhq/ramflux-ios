@@ -31,8 +31,10 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case accountRecoverBegin = "account.recover.begin"
     case accountRecoverCancel = "account.recover.cancel"
     case accountRecoverConfirm = "account.recover.confirm"
+    case accountRemoveLocal = "account.remove_local"
     case accountRestoreInstall = "account.restore.install"
     case accountRestoreVerify = "account.restore.verify"
+    case accountSignOut = "account.sign_out"
     case accountStatus = "account.status"
     case accountSwitch = "account.switch"
     case accountUnlock = "account.unlock"
@@ -44,6 +46,7 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case agentList = "agent.list"
     case agentOperationGet = "agent.operation.get"
     case agentPersonaEdit = "agent.persona.edit"
+    case agentRetire = "agent.retire"
     case agentWatch = "agent.watch"
     case attachmentEnable = "attachment.enable"
     case attachmentImportBegin = "attachment.import.begin"
@@ -69,6 +72,15 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case callList = "call.list"
     case callMediaSession = "call.media.session"
     case callReject = "call.reject"
+    case cardSessionDispose = "card.session.dispose"
+    case cardSessionEvent = "card.session.event"
+    case cardSessionOpen = "card.session.open"
+    case cardSessionPresent = "card.session.present"
+    case cardSessionResume = "card.session.resume"
+    case cardSessionSlot = "card.session.slot"
+    case cardSessionSubmit = "card.session.submit"
+    case cardSessionSuspend = "card.session.suspend"
+    case cardSessionUpdate = "card.session.update"
     case contactAccept = "contact.accept"
     case contactAdd = "contact.add"
     case contactBlock = "contact.block"
@@ -211,13 +223,13 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case taskUpdate = "task.update"
     public var requiresSecureInput: Bool {
         switch self {
-        case .a2iAcknowledge, .a2iAppend, .accountBackupCancel, .accountBackupCreate, .accountBackupExport, .accountBackupImport, .accountBackupJobs, .accountConfigSet, .accountCreate, .accountCreateBegin, .accountCreateConfirm, .accountCustodyBegin, .accountCustodyConfirm, .accountExportAgentCredentials, .accountLock, .accountPassphraseRotate, .accountRecoverBegin, .accountRecoverConfirm, .accountRestoreInstall, .accountRestoreVerify, .accountSwitch, .accountUnlock, .attachmentEnable, .attachmentImportBegin, .attachmentImportCancel, .attachmentImportFinish, .attachmentImportRead, .attachmentPrepareBegin, .attachmentPrepareCancel, .attachmentPrepareChunk, .attachmentPrepareFinish, .attachmentPrepareRenew, .attachmentRevoke, .botInstall, .botRevoke, .botTrustAdd, .callAnswer, .callHangup, .callInvite, .callMediaSession, .callReject, .contactAccept, .contactAdd, .contactBlock, .contactCardExport, .contactCardImport, .contactDecline, .contactReject, .contactRemove, .contactRequest, .contactRequestsPolicySet, .contactSafetyNumber, .contactUnblock, .contactVerify, .conversationDelete, .conversationDisappearingExpire, .conversationDisappearingSet, .conversationEdit, .conversationMute, .conversationReact, .conversationReply, .conversationSend, .devicePairApprove, .devicePairBegin, .devicePairCancel, .devicePairConfirm, .devicePairJoin, .devicePushRouteSet, .deviceRefresh, .deviceRevoke, .deviceSyncExport, .deviceTransferAffirm, .deviceTransferBegin, .deviceTransferCancel, .deviceTransferConfirm, .deviceTransferJoin, .deviceTransferPrepare, .deviceTransferTailAbandon, .diagResidue, .grantApprove, .grantCreateStandingApproval, .grantDeny, .grantRequest, .grantRevoke, .grantRevokeStandingApproval, .groupCreate, .groupInvitationAccept, .groupInvitationDecline, .groupMemberAdd, .groupMemberKick, .groupMemberRemove, .groupNameSet, .groupOwnerTransfer, .groupRead, .groupRoleSet, .groupSend, .groupSenderKeyExport, .groupSenderKeyImport, .mcpApprovalDenied, .mcpApprovalGranted, .mcpServerAdd, .mcpToolStarted, .messageAck, .messageDelete, .messageFocus, .messageReceiptDelivered, .messageReceiptRead, .messageReceive, .messageSubmit, .objectDelete, .objectFetch, .objectGet, .objectGetBegin, .objectGetFinish, .objectGetRead, .objectImport, .objectPut, .objectPutBegin, .objectPutChunk, .objectPutFinish, .objectRevoke, .objectShare, .objectTransferResume, .surfaceAction, .surfaceRequestResync, .surfaceResync, .surfaceSend, .taskAccept, .taskCancel, .taskDecisionProve, .taskDecline, .taskPropose, .taskResolve, .taskStart, .taskUpdate: true
+        case .a2iAcknowledge, .a2iAppend, .accountBackupCancel, .accountBackupCreate, .accountBackupExport, .accountBackupImport, .accountBackupJobs, .accountConfigSet, .accountCreate, .accountCreateBegin, .accountCreateConfirm, .accountCustodyBegin, .accountCustodyConfirm, .accountExportAgentCredentials, .accountLock, .accountPassphraseRotate, .accountRecoverBegin, .accountRecoverConfirm, .accountRemoveLocal, .accountRestoreInstall, .accountRestoreVerify, .accountSignOut, .accountSwitch, .accountUnlock, .attachmentEnable, .attachmentImportBegin, .attachmentImportCancel, .attachmentImportFinish, .attachmentImportRead, .attachmentPrepareBegin, .attachmentPrepareCancel, .attachmentPrepareChunk, .attachmentPrepareFinish, .attachmentPrepareRenew, .attachmentRevoke, .botInstall, .botRevoke, .botTrustAdd, .callAnswer, .callHangup, .callInvite, .callMediaSession, .callReject, .cardSessionEvent, .cardSessionSlot, .cardSessionSubmit, .contactAccept, .contactAdd, .contactBlock, .contactCardExport, .contactCardImport, .contactDecline, .contactReject, .contactRemove, .contactRequest, .contactRequestsPolicySet, .contactSafetyNumber, .contactUnblock, .contactVerify, .conversationDelete, .conversationDisappearingExpire, .conversationDisappearingSet, .conversationEdit, .conversationMute, .conversationReact, .conversationReply, .conversationSend, .devicePairApprove, .devicePairBegin, .devicePairCancel, .devicePairConfirm, .devicePairJoin, .devicePushRouteSet, .deviceRefresh, .deviceRevoke, .deviceSyncExport, .deviceTransferAffirm, .deviceTransferBegin, .deviceTransferCancel, .deviceTransferConfirm, .deviceTransferJoin, .deviceTransferPrepare, .deviceTransferTailAbandon, .diagResidue, .grantApprove, .grantCreateStandingApproval, .grantDeny, .grantRequest, .grantRevoke, .grantRevokeStandingApproval, .groupCreate, .groupInvitationAccept, .groupInvitationDecline, .groupMemberAdd, .groupMemberKick, .groupMemberRemove, .groupNameSet, .groupOwnerTransfer, .groupRead, .groupRoleSet, .groupSend, .groupSenderKeyExport, .groupSenderKeyImport, .mcpApprovalDenied, .mcpApprovalGranted, .mcpServerAdd, .mcpToolStarted, .messageAck, .messageDelete, .messageFocus, .messageReceiptDelivered, .messageReceiptRead, .messageReceive, .messageSubmit, .objectDelete, .objectFetch, .objectGet, .objectGetBegin, .objectGetFinish, .objectGetRead, .objectImport, .objectPut, .objectPutBegin, .objectPutChunk, .objectPutFinish, .objectRevoke, .objectShare, .objectTransferResume, .surfaceAction, .surfaceRequestResync, .surfaceResync, .surfaceSend, .taskAccept, .taskCancel, .taskDecisionProve, .taskDecline, .taskPropose, .taskResolve, .taskStart, .taskUpdate: true
         default: false
         }
     }
     public var requiresSecureOutput: Bool {
         switch self {
-        case .a2iAcknowledge, .a2iAppend, .a2iList, .a2iListPending, .accountBackupExport, .accountBackupImport, .accountConfigGet, .accountConfigSet, .accountCreate, .accountCreateBegin, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountExportAgentCredentials, .accountList, .accountLock, .accountPassphraseRotate, .accountRecoverBegin, .accountRecoverConfirm, .accountStatus, .accountSwitch, .accountUnlock, .attachmentEnable, .attachmentImportBegin, .attachmentImportCancel, .attachmentImportFinish, .attachmentImportRead, .attachmentImportStatus, .attachmentPrepareBegin, .attachmentPrepareCancel, .attachmentPrepareChunk, .attachmentPrepareFinish, .attachmentPrepareRenew, .attachmentPrepareStatus, .attachmentRevoke, .botInstall, .botList, .botRevoke, .botTrustAdd, .callAnswer, .callHangup, .callInvite, .callList, .callMediaSession, .callReject, .contactAccept, .contactAdd, .contactBlock, .contactCardExport, .contactCardImport, .contactDecline, .contactList, .contactReject, .contactRejected, .contactRemove, .contactRequest, .contactRequestsList, .contactRequestsPolicyGet, .contactRequestsPolicySet, .contactSafetyNumber, .contactUnblock, .contactVerificationStatus, .contactVerify, .conversationDelete, .conversationDirectory, .conversationDisappearingExpire, .conversationDisappearingSet, .conversationEdit, .conversationList, .conversationMute, .conversationReact, .conversationReply, .conversationSend, .deviceList, .devicePairApprove, .devicePairBegin, .devicePairCancel, .devicePairConfirm, .devicePairJoin, .devicePairStatus, .devicePushRouteSet, .deviceRefresh, .deviceRevoke, .deviceSyncExport, .deviceTransferAffirm, .deviceTransferBegin, .deviceTransferCancel, .deviceTransferConfirm, .deviceTransferJoin, .deviceTransferPrepare, .deviceTransferStatus, .deviceTransferTailAbandon, .grantApprove, .grantCreateStandingApproval, .grantDeny, .grantList, .grantListStandingApprovals, .grantRequest, .grantRevoke, .grantRevokeStandingApproval, .groupCreate, .groupHistory, .groupInvitationAccept, .groupInvitationDecline, .groupInvitationsList, .groupList, .groupMemberAdd, .groupMemberKick, .groupMemberRemove, .groupMembers, .groupNameSet, .groupOwnerTransfer, .groupRead, .groupRequestsList, .groupRoleSet, .groupSend, .groupSenderKeyExport, .groupSenderKeyImport, .identityDirectory, .mcpApprovalDenied, .mcpApprovalGranted, .mcpApprovalList, .mcpAuditList, .mcpServerAdd, .mcpServerList, .mcpServerRefresh, .mcpToolList, .mcpToolStarted, .messageAck, .messageDelete, .messageFocus, .messageFrankingEvidence, .messageRead, .messageReceiptDelivered, .messageReceiptRead, .messageReceive, .messageSubmit, .objectDelete, .objectDirectory, .objectFetch, .objectGet, .objectGetBegin, .objectGetFinish, .objectGetRead, .objectGetStatus, .objectImport, .objectList, .objectPut, .objectPutBegin, .objectPutChunk, .objectPutFinish, .objectPutStatus, .objectRevoke, .objectShare, .objectTransferResume, .objectTransferStatus, .streamRead, .surfaceAction, .surfaceGet, .surfaceList, .surfaceRequestResync, .surfaceResync, .surfaceSend, .syncStatusGet, .taskAccept, .taskCancel, .taskDecisionProve, .taskDecline, .taskGet, .taskList, .taskPropose, .taskResolve, .taskStart, .taskUpdate: true
+        case .a2iAcknowledge, .a2iAppend, .a2iList, .a2iListPending, .accountBackupExport, .accountBackupImport, .accountConfigGet, .accountConfigSet, .accountCreate, .accountCreateBegin, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountExportAgentCredentials, .accountList, .accountLock, .accountPassphraseRotate, .accountRecoverBegin, .accountRecoverConfirm, .accountSignOut, .accountStatus, .accountSwitch, .accountUnlock, .attachmentEnable, .attachmentImportBegin, .attachmentImportCancel, .attachmentImportFinish, .attachmentImportRead, .attachmentImportStatus, .attachmentPrepareBegin, .attachmentPrepareCancel, .attachmentPrepareChunk, .attachmentPrepareFinish, .attachmentPrepareRenew, .attachmentPrepareStatus, .attachmentRevoke, .botInstall, .botList, .botRevoke, .botTrustAdd, .callAnswer, .callHangup, .callInvite, .callList, .callMediaSession, .callReject, .cardSessionDispose, .cardSessionEvent, .cardSessionOpen, .cardSessionPresent, .cardSessionResume, .cardSessionSlot, .cardSessionSubmit, .cardSessionSuspend, .cardSessionUpdate, .contactAccept, .contactAdd, .contactBlock, .contactCardExport, .contactCardImport, .contactDecline, .contactList, .contactReject, .contactRejected, .contactRemove, .contactRequest, .contactRequestsList, .contactRequestsPolicyGet, .contactRequestsPolicySet, .contactSafetyNumber, .contactUnblock, .contactVerificationStatus, .contactVerify, .conversationDelete, .conversationDirectory, .conversationDisappearingExpire, .conversationDisappearingSet, .conversationEdit, .conversationList, .conversationMute, .conversationReact, .conversationReply, .conversationSend, .deviceList, .devicePairApprove, .devicePairBegin, .devicePairCancel, .devicePairConfirm, .devicePairJoin, .devicePairStatus, .devicePushRouteSet, .deviceRefresh, .deviceRevoke, .deviceSyncExport, .deviceTransferAffirm, .deviceTransferBegin, .deviceTransferCancel, .deviceTransferConfirm, .deviceTransferJoin, .deviceTransferPrepare, .deviceTransferStatus, .deviceTransferTailAbandon, .grantApprove, .grantCreateStandingApproval, .grantDeny, .grantList, .grantListStandingApprovals, .grantRequest, .grantRevoke, .grantRevokeStandingApproval, .groupCreate, .groupHistory, .groupInvitationAccept, .groupInvitationDecline, .groupInvitationsList, .groupList, .groupMemberAdd, .groupMemberKick, .groupMemberRemove, .groupMembers, .groupNameSet, .groupOwnerTransfer, .groupRead, .groupRequestsList, .groupRoleSet, .groupSend, .groupSenderKeyExport, .groupSenderKeyImport, .identityDirectory, .mcpApprovalDenied, .mcpApprovalGranted, .mcpApprovalList, .mcpAuditList, .mcpServerAdd, .mcpServerList, .mcpServerRefresh, .mcpToolList, .mcpToolStarted, .messageAck, .messageDelete, .messageFocus, .messageFrankingEvidence, .messageRead, .messageReceiptDelivered, .messageReceiptRead, .messageReceive, .messageSubmit, .objectDelete, .objectDirectory, .objectFetch, .objectGet, .objectGetBegin, .objectGetFinish, .objectGetRead, .objectGetStatus, .objectImport, .objectList, .objectPut, .objectPutBegin, .objectPutChunk, .objectPutFinish, .objectPutStatus, .objectRevoke, .objectShare, .objectTransferResume, .objectTransferStatus, .streamRead, .surfaceAction, .surfaceGet, .surfaceList, .surfaceRequestResync, .surfaceResync, .surfaceSend, .syncStatusGet, .taskAccept, .taskCancel, .taskDecisionProve, .taskDecline, .taskGet, .taskList, .taskPropose, .taskResolve, .taskStart, .taskUpdate: true
         default: false
         }
     }
@@ -235,7 +247,7 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     }
     public var requiresOperationID: Bool {
         switch self {
-        case .a2iList, .a2iListPending, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentList, .agentOperationGet, .agentPersonaEdit, .agentWatch, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
+        case .a2iList, .a2iListPending, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentList, .agentOperationGet, .agentPersonaEdit, .agentRetire, .agentWatch, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
         default: true
         }
     }
@@ -270,8 +282,10 @@ public enum SDKOperation: String, CaseIterable, Sendable {
         case .accountRecoverBegin: "account"
         case .accountRecoverCancel: "account"
         case .accountRecoverConfirm: "account"
+        case .accountRemoveLocal: "account"
         case .accountRestoreInstall: "account"
         case .accountRestoreVerify: "account"
+        case .accountSignOut: "account"
         case .accountStatus: "account"
         case .accountSwitch: "account"
         case .accountUnlock: "account"
@@ -283,6 +297,7 @@ public enum SDKOperation: String, CaseIterable, Sendable {
         case .agentList: "agent"
         case .agentOperationGet: "agent"
         case .agentPersonaEdit: "agent"
+        case .agentRetire: "agent"
         case .agentWatch: "agent"
         case .attachmentEnable: "account"
         case .attachmentImportBegin: "account"
@@ -308,6 +323,15 @@ public enum SDKOperation: String, CaseIterable, Sendable {
         case .callList: "call"
         case .callMediaSession: "call"
         case .callReject: "call"
+        case .cardSessionDispose: "card"
+        case .cardSessionEvent: "card"
+        case .cardSessionOpen: "card"
+        case .cardSessionPresent: "card"
+        case .cardSessionResume: "card"
+        case .cardSessionSlot: "card"
+        case .cardSessionSubmit: "card"
+        case .cardSessionSuspend: "card"
+        case .cardSessionUpdate: "card"
         case .contactAccept: "contact"
         case .contactAdd: "contact"
         case .contactBlock: "contact"

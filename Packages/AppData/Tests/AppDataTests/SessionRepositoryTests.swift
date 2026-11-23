@@ -15,7 +15,7 @@ private final class SessionTransport: CoreTransport {
     func executeSecret(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> JSONValue { throw BridgeError.invalidInput }
     func executeSecretResponse(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> SecretBytes {
         recorded.withLock { $0.append(request) }
-        return try seal(.object(["accounts": .array([.string("account")]), "active_account_id": .null]))
+        return try seal(.object(["accounts": .array([.object(["id": .string("account"), "display_name": .string("Account"), "locked": .bool(false)])]), "active_account_id": .null]))
     }
     func executeSecretRequestResponse(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> SecretBytes {
         recorded.withLock { $0.append(request.request) }
@@ -57,12 +57,14 @@ private func seal(_ body: JSONValue) throws -> SecretBytes {
         guard case .success = await repository.suspend() else { Issue.record("Suspend failed"); return }
     }
     @Test func malformedAccountFramesFailClosedAndSealedResponseIsSingleUse() throws {
-        let valid = try seal(.object(["accounts": .array([.string("account")])]))
-        #expect(try NativeSessionRepository.decodeAccounts(valid).accounts.count == 1)
+        func row(_ id: String, locked: Bool = false) -> JSONValue { .object(["id": .string(id), "display_name": .string("Name"), "locked": .bool(locked)]) }
+        let valid = try seal(.object(["accounts": .array([row("account"), row("held", locked: true)])]))
+        #expect(try NativeSessionRepository.decodeAccounts(valid).accounts.map(\.isLocked) == [false, true])
         #expect(throws: BridgeError.secretConsumed) { try NativeSessionRepository.decodeAccounts(valid) }
         for body: JSONValue in [
-            .object([:]), .object(["accounts": .array([.string("a"), .string("a")])]),
-            .object(["accounts": .array([.string("a")]), "active_account_id": .string("other")]),
+            .object([:]), .object(["accounts": .array([row("a"), row("a")])]), .object(["accounts": .array([.string("a")])]),
+            .object(["accounts": .array([row("a")]), "active_account_id": .string("other")]),
+            .object(["accounts": .array([row("a", locked: true)]), "active_account_id": .string("a")]),
         ] {
             let invalid = try seal(body)
             #expect(throws: AppFailure.invalidData) { try NativeSessionRepository.decodeAccounts(invalid) }

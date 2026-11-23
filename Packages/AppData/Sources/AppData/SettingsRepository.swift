@@ -78,6 +78,14 @@ public struct NativeSettingsRepository: SettingsRepository {
                     // Account-scoped stores drop decoded plaintext before the SDK closes the account.
                     await lifecycle.notify(.willLock(account: account))
                     _ = try await gateway.call(.accountLock, account: account, operationID: operationID)
+                case .signOut:
+                    await lifecycle.notify(.willLock(account: account))
+                    _ = try await gateway.call(.accountSignOut, account: account, operationID: operationID)
+                case .removeLocal:
+                    // The SDK closes an open account before erasing it; the confirmation is the account id.
+                    await lifecycle.notify(.willLock(account: account))
+                    let body = try await gateway.call(.accountRemoveLocal, account: account, body: .object(["confirmation": .string(account)]), operationID: operationID)
+                    guard body["removed"]?.bool == true else { return .failure(.outcomeUnknown) }
                 case .setDefault: break
                 }
                 return .success(())
@@ -127,6 +135,6 @@ public extension SettingsRepository {
         case .retention(let seconds): return await retention(account: account, seconds: seconds, operationID: operationID)
         case .requestPolicy(let autoAccept): return await setRequestPolicy(account: account, autoAccept: autoAccept, operationID: operationID)
         case .lock: return await lock(account: account)
-        case .setDefault: return .failure(.unsupported) }
+        case .setDefault, .signOut, .removeLocal: return .failure(.unsupported) }
     }
 }

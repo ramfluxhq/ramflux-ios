@@ -336,6 +336,8 @@ final class RealRunFlowTests: RealRunTestCase {
             let added = control.rf("alice", ["contact", "add", "--card", String(shownCard[range])])
             notes.append(added.exit == 0 ? "alice added the phone's contact card" : "alice: rf contact add --card exit \(added.exit): \(added.stderr.suffix(200))")
             try ensureReady()
+            notes.append(try addPeerCard(config.alice))
+            try ensureReady()
             // The phone's device id, from Settings, My devices; alice's attachment send addresses it directly.
             try openMore()
             try tap(element("more-settings"), "Settings in More")
@@ -366,8 +368,14 @@ final class RealRunFlowTests: RealRunTestCase {
             for caption in RunSecrets.mediaCaptions {
                 guard text(containing: caption).waitForExistence(timeout: 90) else { throw FlowStop.fail("message \(caption) from alice did not appear") }
             }
-            // rf dm send --attach declares application/octet-stream for every file, so both arrive as file cards.
-            for name in ["rr-image.png", "rr-file.txt"] {
+            // rf dm send --attach declares the image's media type, so the image arrives as a photo (shown inline
+            // and downloaded by policy for a contact) and the text file as a file card.
+            if let caption = RunSecrets.mediaCaptions.first(where: { $0.contains("rr-image.png") }) {
+                let photo = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Photo' AND label CONTAINS %@", caption)).firstMatch
+                guard photo.waitForExistence(timeout: 60) else { throw FlowStop.fail("the image rr-image.png is not shown as a photo") }
+                notes.append("phone received rr-image.png as a photo (\(photo.label.components(separatedBy: ", ").prefix(2).joined(separator: ", ")))")
+            }
+            for name in ["rr-file.txt"] {
                 let card = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND NOT (identifier BEGINSWITH 'message-')", name)).firstMatch
                 guard card.waitForExistence(timeout: 30) else { throw FlowStop.fail("the attachment \(name) is not shown") }
                 try tap(card, "download \(name)")
@@ -385,7 +393,8 @@ final class RealRunFlowTests: RealRunTestCase {
             // Send the test image from the photo library.
             if !element("chat-composer-input").exists { try openConversation(conversation) }
             guard try sendLibraryPhoto() else { throw FlowStop.blocked("the system photo picker exposed no images to the UI test; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))") }
-            let expected = ProcessInfo.processInfo.environment["RF_PHONE_PHOTO"].map { control.post("file-info", json: ["path": $0])["sha256"] as? String } ?? nil
+            // The photo-library image the phone sends, as the harness decodes it (format and pixel size).
+            let source = ProcessInfo.processInfo.environment["RF_PHONE_PHOTO"].map { control.post("file-info", json: ["path": $0])["image"] as? [String: Any] } ?? nil
             var imported: [String: Any] = [:]
             guard eventually(120, every: 4, {
                 guard let row = self.aliceMessages(conversation).last(where: { ($0["is_own"] as? Bool) == false && !((($0["content"] as? [String: Any])?["message"] as? [String: Any])?["media"] as? [Any] ?? []).isEmpty }),
@@ -399,16 +408,25 @@ final class RealRunFlowTests: RealRunTestCase {
                 let detail = ([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; ")
                 let offline = text(containing: "messages will be sent when the connection returns").exists
                 if retryShown() && !offline {
-                    // The prepare and its chunks are accepted; conversation.send of the prepared attachment is refused
-                    // by the SDK (device-events-media-send.log, request R44).
+                    // The SDK refused the send; its typed cause is in device-events-media-send.log.
                     snap("07-not-sent-retry")
-                    throw FlowStop.blocked("receive works (\(detail)); phone-to-alice image send: conversation.send with the prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-media-send.log; the entry reads not sent with a Retry and no offline banner")
+                    throw FlowStop.fail("receive works (\(detail)); phone-to-alice image send was refused by the SDK, see device-events-media-send.log for the typed cause; the entry reads not sent with a Retry and no offline banner")
                 }
                 throw FlowStop.fail("alice never received an importable image from the phone; \(detail)")
             }
-            let same = expected != nil && (imported["sha256"] as? String) == expected
-            notes.append(same ? "alice imported identical bytes of the phone's image" : "alice imported \(imported["size"] ?? "?") bytes; sha256 differs from the photo-library file (the app or Photos re-encodes)")
-            guard same else { throw FlowStop.fail(notes.joined(separator: "; ")) }
+            // A photo is sent in compressed mode (media design): re-encoded as JPEG, or PNG when it has alpha,
+            // with the long edge capped at 2,560 px. Alice must receive a decodable image of that kind and size.
+            guard let source, let width = source["width"] as? Int, let height = source["height"] as? Int else {
+                throw FlowStop.fail("the harness could not decode the photo-library image; \(notes.joined(separator: "; "))")
+            }
+            let scale = min(1.0, 2560.0 / Double(max(width, height)))
+            let expectedSize = (Int((Double(width) * scale).rounded()), Int((Double(height) * scale).rounded()))
+            let received = imported["image"] as? [String: Any]
+            let format = received?["format"] as? String ?? "none"
+            let size = (received?["width"] as? Int ?? 0, received?["height"] as? Int ?? 0)
+            let matches = ["jpeg", "png"].contains(format) && size == expectedSize
+            notes.append("alice imported a decodable \(format) image of \(size.0)x\(size.1) px (\(imported["size"] ?? "?") bytes) for the phone's \(width)x\(height) px photo; expected JPEG or PNG at \(expectedSize.0)x\(expectedSize.1) px")
+            guard matches else { throw FlowStop.fail(notes.joined(separator: "; ")) }
             if let receiveBlocked { throw FlowStop.blocked("receive: " + receiveBlocked + "; send: " + notes.joined(separator: "; ")) }
             return notes.joined(separator: "; ")
         }
@@ -522,7 +540,7 @@ final class RealRunFlowTests: RealRunTestCase {
             control.post("device-log", json: ["name": "device-events-group-image", "minutes": 4])
             let offline = text(containing: "messages will be sent when the connection returns").exists
             if retryShown() && !offline {
-                throw FlowStop.blocked("conversation.send of the group image with its prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-group-image.log; the entry reads not sent with a Retry and no offline banner")
+                throw FlowStop.fail("the SDK refused the group image send, see device-events-group-image.log for the typed cause; the entry reads not sent with a Retry and no offline banner")
             }
             throw FlowStop.fail("alice did not receive the phone's group image within 120 s; \(offline ? "the chat shows the offline banner although the node is reachable" : "no not-sent entry with a Retry is shown") (device-events-group-image.log)")
         }
@@ -555,7 +573,7 @@ final class RealRunFlowTests: RealRunTestCase {
     func addContact(_ peer: RealRunConfig.Peer) throws {
         try openMore()
         try tap(element("more-contacts"), "Contacts in More")
-        if element(peer.principal).waitForExistence(timeout: 5) { return }
+        if element(peer.principal).waitForExistence(timeout: 5) { _ = try addPeerCard(peer); return }
         try tap(element("contacts-add"), "Add contact")
         let address = try require(element("contacts-add-address"), "account address field")
         address.tap(); address.typeText(peer.principal)
@@ -575,6 +593,34 @@ final class RealRunFlowTests: RealRunTestCase {
             if self.element(peer.principal).exists { return true }
             self.element("contacts-header").buttons["Refresh"].firstMatch.tapIfExists(); return false
         }) else { throw FlowStop.fail("\(peer.name) did not appear in the phone's contacts after accepting") }
+        _ = try addPeerCard(peer)
+    }
+    /// Adds `peer`'s contact card on the phone for the accepted contact. Attachments need the contact's home
+    /// node, which only its card pins; a contact known by principal id alone has none (requests R42, R44).
+    func addPeerCard(_ peer: RealRunConfig.Peer) throws -> String {
+        guard let card = control.rf(peer.name, ["contact", "card"]).json?["card"] as? String, card.hasPrefix("ramflux-card:") else {
+            throw FlowStop.blocked("\(peer.name): rf contact card returned no card")
+        }
+        try ensureReady()
+        try openMore()
+        try tap(element("more-contacts"), "Contacts in More")
+        try tap(element("contacts-add"), "Add contact")
+        let address = try require(element("contacts-add-address"), "account address field")
+        address.tap(); address.typeText(card)
+        try tap(element("contacts-add-send"), "Add \(peer.name)'s contact card")
+        Thread.sleep(forTimeInterval: 2)
+        // The add is finished when the screen leaves the add form or its button is enabled again.
+        let send = element("contacts-add-send")
+        guard eventually(60, { !send.exists || send.isEnabled }) else { throw FlowStop.fail("adding \(peer.name)'s card did not finish: \(visibleFailure())") }
+        let labels = app.staticTexts.allElementsBoundByIndex.prefix(40).map(\.label)
+        let failure = labels.first { $0.contains("could not") || $0.contains("refused") }
+        // A card whose home is already pinned (an earlier run of this step) is refused as an existing contact.
+        let pinned = labels.contains { $0.localizedCaseInsensitiveContains("already") }
+        snap("card-\(peer.name)")
+        back()
+        if pinned { return "\(peer.name)'s card is already on the phone (home node pinned)" }
+        if let failure { throw FlowStop.fail("the phone refused \(peer.name)'s contact card: \(failure)") }
+        return "the phone added \(peer.name)'s contact card (home node pinned for attachments)"
     }
     func groupTexts(_ peer: String, group: String, conversation: String) -> [String] {
         let value = control.rf(peer, ["group", "read", "--group", group, "--conversation", conversation])

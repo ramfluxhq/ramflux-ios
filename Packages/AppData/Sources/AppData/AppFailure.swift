@@ -8,6 +8,8 @@ public enum AppFailure: Error, Sendable, Equatable {
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
     case accountCode(AccountCodeIssue)
+    /// Too many wrong account codes; the SDK names the wait (`retry_after_ms`), in whole seconds here.
+    case accountCodeWait(seconds: Int)
     case backup(BackupIssue)
     case pairing(PairingIssue)
     public var title: String { title(locale: .current) }
@@ -28,7 +30,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.title", locale: locale)
         case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
-        case .accountCode: AppDataStrings.text("accountCode.failure.title", locale: locale)
+        case .accountCode, .accountCodeWait: AppDataStrings.text("accountCode.failure.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
         case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
         }
@@ -63,6 +65,8 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
+        case .accountCodeWait(let seconds):
+            AppDataStrings.format("accountCode.failure.wait", Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale)), locale: locale)
         case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         }
@@ -70,6 +74,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     /// A refusal of the typed account code itself (wrong, malformed, retry later), not of the account.
     public var isAccountCodeEntry: Bool {
         if case .accountCode = self { return true }
+        if case .accountCodeWait = self { return true }
         return self == .invalidInput || self == .busy
     }
     public var canRetry: Bool {
@@ -81,7 +86,10 @@ public enum AppFailure: Error, Sendable, Equatable {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
-            if let issue = AccountCodeIssue.sdk(failure.reasonCode) { return .accountCode(issue) }
+            if let issue = AccountCodeIssue.sdk(failure.reasonCode) {
+                if issue == .retryLater, let wait = Self.retryAfterMilliseconds(failure) { return .accountCodeWait(seconds: Int((wait + 999) / 1000)) }
+                return .accountCode(issue)
+            }
             // A definite refusal named by its reason, whatever effect the bridge reports.
             if let reason = failure.reasonCode, reason == "already_contact" { return .typedRefusal(reason) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
@@ -124,6 +132,16 @@ public enum AppFailure: Error, Sendable, Equatable {
         if native.domain == NSCocoaErrorDomain { return .localStorage }
         if error is BridgeError { return .invalidData }
         return .localFailure
+    }
+    /// The SDK's wait before the next attempt, from the public error frame or the sealed error completion.
+    private static func retryAfterMilliseconds(_ failure: CoreFailure) -> UInt64? {
+        func wait(_ frame: JSONValue?) -> UInt64? {
+            guard let value = frame?["error"]?["retry_after_ms"] ?? frame?["response"]?["error"]?["retry_after_ms"] else { return nil }
+            switch value { case .unsigned(let ms): return ms; case .number(let ms): return ms >= 0 && ms < 1e15 ? UInt64(ms) : nil; default: return nil }
+        }
+        if let ms = wait(failure.response) { return ms }
+        guard let sealed = failure.sealedResponse, let frame = try? sealed.consume({ try JSONDecoder().decode(JSONValue.self, from: Data($0)) }) else { return nil }
+        return wait(frame)
     }
     private static func accountCodeMessage(_ issue: AccountCodeIssue) -> String {
         switch issue {

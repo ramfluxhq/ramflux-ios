@@ -14,6 +14,8 @@ public struct SettingsState: Equatable, Sendable {
     public var pendingMutation: PendingSettingsMutation?
     public var unknownMutation = false
     public var pendingRevoke: DeviceRecord?
+    /// The confirmation for removing the account from this phone is open.
+    public var confirmingRemoval = false
     /// The change-code sheet is open; `codeChanged` confirms a finished change.
     public var changingCode = false
     public var codeChanged = false

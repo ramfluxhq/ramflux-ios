@@ -4,19 +4,6 @@ import Testing
 import RamfluxCore
 @testable import AppData
 @Suite(.timeLimit(.minutes(1))) struct ChatRepositoryTests {
-    /// An own reply arrives with `is_own: false` from the SDK; the author device decides then.
-    @Test func ownReplyIsOwnByAuthorDevice() throws {
-        func row(_ id: String, own: Bool, device: String) -> JSONValue {
-            .object(["id": .string(id), "conversation_id": .string("dm:c"), "is_own": .bool(own), "kind": .string("message"), "state": .string("content"), "hlc_ms": .number(1),
-                     "author": .object(["device_id": .string(device), "account_anchor": .string("anchor")]),
-                     "content": .object(["message": .object(["text": .string("t"), "replyTo": .object(["id": .string("base")])])])])
-        }
-        let body: JSONValue = .object(["schema": .string(MessagePage.readModel), "conversation_id": .string("dm:c"),
-                                       "messages": .array([row("reply", own: false, device: "device-me"), row("theirs", own: false, device: "device-peer"), row("base", own: true, device: "device-me")])])
-        let records = try MessagePage.page(body: body, conversation: "dm:c", ownDevice: "device-me").records
-        #expect(records.map(\.isOwn) == [true, false, true])
-        #expect(try MessagePage.page(body: body, conversation: "dm:c").records.map(\.isOwn) == [false, false, true])
-    }
     @Test func missingOrWrongSchemaIsInvalidData() async {
         let pages: [JSONValue] = [
             .object(["messages": .array([.object(["message_id": .string("m"), "conversation_id": .string("c"), "body_utf8": .string("Authenticated display text"), "direction": .string("outgoing")])])]),
@@ -46,8 +33,6 @@ import RamfluxCore
     }
     @Test func messageReadRequestsTheReadModelAndRefusesAPageWithoutTheSchema() async {
         let transport = ProxyTransport { request in
-            // The ownership fallback reads this device's id once per account.
-            if request.method == "account.status" { return .object(["device_id": .string("device-me")]) }
             #expect(request.method == "message.read")
             #expect(request.body["read_model"] == .bool(true))
             #expect(request.body["limit"] == .number(50))

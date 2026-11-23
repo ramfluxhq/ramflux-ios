@@ -144,8 +144,24 @@
 	<string>Network connection has not been confirmed</string>
 	<key>settings.account.openOrCreate</key>
 	<string>Open or create an account</string>
+	<key>settings.account.removeLocal</key>
+	<string>Remove from this phone</string>
+	<key>settings.account.removeLocal.detail</key>
+	<string>Erase this account's data and keys on this phone</string>
+	<key>settings.account.removeLocal.fact</key>
+	<string>Messages, keys and settings of this account are erased from this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup.</string>
+	<key>settings.account.removeLocal.summary</key>
+	<string>Remove from this phone · %@</string>
+	<key>settings.account.removeLocal.title</key>
+	<string>Remove this account from this phone?</string>
 	<key>settings.account.security</key>
 	<string>Security</string>
+	<key>settings.account.signOut</key>
+	<string>Sign out</string>
+	<key>settings.account.signOut.detail</key>
+	<string>Close the account here; your account code opens it again</string>
+	<key>settings.account.thisPhone</key>
+	<string>On this phone</string>
 	<key>settings.account.title</key>
 	<string>Account and security</string>
 	<key>settings.appearance.system</key>

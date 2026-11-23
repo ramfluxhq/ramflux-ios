@@ -5,6 +5,6 @@ import UniformTypeIdentifiers
 import AppData
 import RFDesign
 enum SettingsModal: Identifiable {
-    case revoke(DeviceRecord), changeCode
-    var id: String { switch self { case .revoke(let device): "revoke:" + device.id; case .changeCode: "changeCode" } }
+    case revoke(DeviceRecord), changeCode, removeLocal(String)
+    var id: String { switch self { case .revoke(let device): "revoke:" + device.id; case .changeCode: "changeCode"; case .removeLocal(let account): "removeLocal:" + account } }
 }
