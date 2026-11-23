@@ -93,11 +93,24 @@ public struct KitSearchField: View {
                 KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
-                    .textFieldStyle(.plain)
+                // The placeholder text sizes the field and the TextField is laid over it, so the field
+                // is one line of the field font on every platform and SDK. A TextField prompt does not
+                // give that: built with Xcode 26.6 on macOS, an empty field with a prompt measured 58 pt.
+                Text(placeholder.isEmpty ? " " : placeholder)
                     .modifier(KitFieldFont(size: theme.size_mobile_body))
-                    .foregroundStyle(value.isEmpty ? theme.secondary : theme.text)
-                    .disabled(!enabled)
+                    .foregroundStyle(theme.secondary)
+                    .lineLimit(1)
+                    .opacity(value.isEmpty ? 1 : 0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityHidden(true)
+                    .overlay(alignment: .leading) {
+                        TextField("", text: $value)
+                            .textFieldStyle(.plain)
+                            .modifier(KitFieldFont(size: theme.size_mobile_body))
+                            .foregroundStyle(theme.text)
+                            .disabled(!enabled)
+                            .accessibilityLabel(Text(placeholder))
+                    }
             }
             if showsClear && !value.isEmpty {
                 KitHit(
