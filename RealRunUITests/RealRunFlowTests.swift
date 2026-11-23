@@ -233,6 +233,14 @@ final class RealRunFlowTests: RealRunTestCase {
                 guard text(containing: incoming).exists else { throw FlowStop.fail(liveFailure!) }
             }
             snap("04-received")
+            // The phone marks alice's message read (message.receipt.read): does alice see a read receipt?
+            var aliceReceipts = "none"
+            _ = eventually(60, every: 4, {
+                let states = (self.aliceMessage(conversation, containing: incoming)?["receipts"] as? [[String: Any]] ?? []).map { "\($0["state"] ?? "?")" }
+                aliceReceipts = states.isEmpty ? "none" : states.joined(separator: ",")
+                return states.contains("read")
+            })
+            notes.append("receipts alice sees on her message after the phone displayed it: \(aliceReceipts)")
             // Typing from alice, if the phone shows it.
             let typing = control.rf("alice", ["conversation", "typing", "start", "--conversation", conversation])
             notes.append(typing.exit == 0 ? (text(containing: "Typing").waitForExistence(timeout: 10) ? "typing shown" : "typing not shown within 10 s")

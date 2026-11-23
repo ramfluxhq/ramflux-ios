@@ -32,7 +32,7 @@ FLOWS = [
 
 # Flows the suite does not script yet, with the reason shown instead of a missing result.
 NOT_SCRIPTED = {
-    "04b-offline-queue": "not scripted: needs a network cut for the simulator only; the background flow covers an in-flight send",
+    "04b-offline-queue": "not run: the client has no debug seam that makes its transport fail (all traffic is the Rust SDK's own reqwest/quinn), and cutting the node's published ports is not allowed; the background flow covers a send interrupted in flight",
 }
 
 
