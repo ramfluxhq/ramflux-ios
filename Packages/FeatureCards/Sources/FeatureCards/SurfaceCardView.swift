@@ -20,14 +20,17 @@ public struct SurfaceCardState: Equatable, Sendable {
 /// An agent surface in the timeline (no mobile board yet; built from the Kit card surfaces).
 /// Content renders only when the surface is renderable; otherwise the fallback text is shown.
 /// Controls are enabled only while it is actionable and no action is in flight. Unsupported
-/// components and link buttons show a placeholder; agent text is untrusted and streaming text
-/// is marked while the agent is still appending.
+/// components show a placeholder; agent text is untrusted and streaming text
+/// is marked while the agent is still appending. A link button shows its destination host and
+/// opens only after the user confirms that host.
 public struct SurfaceCardView: View {
     let card: SurfaceCardState
     let onInput: (String, SurfaceInput) -> Void
     let onButton: (String) -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.openURL) private var openURL
+    @State private var pendingLink: URL?
     public init(card: SurfaceCardState, onInput: @escaping (String, SurfaceInput) -> Void, onButton: @escaping (String) -> Void) { self.card = card; self.onInput = onInput; self.onButton = onButton }
     private var surface: SurfaceRecord { card.surface }
     private var enabled: Bool { surface.actionable && !card.sending }
@@ -46,6 +49,13 @@ public struct SurfaceCardView: View {
         .frame(maxWidth: 320, alignment: .leading)
         .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_bubble))
         .accessibilityElement(children: .contain)
+        .confirmationDialog(pendingLink.map { FeatureCardsStrings.sentence("cards.link.confirm.title", [.identifier(SurfaceLink.host($0))], locale: locale) } ?? "",
+                            isPresented: Binding(get: { pendingLink != nil }, set: { if !$0 { pendingLink = nil } }), titleVisibility: .visible, presenting: pendingLink) { url in
+            Button(FeatureCardsStrings.text("cards.link.open", locale: locale)) { pendingLink = nil; openURL(url) }
+            Button(FeatureCardsStrings.text("cards.link.cancel", locale: locale), role: .cancel) { pendingLink = nil }
+        } message: { _ in
+            Text(FeatureCardsStrings.text("cards.link.confirm.message", locale: locale))
+        }
     }
     private func note(_ key: String) -> some View { Text(FeatureCardsStrings.text(key, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary) }
 
@@ -73,8 +83,18 @@ public struct SurfaceCardView: View {
             switch action {
             case .event:
                 return AnyView(KitButton(label, action: { onButton(component.id) }, kind: primary ? .primary : .secondary, size: .compact, enabled: enabled, loading: card.sending, tag: "surface-" + component.id))
-            case .link, .unsupported:
-                return AnyView(placeholder(action == .link ? "cards.link" : "cards.unsupportedValue"))
+            case .link(let target):
+                // Opening a page changes nothing in the conversation, so a closed card may still link.
+                guard let url = surface.linkURL(target) else { return AnyView(placeholder("cards.link")) }
+                return AnyView(VStack(alignment: .leading, spacing: theme.gap / 2) {
+                    KitButton(label, action: { pendingLink = url }, kind: primary ? .primary : .secondary, size: .compact, enabled: surface.renderable, tag: "surface-" + component.id)
+                    HStack(spacing: theme.gap / 2) {
+                        KitIcon(name: "link", size: KitMetrics.iconInfo, tint: theme.secondary)
+                        KitIdentifierText(SurfaceLink.host(url), color: theme.secondary)
+                    }
+                })
+            case .unsupported:
+                return AnyView(placeholder("cards.unsupportedValue"))
             }
         case .textField(let label, let path, let placeholder, let multiline, let obscured):
             guard let path else { return AnyView(self.placeholder("cards.unsupportedValue")) }

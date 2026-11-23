@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import RamfluxCore
+import RFLocalization
 
 /// RFC 8785 (JCS) canonical bytes of a JSON value, as the SDK requires for surface hashes and
 /// action frames: object keys sorted by UTF-16 code units, minimal string escapes, integers in
@@ -236,6 +237,9 @@ public extension SurfaceRecord {
         case .unsupported, .none: return nil
         }
     }
+    /// The destination of a link button, when it passes the same checks the SDK applies when
+    /// the surface is committed (HTTPS, a public DNS name, no credentials, at most 2,048 bytes).
+    func linkURL(_ value: SurfaceValue) -> URL? { text(value).flatMap(SurfaceLink.validate) }
     /// The current model value of an input as an editable draft.
     func input(at pointer: String) -> SurfaceInput? {
         switch value(at: pointer) {
@@ -249,18 +253,21 @@ public extension SurfaceRecord {
     func streaming(_ value: SurfaceValue) -> Bool { if case .path(let pointer) = value { streams[pointer] == "open" } else { false } }
 }
 
-/// What a button does: send a named event with its context, open a link (only shown as a
-/// placeholder with the URL host; links need a host confirmation flow), or nothing usable.
+/// What a button does: send a named event with its context, open a link (the `openUrl`
+/// function; the app opens it only after the user confirmed the destination host), or
+/// nothing usable.
 public enum SurfaceButtonAction: Equatable, Sendable {
     case event(name: String, context: [String: JSONValue], userMessage: String?)
-    case link
+    case link(SurfaceValue)
     case unsupported
     init(_ value: JSONValue?) {
         if let event = value?["event"], let name = event["name"]?.string, !name.isEmpty {
             var context: [String: JSONValue] = [:]
             if case .object(let fields)? = event["context"] { context = fields }
             self = .event(name: name, context: context, userMessage: event["userMessage"]?.string)
-        } else if value?["functionCall"] != nil { self = .link } else { self = .unsupported }
+        } else if let call = value?["functionCall"] {
+            self = call["@call"]?.string == "openUrl" ? .link(SurfaceValue(call["args"]?["url"])) : .unsupported
+        } else { self = .unsupported }
     }
 }
 
@@ -287,5 +294,29 @@ enum SurfaceActionFrame {
         return .object(["schema": .string(schema), "conversationId": .string(surface.conversationID), "surfaceVersion": .unsigned(surface.version), "surfaceHash": .string(hash),
                         "sourceInstance": .array([]), "argsHash": .string(CanonicalJSON.hash("ramflux.a2ui.action_args.v2", .object(args))),
                         "a2ui": .object(["version": .string("1.0"), "action": .object(action)])])
+    }
+}
+
+/// Link checks for card buttons, mirroring `ramflux-protocol` `a2ui::link::validate_url`.
+public enum SurfaceLink {
+    public static func validate(_ raw: String) -> URL? {
+        guard raw.utf8.count <= 2048, !raw.unicodeScalars.contains(where: { $0.properties.generalCategory == .control || RFBidi.isEmbeddingOrIsolate($0) || RFBidi.isMark($0) }) else { return nil }
+        guard let components = URLComponents(string: raw.trimmingCharacters(in: .whitespaces)), components.scheme?.lowercased() == "https",
+              components.user == nil, components.password == nil, authorityHasNoAt(raw),
+              var host = components.host?.lowercased(), !host.isEmpty else { return nil }
+        if host.hasSuffix(".") { host.removeLast() }
+        let labels = host.split(separator: ".", omittingEmptySubsequences: false)
+        guard host.utf8.count <= 253, labels.count > 1, !["localhost", "local"].contains(labels.last.map(String.init) ?? ""),
+              labels.allSatisfy({ label in !label.isEmpty && label.utf8.count <= 63 && !label.hasPrefix("-") && !label.hasSuffix("-") && label.utf8.allSatisfy { ($0 >= 48 && $0 <= 57) || ($0 >= 97 && $0 <= 122) || $0 == 45 } }),
+              !labels.allSatisfy({ $0.allSatisfy(\.isNumber) }) else { return nil }
+        return components.url
+    }
+    /// The host shown in the confirmation (lowercased, no trailing dot).
+    public static func host(_ url: URL) -> String { var host = url.host()?.lowercased() ?? ""; if host.hasSuffix(".") { host.removeLast() }; return host }
+    private static func authorityHasNoAt(_ raw: String) -> Bool {
+        guard let colon = raw.firstIndex(of: ":") else { return false }
+        let rest = raw[raw.index(after: colon)...].drop { $0 == "/" || $0 == "\\" }
+        let authority = rest.prefix { !"/\\?#".contains($0) }
+        return !authority.contains("@")
     }
 }

@@ -172,18 +172,18 @@
       }
     },
     "cards.link": {
-      "comment": "Placeholder for a link button in an agent card; links are not opened from cards yet.",
+      "comment": "Placeholder for a link button in an agent card whose destination cannot be opened safely.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Link not available in this app"
+            "value": "This link cannot be opened"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此应用中链接不可用"
+            "value": "无法打开此链接"
           }
         }
       }
@@ -218,6 +218,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "请求"
+          }
+        }
+      }
+    },
+    "cards.link.confirm.title": {
+      "comment": "Title of the confirmation before opening a link from an agent card. %@ is the destination host, for example example.com.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a page on %@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要打开 %@ 上的网页吗？"
+          }
+        }
+      }
+    },
+    "cards.link.confirm.message": {
+      "comment": "Explains the link confirmation: the page opens in the browser and the agent chose the destination.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The agent chose this link. It opens in your browser; check the address before you continue."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此链接由智能体提供，将在浏览器中打开。继续前请核对网址。"
+          }
+        }
+      }
+    },
+    "cards.link.open": {
+      "comment": "Button in the link confirmation that opens the page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开"
+          }
+        }
+      }
+    },
+    "cards.link.cancel": {
+      "comment": "Button in the link confirmation that closes it without opening the page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "cards.available.title": {
+      "comment": "Title on the cards page when interactive cards work on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cards appear in your conversations"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡片会显示在你的会话中"
+          }
+        }
+      }
+    },
+    "cards.available.message": {
+      "comment": "Explains where interactive cards from agents are shown and used.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When an agent sends an interactive card, it shows up in the chat with that agent, and you can use it there."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "智能体发送交互卡片后，卡片会出现在与该智能体的会话中，你可以直接在那里使用。"
           }
         }
       }

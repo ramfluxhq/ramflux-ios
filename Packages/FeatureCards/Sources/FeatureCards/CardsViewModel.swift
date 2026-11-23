@@ -15,7 +15,7 @@ import AppData
         task = Task { [weak self, repository] in
             let result = await repository.availability()
             guard !Task.isCancelled, let self, self.generation == current else { return }; self.state.checking = false
-            switch result { case .failure(let failure): self.state.failure = failure; case .success: self.state.failure = .invalidData }
+            switch result { case .failure(let failure): self.state.available = false; self.state.failure = failure; case .success: self.state.available = true }
         }
     }
     public func settle() async { await task?.value }

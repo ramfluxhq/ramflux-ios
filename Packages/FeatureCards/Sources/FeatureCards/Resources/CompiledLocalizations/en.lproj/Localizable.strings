@@ -6,6 +6,10 @@
 	<string>Decide in tasks</string>
 	<key>cards.approval.request</key>
 	<string>Request</string>
+	<key>cards.available.message</key>
+	<string>When an agent sends an interactive card, it shows up in the chat with that agent, and you can use it there.</string>
+	<key>cards.available.title</key>
+	<string>Cards appear in your conversations</string>
 	<key>cards.checking</key>
 	<string>Checking availability</string>
 	<key>cards.closed</key>
@@ -13,7 +17,15 @@
 	<key>cards.contentUnavailable</key>
 	<string>Card content unavailable</string>
 	<key>cards.link</key>
-	<string>Link not available in this app</string>
+	<string>This link cannot be opened</string>
+	<key>cards.link.cancel</key>
+	<string>Cancel</string>
+	<key>cards.link.confirm.message</key>
+	<string>The agent chose this link. It opens in your browser; check the address before you continue.</string>
+	<key>cards.link.confirm.title</key>
+	<string>Open a page on %@?</string>
+	<key>cards.link.open</key>
+	<string>Open</string>
 	<key>cards.outOfSync</key>
 	<string>This card is out of sync; actions are paused</string>
 	<key>cards.retry</key>
