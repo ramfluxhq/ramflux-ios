@@ -2049,7 +2049,7 @@
     },
     "MOB-C01-zh-CN-light": {
       "status": "deviates",
-      "reason": "Rows: the design has plain title and subtitle rows ('3 位成员 · #general', '频道与帖子') without the leading icon tile; the app shows the group id as subtitle (GroupRecord carries no member count or channel summary that the row shows). Header: the app shows refresh, the design has no action. Search placeholder '筛选群组' vs '搜索名称或频道…'. The design adds the 'permissions follow the current group' info row and an outline button; the app shows a footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "Rows: the design has plain title and subtitle rows ('3 位成员 · #general', '频道与帖子') without the leading icon tile; the app shows the group id as subtitle (GroupRecord carries no member count or channel summary that the row shows). Header: the app shows refresh, the design has no action. Search placeholder '筛选群组' vs '搜索名称或频道…'. The design adds the 'permissions follow the current group' info row and an outline button; the app shows a footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it). Reviewed 2026-11-23 (real run 2): the Groups header carries a plus icon action for Create group at [301, 80, 19, 19], because the large header draws no text action and the empty-state button is hidden whenever a read fails, which left group creation unreachable on a real node.",
       "regions": [
         {
           "rect": [
@@ -2194,12 +2194,20 @@
             125,
             9
           ]
+        },
+        {
+          "rect": [
+            301,
+            80,
+            19,
+            19
+          ]
         }
       ]
     },
     "MOB-C15-en-light": {
       "status": "deviates",
-      "reason": "Same as the zh board: centred empty state without search field and refresh in the design; message copy differs ('wait for someone to invite you' vs 'wait for an invitation to join one'). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision.",
+      "reason": "Same as the zh board: centred empty state without search field and refresh in the design; message copy differs ('wait for someone to invite you' vs 'wait for an invitation to join one'). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. Reviewed 2026-11-23 (real run 2): the Groups header carries a plus icon action for Create group at [301, 80, 19, 19], because the large header draws no text action and the empty-state button is hidden whenever a read fails, which left group creation unreachable on a real node.",
       "regions": [
         {
           "rect": [
@@ -2328,12 +2336,20 @@
             125,
             9
           ]
+        },
+        {
+          "rect": [
+            301,
+            80,
+            19,
+            19
+          ]
         }
       ]
     },
     "MOB-C15-zh-CN-light": {
       "status": "deviates",
-      "reason": "The design shows a centred empty state (icon tile, title, one-line message, compact 'create group' button) and no search field or header action. The app shows refresh, the search field, a left-aligned empty state with a full-width button and a permissions footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "The design shows a centred empty state (icon tile, title, one-line message, compact 'create group' button) and no search field or header action. The app shows refresh, the search field, a left-aligned empty state with a full-width button and a permissions footnote. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it). Reviewed 2026-11-23 (real run 2): the Groups header carries a plus icon action for Create group at [301, 80, 19, 19], because the large header draws no text action and the empty-state button is hidden whenever a read fails, which left group creation unreachable on a real node.",
       "regions": [
         {
           "rect": [
@@ -2461,6 +2477,14 @@
             833,
             125,
             9
+          ]
+        },
+        {
+          "rect": [
+            301,
+            80,
+            19,
+            19
           ]
         }
       ]
