@@ -98,6 +98,39 @@ proves that an identical capture passes, a one-pixel edge shift passes, a moved
 element or a colour change fails with its offset measured, and expected entries
 behave as described below.
 
+## Kit comparison
+
+Kit components are compared separately with the Kit design previews:
+
+```sh
+cd Packages/RFDesign
+TEST_RUNNER_KIT_CAPTURE_DIR=/tmp/kit-ios-captures xcodebuild -scheme RFDesign \
+  -destination 'platform=iOS Simulator,name=iPhone 17' test \
+  -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
+cd ../..
+python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures kit-evidence-out
+```
+
+`Packages/RFDesign/kit-masters.json` records the master frame where a preview
+export is a board instance rather than the component frame. A capture edge more
+than 2 pt from the master is OVER.
+
+`row--tag` has no master entry: its 361x92 export canvas is the row frame. In
+the design file the M/Row master is 58 pt with an 8 pt vertical inset and
+centred content, and every M/Row instance with this two-line value
+("Chrome · macOS row") overrides the height to 92 pt. The export agrees: the
+icon tile and the chevron are centred on y = 46 pt and the text spans 22.5 pt
+to 73 pt of the 92 pt canvas. `KitRow` therefore keeps the 8 pt inset while its
+label and value each fit on one line and uses a 16 pt inset when either wraps,
+which puts the two-line row at 92 pt. A row with three or more lines follows
+the same rule; the design has no instance of one. What remains is inside the
+frame and does not change it: the design's M/Row label and value line heights
+are 1.4 and 1.3 of the font size, the Kit's are 1.3 and 1.4, and the design
+sets the title in the Latin face. In the iOS 26.5 capture the title ink spans
+19-33 pt against 22.5-34.5 pt in the export and the value lines start 1 pt
+further apart. Changing the row's line heights is a design-alignment decision
+for wave 2, not part of the frame check.
+
 ## Expected deviations
 
 `shell-previews/expected-deviations.json` records, per reference, a reviewed
@@ -113,6 +146,11 @@ wave-2 work list.
 - `--write-expected <file>` writes a draft from the current captures, keeping
   existing reasons. A draft is only committed after every reason is reviewed
   against the pairs; an entry is never widened to hide a new difference.
+
+Entries were re-reviewed after the chat foundations (scalable Kit text,
+system-text message bubbles, per-script faces) were stacked on the board
+verification work: each changed reference was compared pair by pair and its
+reason extended with what moved and why; no rectangle was accepted in bulk.
 
 ## Capture toolchain
 

@@ -11,8 +11,8 @@ import RFDesign
     private var theme: RFTheme = .light
     private var locale: Locale = .current
     private var isGroup = false
-    private var entries: [String: MessageRecord] = [:]
-    private var previous: [MessageRecord] = []
+    private var entries: [String: TimelineItem] = [:]
+    private var previous: [TimelineItem] = []
     private var source: UITableViewDiffableDataSource<Int, String>?
     private var revision: UInt64 = 0
     var presentationRevision: UInt64 { revision }
@@ -27,14 +27,14 @@ import RFDesign
         source = UITableViewDiffableDataSource(tableView: tableView) { [weak self] table, path, id in
             let cell = table.dequeueReusableCell(withIdentifier: "message", for: path)
             cell.backgroundColor = .clear; cell.selectionStyle = .none
-            if let record = self?.entries[id] { cell.contentConfiguration = UIHostingConfiguration { MessageBubble(message: record, isGroup: self?.isGroup ?? false, onAction: { [weak self] action in self?.onAction(action) }).environment(\.rfTheme, self?.theme ?? .light).environment(\.locale, self?.locale ?? .current) }.margins(.all, 0) }
+            if let item = self?.entries[id] { cell.contentConfiguration = UIHostingConfiguration { TimelineRow(item: item, isGroup: self?.isGroup ?? false, onAction: { [weak self] action in self?.onAction(action) }).environment(\.rfTheme, self?.theme ?? .light).environment(\.locale, self?.locale ?? .current) }.margins(.all, 0) }
             return cell
         }
     }
-    public func update(_ messages: [MessageRecord], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false) {
-        let messages = TimelineProjection.chronological(messages)
+    public func update(_ messages: [MessageRecord], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil) {
+        let items = TimelineProjection.items(messages, calendar: .current, unreadAnchorID: unreadAnchorID)
         loadViewIfNeeded()
-        guard previous != messages || self.theme != theme || self.locale != locale || self.isGroup != isGroup, let source else { return }
+        guard previous != items || self.theme != theme || self.locale != locale || self.isGroup != isGroup, let source else { return }
         let presentationChanged = self.theme != theme || self.locale != locale || self.isGroup != isGroup
         self.theme = theme; self.locale = locale; self.isGroup = isGroup
         let nearBottom = previous.isEmpty || tableView.contentOffset.y + tableView.bounds.height >= tableView.contentSize.height - 60
@@ -42,16 +42,16 @@ import RFDesign
         let anchorID = anchor.flatMap { source.itemIdentifier(for: $0) }
         let anchorY = anchor.map { tableView.rectForRow(at: $0).minY - tableView.contentOffset.y }
         let old = entries
-        entries = Dictionary(messages.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
-        previous = messages
+        entries = Dictionary(items.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
+        previous = items
         var snapshot = NSDiffableDataSourceSnapshot<Int, String>()
-        snapshot.appendSections([0]); snapshot.appendItems(messages.map(\.id), toSection: 0)
-        snapshot.reconfigureItems(messages.filter { old[$0.id] != nil && (presentationChanged || old[$0.id] != $0) }.map(\.id))
+        snapshot.appendSections([0]); snapshot.appendItems(items.map(\.id), toSection: 0)
+        snapshot.reconfigureItems(items.filter { old[$0.id] != nil && (presentationChanged || old[$0.id] != $0) }.map(\.id))
         revision &+= 1; let current = revision
         source.apply(snapshot, animatingDifferences: false) { [weak self] in
             guard let self, self.revision == current else { return }
             self.tableView.layoutIfNeeded()
-            if nearBottom, let last = messages.last, let path = source.indexPath(for: last.id) {
+            if nearBottom, let last = items.last, let path = source.indexPath(for: last.id) {
                 self.tableView.scrollToRow(at: path, at: .bottom, animated: false)
             } else if let anchorID, let path = source.indexPath(for: anchorID), let anchorY {
                 self.tableView.contentOffset.y = self.tableView.rectForRow(at: path).minY - anchorY

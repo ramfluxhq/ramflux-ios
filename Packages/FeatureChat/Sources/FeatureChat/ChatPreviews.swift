@@ -18,7 +18,26 @@ public enum ChatPreviews {
         var refused = direct[0]; refused.failure = .typedRefusal("edit_conflict"); refused.composer = .edit(messageID: "two", previousDraft: "Draft"); refused.draft = "Changed"
         var reacted = direct[3]
         reacted.messages[1] = MessageRecord(id: "two", sender: "", kind: .text("I will take a look."), isOwn: true, receipt: "Device: delivered", edited: true, replyTo: "one", replyPreview: "Let us review this together.", reactions: [MessageReaction(token: "👍", count: 2)])
-        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted]
+        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted, mixedDirection]
+    }()
+
+    /// Mixed-direction fixture: Arabic and English messages on both sides, a mention, a link, a
+    /// reply excerpt, a spoofed file name, two calendar days and the unread divider.
+    public static let mixedDirection: ChatState = {
+        let day: Int64 = 1_767_258_000
+        var state = ChatState(messages: [
+            MessageRecord(id: "m6", sender: "مريم", kind: .text("@Alex تمام، سأرسل الملف https://example.org/r قبل الساعة 5."), isOwn: false, timestamp: day + 86_400 + 900, replyTo: "m5", replyPreview: "Can you send the report?"),
+            MessageRecord(id: "m5", sender: "", kind: .text("Can you send the report?"), isOwn: true, timestamp: day + 86_400 + 600, receipt: "Delivered"),
+            MessageRecord(id: "m4", sender: "مريم", kind: .text("ملف"), isOwn: false, timestamp: day + 3_000, attachments: [AttachmentRecord(id: "f1", name: "invoice\u{202E}fdp.exe")]),
+            MessageRecord(id: "m3", sender: "", kind: .text("مرحبا! هذه رسالة عربية في واجهة إنجليزية، وهي طويلة بما يكفي لتلتف على سطرين."), isOwn: true, timestamp: day + 2_400, receipt: "Delivered"),
+            MessageRecord(id: "m2", sender: "Alex", kind: .text("Hello Maryam, this English message keeps its own direction."), isOwn: false, timestamp: day + 1_800),
+            MessageRecord(id: "m1", sender: "", kind: .text("12:30 👍"), isOwn: true, timestamp: day + 1_200),
+        ])
+        state.conversationID = "preview-mixed"
+        state.displayTitle = "مريم Maryam"
+        state.isGroup = true
+        state.unreadAnchorID = "m6"
+        return state
     }()
 }
 #Preview("Chat") { ChatScreen(state: ChatPreviews.states[3], onAction: { _ in }) }

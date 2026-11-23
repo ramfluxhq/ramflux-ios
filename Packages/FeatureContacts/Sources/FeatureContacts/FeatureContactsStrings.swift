@@ -9,4 +9,7 @@ public enum FeatureContactsStrings {
     public static func format(_ key: String, _ arguments: CVarArg..., locale: Locale = .current) -> String {
         CatalogLookup.format(key, arguments, bundle: .module, locale: locale)
     }
+    public static func sentence(_ key: String, _ arguments: [RFTextArgument], locale: Locale = .current) -> String {
+        CatalogLookup.sentence(key, arguments, bundle: .module, locale: locale)
+    }
 }

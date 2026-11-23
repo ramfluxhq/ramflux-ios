@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
+import RFLocalization
 
 public struct KitComposer: View {
     @Binding var value: String
@@ -22,6 +23,7 @@ public struct KitComposer: View {
     var tag: String?
     @Environment(\.rfTheme) private var theme
     @Environment(\.kitCapturing) private var capturing
+    @Environment(\.layoutDirection) private var layoutDirection
 
     public init(
         value: Binding<String>,
@@ -69,17 +71,16 @@ public struct KitComposer: View {
                     KitIcon(name: "chevron-down", size: KitMetrics.chevron, tint: theme.secondary)
                 }
                 .padding(.horizontal, KitMetrics.modePad)
-                .frame(height: KitMetrics.modeChip)
+                .frame(minHeight: KitMetrics.modeChip)
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_chip))
             }
             if let option, !option.isEmpty {
                 HStack(spacing: KitMetrics.approvalGap) {
                     KitCheckbox(checked: optionChecked, onChecked: onOption, size: KitMetrics.optionBox, radius: theme.radius_xs, strokeColor: theme.line_strong)
-                    KitLabel(option, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                    KitLabel(option, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
                 }
                 .padding(.horizontal, KitMetrics.headerGap)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(height: KitMetrics.optionRow)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.optionRow, alignment: .leading)
             }
             if let replyAuthor, !replyAuthor.isEmpty {
                 HStack(spacing: KitMetrics.approvalGap) {
@@ -89,18 +90,17 @@ public struct KitComposer: View {
                     VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                         KitLabel(replyAuthor, size: theme.size_secondary, weight: .semibold, color: theme.text, line: KitMetrics.lineSecondary)
                         if let replyExcerpt, !replyExcerpt.isEmpty {
-                            KitLabel(replyExcerpt, size: theme.size_button, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
+                            KitLabel(RFUntrustedText(replyExcerpt, kind: .messageBody).text, size: theme.size_button, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                         }
                     }
+                    .padding(.vertical, KitMetrics.capsulePad)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     if let onCloseReply {
                         KitIconHit(icon: "x", size: KitMetrics.iconInfo, tint: theme.secondary, label: RFDesignStrings.text("kit.close"), action: onCloseReply)
                     }
                 }
                 .padding(.leading, KitMetrics.gutter)
-                .padding(.vertical, KitMetrics.capsulePad)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.replyBar)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.replyBar)
             }
             if let attachmentName, !attachmentName.isEmpty {
                 HStack(spacing: KitMetrics.headerGap) {
@@ -108,7 +108,7 @@ public struct KitComposer: View {
                         .frame(width: KitMetrics.fileTile, height: KitMetrics.fileTile)
                         .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_md))
                     VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                        KitLabel(attachmentName, size: theme.size_body, weight: .medium, color: theme.text, line: KitMetrics.lineBody)
+                        KitFileName(attachmentName)
                         if let attachmentState, !attachmentState.isEmpty {
                             KitLabel(attachmentState, size: theme.size_meta, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                         }
@@ -119,8 +119,8 @@ public struct KitComposer: View {
                     }
                 }
                 .padding(.leading, KitMetrics.headerGap)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.attachment)
+                .padding(.vertical, KitMetrics.chipPadV)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.attachment)
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             }
             HStack(spacing: KitMetrics.bubbleGap) {
@@ -135,10 +135,14 @@ public struct KitComposer: View {
                         KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
-                        TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary))
+                        // The draft grows to a few lines. The placeholder and an empty draft start at the
+                        // leading edge; typed text aligns by its own direction, like a sent message.
+                        TextField("", text: $value, prompt: Text(placeholder).foregroundStyle(theme.secondary), axis: .vertical)
+                            .lineLimit(1...KitMetrics.composerLines)
                             .textFieldStyle(.plain)
-                            .font(kitFont(size: theme.size_mobile_body, weight: kitWeight(.regular), role: .ui))
+                            .modifier(KitFieldFont(size: theme.size_mobile_body))
                             .foregroundStyle(theme.text)
+                            .multilineTextAlignment(KitMessageText.direction(of: value, surrounding: layoutDirection) == layoutDirection ? .leading : .trailing)
                     }
                     KitHit(enabled: sendActive, label: RFDesignStrings.text("kit.send"), hitTag: tag.map { $0 + "-send" }, action: onSend) {
                         KitIcon(name: "arrow-up", size: KitMetrics.sendIcon, tint: sendActive ? theme.on_accent : theme.control)
@@ -150,12 +154,11 @@ public struct KitComposer: View {
                 .padding(.leading, KitMetrics.capsulePadStart)
                 .padding(.trailing, KitMetrics.capsulePad)
                 .padding(.vertical, KitMetrics.capsulePad)
-                .frame(maxWidth: .infinity)
-                .frame(height: KitMetrics.composerRow)
+                .frame(maxWidth: .infinity, minHeight: KitMetrics.composerRow)
                 .background(theme.input, in: RoundedRectangle(cornerRadius: KitMetrics.capsuleRadius))
                 .overlay { RoundedRectangle(cornerRadius: KitMetrics.capsuleRadius).strokeBorder(theme.input_border, lineWidth: KitMetrics.stroke) }
             }
-            .frame(height: KitMetrics.composerRow)
+            .frame(minHeight: KitMetrics.composerRow)
         }
         .padding(KitMetrics.composerPad)
         .frame(maxWidth: .infinity, alignment: .leading)

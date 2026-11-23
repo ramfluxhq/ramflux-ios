@@ -8,14 +8,6 @@
 	<string>取消</string>
 	<key>confirmation.confirm</key>
 	<string>确认</string>
-	<key>copy.a2538eaa411f</key>
-	<string>确认（仅一次）</string>
-	<key>copy.c771af79a1fe</key>
-	<string>正在读取本地记录</string>
-	<key>copy.d8b8392e2c54</key>
-	<string>重试</string>
-	<key>copy.dc380888c4e2</key>
-	<string>正在加载</string>
 	<key>kit.back</key>
 	<string>返回</string>
 	<key>kit.call</key>
@@ -28,10 +20,18 @@
 	<string>复制</string>
 	<key>kit.info</key>
 	<string>信息</string>
+	<key>kit.load.loading</key>
+	<string>正在加载</string>
+	<key>kit.load.readingRecords</key>
+	<string>正在读取本地记录</string>
+	<key>kit.load.retry</key>
+	<string>重试</string>
 	<key>kit.more</key>
 	<string>更多</string>
 	<key>kit.search</key>
 	<string>搜索</string>
+	<key>kit.secret.confirmOnce</key>
+	<string>确认（仅一次）</string>
 	<key>kit.send</key>
 	<string>发送</string>
 	<key>theme.dark</key>

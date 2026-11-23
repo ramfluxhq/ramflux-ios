@@ -24,9 +24,9 @@ public struct NoticesScreen: View {
                 VStack(alignment: .leading, spacing: KitMetrics.rowGap) {
                     ForEach(Array(licenses.enumerated()), id: \.offset) { _, license in
                         VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
-                            Text(license.name).font(theme.bodyFont.weight(.semibold)).foregroundStyle(theme.text)
+                            Text(license.name).rfFont(.body, weight: .semibold).foregroundStyle(theme.text)
                             Text(license.text)
-                                .font(theme.captionFont)
+                                .rfFont(.caption)
                                 .foregroundStyle(theme.secondary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .textSelection(.enabled)

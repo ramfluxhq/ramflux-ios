@@ -45,4 +45,13 @@ struct CatalogLookupTests {
         #expect(CatalogLookup.text("fixture.englishOnly", bundle: bundle, locale: Locale(identifier: "en-XA")) == "［Only in English · Only in English］")
         #expect(CatalogLookup.format("fixture.files %lld", [Int64(1)], bundle: bundle, locale: Locale(identifier: "en-XA")) == "［1 file · 1 file］")
     }
+
+    @Test func sentenceIsolatesArgumentsAndFallsBackLikeText() throws {
+        let bundle = try #require(fixtures)
+        let fsi = "\u{2068}", lri = "\u{2066}", pdi = "\u{2069}"
+        let arguments: [RFTextArgument] = [.untrusted("Mia\u{202E}"), .identifier("٤٢")]
+        #expect(CatalogLookup.sentence("fixture.sentence", arguments, bundle: bundle, locale: Locale(identifier: "zh-CN")) == fsi + "Mia" + pdi + " 移除了 " + lri + "42" + pdi)
+        #expect(CatalogLookup.sentence("fixture.sentence", arguments, bundle: bundle, locale: Locale(identifier: "ar")) == fsi + "Mia" + pdi + " removed " + lri + "42" + pdi)
+        #expect(CatalogLookup.sentence("fixture.sentence", arguments, bundle: bundle, locale: Locale(identifier: "en-XA")).hasPrefix("［" + fsi + "Mia"))
+    }
 }

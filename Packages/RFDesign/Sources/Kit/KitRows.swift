@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
+import RFLocalization
 
 public enum KitRowTrailing { case chevron, check, none }
 
@@ -71,12 +72,35 @@ public struct KitRow: View {
 
     public var body: some View {
         let pressed = enabled && (holding || previewPressed)
+        // A row whose copy fits on one line per text keeps the 58 pt master and its 8 pt inset.
+        // When the label or the value wraps, the design gives the row 16 pt above and below
+        // the text: the M/Row instances with a two-line value are 92 pt with the text centred.
+        ViewThatFits(in: .horizontal) {
+            content(lines: 1).padding(.vertical, KitMetrics.rowPadV)
+            content(lines: nil).padding(.vertical, KitMetrics.rowPadVWrapped)
+        }
+        .padding(.horizontal, KitMetrics.gutter)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.row)
+        .background(pressed ? theme.selected : .clear)
+        .kitHairline(theme.line)
+        .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
+        .contentShape(Rectangle())
+        .gesture(rowPress)
+        .allowsHitTesting(enabled)
+        .kitTag(tag)
+        .preference(key: KitHits.self, value: tag.map { [$0: enabled] } ?? [:])
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(label)
+    }
+
+    private func content(lines: Int?) -> some View {
         HStack(spacing: KitMetrics.rowGap) {
             if let icon { KitIconTile(icon: icon) }
             VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle)
+                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: lines)
                 if let value, !value.isEmpty {
-                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: lines)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -92,21 +116,6 @@ public struct KitRow: View {
             case .none: EmptyView()
             }
         }
-        .padding(.horizontal, KitMetrics.gutter)
-        .padding(.vertical, KitMetrics.rowPadV)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.row)
-        .background(pressed ? theme.selected : .clear)
-        .kitHairline(theme.line)
-        .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
-        .contentShape(Rectangle())
-        .gesture(rowPress)
-        .allowsHitTesting(enabled)
-        .kitTag(tag)
-        .preference(key: KitHits.self, value: tag.map { [$0: enabled] } ?? [:])
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityLabel(label)
     }
 
     private var rowPress: some Gesture {
@@ -170,7 +179,7 @@ public struct KitConversationRow<Avatar: View>: View {
             avatar
             VStack(alignment: .leading, spacing: KitMetrics.summaryGap) {
                 HStack(spacing: KitMetrics.bubbleGap) {
-                    KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                    KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
                     if muted { KitIcon(name: "bell-off", size: KitMetrics.metaIcon, tint: theme.secondary) }
                     Spacer(minLength: KitMetrics.bubbleGap)
                     if !time.isEmpty {
@@ -180,26 +189,26 @@ public struct KitConversationRow<Avatar: View>: View {
                 HStack(spacing: KitMetrics.bubbleGap) {
                     if read { KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: theme.secondary) }
                     if let sender, !sender.isEmpty {
-                        KitLabel(sender, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody)
+                        KitLabel(RFUntrustedText(sender, kind: .identity).text, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody)
                     }
-                    KitLabel(preview, size: theme.size_body, weight: .regular, color: theme.secondary, line: KitMetrics.lineBody)
+                    KitLabel(RFUntrustedText(preview, kind: .messageBody).text, size: theme.size_body, weight: .regular, color: theme.secondary, line: KitMetrics.lineBody)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let badge, !badge.isEmpty {
                         KitLabel(badge, size: theme.size_meta, weight: .semibold, color: theme.on_badge, line: KitMetrics.lineTitle)
                             .padding(.horizontal, KitMetrics.listBadgePad)
-                            .frame(height: KitMetrics.listBadge)
+                            .frame(minHeight: KitMetrics.listBadge)
                             .background(theme.badge, in: RoundedRectangle(cornerRadius: KitMetrics.listBadgeRadius))
                     }
                     if pinned { KitIcon(name: "pin", size: KitMetrics.metaIcon, tint: theme.secondary) }
                 }
             }
             .padding(.trailing, KitMetrics.gutter)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .padding(.vertical, KitMetrics.rowPadV)
+            .frame(maxWidth: .infinity, minHeight: KitMetrics.conversation, alignment: .center)
             .kitHairline(theme.line)
         }
         .padding(.leading, KitMetrics.gutter)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.conversation)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.conversation)
         .background(pressed ? theme.selected : .clear)
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
         .contentShape(Rectangle())

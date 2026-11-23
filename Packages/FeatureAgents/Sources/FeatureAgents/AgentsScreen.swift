@@ -20,7 +20,7 @@ public struct AgentsScreen: View {
     public var body: some View {
         RFPage {
             VStack(spacing: 0) {
-                KitPageHeader(AppTab.agents.title(locale: locale), large: true, latin: true, tag: "agents-header")
+                KitPageHeader(AppTab.agents.title(locale: locale), large: true, tag: "agents-header")
                 ScrollView {
                     VStack(alignment: .leading, spacing: theme.gap) {
                         if state.loading { ProgressView(copy("loading")).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, theme.gap) }
@@ -41,13 +41,13 @@ public struct AgentsScreen: View {
                                         }
                                     }
                                 }
-                                Text(copy("directory.note")).font(theme.captionFont).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap).padding(.top, 12)
+                                Text(copy("directory.note")).rfFont(.caption).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap).padding(.top, 12)
                                 multiAgentLink.padding(.top, 12)
                             }
                         } else if state.failure == nil && !state.loading {
                             KitTipBar(copy("desktop"), icon: "info", tag: "agents-desktop").padding(.horizontal, theme.gap)
                             searchMiss.padding(.horizontal, theme.gap)
-                            Text(copy("explanation")).font(theme.captionFont).padding(.horizontal, theme.gap)
+                            Text(copy("explanation")).rfFont(.caption).padding(.horizontal, theme.gap)
                             if state.mode != .directory { Button(copy("directory")) { onAction(.mode(.directory)) }.padding(.horizontal, theme.gap) }
                             Button(copy("retry")) { onAction(.retry) }.disabled(state.loading).padding(.horizontal, theme.gap)
                         }
@@ -66,7 +66,7 @@ public struct AgentsScreen: View {
             HStack(spacing: 12) {
                 KitIcon(name: "users-round", size: 20, tint: theme.text)
                 Text(copy("multi"))
-                    .font(.custom(theme.font, size: theme.size_mobile_body).weight(.medium))
+                    .rfFont(.size(theme.size_mobile_body), weight: .medium)
                     .foregroundStyle(theme.text)
             }
             .padding(.horizontal, 4)
@@ -82,8 +82,8 @@ public struct AgentsScreen: View {
     private var searchMiss: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             KitStatusHero(icon: "search-x", tag: "agents-empty")
-            Text(copy("empty.title")).font(theme.bodyFont.weight(.semibold))
-            Text(copy("empty.message")).font(theme.captionFont).foregroundStyle(theme.secondary)
+            Text(copy("empty.title")).rfFont(.body, weight: .semibold)
+            Text(copy("empty.message")).rfFont(.caption).foregroundStyle(theme.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .contain)

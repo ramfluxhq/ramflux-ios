@@ -83,10 +83,10 @@ public struct NativeSettingsRepository: SettingsRepository {
     static func refusal(_ capability: SettingsUnavailable) -> AppFailure {
         switch capability {
         case .mobileBackup: .unavailableResource("settings.mobileBackup")
-        case .openAccount: .unavailableResource("copy.b72e06e9393e")
-        case .pairing: .unavailableResource("copy.70336657918f")
-        case .connectedServices: .unavailableResource("copy.cdf40b9785de")
-        case .diagnosticExport: .unavailableResource("copy.e1f1db374598")
+        case .openAccount: .unavailableResource("settings.unavailable.openAccount")
+        case .pairing: .unavailableResource("settings.unavailable.pairing")
+        case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")
+        case .diagnosticExport: .unavailableResource("settings.unavailable.diagnosticExport")
         }
     }
 }

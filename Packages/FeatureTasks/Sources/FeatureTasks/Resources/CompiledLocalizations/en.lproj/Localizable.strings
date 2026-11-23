@@ -18,6 +18,8 @@
 	<string>Capability</string>
 	<key>tasks.confirm</key>
 	<string>Confirm</string>
+	<key>tasks.confirm.summary</key>
+	<string>%1$@ · %2$@ · %3$@</string>
 	<key>tasks.context</key>
 	<string>Tasks belong to a conversation. Select its actual local history.</string>
 	<key>tasks.conversation</key>

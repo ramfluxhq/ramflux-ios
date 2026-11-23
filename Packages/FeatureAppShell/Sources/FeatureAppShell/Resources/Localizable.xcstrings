@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.28f2d4300544": {
+    "common.appName": {
+      "comment": "The product name. Keep it unchanged unless the product has an official localised name.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.446531641e6a": {
+    "shell.loading.accountServices": {
+      "comment": "Progress label while the account service starts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.555b840fbf7c": {
+    "shell.accounts.empty.message": {
+      "comment": "Explains that setting up or unlocking an account happens in the onboarding flow.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.6f3cba5e5a8e": {
+    "settings.devices.title": {
+      "comment": "Title of the list of the user's own linked devices.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,7 +70,8 @@
         }
       }
     },
-    "copy.74a883a037bc": {
+    "settings.title": {
+      "comment": "Title of the Settings screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -82,7 +87,8 @@
         }
       }
     },
-    "copy.79b40467bd3e": {
+    "shell.accounts.empty.title": {
+      "comment": "Title when no account is open on this phone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -98,7 +104,8 @@
         }
       }
     },
-    "copy.7a9453b18943": {
+    "shell.locked.accessibility": {
+      "comment": "Accessibility label of the cover shown over the app while it is locked or inactive.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,7 +121,8 @@
         }
       }
     },
-    "copy.7e1b0d5641f2": {
+    "shell.session.account": {
+      "comment": "Label in front of the identifier of the account in use.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -130,7 +138,8 @@
         }
       }
     },
-    "copy.8a7c8b67fe8b": {
+    "shell.accounts.title": {
+      "comment": "Title of the account picker and of the button that opens it.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -146,7 +155,8 @@
         }
       }
     },
-    "copy.9882e82fed9b": {
+    "shell.unavailable.title": {
+      "comment": "Title when the account service cannot be used.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -162,7 +172,8 @@
         }
       }
     },
-    "copy.b450645debe2": {
+    "common.tab.contacts": {
+      "comment": "Title of the Contacts screen and label of the header button that opens it.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -178,23 +189,8 @@
         }
       }
     },
-    "copy.b5305ec41049": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set up this phone"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "设置此手机"
-          }
-        }
-      }
-    },
-    "copy.cf60a4dcdd09": {
+    "shell.stopped.title": {
+      "comment": "Shown when the account service has been stopped.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -210,7 +206,8 @@
         }
       }
     },
-    "copy.eab0ba7f342e": {
+    "shell.noAccount.title": {
+      "comment": "Shown when no account is selected: choose one, or set up this phone once onboarding is available.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -243,141 +240,393 @@
       }
     },
     "common.nav.contacts": {
+      "comment": "Shortcut in the edit-navigation list that opens Contacts.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Contacts" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "联系人" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contacts"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系人"
+          }
+        }
       }
     },
     "common.nav.settings": {
+      "comment": "Shortcut in the edit-navigation list that opens Settings.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Settings" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "设置" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        }
       }
     },
     "common.nav.tasks": {
+      "comment": "Shortcut in the edit-navigation list that opens Tasks.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Tasks" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "任务" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tasks"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务"
+          }
+        }
       }
     },
     "common.perm.title": {
+      "comment": "Title of the More hub entry for permissions and access.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Permissions and access" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "权限与访问" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions and access"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限与访问"
+          }
+        }
       }
     },
     "settings.more.hub.access.preview": {
+      "comment": "Subtitle of the permissions entry in the More hub, listing what it covers.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "This device, group roles and this action" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "本设备、群组角色和本次操作" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device, group roles and this action"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本设备、群组角色和本次操作"
+          }
+        }
       }
     },
     "settings.more.hub.contacts.preview": {
+      "comment": "Subtitle of the Contacts entry in the More hub.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Existing relationships and safety numbers" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "现有关系与安全号码" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Existing relationships and safety numbers"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现有关系与安全号码"
+          }
+        }
       }
     },
     "settings.more.hub.settings.preview": {
+      "comment": "Subtitle of the Settings entry in the More hub.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Account, service and on-device preferences" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "账号、服务和本机偏好" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account, service and on-device preferences"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账号、服务和本机偏好"
+          }
+        }
       }
     },
     "settings.more.hub.tasks.preview": {
+      "comment": "Subtitle of the Tasks entry in the More hub.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "View tasks and pending items" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "查看任务与待处理事项" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View tasks and pending items"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看任务与待处理事项"
+          }
+        }
       }
     },
     "shell.accounts.preview": {
+      "comment": "Subtitle of the Accounts entry in the More hub.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Switch the account on this phone" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "切换本机账号" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch the account on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换本机账号"
+          }
+        }
       }
     },
     "shell.notices.preview": {
+      "comment": "Subtitle of the open-source notices entry.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Font licenses bundled with this app" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "本应用附带的字体许可" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Font licenses bundled with this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本应用附带的字体许可"
+          }
+        }
       }
     },
     "shell.notices.title": {
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Open-source notices" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "开源声明" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open-source notices"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开源声明"
+          }
+        }
       }
     },
     "shell.more.navigation": {
+      "comment": "More hub entry that opens the edit-navigation screen.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Edit navigation" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "编辑导航" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit navigation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑导航"
+          }
+        }
       }
     },
     "shell.more.navigation.detail": {
+      "comment": "Subtitle of the edit-navigation entry.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Arrange shortcuts" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "整理快捷入口" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrange shortcuts"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "整理快捷入口"
+          }
+        }
       }
     },
     "shell.nav.title": {
+      "comment": "Title of the screen for editing the bottom navigation on the phone.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Edit mobile navigation" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "编辑移动导航" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit mobile navigation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑移动导航"
+          }
+        }
       }
     },
     "shell.nav.note": {
+      "comment": "Note under the edit-navigation list. Keep the separator style natural for the language.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Changes apply immediately · Close when done" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "修改即时生效 · 完成后关闭" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes apply immediately · Close when done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修改即时生效 · 完成后关闭"
+          }
+        }
       }
     },
     "shell.nav.add": {
+      "comment": "Button that adds a shortcut to the bottom navigation.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Add shortcut" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "添加快捷入口" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add shortcut"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加快捷入口"
+          }
+        }
       }
     },
     "shell.nav.core": {
+      "comment": "Note on the edit-navigation screen that the three core tabs cannot be removed.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Messages, Groups and Agents can be reordered but not removed." } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "消息、群组、Agent 可调整顺序，不能移除。" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages, Groups and Agents can be reordered but not removed."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息、群组、Agent 可调整顺序，不能移除。"
+          }
+        }
       }
     },
     "shell.nav.restore": {
+      "comment": "Button that restores the default navigation order. It may wrap or stack in narrow layouts.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Restore defaults" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "恢复默认" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore defaults"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复默认"
+          }
+        }
       }
     },
     "shell.nav.done": {
+      "comment": "Button that closes the edit-navigation screen.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Done" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "完成" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
       }
     },
     "shell.nav.up": {
+      "comment": "Accessibility action that moves a shortcut up one place.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Move up" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "上移" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move up"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上移"
+          }
+        }
       }
     },
     "shell.nav.down": {
+      "comment": "Accessibility action that moves a shortcut down one place.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Move down" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "下移" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move down"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下移"
+          }
+        }
       }
     },
     "shell.nav.remove": {
+      "comment": "Button that removes a shortcut from the bottom navigation.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Remove" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "移除" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
       }
     },
     "shell.nav.lock": {
+      "comment": "Accessibility label of the lock icon on a core tab that cannot be removed.",
       "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Locked" } },
-        "zh-CN": { "stringUnit": { "state": "translated", "value": "已锁定" } }
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已锁定"
+          }
+        }
       }
     }
   }

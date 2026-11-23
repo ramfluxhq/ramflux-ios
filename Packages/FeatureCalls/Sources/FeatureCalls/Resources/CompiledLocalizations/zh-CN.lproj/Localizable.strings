@@ -112,6 +112,8 @@
 	<string>语音中继不可用</string>
 	<key>calls.review</key>
 	<string>审核信令操作</string>
+	<key>calls.row.summary</key>
+	<string>%1$@ · %2$@</string>
 	<key>calls.sequence</key>
 	<string>已观察到的通话版本</string>
 	<key>calls.settings</key>

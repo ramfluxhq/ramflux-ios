@@ -20,12 +20,12 @@ import RFDesign
         defer { display.erase(); window.isHidden = true; window.rootViewController = nil }
         @MainActor func glyph(_ view: UIView) -> RecoveryGlyphView? { if let found = view as? RecoveryGlyphView { return found }; return view.subviews.lazy.compactMap { glyph($0) }.first }
         let first = try XCTUnwrap(glyph(controller.view))
-        XCTAssertEqual(first.accessibilityLabel, FeatureOnboardingStrings.text("copy.043a01d16971", locale: Locale(identifier: "zh-CN"))); XCTAssertTrue(first.display === display)
+        XCTAssertEqual(first.accessibilityLabel, FeatureOnboardingStrings.text("onboarding.phrase.accessibility", locale: Locale(identifier: "zh-CN"))); XCTAssertTrue(first.display === display)
         controller.rootView = root("en-XA", alternate); controller.view.setNeedsLayout(); controller.view.layoutIfNeeded()
         let updated = try XCTUnwrap(glyph(controller.view))
         XCTAssertTrue(updated.display === display); XCTAssertEqual(updated.fontName, DesignFonts.face(for: alternate.font_mono))
         XCTAssertEqual(updated.pointSize, UIFontMetrics(forTextStyle: .body).scaledValue(for: alternate.size_mobile_body))
-        XCTAssertEqual(updated.accessibilityLabel, FeatureOnboardingStrings.text("copy.043a01d16971", locale: Locale(identifier: "en-XA")))
+        XCTAssertEqual(updated.accessibilityLabel, FeatureOnboardingStrings.text("onboarding.phrase.accessibility", locale: Locale(identifier: "en-XA")))
         display.erase(); var accessed = false; display.withDrawingBytes { _ in accessed = true }; XCTAssertFalse(accessed)
     }
     func testStationaryTimelineReconfiguresForHostPresentation() {

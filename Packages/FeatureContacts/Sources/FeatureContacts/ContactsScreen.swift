@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ContactsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -12,87 +13,87 @@ public struct ContactsScreen: View {
     public init(state: ContactsState, onAction: @escaping (ContactsAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureContactsStrings.text("copy.0e9161011702", locale: locale), action: { onAction(.refresh) })], tag: "contacts-header")
-            if state.pendingMutation != nil { Button(FeatureContactsStrings.text("copy.c3f72136e5bb", locale: locale)) { onAction(.retryPendingMutation) }.disabled(state.busy) }
-            if state.loading { ProgressView(FeatureContactsStrings.text("copy.b25dcb116a99", locale: locale)) }
+            KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureContactsStrings.text("common.action.refresh", locale: locale), action: { onAction(.refresh) })], tag: "contacts-header")
+            if state.pendingMutation != nil { Button(FeatureContactsStrings.text("contacts.reconcile", locale: locale)) { onAction(.retryPendingMutation) }.disabled(state.busy) }
+            if state.loading { ProgressView(FeatureContactsStrings.text("contacts.loading", locale: locale)) }
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
             .privacySensitive().rfHidesNavigationBar()
             .sheet(item: Binding(get: { state.pending }, set: { if $0 == nil { onAction(.cancelDecision) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {
-                    Text(pending.request.name).font(theme.bodyFont.weight(.semibold))
-                    Text(pending.request.principal).textSelection(.enabled)
-                    Text(pending.action == .accept ? FeatureContactsStrings.text("copy.e4876d53862c", locale: locale) : FeatureContactsStrings.text("copy.5adf603bb15f", locale: locale))
-                    RFHostConfirmationActions(summary: AppDataStrings.status(pending.action.rawValue, locale: locale) + " · " + pending.request.name + " · " + pending.request.principal, enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
-                    if state.busy { ProgressView(FeatureContactsStrings.text("copy.a17f264ff140", locale: locale)) }
+                    Text(untrusted: pending.request.name).rfFont(.body, weight: .semibold)
+                    KitIdentifierText(pending.request.principal).textSelection(.enabled)
+                    Text(pending.action == .accept ? FeatureContactsStrings.text("contacts.decision.confirmAccept", locale: locale) : FeatureContactsStrings.text("contacts.decision.confirmOther", locale: locale))
+                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(AppDataStrings.status(pending.action.rawValue, locale: locale)), .untrusted(pending.request.name), .identifier(pending.request.principal)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
+                    if state.busy { ProgressView(FeatureContactsStrings.text("contacts.decision.applying", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
             }
     }
     private var title: String {
-        switch state.mode { case .contacts: FeatureContactsStrings.text("copy.b450645debe2", locale: locale); case .strangers: FeatureContactsStrings.text("copy.4ebdb8769377", locale: locale); case .sent: FeatureContactsStrings.text("copy.874d69d66eb2", locale: locale); case .add: FeatureContactsStrings.text("copy.a02ce0df219d", locale: locale); case .profile: FeatureContactsStrings.text("copy.2b5c3d26721a", locale: locale); case .safety: FeatureContactsStrings.text("copy.97a2aa71bc3b", locale: locale); case .request: FeatureContactsStrings.text("copy.115034107ae1", locale: locale) }
+        switch state.mode { case .contacts: FeatureContactsStrings.text("common.tab.contacts", locale: locale); case .strangers: FeatureContactsStrings.text("contacts.strangers.title", locale: locale); case .sent: FeatureContactsStrings.text("contacts.sent.title", locale: locale); case .add: FeatureContactsStrings.text("contacts.add.title", locale: locale); case .profile: FeatureContactsStrings.text("contacts.profile.title", locale: locale); case .safety: FeatureContactsStrings.text("contacts.safety.title", locale: locale); case .request: FeatureContactsStrings.text("contacts.request.title", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.mode {
         case .contacts:
-            HStack { Button(FeatureContactsStrings.text("copy.4ebdb8769377", locale: locale)) { onAction(.mode(.strangers)) }; Button(FeatureContactsStrings.text("copy.874d69d66eb2", locale: locale)) { onAction(.mode(.sent)) }; Spacer(); Button(FeatureContactsStrings.text("copy.9fd728c66c9a", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) } }
-            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: FeatureContactsStrings.text("copy.604bf8eb82d8", locale: locale), tag: "contact-filter")
+            HStack { Button(FeatureContactsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.mode(.strangers)) }; Button(FeatureContactsStrings.text("contacts.sent.title", locale: locale)) { onAction(.mode(.sent)) }; Spacer(); Button(FeatureContactsStrings.text("contacts.add.action", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) } }
+            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: FeatureContactsStrings.text("contacts.filter.placeholder", locale: locale), tag: "contact-filter")
             let filtered = state.visibleContacts
-            if filtered.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("copy.0013e6984bf6", locale: locale), message: FeatureContactsStrings.text("copy.d6aa21ab75ee", locale: locale)) }
+            if filtered.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.empty.message", locale: locale)) }
             ForEach(filtered) { contact in
                 KitConversationRow(contact.displayName, preview: contact.subtitle, time: "", tag: contact.id, action: { onAction(.mode(.profile(contact.id))) }) {
                     KitAvatar(String(contact.displayName.prefix(1)), size: 44, kind: .person, tag: contact.id + "-avatar")
                 }
             }
         case .add:
-            TextField(FeatureContactsStrings.text("copy.cc755b5f1b02", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput()
-            Text(FeatureContactsStrings.text("copy.4d43cecc17d7", locale: locale))
-            Button(FeatureContactsStrings.text("copy.a45f93ef3f36", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty)
+            TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput()
+            Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))
+            Button(FeatureContactsStrings.text("contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty)
         case .strangers, .sent:
-            Text(FeatureContactsStrings.text("copy.7ca1e1523ef9", locale: locale)).font(theme.captionFont)
-            if state.mode == .strangers { Button(FeatureContactsStrings.text("copy.076c195e33c2", locale: locale)) { onAction(.unavailable(.batch)) } }
+            Text(FeatureContactsStrings.text("contacts.strangers.replyNote", locale: locale)).rfFont(.caption)
+            if state.mode == .strangers { Button(FeatureContactsStrings.text("contacts.strangers.batch", locale: locale)) { onAction(.unavailable(.batch)) } }
             let requests = state.visibleRequests
-            if requests.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("copy.29f7a933bca1", locale: locale), message: FeatureContactsStrings.text("copy.eb4cab81786c", locale: locale)) }
+            if requests.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.requests.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.requests.empty.message", locale: locale)) }
             ForEach(requests) { request in requestRow(request) }
         case .request(let id):
             if let request = state.requests.first(where: { $0.id == id }) { requestDetails(request) }
-            else { Text(FeatureContactsStrings.text("copy.b2e254c8cd4a", locale: locale)) }
+            else { Text(FeatureContactsStrings.text("contacts.request.missing", locale: locale)) }
         case .profile(let id):
             if let contact = state.contacts.first(where: { $0.id == id }) {
-                Text(contact.displayName).font(theme.pageFont); Text(contact.id).textSelection(.enabled)
-                Label(contact.verified == true ? FeatureContactsStrings.text("copy.99b52fb41be2", locale: locale) : FeatureContactsStrings.text("copy.13b58a61daec", locale: locale), systemImage: contact.verified == true ? "checkmark.shield" : "shield")
-                Button(FeatureContactsStrings.text("copy.a131c2d2b123", locale: locale)) { onAction(.mode(.safety(id))) }
-            } else { Text(FeatureContactsStrings.text("copy.d911b7040af8", locale: locale)) }
+                Text(untrusted: contact.displayName).rfFont(.page); KitIdentifierText(contact.id).textSelection(.enabled)
+                Label(contact.verified == true ? FeatureContactsStrings.text("contacts.profile.verified", locale: locale) : FeatureContactsStrings.text("contacts.profile.notVerified", locale: locale), systemImage: contact.verified == true ? "checkmark.shield" : "shield")
+                Button(FeatureContactsStrings.text("contacts.profile.viewSafety", locale: locale)) { onAction(.mode(.safety(id))) }
+            } else { Text(FeatureContactsStrings.text("contacts.profile.missing", locale: locale)) }
         case .safety:
             if let safety = state.safety, state.safetyPrincipal != nil, !state.safetyStale {
-                if safety.requiresReview { Label(FeatureContactsStrings.text("copy.5dacc74e46f5", locale: locale), systemImage: "exclamationmark.shield").foregroundStyle(theme.danger) }
-                Text(safety.number).monospaced().textSelection(.enabled)
-                Text(safety.fingerprint).font(theme.captionFont).textSelection(.enabled)
-                Label(safety.verified ? FeatureContactsStrings.text("copy.4f7838402f37", locale: locale) : FeatureContactsStrings.text("copy.151339072593", locale: locale), systemImage: safety.verified ? "checkmark.shield" : "shield")
-                Text(FeatureContactsStrings.text("copy.9c240ce98597", locale: locale))
-                Button(FeatureContactsStrings.text("copy.4b7574aab6d2", locale: locale)) { onAction(.unavailable(.atomicSafetyVerification)) }
-            } else if !state.loading { Text(FeatureContactsStrings.text("copy.1390f67d32c2", locale: locale)) }
+                if safety.requiresReview { Label(FeatureContactsStrings.text("contacts.safety.identityChanged", locale: locale), systemImage: "exclamationmark.shield").foregroundStyle(theme.danger) }
+                KitIdentifierText(safety.number, tag: "contacts-safety-number").textSelection(.enabled)
+                KitIdentifierText(safety.fingerprint, color: theme.secondary, tag: "contacts-safety-fingerprint").textSelection(.enabled)
+                Label(safety.verified ? FeatureContactsStrings.text("contacts.safety.verified", locale: locale) : FeatureContactsStrings.text("contacts.safety.notVerified", locale: locale), systemImage: safety.verified ? "checkmark.shield" : "shield")
+                Text(FeatureContactsStrings.text("contacts.safety.compareInstructions", locale: locale))
+                Button(FeatureContactsStrings.text("contacts.safety.markCompared", locale: locale)) { onAction(.unavailable(.atomicSafetyVerification)) }
+            } else if !state.loading { Text(FeatureContactsStrings.text("contacts.safety.unavailable", locale: locale)) }
         }
     }
     private func requestRow(_ request: ContactRequestRecord) -> some View {
-        KitRow(request.name, action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : request.principal, tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
+        KitRow(RFUntrustedText.clean(request.name), action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : RFIdentifier.display(request.principal), tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
     }
     private func requestDetails(_ request: ContactRequestRecord) -> some View {
         VStack(alignment: .leading, spacing: theme.gap) {
-            Label(FeatureContactsStrings.text("copy.65fd288cba62", locale: locale), systemImage: "exclamationmark.shield")
-            Text(request.name).font(theme.bodyFont.weight(.semibold)); Text(request.principal).textSelection(.enabled)
-            if let number = request.safetyNumber { LabeledContent(FeatureContactsStrings.text("copy.97a2aa71bc3b", locale: locale), value: number) }
-            if let preview = request.preview { Text(preview) }
+            Label(FeatureContactsStrings.text("contacts.request.firstContact", locale: locale), systemImage: "exclamationmark.shield")
+            Text(untrusted: request.name).rfFont(.body, weight: .semibold); KitIdentifierText(request.principal).textSelection(.enabled)
+            if let number = request.safetyNumber { LabeledContent { KitIdentifierText(number) } label: { Text(FeatureContactsStrings.text("contacts.safety.title", locale: locale)) } }
+            if let preview = request.preview { Text(untrusted: preview, kind: .messageBody) }
             Text(AppDataStrings.status(request.state, locale: locale))
             if request.direction == "inbound" && request.state == "pending" {
                 HStack {
-                    Button(FeatureContactsStrings.text("copy.a2d285b35287", locale: locale)) { onAction(.requestDecision(request.id, .decline)) }
-                    Button(FeatureContactsStrings.text("copy.c253f451bdd5", locale: locale)) { onAction(.unavailable(.replyWithoutAcceptance)) }
-                    Button(FeatureContactsStrings.text("copy.89713b9c9c1b", locale: locale)) { onAction(.requestDecision(request.id, .accept)) }
+                    Button(FeatureContactsStrings.text("contacts.request.decline", locale: locale)) { onAction(.requestDecision(request.id, .decline)) }
+                    Button(FeatureContactsStrings.text("common.action.reply", locale: locale)) { onAction(.unavailable(.replyWithoutAcceptance)) }
+                    Button(FeatureContactsStrings.text("contacts.request.accept", locale: locale)) { onAction(.requestDecision(request.id, .accept)) }
                 }.disabled(state.busy || state.unknownMutation)
-                Button(FeatureContactsStrings.text("copy.211d0bb8cf4f", locale: locale), role: .destructive) { onAction(.requestDecision(request.id, .block)) }.disabled(state.busy || state.unknownMutation)
-                Button(FeatureContactsStrings.text("copy.b6ce788d9786", locale: locale)) { onAction(.unavailable(.reporting)) }
+                Button(FeatureContactsStrings.text("contacts.request.block", locale: locale), role: .destructive) { onAction(.requestDecision(request.id, .block)) }.disabled(state.busy || state.unknownMutation)
+                Button(FeatureContactsStrings.text("contacts.request.report", locale: locale)) { onAction(.unavailable(.reporting)) }
             }
         }
     }

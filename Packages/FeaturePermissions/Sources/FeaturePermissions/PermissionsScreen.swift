@@ -14,15 +14,15 @@ public struct PermissionsScreen: View {
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             KitPageHeader(copy("title"), onBack: { dismiss() }, tag: "permissions-header")
-            Text(copy("intro")).font(theme.captionFont)
+            Text(copy("intro")).rfFont(.caption)
             ForEach(DevicePermission.allCases) { permission in
                 VStack(alignment: .leading, spacing: theme.gap / 2) {
                     HStack(alignment: .firstTextBaseline) {
-                        Text(copy(permission.rawValue)).font(theme.bodyFont.weight(.semibold))
+                        Text(copy(permission.rawValue)).rfFont(.body, weight: .semibold)
                         Spacer()
-                        Text(copy("status." + state.snapshot[permission].rawValue)).font(theme.captionFont)
+                        Text(copy("status." + state.snapshot[permission].rawValue)).rfFont(.caption)
                     }
-                    Text(copy(permission.rawValue + ".detail")).font(theme.captionFont).foregroundStyle(theme.secondary)
+                    Text(copy(permission.rawValue + ".detail")).rfFont(.caption).foregroundStyle(theme.secondary)
                 }.padding(theme.gap).background(theme.surface_white, in: .rect(cornerRadius: theme.radius_card))
                     .accessibilityElement(children: .combine)
                     .accessibilityIdentifier("permission-status-" + permission.rawValue)

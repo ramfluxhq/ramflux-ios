@@ -13,8 +13,6 @@ public enum KitMetrics {
     public static let fieldDisabledAlpha: CGFloat = 0.55
     public static let bubbleWidthFraction: CGFloat = 0.78
     public static let agentRadiusRatio: CGFloat = 0.28
-    public static let screen: CGFloat = 393
-    public static let content: CGFloat = 361
     public static let gutter: CGFloat = 16
     public static let lineTight: CGFloat = 1.25
     public static let lineTitle: CGFloat = 1.3
@@ -35,6 +33,7 @@ public enum KitMetrics {
     public static let searchPad: CGFloat = 8
     public static let row: CGFloat = 58
     public static let rowPadV: CGFloat = 8
+    public static let rowPadVWrapped: CGFloat = 16
     public static let conversation: CGFloat = 72
     public static let tabBar: CGFloat = 83
     public static let tab: CGFloat = 44
@@ -66,6 +65,8 @@ public enum KitMetrics {
     public static let segmentedPad: CGFloat = 2
     public static let composerPad: CGFloat = 8
     public static let composerRow: CGFloat = 44
+    /// Lines the draft grows to before it scrolls.
+    public static let composerLines = 6
     public static let capsuleRadius: CGFloat = 20
     public static let capsulePadStart: CGFloat = 16
     public static let capsulePad: CGFloat = 6
@@ -148,7 +149,8 @@ public enum KitMetrics {
     public static let hero: CGFloat = 72
     public static let heroGlyph: CGFloat = 40
     public static let heroRadius: CGFloat = 36
-    public static let approval: CGFloat = 329
+    /// Widest an approval card grows; it shrinks with its container.
+    public static let approvalMax: CGFloat = 329
     public static let approvalPad: CGFloat = 12
     public static let approvalGap: CGFloat = 10
     public static let scopePad: CGFloat = 10

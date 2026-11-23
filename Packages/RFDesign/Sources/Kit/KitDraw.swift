@@ -64,6 +64,8 @@ func kitPath(_ ops: [KitIconOp]) -> Path {
     return path
 }
 
+/// A hand-drawn Lucide icon. Directional icons mirror under right-to-left layout according to
+/// `KitIconMirroring`; callers cannot override it.
 public struct KitIcon: View {
     var name: String
     var size: CGFloat
@@ -83,6 +85,7 @@ public struct KitIcon: View {
             }
         }
         .frame(width: size, height: size)
+        .flipsForRightToLeftLayoutDirection(KitIconMirroring.mirrorsInRightToLeft(name))
         .accessibilityHidden(true)
     }
 }
@@ -101,107 +104,6 @@ struct KitSpinner: View {
             .animation(active ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .none, value: turns)
             .kitTag(tag)
             .onAppear { turns = active }
-    }
-}
-
-func KitLabel(
-    _ text: String,
-    size: CGFloat,
-    weight: Font.Weight,
-    color: Color,
-    line: CGFloat = KitMetrics.lineBody,
-    role: KitFontRole = .ui,
-    tracking: CGFloat = 0,
-    lines: Int? = 1,
-    spacing: CGFloat? = nil
-) -> some View {
-    Text(text)
-        .font(kitFont(size: size, weight: kitWeight(weight), role: role))
-        .foregroundStyle(color)
-        .lineSpacing(spacing ?? kitLineSpacing(size: size, weight: weight, line: line, role: role))
-        .tracking(tracking)
-        .lineLimit(lines)
-}
-
-struct KitFlowText: View {
-    var text: String
-    var size: CGFloat
-    var weight: Font.Weight
-    var color: Color
-    var line: CGFloat
-    var role: KitFontRole
-
-    var body: some View {
-        let weightValue = kitWeight(weight)
-        KitFlowLayout(text: text, size: size, weight: weightValue, line: line, role: role) {
-            Canvas { context, canvasSize in
-                kitDrawFlow(text, in: canvasSize, context: context, size: size, weight: weightValue, line: line, role: role, color: color)
-            }
-        }
-        .accessibilityLabel(text)
-    }
-}
-
-private struct KitFlowLayout: Layout {
-    var text: String
-    var size: CGFloat
-    var weight: CGFloat
-    var line: CGFloat
-    var role: KitFontRole
-
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let width = proposal.width ?? 10_000
-        return kitFlowSize(text: text, size: size, weight: weight, line: line, role: role, width: width)
-    }
-
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        guard let content = subviews.first else { return }
-        content.place(at: bounds.origin, proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
-    }
-}
-
-private func kitFlowAttributes(text: String, size: CGFloat, weight: CGFloat, line: CGFloat, role: KitFontRole, color: Color) -> NSAttributedString {
-    let paragraph = NSMutableParagraphStyle()
-    let height = size * line
-    paragraph.minimumLineHeight = height
-    paragraph.maximumLineHeight = height
-    let channels = kitChannels(color)
-    let cgColor = CGColor(srgbRed: channels.0, green: channels.1, blue: channels.2, alpha: channels.3)
-    let font = kitCTFont(size: size, weight: weight, role: role)
-    return NSAttributedString(string: text, attributes: [
-        kCTFontAttributeName as NSAttributedString.Key: font,
-        kCTForegroundColorAttributeName as NSAttributedString.Key: cgColor,
-        kCTParagraphStyleAttributeName as NSAttributedString.Key: paragraph,
-    ])
-}
-
-private func kitFlowSize(text: String, size: CGFloat, weight: CGFloat, line: CGFloat, role: KitFontRole, width: CGFloat) -> CGSize {
-    if text.isEmpty { return .zero }
-    let attributed = kitFlowAttributes(text: text, size: size, weight: weight, line: line, role: role, color: .black)
-    let framesetter = CTFramesetterCreateWithAttributedString(attributed)
-    var fit = CFRange()
-    let measured = CTFramesetterSuggestFrameSizeWithConstraints(
-        framesetter,
-        CFRange(location: 0, length: 0),
-        nil,
-        CGSize(width: max(width, 1), height: .greatestFiniteMagnitude),
-        &fit
-    )
-    return CGSize(width: min(width, ceil(measured.width)), height: ceil(measured.height))
-}
-
-private func kitDrawFlow(_ text: String, in canvasSize: CGSize, context: GraphicsContext, size: CGFloat, weight: CGFloat, line: CGFloat, role: KitFontRole, color: Color) {
-    let attributed = kitFlowAttributes(text: text, size: size, weight: weight, line: line, role: role, color: color)
-    let framesetter = CTFramesetterCreateWithAttributedString(attributed)
-    let path = CGPath(rect: CGRect(origin: .zero, size: canvasSize), transform: nil)
-    let frame = CTFramesetterCreateFrame(framesetter, CFRange(location: 0, length: 0), path, nil)
-    context.withCGContext { cg in
-        cg.saveGState()
-        cg.textMatrix = .identity
-        cg.translateBy(x: 0, y: canvasSize.height)
-        cg.scaleBy(x: 1, y: -1)
-        CTFrameDraw(frame, cg)
-        cg.restoreGState()
     }
 }
 

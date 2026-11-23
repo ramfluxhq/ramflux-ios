@@ -115,6 +115,7 @@
       }
     },
     "calls.outgoing_ringing": {
+      "comment": "Call state: outgoing call, ringing. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -147,6 +148,7 @@
       }
     },
     "calls.connecting": {
+      "comment": "Call state: the signalling (call setup) is connecting.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -163,6 +165,7 @@
       }
     },
     "calls.active": {
+      "comment": "Call state: the signalling (call setup) is active.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -211,6 +214,7 @@
       }
     },
     "calls.incoming": {
+      "comment": "Call direction: incoming.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -227,6 +231,7 @@
       }
     },
     "calls.outgoing": {
+      "comment": "Call direction: outgoing.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -275,6 +280,7 @@
       }
     },
     "calls.decline": {
+      "comment": "Button that declines an incoming call.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -323,6 +329,7 @@
       }
     },
     "calls.undetermined": {
+      "comment": "Microphone permission state: not asked yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -339,6 +346,7 @@
       }
     },
     "calls.granted": {
+      "comment": "Microphone permission state: allowed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -355,6 +363,7 @@
       }
     },
     "calls.denied": {
+      "comment": "Microphone permission state: denied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -451,6 +460,7 @@
       }
     },
     "calls.speaker": {
+      "comment": "Call control that switches audio to the loudspeaker.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -467,6 +477,7 @@
       }
     },
     "calls.share": {
+      "comment": "Call control that shares the screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -483,6 +494,7 @@
       }
     },
     "calls.peer": {
+      "comment": "Label in front of the other account in a call.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -499,6 +511,7 @@
       }
     },
     "calls.id": {
+      "comment": "Label in front of a technical call identifier.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -515,6 +528,7 @@
       }
     },
     "calls.created": {
+      "comment": "Label in front of the time a call started.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -531,6 +545,7 @@
       }
     },
     "calls.answered": {
+      "comment": "Call outcome: answered.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -547,6 +562,7 @@
       }
     },
     "calls.endedAt": {
+      "comment": "Label in front of the time a call ended.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -563,6 +579,7 @@
       }
     },
     "calls.endReason": {
+      "comment": "Label in front of the reason a call ended.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -579,6 +596,7 @@
       }
     },
     "calls.localFailure": {
+      "comment": "Call end reason: a failure on this device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -595,6 +613,7 @@
       }
     },
     "calls.peerFailure": {
+      "comment": "Call end reason: the other side reported a failure.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -611,6 +630,7 @@
       }
     },
     "calls.declined": {
+      "comment": "Call outcome: declined.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -627,6 +647,7 @@
       }
     },
     "calls.completed": {
+      "comment": "Call outcome: completed normally.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -643,6 +664,7 @@
       }
     },
     "calls.cancelled": {
+      "comment": "Call outcome: cancelled by the caller.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -659,6 +681,7 @@
       }
     },
     "calls.missed": {
+      "comment": "Call outcome: missed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -675,6 +698,7 @@
       }
     },
     "calls.busy": {
+      "comment": "Call outcome: the other person was busy.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -691,6 +715,7 @@
       }
     },
     "calls.timeout": {
+      "comment": "Call outcome: nobody answered.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -707,6 +732,7 @@
       }
     },
     "calls.failed": {
+      "comment": "Call outcome: failed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -723,6 +749,7 @@
       }
     },
     "calls.answered_elsewhere": {
+      "comment": "Call outcome: answered on another device of the same account.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -739,6 +766,7 @@
       }
     },
     "calls.reasonUnknown": {
+      "comment": "Shown when the reason a call ended is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -755,6 +783,7 @@
       }
     },
     "calls.authority_unavailable": {
+      "comment": "Call end reason: the identity service was unavailable.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -771,6 +800,7 @@
       }
     },
     "calls.authority_refused": {
+      "comment": "Call end reason: the identity service refused the call.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -787,6 +817,7 @@
       }
     },
     "calls.relay_unavailable": {
+      "comment": "Call end reason: the voice relay server was unavailable.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -803,6 +834,7 @@
       }
     },
     "calls.media_lease_expired": {
+      "comment": "Call end reason: the permission to use the media relay expired.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -819,6 +851,7 @@
       }
     },
     "calls.daemon_restarted": {
+      "comment": "Call end reason: the account service restarted.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -835,6 +868,7 @@
       }
     },
     "calls.signaling_unavailable": {
+      "comment": "Call end reason: the call setup service was unavailable.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -867,6 +901,7 @@
       }
     },
     "calls.pending": {
+      "comment": "Warning that an earlier call action has no confirmed result yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -883,6 +918,7 @@
       }
     },
     "calls.reconcile": {
+      "comment": "Button that checks the result of a call action whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -899,6 +935,7 @@
       }
     },
     "calls.review": {
+      "comment": "Title of the confirmation for a call action.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -915,6 +952,7 @@
       }
     },
     "calls.account": {
+      "comment": "Label in front of the account identifier on a call detail.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -931,6 +969,7 @@
       }
     },
     "calls.sequence": {
+      "comment": "Label in front of the call version number the app last saw.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -963,6 +1002,7 @@
       }
     },
     "calls.cancel": {
+      "comment": "Button that cancels a pending call action.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -979,6 +1019,7 @@
       }
     },
     "calls.applying": {
+      "comment": "Progress label while a call action is sent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1011,6 +1052,7 @@
       }
     },
     "calls.dial": {
+      "comment": "Header button that starts a voice call.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1027,6 +1069,7 @@
       }
     },
     "calls.conversation": {
+      "comment": "Label in front of the conversation a call belongs to.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1043,6 +1086,7 @@
       }
     },
     "calls.duration": {
+      "comment": "Label in front of a call duration.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1059,6 +1103,7 @@
       }
     },
     "calls.duration %lld": {
+      "comment": "Call duration in seconds.",
       "localizations": {
         "en": {
           "variations": {
@@ -1088,6 +1133,23 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "calls.row.summary": {
+      "comment": "Subtitle of a call row. %1$@ is the direction (Incoming or Outgoing), %2$@ is the call state. Keep or change the separator as natural for the language.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
           }
         }
       }

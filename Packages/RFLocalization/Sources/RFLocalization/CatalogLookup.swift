@@ -46,6 +46,18 @@ public enum CatalogLookup {
         return expanded ? expand(value) : value
     }
 
+    /// Composes a catalog format with typed arguments (`RFSentence`): untrusted text is
+    /// isolated, identifiers stay left to right. The expanded pseudo-locale composes the
+    /// English entry and expands the result once.
+    public static func sentence(_ key: String, _ arguments: [RFTextArgument], bundle source: Bundle, locale: Locale) -> String {
+        let expanded = isExpanded(locale)
+        let lookup = expanded ? Locale(identifier: developmentLanguage) : locale
+        let resolved = resolve(key, in: source, locale: lookup)
+        let template = String(localized: String.LocalizationValue(key), bundle: resolved.bundle, locale: resolved.locale)
+        let value = RFSentence.compose(template, arguments, locale: expanded ? locale : resolved.locale)
+        return expanded ? expand(value) : value
+    }
+
     /// Pseudo-localisation for expansion review, not translation assembly.
     public static func expand(_ value: String) -> String {
         "［" + value + " · " + value + "］"

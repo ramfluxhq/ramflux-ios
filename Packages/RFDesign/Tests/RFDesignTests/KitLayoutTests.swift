@@ -88,6 +88,23 @@ struct KitLayoutTests {
         #expect(near(frames["segments"], nil, 36))
     }
 
+    /// The design's M/Row instance with a two-line value (row--tag) is 92 pt: the text is centred
+    /// with 16 pt above and below. A row whose copy fits keeps the 58 pt master and its 8 pt inset.
+    /// macOS line metrics put a row with a value up to 1 pt above the iOS capture; the Kit capture
+    /// comparison checks the simulator frames against the masters.
+    @Test func wrappedRowUsesTheWrappedInset() {
+        let frames = measure(width: 361) {
+            VStack(spacing: 0) {
+                KitRow("Chrome · macOS", icon: "globe", value: "chat.example.org · 此节点的运营方可以读取这台设备上的消息。", tagLabel: "网页", tag: "wrapped")
+                KitRow("标题", icon: "user-round", value: "说明", tagLabel: "网页", tag: "single")
+            }
+        }
+        let wrapped = frames["wrapped"] ?? .zero
+        let single = frames["single"] ?? .zero
+        #expect(wrapped.width == 361 && abs(wrapped.height - 92) <= 1, "wrapped \(wrapped)")
+        #expect(single.width == 361 && abs(single.height - 58) <= 1, "single \(single)")
+    }
+
     @Test func nestedHitsStayFortyFourInsideTheMasterFrame() {
         let frames = measure(width: 393) {
             VStack {
@@ -199,6 +216,144 @@ struct KitLayoutTests {
         #expect(abs(size.height - 62) < 2.5, "height \(size.height)")
     }
 
+    @Test func mirroringTableNamesOnlyDrawnIcons() {
+        for name in KitIconMirroring.mirrored { #expect(KitIconPaths.glyphs[name] != nil, "\(name) is not a Kit icon") }
+        for name in ["chevron-left", "chevron-right", "reply", "forward"] { #expect(KitIconMirroring.mirrorsInRightToLeft(name)) }
+        for name in ["play", "pause", "check", "check-check", "clock-3", "timer", "history", "arrow-up", "plus", "x", "qr-code", "loader-circle"] {
+            #expect(!KitIconMirroring.mirrorsInRightToLeft(name), "\(name) must not mirror")
+        }
+    }
+
+    /// chevron-right points at x = 15 in its 24 pt box. Mirrored, the point is at x = 9.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func directionalIconsMirrorWithTheLayout(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 24, direction: direction) { KitIcon(name: "chevron-right", size: 24, tint: .black) }
+        let tip = try channel(rep, direction == .rightToLeft ? 9 : 15, 12)
+        let tail = try channel(rep, direction == .rightToLeft ? 15 : 9, 12)
+        #expect(tip < 0.5, "tip \(tip) \(direction)")
+        #expect(tail > 0.5, "tail \(tail) \(direction)")
+    }
+
+    /// clock-3's hand points to the right (x = 16) in both directions.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func neutralIconsKeepTheirDrawing(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 24, direction: direction) { KitIcon(name: "clock-3", size: 24, tint: .black) }
+        #expect(try channel(rep, 15, 12) < 0.5)
+        #expect(try channel(rep, 8, 12) > 0.5)
+    }
+
+    @Test func switchKnobFollowsTheLayoutDirection() throws {
+        let ltr = try render(width: 51) { KitSwitch(checked: true) }
+        let rtl = try render(width: 51, direction: .rightToLeft) { KitSwitch(checked: true) }
+        // The knob is the light disc; the track is the dark primary fill.
+        let ltrTrailing = try channel(ltr, 36, 15), ltrLeading = try channel(ltr, 14, 15)
+        let rtlTrailing = try channel(rtl, 14, 15), rtlLeading = try channel(rtl, 36, 15)
+        #expect(ltrTrailing > ltrLeading, "ltr knob \(ltrTrailing) track \(ltrLeading)")
+        #expect(rtlTrailing > rtlLeading, "rtl knob \(rtlTrailing) track \(rtlLeading)")
+    }
+
+    /// "1 22222222": in left-to-right order the gap between the groups is near the left edge.
+    /// Reversed group order would put it near the right edge. SwiftUI currently resolves a
+    /// digits-only paragraph left to right even without the isolate, so this guards the view;
+    /// BidiTests proves the isolate itself against a forced right-to-left paragraph.
+    @Test(arguments: [LayoutDirection.leftToRight, .rightToLeft])
+    func identifierGroupsStayLeftToRight(_ direction: LayoutDirection) throws {
+        let rep = try render(width: 200, direction: direction) {
+            KitIdentifierText("1 22222222").fixedSize()
+        }
+        var inked: [Bool] = []
+        for x in 0..<200 {
+            var dark = false
+            for y in stride(from: 2, to: 20, by: 1) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { dark = true; break }
+            inked.append(dark)
+        }
+        guard let first = inked.firstIndex(of: true), let last = inked.lastIndex(of: true) else {
+            Issue.record("no ink")
+            return
+        }
+        let gap = (first...last).first { !inked[$0] && $0 > first } ?? last
+        #expect(CGFloat(gap - first) < CGFloat(last - first) * 0.3, "gap at \(gap) in \(first)...\(last) \(direction)")
+    }
+
+    /// Bubbles take their cap from the container: min(token, fraction x width). Short text hugs.
+    @Test(arguments: [CGFloat(320), 393, 744])
+    func bubbleWidthFollowsTheContainer(_ width: CGFloat) {
+        let frames = measure(width: width) {
+            VStack(alignment: .leading) {
+                KitBubble("OK", time: "10:23", tag: "short")
+                KitBubble(String(repeating: "收到，我会把问题逐项回复。", count: 4), time: "10:23", tag: "long")
+            }
+        }
+        let cap = min(RFTheme.light.mobile_bubble_max, width * KitMetrics.bubbleWidthFraction)
+        #expect((frames["short"]?.width ?? 0) < cap * 0.6, "short \(frames["short"]?.width ?? 0)")
+        #expect(abs((frames["long"]?.width ?? 0) - cap) < 0.5, "long \(frames["long"]?.width ?? 0) cap \(cap)")
+    }
+
+    /// Message text aligns by its own direction: Arabic starts at the right in a left-to-right UI,
+    /// English at the left in a right-to-left UI.
+    @Test(arguments: [("مرحبا بك", LayoutDirection.leftToRight, true), ("Hello there", .rightToLeft, false), ("Hello there", .leftToRight, false), ("مرحبا بك", .rightToLeft, true)])
+    func messageTextAlignsByItsContent(_ text: String, _ direction: LayoutDirection, _ expectRight: Bool) throws {
+        let rep = try render(width: 300, direction: direction) { KitMessageText(text, color: .black) }
+        var columns: [Int] = []
+        for x in stride(from: 0, to: 300, by: 2) {
+            for y in stride(from: 4, to: 18, by: 2) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { columns.append(x); break }
+        }
+        guard let first = columns.first, let last = columns.last else { Issue.record("no ink"); return }
+        if expectRight { #expect(first > 150 && last > 280, "ink \(first)...\(last)") } else { #expect(first < 20 && last < 150, "ink \(first)...\(last)") }
+    }
+
+    /// A one-letter stem and a wide extension ("i.wwwwwwwww"): the dense ink is the extension. A
+    /// Latin stem keeps "stem.ext" order in a right-to-left UI (dense ink on the right); an Arabic
+    /// stem reads from the right in either UI direction (dense ink on the left).
+    @Test(arguments: [("i.wwwwwwwww", LayoutDirection.rightToLeft, true), ("i.wwwwwwwww", .leftToRight, true), ("م.wwwwwwwww", .leftToRight, false), ("م.wwwwwwwww", .rightToLeft, false)])
+    func fileNameRowFollowsTheStemDirection(_ name: String, _ direction: LayoutDirection, _ extensionOnRight: Bool) throws {
+        let rep = try render(width: 300, direction: direction) { KitFileName(name, color: .black).fixedSize() }
+        var inked: [Int] = []
+        for x in 0..<300 {
+            for y in stride(from: 4, to: 18, by: 1) where try channel(rep, CGFloat(x), CGFloat(y)) < 0.5 { inked.append(x); break }
+        }
+        guard let first = inked.first, let last = inked.last else { Issue.record("no ink"); return }
+        let third = Double(last - first) / 3
+        let left = inked.filter { Double($0 - first) < third }.count
+        let right = inked.filter { Double(last - $0) < third }.count
+        #expect((right > left) == extensionOnRight, "left \(left) right \(right) \(direction)")
+    }
+
+    @Test func messageLinksAreDetected() {
+        let attributed = KitMessageText.linked("see https://example.org/a and mail")
+        let links = attributed.runs.compactMap(\.link)
+        #expect(links == [URL(string: "https://example.org/a")])
+    }
+
+    /// Text-holding components keep their design minimum at the default size, grow with
+    /// accessibility sizes, and never exceed the container, at 320, 393 and 744 pt and in both
+    /// directions with long copy.
+    @Test(arguments: [CGFloat(320), 393, 744], [DynamicTypeSize.large, .accessibility3])
+    func textHoldingComponentsUseMinimumHeights(_ width: CGFloat, _ size: DynamicTypeSize) {
+        let long = "Verbindungseinstellungen für dieses Gerät überprüfen"
+        for direction in [LayoutDirection.leftToRight, .rightToLeft] {
+            let frames = measure(width: width, size: size, direction: direction) {
+                VStack(spacing: 0) {
+                    KitPageHeader("Einstellungen", onBack: {}, tag: "header")
+                    KitRow(long, icon: "shield", value: long, tag: "row")
+                    KitConversationRow("Maryam", preview: long, time: "10:24", tag: "conversation") { KitAvatar("M", size: 52, kind: .person) }
+                    KitButton(long, action: {}, tag: "button")
+                    KitSearchField(value: .constant(""), placeholder: long, tag: "search")
+                    KitSegmented(labels: ["Code scannen", "Nummer vergleichen"], selected: 0, tag: "segments")
+                    KitTabBar(tabs: [KitTab(icon: "messages-square", label: "Nachrichten"), KitTab(icon: "ellipsis", label: "Mehr")], selected: 0, onSelect: { _ in }, tag: "tabs")
+                }
+            }
+            let minimums: [String: CGFloat] = ["header": 60, "row": 58, "conversation": 72, "button": 52, "search": 36, "segments": 36, "tabs": 83]
+            for (tag, minimum) in minimums {
+                let frame = frames[tag] ?? .zero
+                #expect(frame.height >= minimum - 0.5, "\(tag) \(frame.height) < \(minimum) at \(width) \(size) \(direction)")
+                #expect(frame.width <= width + 0.5, "\(tag) wider than \(width)")
+                // The tab bar minimum includes the home-indicator band; its scaled content still fits in it.
+                if size == .accessibility3 && tag != "tabs" { #expect(frame.height > minimum + 0.5, "\(tag) does not grow at \(width) \(direction)") }
+            }
+        }
+    }
+
     @Test func bundledWeightsSelectTheAxis() {
         for weight in [CGFloat(400), 500, 600, 700] {
             let font = kitCTFont(size: 17, weight: weight, role: .ui)
@@ -218,14 +373,16 @@ private final class Probe {
 }
 
 @MainActor
-private func measure(width: CGFloat, dark: Bool = false, @ViewBuilder content: () -> some View) -> [String: CGSize] {
-    measureHits(width: width, dark: dark, content: content).frames
+private func measure(width: CGFloat, dark: Bool = false, size: DynamicTypeSize = .large, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) -> [String: CGSize] {
+    measureHits(width: width, dark: dark, size: size, direction: direction, content: content).frames
 }
 
 @MainActor
-private func measureHits(width: CGFloat, dark: Bool = false, @ViewBuilder content: () -> some View) -> (frames: [String: CGSize], hits: [String: Bool]) {
+private func measureHits(width: CGFloat, dark: Bool = false, size: DynamicTypeSize = .large, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) -> (frames: [String: CGSize], hits: [String: Bool]) {
     let probe = Probe()
     let root = content()
+        .environment(\.dynamicTypeSize, size)
+        .environment(\.layoutDirection, direction)
         .environment(\.rfTheme, dark ? .dark : .light)
         .environment(\.kitSpinnerAnimated, false)
         .frame(width: width, alignment: .topLeading)
@@ -242,9 +399,10 @@ private func measureHits(width: CGFloat, dark: Bool = false, @ViewBuilder conten
 
 #if canImport(AppKit)
 @MainActor
-private func render(width: CGFloat, dark: Bool = false, pressed: Bool = false, @ViewBuilder content: () -> some View) throws -> NSBitmapImageRep {
+private func render(width: CGFloat, dark: Bool = false, pressed: Bool = false, direction: LayoutDirection = .leftToRight, @ViewBuilder content: () -> some View) throws -> NSBitmapImageRep {
     let theme: RFTheme = dark ? .dark : .light
     let view = content()
+        .environment(\.layoutDirection, direction)
         .environment(\.rfTheme, theme)
         .environment(\.kitPreviewPressed, pressed)
         .environment(\.kitSpinnerAnimated, false)

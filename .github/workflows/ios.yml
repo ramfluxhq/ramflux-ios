@@ -32,6 +32,8 @@ jobs:
           python3 scripts/check-ui-localization.py
           python3 scripts/export-localizations.py --check
           python3 scripts/check-zh-font-glyphs.py
+      - name: Script guard tests
+        run: python3 -m unittest discover -s scripts/tests
       - name: Generate project
         run: xcodegen generate
       - name: Check minimal OS permission declarations

@@ -20,13 +20,12 @@ public struct KitSwitch: View {
 
     public var body: some View {
         KitHit(enabled: enabled, label: label, hitTag: tag.map { $0 + "-hit" }, action: { onChecked(!checked) }) {
-            ZStack(alignment: .leading) {
+            ZStack(alignment: checked ? .trailing : .leading) {
                 Capsule().fill(checked ? theme.primary : theme.line_strong)
                 Circle()
                     .fill(checked ? theme.on_primary : theme.surface_white)
                     .frame(width: KitMetrics.switchKnob, height: KitMetrics.switchKnob)
                     .padding(KitMetrics.switchInset)
-                    .offset(x: checked ? KitMetrics.switchWidth - KitMetrics.switchKnob - KitMetrics.switchInset * 2 : 0)
             }
             .frame(width: KitMetrics.switchWidth, height: KitMetrics.switchHeight)
             .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
@@ -111,17 +110,19 @@ public struct KitSegmented: View {
                         size: theme.size_secondary,
                         weight: on ? .semibold : .regular,
                         color: on ? theme.text : theme.secondary,
-                        line: KitMetrics.lineSecondary
+                        line: KitMetrics.lineSecondary,
+                        lines: nil
                     )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, KitMetrics.tagPadV)
+                    .frame(maxWidth: .infinity, minHeight: KitMetrics.segmented - KitMetrics.segmentedPad * 2)
                     .background { if on { RoundedRectangle(cornerRadius: theme.radius_sm).fill(theme.surface_white) } }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(KitMetrics.segmentedPad)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.segmented)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.segmented)
         .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
         .kitTag(tag)

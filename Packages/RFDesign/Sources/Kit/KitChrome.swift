@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import SwiftUI
+import RFLocalization
 
 public struct KitHeaderAction {
     public var icon: String
@@ -35,7 +36,7 @@ public struct KitStatusBar: View {
     public init(time: String, tag: String? = nil) { self.time = time; self.tag = tag }
     public var body: some View {
         HStack {
-            KitLabel(time, size: theme.size_body, weight: .semibold, color: theme.text, line: KitMetrics.lineBody, role: .latin)
+            KitLabel(time, size: theme.size_body, weight: .semibold, color: theme.text, line: KitMetrics.lineBody, role: .latin, scales: false)
             Spacer(minLength: KitMetrics.statusGap)
             HStack(spacing: KitMetrics.statusGap) {
                 KitIcon(name: "signal", size: KitMetrics.statusIcon, tint: theme.text)
@@ -44,8 +45,7 @@ public struct KitStatusBar: View {
             }
         }
         .padding(.horizontal, KitMetrics.statusPad)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.statusBar)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.statusBar)
         .background(theme.bg)
         .kitTag(tag)
     }
@@ -128,7 +128,7 @@ public struct KitPageHeader: View {
                 KitHit(enabled: true, label: actionLabel, hitTag: tag.map { $0 + "-action" }, action: onAction) {
                     KitLabel(actionLabel, size: theme.size_body, weight: .semibold, color: theme.text, line: KitMetrics.lineBody)
                         .padding(.horizontal, KitMetrics.headerGap)
-                        .frame(height: KitMetrics.hit)
+                        .frame(minHeight: KitMetrics.hit)
                 }
             }
             ForEach(Array(actions.enumerated()), id: \.offset) { _, action in
@@ -137,8 +137,8 @@ public struct KitPageHeader: View {
         }
         .padding(.leading, KitMetrics.gutter)
         .padding(.trailing, large ? KitMetrics.headerGap : KitMetrics.gutter)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.header)
+        .padding(.vertical, KitMetrics.summaryGap)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.header)
         .background(theme.bg)
         .kitHairline(theme.line)
         .kitTag(tag)
@@ -178,7 +178,7 @@ public struct KitChatHeader<Avatar: View>: View {
             KitIconHit(icon: "chevron-left", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.back"), tag: tag.map { $0 + "-back" }, action: onBack)
             avatar
             VStack(alignment: .leading, spacing: 0) {
-                KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
                 if let subtitle, !subtitle.isEmpty {
                     KitLabel(subtitle, size: theme.size_meta, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                 }
@@ -189,8 +189,7 @@ public struct KitChatHeader<Avatar: View>: View {
         }
         .padding(.horizontal, KitMetrics.gutter)
         .padding(.vertical, KitMetrics.headerPadV)
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.header)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.header)
         .background(theme.bg)
         .kitHairline(theme.line)
         .kitTag(tag)
@@ -226,7 +225,8 @@ public struct KitTabBar: View {
                                         .padding(.horizontal, KitMetrics.tabBadgePad)
                                         .frame(minWidth: KitMetrics.tabBadgeMin, minHeight: KitMetrics.tabBadge)
                                         .background(theme.badge, in: RoundedRectangle(cornerRadius: theme.radius_md))
-                                        .offset(x: KitMetrics.badgeX, y: KitMetrics.badgeY)
+                                        .alignmentGuide(.trailing) { $0[.trailing] - KitMetrics.badgeX }
+                                        .alignmentGuide(.top) { $0[.top] - KitMetrics.badgeY }
                                 }
                             }
                             .frame(width: KitMetrics.tabIcon, height: KitMetrics.tabIcon)
@@ -239,18 +239,14 @@ public struct KitTabBar: View {
                                 role: tab.latin ? .latin : .ui
                             )
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: KitMetrics.tab)
+                        .frame(maxWidth: .infinity, minHeight: KitMetrics.tab)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: KitMetrics.hit)
+                    .frame(maxWidth: .infinity, minHeight: KitMetrics.hit)
                 }
             }
             .padding(.top, KitMetrics.tabPadTop)
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.tabBar)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.tabBar, alignment: .top)
         .background(theme.bg)
         .kitHairline(theme.line, top: true)
         .kitTag(tag)

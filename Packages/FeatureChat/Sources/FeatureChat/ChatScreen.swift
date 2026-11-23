@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ChatScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -15,19 +16,19 @@ public struct ChatScreen: View {
             KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, tag: state.conversationID) {
                 KitAvatar(String(state.displayTitle.prefix(1)), size: 36, kind: state.isGroup ? .channel : .person, tag: state.conversationID + "-avatar")
             }
-            if state.loading { ProgressView(FeatureChatStrings.text("copy.aa8730bbb4e3", locale: locale)) }
+            if state.loading { ProgressView(FeatureChatStrings.text("chat.loading", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-            if state.messages.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("copy.f42e0f66017d", locale: locale), message: FeatureChatStrings.text("copy.3b6e2ca67ca5", locale: locale)) }
+            if state.messages.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             #if os(iOS)
-            ChatTimeline(messages: state.messages, isGroup: state.isGroup, onAction: onAction)
+            ChatTimeline(messages: state.messages, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, onAction: onAction)
             #else
-            ScrollView { LazyVStack { ForEach(state.messages) { MessageBubble(message: $0, isGroup: state.isGroup, onAction: onAction) } } }
+            ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, calendar: .current, unreadAnchorID: state.unreadAnchorID), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
             #endif
-            if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("copy.a8a3813c2900", locale: locale) : FeatureChatStrings.text("copy.b486522010d5", locale: locale)).font(theme.captionFont) }
-            if (state.pendingSend != nil || state.held != nil) && !state.sending { Button(FeatureChatStrings.text("copy.87b2e22c1b97", locale: locale)) { onAction(.retrySameSend) } }
+            if let outcome = state.lastSubmission { Text(outcome.state == .submitted ? FeatureChatStrings.text("chat.send.submitted", locale: locale) : FeatureChatStrings.text("chat.send.failed", locale: locale)).rfFont(.caption) }
+            if (state.pendingSend != nil || state.held != nil) && !state.sending { Button(FeatureChatStrings.text("chat.send.retry", locale: locale)) { onAction(.retrySameSend) } }
             KitComposer(
                 value: draft,
-                placeholder: FeatureChatStrings.text("copy.2f77668a9dfb", locale: locale),
+                placeholder: FeatureChatStrings.text("chat.composer.placeholder", locale: locale),
                 onSend: { if composerEnabled { onAction(.send) } },
                 onAttach: { onAction(.unavailableAttachment) },
                 sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -40,22 +41,22 @@ public struct ChatScreen: View {
             #if os(iOS)
             .navigationBarBackButtonHidden(true)
             #endif
-            .toolbar { Button(FeatureChatStrings.text("copy.0e9161011702", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+            .toolbar { Button(FeatureChatStrings.text("common.action.refresh", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
             .sheet(isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
                 if let pending = state.pendingDelete {
-                    let fact = pending.scope == .everyone ? "chat.delete.everyone.fact" : "copy.4ef7d6d3a97d"
-                    let summary = pending.scope == .everyone ? "chat.delete.everyone.summary" : "copy.87e7176a7ce7"
+                    let fact = pending.scope == .everyone ? "chat.delete.everyone.fact" : "chat.delete.mine.fact"
+                    let summary = pending.scope == .everyone ? "chat.delete.everyone.summary" : "chat.delete.mine.summary"
                     RFPage { VStack(alignment: .leading, spacing: theme.gap) {
-                        Text(FeatureChatStrings.text("copy.a45a93aaa69f", locale: locale)).font(theme.pageFont)
+                        Text(FeatureChatStrings.text("chat.delete.mine.title", locale: locale)).rfFont(.page)
                         Text(FeatureChatStrings.text(fact, locale: locale))
-                        Text(pending.messageID).font(theme.captionFont)
-                        RFHostConfirmationActions(summary: FeatureChatStrings.text(summary, locale: locale) + " · " + pending.messageID, enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)
+                        KitIdentifierText(pending.messageID)
+                        RFHostConfirmationActions(summary: RFSentence.compose(FeatureChatStrings.text("chat.delete.confirmSummary", locale: locale), [.localized(FeatureChatStrings.text(summary, locale: locale)), .identifier(pending.messageID)], locale: locale), enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)
                     }.padding(theme.gap) }
                 }
             }
             .sheet(isPresented: Binding(get: { state.reactionTarget != nil }, set: { if !$0 { onAction(.cancelReaction) } })) {
                 RFPage { VStack(alignment: .leading, spacing: theme.gap) {
-                    Text(FeatureChatStrings.text("chat.reaction.title", locale: locale)).font(theme.pageFont)
+                    Text(FeatureChatStrings.text("chat.reaction.title", locale: locale)).rfFont(.page)
                     Button(FeatureChatStrings.text(state.reactionRemove ? "chat.reaction.remove" : "chat.reaction.add", locale: locale)) { onAction(.reactionMode(!state.reactionRemove)) }
                     ForEach(ChatReactionPalette.tokens, id: \.self) { token in
                         Button(token) { onAction(state.reactionRemove ? .removeReaction(token) : .chooseReaction(token)) }

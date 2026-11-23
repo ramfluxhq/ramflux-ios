@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.01fad993ff61": {
+    "chat.message.react": {
+      "comment": "Menu action on a message that adds an emoji reaction.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.0e9161011702": {
+    "common.action.refresh": {
+      "comment": "Button that reloads the current screen from the account service.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.2f77668a9dfb": {
+    "chat.composer.placeholder": {
+      "comment": "Placeholder in the empty message field.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.3b6e2ca67ca5": {
+    "chat.empty.message": {
+      "comment": "Explanation in an empty conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,7 +70,8 @@
         }
       }
     },
-    "copy.464c4ffd019e": {
+    "chat.message.edit": {
+      "comment": "Menu action on an own message that edits its text.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -82,7 +87,8 @@
         }
       }
     },
-    "copy.4ef7d6d3a97d": {
+    "chat.delete.mine.fact": {
+      "comment": "Warning when deleting a message only from the user's own devices: copies on other people's devices remain.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -98,7 +104,8 @@
         }
       }
     },
-    "copy.7e94d4b9a46b": {
+    "chat.message.deleted": {
+      "comment": "Placeholder for a message that was deleted.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,7 +121,8 @@
         }
       }
     },
-    "copy.83ceae7197e5": {
+    "chat.message.callHistory": {
+      "comment": "Label of a call-history entry in the conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -130,7 +138,8 @@
         }
       }
     },
-    "copy.87b2e22c1b97": {
+    "chat.send.retry": {
+      "comment": "Button that retries a send whose outcome is unknown, reusing the original operation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -146,7 +155,8 @@
         }
       }
     },
-    "copy.87e7176a7ce7": {
+    "chat.delete.mine.summary": {
+      "comment": "Summary of the confirmation that deletes a message from the user's own devices.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -162,23 +172,8 @@
         }
       }
     },
-    "copy.8a7b78a5873c": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The account service reported delivery failed. The original operation is retained."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "账户服务报告发送失败。原始操作已保留。"
-          }
-        }
-      }
-    },
-    "copy.a45a93aaa69f": {
+    "chat.delete.mine.title": {
+      "comment": "Question asking to confirm deletion from the user's own devices.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -194,7 +189,8 @@
         }
       }
     },
-    "copy.a8a3813c2900": {
+    "chat.send.submitted": {
+      "comment": "Status after a message was handed to the account service.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -210,7 +206,8 @@
         }
       }
     },
-    "copy.aa8730bbb4e3": {
+    "chat.loading": {
+      "comment": "Progress label while messages load.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -226,7 +223,8 @@
         }
       }
     },
-    "copy.b486522010d5": {
+    "chat.send.failed": {
+      "comment": "Status when sending a message failed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -242,7 +240,8 @@
         }
       }
     },
-    "copy.c253f451bdd5": {
+    "common.action.reply": {
+      "comment": "Button or menu action that starts a reply to a message or a request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -258,55 +257,8 @@
         }
       }
     },
-    "copy.d406ade2958c": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Attach"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "添加附件"
-          }
-        }
-      }
-    },
-    "copy.d47d7cb0e4f8": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "More"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "更多"
-          }
-        }
-      }
-    },
-    "copy.d6e645b7d2b2": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Call"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "通话"
-          }
-        }
-      }
-    },
-    "copy.f42e0f66017d": {
+    "chat.empty.title": {
+      "comment": "Title of an empty conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -322,7 +274,8 @@
         }
       }
     },
-    "copy.f67cb7740d52": {
+    "chat.message.deleteMine": {
+      "comment": "Menu action that deletes a message from the user's own devices only.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,23 +291,8 @@
         }
       }
     },
-    "copy.f6f4688ff23d": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Send"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发送"
-          }
-        }
-      }
-    },
     "chat.delete.everyone": {
+      "comment": "Menu action that deletes a message for everyone in the conversation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -387,6 +325,7 @@
       }
     },
     "chat.delete.everyone.summary": {
+      "comment": "Summary of the confirmation that deletes a message for everyone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -403,6 +342,7 @@
       }
     },
     "chat.reply.banner": {
+      "comment": "Banner above the composer while a reply is being written.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -419,6 +359,7 @@
       }
     },
     "chat.edit.banner": {
+      "comment": "Banner above the composer while an own message is being edited.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -435,6 +376,7 @@
       }
     },
     "chat.composer.cancel": {
+      "comment": "Button in the composer that cancels a reply or an edit.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -483,6 +425,7 @@
       }
     },
     "chat.reaction.title": {
+      "comment": "Title of the emoji reaction picker.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -499,6 +442,7 @@
       }
     },
     "chat.edited": {
+      "comment": "Small label on a message that was edited.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -515,6 +459,7 @@
       }
     },
     "chat.reply.quote": {
+      "comment": "Small label above the quoted message inside a reply.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -526,6 +471,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "回复"
+          }
+        }
+      }
+    },
+    "chat.timeline.unreadDivider": {
+      "comment": "Divider in the chat timeline above the first unread message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unread messages below"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下为未读消息"
+          }
+        }
+      }
+    },
+    "chat.delete.confirmSummary": {
+      "comment": "Delete confirmation summary. %1$@ is the action summary, %2$@ is the message id shown left to right.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
           }
         }
       }

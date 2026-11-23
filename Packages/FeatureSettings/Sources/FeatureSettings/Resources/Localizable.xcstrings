@@ -3,6 +3,7 @@
   "version": "1.0",
   "strings": {
     "backup.jobSummary": {
+      "comment": "Summary of a backup job. The first %@ is the job kind (Backup or Restore), the second is its state. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -19,6 +20,7 @@
       }
     },
     "calls.title": {
+      "comment": "Settings row that opens the Calls section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -35,6 +37,7 @@
       }
     },
     "cards.title": {
+      "comment": "Settings row that opens interactive cards (rich message cards with buttons).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.01a234cb80c4": {
+    "settings.devices.link": {
+      "comment": "Button that starts linking a new device to this account.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,7 +70,8 @@
         }
       }
     },
-    "copy.0370bcb8f79e": {
+    "settings.privacy.retention.save": {
+      "comment": "Button that saves the chosen message retention period.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -82,23 +87,8 @@
         }
       }
     },
-    "copy.048d49a605a8": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verify encrypted archive"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "验证加密归档"
-          }
-        }
-      }
-    },
-    "copy.0e9161011702": {
+    "common.action.refresh": {
+      "comment": "Button that reloads the current screen from the account service.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,7 +104,8 @@
         }
       }
     },
-    "copy.103639eac40d": {
+    "settings.nodes.empty": {
+      "comment": "Shown when the account service returned no saved nodes (servers).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -130,7 +121,8 @@
         }
       }
     },
-    "copy.1440cdc8faae": {
+    "settings.nodes.useAsDefault": {
+      "comment": "Button that makes this node the default.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -146,39 +138,8 @@
         }
       }
     },
-    "copy.150d3477a59a": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Import and verify"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "导入并验证"
-          }
-        }
-      }
-    },
-    "copy.16b8400e47c7": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Archives are encrypted. Keep the backup passphrase separate from the archive."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "归档经过加密。请将备份口令与归档分开保存。"
-          }
-        }
-      }
-    },
-    "copy.18a702c5399d": {
+    "settings.account.lock": {
+      "comment": "Button that locks the account now.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -194,23 +155,8 @@
         }
       }
     },
-    "copy.19766ed6ccb2": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消"
-          }
-        }
-      }
-    },
-    "copy.1ba44456db5e": {
+    "settings.nodes.add": {
+      "comment": "Button that adds a node (server).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -226,7 +172,8 @@
         }
       }
     },
-    "copy.1d70139d93b4": {
+    "settings.busy": {
+      "comment": "Progress label while a settings operation runs.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -242,7 +189,8 @@
         }
       }
     },
-    "copy.20cb3df08ed4": {
+    "settings.devices.revoke.fact": {
+      "comment": "Warning that revoking stops future access but cannot erase what the device already read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -258,7 +206,8 @@
         }
       }
     },
-    "copy.21696a2dd237": {
+    "settings.devices.noAccount": {
+      "comment": "Shown when no account is open, so its devices cannot be listed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -274,7 +223,8 @@
         }
       }
     },
-    "copy.28f2d4300544": {
+    "common.appName": {
+      "comment": "The product name. Keep it unchanged unless the product has an official localised name.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -290,7 +240,8 @@
         }
       }
     },
-    "copy.2aeef869fc03": {
+    "settings.devices.webOriginWarning": {
+      "comment": "Warning on a web device: the operator of that website can read its messages in plain text.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -306,7 +257,8 @@
         }
       }
     },
-    "copy.32c46f7c19e7": {
+    "settings.backup.title": {
+      "comment": "Title of the Backup and recovery settings section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -322,7 +274,8 @@
         }
       }
     },
-    "copy.3907fa7f8072": {
+    "settings.appearance.theme": {
+      "comment": "Label of the picker for light, dark or system appearance.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,7 +291,8 @@
         }
       }
     },
-    "copy.495799da310f": {
+    "settings.privacy.openAccount": {
+      "comment": "Button for letting others reach this account by open account or username.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -354,7 +308,8 @@
         }
       }
     },
-    "copy.4d9b709adaef": {
+    "settings.about.exportDiagnostics": {
+      "comment": "Button that exports diagnostics with private data removed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -370,7 +325,8 @@
         }
       }
     },
-    "copy.509c3e500d38": {
+    "settings.loading": {
+      "comment": "Progress label while settings load.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -386,39 +342,8 @@
         }
       }
     },
-    "copy.53a6e343d08e": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open this account and wait for the attended session before starting a backup."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请打开此账户，等待前台会话就绪后再开始备份。"
-          }
-        }
-      }
-    },
-    "copy.53e6cce56bee": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share encrypted backup"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "共享加密备份"
-          }
-        }
-      }
-    },
-    "copy.548139b9e4bc": {
+    "settings.devices.revoke": {
+      "comment": "Button and confirmation summary for removing a linked device from the account.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -434,7 +359,8 @@
         }
       }
     },
-    "copy.54a57c3147c4": {
+    "settings.privacy.title": {
+      "comment": "Title of the Privacy settings section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -450,7 +376,8 @@
         }
       }
     },
-    "copy.5548cdf42bc6": {
+    "settings.about.title": {
+      "comment": "Title of the About and diagnostics settings section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -466,7 +393,8 @@
         }
       }
     },
-    "copy.5da7ca5ffda2": {
+    "settings.connectedServices.title": {
+      "comment": "Title of the Connected services settings section (outside apps that can request actions).",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -482,23 +410,8 @@
         }
       }
     },
-    "copy.60acc53f13a5": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dark"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "深色"
-          }
-        }
-      }
-    },
-    "copy.61c34ddaed9f": {
+    "settings.nodes.default": {
+      "comment": "Subtitle of the default node.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -514,23 +427,8 @@
         }
       }
     },
-    "copy.6491d8373952": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The SDK will install the archive's account on this phone."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SDK 将在此手机上安装归档中的账户。"
-          }
-        }
-      }
-    },
-    "copy.6725e7bbcd28": {
+    "settings.appearance.system": {
+      "comment": "Appearance option that follows the system light or dark setting.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -546,7 +444,8 @@
         }
       }
     },
-    "copy.68c7da5c0ea2": {
+    "settings.privacy.requireApproval": {
+      "comment": "Button that switches contact requests from automatic acceptance back to manual approval.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -562,7 +461,8 @@
         }
       }
     },
-    "copy.6f3cba5e5a8e": {
+    "settings.devices.title": {
+      "comment": "Title of the list of the user's own linked devices.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -578,23 +478,8 @@
         }
       }
     },
-    "copy.72830405351a": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Account unavailable"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "账户不可用"
-          }
-        }
-      }
-    },
-    "copy.74a883a037bc": {
+    "settings.title": {
+      "comment": "Title of the Settings screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -610,7 +495,8 @@
         }
       }
     },
-    "copy.75081b593d15": {
+    "settings.nodes.disabled": {
+      "comment": "State of a node that is turned off.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -626,7 +512,8 @@
         }
       }
     },
-    "copy.7ac362063b9f": {
+    "settings.nodes.title": {
+      "comment": "Title of the list of nodes (servers) the account can use.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -642,23 +529,8 @@
         }
       }
     },
-    "copy.7e9d26bfdf5c": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create encrypted backup"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "创建加密备份"
-          }
-        }
-      }
-    },
-    "copy.7f920bb639c9": {
+    "settings.privacy.retention.sevenDays": {
+      "comment": "Retention option: messages are kept for seven days.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -674,7 +546,8 @@
         }
       }
     },
-    "copy.8542eab86011": {
+    "settings.connectedServices.manage": {
+      "comment": "Button that opens the management of connected services.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -690,39 +563,8 @@
         }
       }
     },
-    "copy.8802d45c10a5": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The SDK will merge this archive with the existing account and preserve newer records."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SDK 将把此归档合并到现有账户，并保留较新的记录。"
-          }
-        }
-      }
-    },
-    "copy.8b2af02164d1": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose a backup passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "设置备份口令"
-          }
-        }
-      }
-    },
-    "copy.902c4d2aff10": {
+    "settings.about.notificationPrivacy": {
+      "comment": "Note that push notifications carry only a generic alert and no message preview.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -738,7 +580,8 @@
         }
       }
     },
-    "copy.92c1cdfdf4cb": {
+    "settings.nodes.enabled": {
+      "comment": "State of a node that is turned on.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -754,103 +597,8 @@
         }
       }
     },
-    "copy.948d4afeba2b": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh reads actual SDK job status. A submitted job is not reported as completed."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刷新会读取 SDK 的实际任务状态。已提交的任务不会被显示为已完成。"
-          }
-        }
-      }
-    },
-    "copy.953e554960b1": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm revocation"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认撤销"
-          }
-        }
-      }
-    },
-    "copy.967bd624c2d5": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Review restore"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "审核恢复操作"
-          }
-        }
-      }
-    },
-    "copy.a1bcb108941e": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Complete secure input in the iOS app."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请在 iOS 应用中完成安全输入。"
-          }
-        }
-      }
-    },
-    "copy.a1ec4eb88afb": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Review the displayed facts, then tap Confirm"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "核对所显示的事实，然后轻点确认"
-          }
-        }
-      }
-    },
-    "copy.a5032d26d61d": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel job"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消任务"
-          }
-        }
-      }
-    },
-    "copy.a7ba6a12696a": {
+    "settings.devices.linked": {
+      "comment": "Subtitle of a device that is linked to the account but is not this phone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -866,7 +614,8 @@
         }
       }
     },
-    "copy.ab50f8bde1ab": {
+    "settings.about.license": {
+      "comment": "Name of the software licence. Keep the licence identifier \"AGPL-3.0-or-later\" unchanged.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -882,23 +631,8 @@
         }
       }
     },
-    "copy.c031af609a56": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Archive account"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "归档账户"
-          }
-        }
-      }
-    },
-    "copy.c322afd72270": {
+    "settings.account.networkLive": {
+      "comment": "Status: the network connection is working.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -914,23 +648,8 @@
         }
       }
     },
-    "copy.cf211c6c4ba0": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share archive"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "共享归档"
-          }
-        }
-      }
-    },
-    "copy.cfd40d618f8e": {
+    "settings.devices.missing": {
+      "comment": "Shown when a device record can no longer be found; asks to refresh.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -946,7 +665,8 @@
         }
       }
     },
-    "copy.d052579c6a31": {
+    "settings.devices.thisDevice": {
+      "comment": "Subtitle of the device the user is holding.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -962,7 +682,8 @@
         }
       }
     },
-    "copy.d822cfc2d621": {
+    "settings.privacy.retention.label": {
+      "comment": "Label of the picker for how long newly sent messages are kept.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -978,23 +699,8 @@
         }
       }
     },
-    "copy.dbcd5e7bb7a0": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浅色"
-          }
-        }
-      }
-    },
-    "copy.dfe87d5e5bba": {
+    "settings.appearance.title": {
+      "comment": "Title of the Appearance and language settings section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1010,23 +716,8 @@
         }
       }
     },
-    "copy.e58ff986d436": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use a local data passphrase for the installed account. This is separate from the archive passphrase."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请为安装的账户设置本地数据口令。此口令与归档口令不同。"
-          }
-        }
-      }
-    },
-    "copy.e6728991cc16": {
+    "settings.privacy.retention.note": {
+      "comment": "Note that changing retention does not affect messages already sent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1042,23 +733,8 @@
         }
       }
     },
-    "copy.e7611f0537df": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "口令"
-          }
-        }
-      }
-    },
-    "copy.e7e35e2c6b94": {
+    "settings.devices.revoke.title": {
+      "comment": "Question confirming removal of a linked device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1074,7 +750,8 @@
         }
       }
     },
-    "copy.e8e01909593a": {
+    "settings.account.title": {
+      "comment": "Title of the Account and security settings section.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1090,7 +767,8 @@
         }
       }
     },
-    "copy.ececf6457703": {
+    "settings.account.openOrCreate": {
+      "comment": "Button shown when no account is open: open an existing account or create one.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1106,23 +784,8 @@
         }
       }
     },
-    "copy.eea8986208e1": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm this restore"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认此次恢复"
-          }
-        }
-      }
-    },
-    "copy.ef187b43e1da": {
+    "settings.account.networkUnconfirmed": {
+      "comment": "Status: the network connection has not been confirmed.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1138,7 +801,8 @@
         }
       }
     },
-    "copy.f2c50525757d": {
+    "settings.connectedServices.explanation": {
+      "comment": "Explains that connected services can request actions and that each approval shows the exact operation and origin.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1154,7 +818,8 @@
         }
       }
     },
-    "copy.f4faccd0c67d": {
+    "settings.appearance.languageNote": {
+      "comment": "Note that the app language is chosen in the system's per-app language setting.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1170,23 +835,8 @@
         }
       }
     },
-    "copy.f697c1b7ba14": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share encrypted archive"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "共享加密归档"
-          }
-        }
-      }
-    },
-    "copy.f8b8883f0c9d": {
+    "settings.privacy.retention.oneHour": {
+      "comment": "Retention option: messages are kept for one hour.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1202,7 +852,8 @@
         }
       }
     },
-    "copy.fa665d95d29e": {
+    "settings.privacy.retention.oneDay": {
+      "comment": "Retention option: messages are kept for one day.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1218,23 +869,8 @@
         }
       }
     },
-    "copy.fbd0df19e20e": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restore this verified archive?"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要恢复此已验证的归档吗？"
-          }
-        }
-      }
-    },
     "privacy.requestApproval": {
+      "comment": "Current contact-request policy. %@ is the policy, for example Manual approval.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1267,6 +903,7 @@
       }
     },
     "settings.reconcile": {
+      "comment": "Button that checks the result of a settings action whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1299,6 +936,7 @@
       }
     },
     "settings.version": {
+      "comment": "App version line. %1$@ is the version number, %2$@ is the build number.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1315,6 +953,7 @@
       }
     },
     "tasks.title": {
+      "comment": "Settings row that opens Tasks.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1326,6 +965,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "任务"
+          }
+        }
+      }
+    },
+    "settings.devices.revoke.summary": {
+      "comment": "Summary on the confirmation that revokes a linked device. %@ is the device identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke device · %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销设备 · %@"
           }
         }
       }

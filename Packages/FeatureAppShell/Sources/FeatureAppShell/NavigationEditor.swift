@@ -11,6 +11,7 @@ public struct NavigationEditorScreen: View {
     public var onBack: () -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     public init(order: Binding<String>, hidden: Binding<String>, onBack: @escaping () -> Void) {
         self._order = order
@@ -26,7 +27,7 @@ public struct NavigationEditorScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: theme.gap) {
                     Text(copy("shell.nav.note"))
-                        .font(theme.captionFont)
+                        .rfFont(.caption)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     VStack(spacing: 12) {
@@ -42,31 +43,25 @@ public struct NavigationEditorScreen: View {
                         tag: "shell-nav-add"
                     )
                     Text(copy("shell.nav.core"))
-                        .font(theme.captionFont)
+                        .rfFont(.caption)
                         .foregroundStyle(theme.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    // At accessibility text sizes the stacked buttons can be taller than a short
+                    // screen leaves, so they scroll with the content instead of covering it.
+                    if typeSize.isAccessibilitySize { footer.padding(.top, theme.gap) }
                 }
                 .padding(.horizontal, theme.gap)
                 .padding(.top, 20)
                 .padding(.bottom, theme.gap)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            HStack(spacing: theme.gap) {
-                KitButton(
-                    copy("shell.nav.restore"),
-                    action: {
-                        order = ShellShortcuts.defaultOrder
-                        hidden = ""
-                    },
-                    kind: .secondary,
-                    tag: "shell-nav-restore"
-                )
-                KitButton(copy("shell.nav.done"), action: onBack, tag: "shell-nav-done")
+            if !typeSize.isAccessibilitySize {
+                footer
+                    .padding(.horizontal, theme.gap)
+                    .padding(.vertical, NavigationEditorFooter.verticalPadding)
+                    .frame(maxWidth: .infinity, minHeight: NavigationEditorFooter.minimumHeight)
+                    .background(theme.bg)
             }
-            .padding(.horizontal, theme.gap)
-            .frame(maxWidth: .infinity)
-            .frame(height: 74)
-            .background(theme.bg)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(theme.bg.ignoresSafeArea())
@@ -74,11 +69,26 @@ public struct NavigationEditorScreen: View {
         .accessibilityIdentifier("shell-navigation-editor")
     }
 
+    private var footer: some View {
+        NavigationEditorFooter(spacing: theme.gap) {
+            KitButton(
+                copy("shell.nav.restore"),
+                action: {
+                    order = ShellShortcuts.defaultOrder
+                    hidden = ""
+                },
+                kind: .secondary,
+                tag: "shell-nav-restore"
+            )
+            KitButton(copy("shell.nav.done"), action: onBack, tag: "shell-nav-done")
+        }
+    }
+
     private func editorRow(_ id: String, index: Int, last: Int) -> some View {
         let core = ShellShortcuts.isCore(id)
         return HStack(spacing: 0) {
             Text(shortcutLabel(id))
-                .font(theme.bodyFont)
+                .rfFont(.body)
                 .foregroundStyle(theme.text)
                 .frame(maxWidth: .infinity, alignment: .leading)
             KitIconButton(
@@ -106,7 +116,7 @@ public struct NavigationEditorScreen: View {
                 )
             }
         }
-        .frame(height: 64)
+        .frame(minHeight: 64)
         .accessibilityElement(children: .contain)
     }
 
@@ -122,5 +132,53 @@ public struct NavigationEditorScreen: View {
 
     private func copy(_ key: String) -> String {
         FeatureAppShellStrings.text(key, locale: locale)
+    }
+}
+
+/// The editor footer: two buttons side by side at equal widths when every label fits on one
+/// line in half the width, otherwise stacked at full width in reading order. Long labels
+/// (German, Russian, the expanded pseudo-locale) and large text sizes therefore never wrap
+/// inside a half-width button. Placement uses the container's leading edge, so the pair
+/// mirrors under right to left. At accessibility text sizes the screen puts the footer at the
+/// end of the scrolling content instead of pinning it.
+struct NavigationEditorFooter: Layout {
+    /// The design footer is 74 pt high around a 52 pt button: 11 pt above and below.
+    static let minimumHeight: CGFloat = 74
+    static let verticalPadding: CGFloat = 11
+    var spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let ideal = subviews.map { $0.sizeThatFits(.unspecified) }
+        let width = proposal.width ?? ideal.map(\.width).reduce(0, +) + spacing * CGFloat(max(subviews.count - 1, 0))
+        if let column = sideBySideWidth(width, ideal) {
+            let height = subviews.map { $0.sizeThatFits(ProposedViewSize(width: column, height: nil)).height }.max() ?? 0
+            return CGSize(width: width, height: height)
+        }
+        let heights = subviews.map { $0.sizeThatFits(ProposedViewSize(width: width, height: nil)).height }
+        return CGSize(width: width, height: heights.reduce(0, +) + spacing * CGFloat(max(subviews.count - 1, 0)))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let ideal = subviews.map { $0.sizeThatFits(.unspecified) }
+        if let column = sideBySideWidth(bounds.width, ideal) {
+            for (index, subview) in subviews.enumerated() {
+                let x = bounds.minX + CGFloat(index) * (column + spacing)
+                subview.place(at: CGPoint(x: x, y: bounds.midY), anchor: .leading, proposal: ProposedViewSize(width: column, height: bounds.height))
+            }
+            return
+        }
+        var y = bounds.minY
+        for subview in subviews {
+            let height = subview.sizeThatFits(ProposedViewSize(width: bounds.width, height: nil)).height
+            subview.place(at: CGPoint(x: bounds.minX, y: y), anchor: .topLeading, proposal: ProposedViewSize(width: bounds.width, height: height))
+            y += height + spacing
+        }
+    }
+
+    /// The equal column width when every subview's one-line width fits in it.
+    private func sideBySideWidth(_ width: CGFloat, _ ideal: [CGSize]) -> CGFloat? {
+        guard !ideal.isEmpty else { return nil }
+        let column = (width - spacing * CGFloat(ideal.count - 1)) / CGFloat(ideal.count)
+        return ideal.allSatisfy { $0.width <= column } ? column : nil
     }
 }

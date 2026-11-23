@@ -7,7 +7,7 @@ import AppData
 @Suite(.timeLimit(.minutes(1)))
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.446531641e6a"
+        let key = "shell.loading.accountServices"
         let english = FeatureAppShellStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = FeatureAppShellStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureAppShellStrings.text(key, locale: Locale(identifier: "en-XA"))
@@ -18,7 +18,7 @@ struct LocalizationTests {
             let en = reason.message(locale: Locale(identifier: "en")), zh = reason.message(locale: Locale(identifier: "zh-CN")), pseudo = reason.message(locale: Locale(identifier: "en-XA"))
             #expect(zh != en); #expect(pseudo.count > en.count)
         }
-        let key = "copy.9882e82fed9b"
+        let key = "shell.unavailable.title"
         #expect(FeatureAppShellStrings.text(key, locale: Locale(identifier: "zh-CN")) != FeatureAppShellStrings.text(key, locale: Locale(identifier: "en")))
     }
 }

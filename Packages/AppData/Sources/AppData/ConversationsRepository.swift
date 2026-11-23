@@ -34,12 +34,12 @@ public struct NativeConversationsRepository: ConversationsRepository {
         default: nil
         }
     }
-    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.unavailableResource("copy.6bf512f2eab9")) }
+    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.unavailableResource("conversations.unavailable.searchService")) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
 }
 public struct UnavailableConversationsRepository: ConversationsRepository {
     public init() {}
     public func list(account: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.sdkUnavailable) }
-    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.unavailableResource("copy.61e1cb437dd3")) }
+    public func search(account: String, query: String) async -> RepositoryResult<[ConversationRecord]> { .failure(.unavailableResource("conversations.unavailable.search")) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
 }

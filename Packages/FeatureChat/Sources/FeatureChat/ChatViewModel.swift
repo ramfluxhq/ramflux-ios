@@ -161,7 +161,7 @@ import AppData
                     self.state.pendingSend = nil
                     if self.state.draft == attempt.text { self.state.draft = "" }
                     self.emit(.messageSubmitted(outcome.messageID)); self.refresh()
-                } else { self.state.failure = .unavailableResource("FeatureChat.copy.8a7b78a5873c") }
+                } else { self.state.failure = .unavailableResource("chat.send.deliveryFailed") }
             case .failure(let error):
                 self.state.failure = error
                 if error != .outcomeUnknown && error != .offline { self.state.pendingSend = nil }

@@ -36,7 +36,7 @@ public struct KitAvatar: View {
                 if label.isEmpty {
                     KitIcon(name: icon, size: kitAgentGlyph(size), tint: theme.secondary)
                 } else {
-                    KitLabel(label, size: kitPersonInitial(size), weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                    KitLabel(label, size: kitPersonInitial(size), weight: .semibold, color: theme.text, line: KitMetrics.lineTitle, scales: false)
                 }
             case .agent:
                 KitIcon(name: icon, size: kitAgentGlyph(size), tint: theme.on_agent_av)

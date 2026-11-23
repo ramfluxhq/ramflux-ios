@@ -17,7 +17,7 @@ public enum MoreHubItem: Equatable, Sendable {
         case .route(.settings): "common.nav.settings"
         case .route(.notices): "shell.notices.title"
         case .navigation: "shell.more.navigation"
-        case .accounts: "copy.8a7c8b67fe8b"
+        case .accounts: "shell.accounts.title"
         case .route: "common.nav.settings"
         }
     }
@@ -135,11 +135,11 @@ private struct MoreHubRow: View {
                     .background(theme.surface, in: Circle())
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(title)
-                        .font(.custom(theme.font, size: theme.size_mobile_body).weight(.semibold))
+                        .rfFont(.size(theme.size_mobile_body), weight: .semibold)
                         .foregroundStyle(theme.text)
                     if !summary.isEmpty {
                         Text(summary)
-                            .font(.custom(theme.font, size: theme.size_body))
+                            .rfFont(.size(theme.size_body))
                             .foregroundStyle(theme.secondary)
                     }
                 }

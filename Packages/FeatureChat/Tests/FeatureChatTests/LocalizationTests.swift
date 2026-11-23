@@ -5,10 +5,16 @@ import Testing
 @testable import FeatureChat
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let key = "copy.01fad993ff61"
+        let key = "chat.message.react"
         let english = FeatureChatStrings.text(key, locale: Locale(identifier: "en"))
         let chinese = FeatureChatStrings.text(key, locale: Locale(identifier: "zh-CN"))
         let expanded = FeatureChatStrings.text(key, locale: Locale(identifier: "en-XA"))
         #expect(english != key); #expect(chinese != key); #expect(chinese != english); #expect(expanded.count > english.count)
+    }
+    @Test func localeWithoutTranslationsShowsEnglishNotTheKey() {
+        let key = "chat.message.react"
+        let english = FeatureChatStrings.text(key, locale: Locale(identifier: "en"))
+        #expect(FeatureChatStrings.text(key, locale: Locale(identifier: "ar")) == english)
+        #expect(FeatureChatStrings.text(key, locale: Locale(identifier: "de-DE")) == english)
     }
 }

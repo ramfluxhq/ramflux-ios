@@ -2,7 +2,8 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "copy.0013e6984bf6": {
+    "contacts.empty.title": {
+      "comment": "Title when the contact list or the filter result is empty.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -18,7 +19,8 @@
         }
       }
     },
-    "copy.076c195e33c2": {
+    "contacts.strangers.batch": {
+      "comment": "Button that opens actions for several stranger requests at once.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -34,7 +36,8 @@
         }
       }
     },
-    "copy.0e9161011702": {
+    "common.action.refresh": {
+      "comment": "Button that reloads the current screen from the account service.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -50,7 +53,8 @@
         }
       }
     },
-    "copy.115034107ae1": {
+    "contacts.request.title": {
+      "comment": "Title of the screen showing one request from someone who is not a contact.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -66,7 +70,8 @@
         }
       }
     },
-    "copy.1390f67d32c2": {
+    "contacts.safety.unavailable": {
+      "comment": "Shown when the safety number of this contact cannot be read.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -82,7 +87,8 @@
         }
       }
     },
-    "copy.13b58a61daec": {
+    "contacts.profile.notVerified": {
+      "comment": "Status on a contact profile: the contact's identity has not been verified.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -98,7 +104,8 @@
         }
       }
     },
-    "copy.151339072593": {
+    "contacts.safety.notVerified": {
+      "comment": "Status on the safety number screen: not verified yet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -114,23 +121,8 @@
         }
       }
     },
-    "copy.19766ed6ccb2": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消"
-          }
-        }
-      }
-    },
-    "copy.211d0bb8cf4f": {
+    "contacts.request.block": {
+      "comment": "Button that blocks the sender of a request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -146,7 +138,8 @@
         }
       }
     },
-    "copy.29f7a933bca1": {
+    "contacts.requests.empty.title": {
+      "comment": "Title when there are no contact requests.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -162,7 +155,8 @@
         }
       }
     },
-    "copy.2b5c3d26721a": {
+    "contacts.profile.title": {
+      "comment": "Title of a contact's profile screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -178,7 +172,8 @@
         }
       }
     },
-    "copy.4b7574aab6d2": {
+    "contacts.safety.markCompared": {
+      "comment": "Button the user taps after comparing the full safety number with the contact.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -194,7 +189,8 @@
         }
       }
     },
-    "copy.4d43cecc17d7": {
+    "contacts.add.notVerifiedNote": {
+      "comment": "Note that sending a request does not verify the other account.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -210,7 +206,8 @@
         }
       }
     },
-    "copy.4ebdb8769377": {
+    "contacts.strangers.title": {
+      "comment": "Title of the list of requests from people who are not contacts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -226,7 +223,8 @@
         }
       }
     },
-    "copy.4f7838402f37": {
+    "contacts.safety.verified": {
+      "comment": "Status on the safety number screen: verified.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -242,7 +240,8 @@
         }
       }
     },
-    "copy.5adf603bb15f": {
+    "contacts.decision.confirmOther": {
+      "comment": "Question confirming a decline or block decision on an incoming request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -258,7 +257,8 @@
         }
       }
     },
-    "copy.5dacc74e46f5": {
+    "contacts.safety.identityChanged": {
+      "comment": "Warning that the contact's identity changed and the full number must be compared again.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -274,7 +274,8 @@
         }
       }
     },
-    "copy.604bf8eb82d8": {
+    "contacts.filter.placeholder": {
+      "comment": "Placeholder of the field that filters the contact list.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -290,7 +291,8 @@
         }
       }
     },
-    "copy.65fd288cba62": {
+    "contacts.request.firstContact": {
+      "comment": "Label on a first-time request: never contacted before and identity not verified. Keep the separator style natural for the language.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -306,7 +308,8 @@
         }
       }
     },
-    "copy.7ca1e1523ef9": {
+    "contacts.strangers.replyNote": {
+      "comment": "Note that replying to a stranger does not accept the request or add a contact.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -322,7 +325,8 @@
         }
       }
     },
-    "copy.874d69d66eb2": {
+    "contacts.sent.title": {
+      "comment": "Title of the list of requests the user has sent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,7 +342,8 @@
         }
       }
     },
-    "copy.89713b9c9c1b": {
+    "contacts.request.accept": {
+      "comment": "Button that accepts a contact request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -354,7 +359,8 @@
         }
       }
     },
-    "copy.97a2aa71bc3b": {
+    "contacts.safety.title": {
+      "comment": "Title of the safety number screen and label of a safety number value. A safety number is a long number both people compare to verify identities.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -370,7 +376,8 @@
         }
       }
     },
-    "copy.99b52fb41be2": {
+    "contacts.profile.verified": {
+      "comment": "Status on a contact profile: the contact's identity has been verified.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -386,7 +393,8 @@
         }
       }
     },
-    "copy.9c240ce98597": {
+    "contacts.safety.compareInstructions": {
+      "comment": "Instruction to compare the safety number through another trusted channel, such as in person or by phone.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -402,7 +410,8 @@
         }
       }
     },
-    "copy.9fd728c66c9a": {
+    "contacts.add.action": {
+      "comment": "Short button that opens the add-contact screen.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -418,7 +427,8 @@
         }
       }
     },
-    "copy.a02ce0df219d": {
+    "contacts.add.title": {
+      "comment": "Title of the screen for adding a contact.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -434,7 +444,8 @@
         }
       }
     },
-    "copy.a131c2d2b123": {
+    "contacts.profile.viewSafety": {
+      "comment": "Button that opens the contact's safety number.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -450,7 +461,8 @@
         }
       }
     },
-    "copy.a17f264ff140": {
+    "contacts.decision.applying": {
+      "comment": "Progress label while a request decision is applied.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -466,7 +478,8 @@
         }
       }
     },
-    "copy.a2d285b35287": {
+    "contacts.request.decline": {
+      "comment": "Button that declines a contact request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -482,7 +495,8 @@
         }
       }
     },
-    "copy.a45f93ef3f36": {
+    "contacts.add.send": {
+      "comment": "Button that sends a contact request to the entered address.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -498,7 +512,8 @@
         }
       }
     },
-    "copy.b25dcb116a99": {
+    "contacts.loading": {
+      "comment": "Progress label while contacts load.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -514,7 +529,8 @@
         }
       }
     },
-    "copy.b2e254c8cd4a": {
+    "contacts.request.missing": {
+      "comment": "Shown when a request no longer exists; refreshing shows its current status.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -530,7 +546,8 @@
         }
       }
     },
-    "copy.b450645debe2": {
+    "common.tab.contacts": {
+      "comment": "Title of the Contacts screen and label of the header button that opens it.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -546,7 +563,8 @@
         }
       }
     },
-    "copy.b6ce788d9786": {
+    "contacts.request.report": {
+      "comment": "Button that reports the sender of a request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -562,7 +580,8 @@
         }
       }
     },
-    "copy.c253f451bdd5": {
+    "common.action.reply": {
+      "comment": "Button or menu action that starts a reply to a message or a request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -578,7 +597,8 @@
         }
       }
     },
-    "copy.c3f72136e5bb": {
+    "contacts.reconcile": {
+      "comment": "Button that checks the result of a contact action whose outcome is unknown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -594,7 +614,8 @@
         }
       }
     },
-    "copy.cc755b5f1b02": {
+    "contacts.add.address": {
+      "comment": "Field label for the other person's account address.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -610,7 +631,8 @@
         }
       }
     },
-    "copy.d6aa21ab75ee": {
+    "contacts.empty.message": {
+      "comment": "Explains how to add a contact by account address.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -626,7 +648,8 @@
         }
       }
     },
-    "copy.d911b7040af8": {
+    "contacts.profile.missing": {
+      "comment": "Shown when a contact can no longer be found; asks to refresh.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -642,7 +665,8 @@
         }
       }
     },
-    "copy.e4876d53862c": {
+    "contacts.decision.confirmAccept": {
+      "comment": "Question confirming acceptance of a request, which adds the account to contacts.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -658,7 +682,8 @@
         }
       }
     },
-    "copy.eb4cab81786c": {
+    "contacts.requests.empty.message": {
+      "comment": "Explains that incoming requests will be listed here.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -675,6 +700,7 @@
       }
     },
     "request.sentStatus": {
+      "comment": "Status of a sent contact request. %@ is the request state, for example Pending.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -686,6 +712,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "已发送请求 · %@"
+          }
+        }
+      }
+    },
+    "contacts.decision.summary": {
+      "comment": "Summary on the confirmation of a request decision. %1$@ is the decision (Accept, Decline or Block), %2$@ is the sender display name, %3$@ is the sender account identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
           }
         }
       }

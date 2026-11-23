@@ -3,7 +3,7 @@
 // Copyright (c) 2026 Span Brain
 import PackageDescription
 let package = Package(name: "RFDesign", defaultLocalization: "en", platforms: [.iOS(.v18), .macOS(.v15)],
-    products: [.library(name: "RFDesign", targets: ["RFDesign"])], targets: [
-        .target(name: "RFDesign", path: ".", exclude: ["Resources/Localizable.xcstrings", "Resources/KitIcons", "kit-masters.json", "Tests"], sources: ["Generated", "Sources"], resources: [.copy("Resources/Fonts"), .copy("Resources/Themes"), .process("Resources/CompiledLocalizations")]),
-        .testTarget(name: "RFDesignTests", dependencies: ["RFDesign"]),
+    products: [.library(name: "RFDesign", targets: ["RFDesign"])], dependencies: [.package(path: "../RFLocalization")], targets: [
+        .target(name: "RFDesign", dependencies: ["RFLocalization"], path: ".", exclude: ["Resources/Localizable.xcstrings", "Resources/KitIcons", "kit-masters.json", "Tests"], sources: ["Generated", "Sources"], resources: [.copy("Resources/Fonts"), .copy("Resources/Themes"), .process("Resources/CompiledLocalizations")]),
+        .testTarget(name: "RFDesignTests", dependencies: ["RFDesign", "RFLocalization"]),
     ], swiftLanguageModes: [.v6])

@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct OnboardingScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -19,12 +20,12 @@ public struct OnboardingScreen: View {
     }
     private var catalog: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            Text(FeatureOnboardingStrings.text("copy.28f2d4300544", locale: locale)).font(theme.captionFont)
-            Text(state.stage.title(locale: locale)).font(theme.pageFont).accessibilityAddTraits(.isHeader)
+            Text(FeatureOnboardingStrings.text("common.appName", locale: locale)).rfFont(.caption)
+            Text(state.stage.title(locale: locale)).rfFont(.page).accessibilityAddTraits(.isHeader)
             content
-            if state.busy { ProgressView(FeatureOnboardingStrings.text("copy.650cfe3a448f", locale: locale)) }
+            if state.busy { ProgressView(FeatureOnboardingStrings.text("onboarding.busy", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
-            Button(FeatureOnboardingStrings.text("copy.c17bac18b5a6", locale: locale)) { onAction(.cancel) }
+            Button(FeatureOnboardingStrings.text("onboarding.cancel", locale: locale)) { onAction(.cancel) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
     }
     private var createAccount: some View {
@@ -41,11 +42,11 @@ public struct OnboardingScreen: View {
                         tag: "n01-name"
                     )
                     Text(copy("onboarding.n01.node"))
-                        .font(.custom(theme.font, size: theme.size_secondary).weight(.semibold))
+                        .rfFont(.size(theme.size_secondary), weight: .semibold)
                         .foregroundStyle(theme.secondary)
                     nodeCard
                     KitTipBar(copy("onboarding.n01.phrase"), icon: "pencil-line", tag: "n01-phrase")
-                    if state.busy { ProgressView(FeatureOnboardingStrings.text("copy.650cfe3a448f", locale: locale)) }
+                    if state.busy { ProgressView(FeatureOnboardingStrings.text("onboarding.busy", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }
                 .padding(.horizontal, theme.gap)
@@ -57,7 +58,7 @@ public struct OnboardingScreen: View {
                 .padding(.horizontal, theme.gap)
                 .padding(.bottom, 8)
         }
-        .font(theme.bodyFont)
+        .rfFont(.body)
         .foregroundStyle(theme.text)
         .tint(theme.primary)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -70,10 +71,10 @@ public struct OnboardingScreen: View {
                 KitIconTile(icon: "server")
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(node.isDefault ? copy("onboarding.n01.node.official") : node.origin)
-                        .font(.custom(theme.font, size: theme.size_mobile_body))
+                        .rfFont(.size(theme.size_mobile_body))
                         .foregroundStyle(theme.text)
                     Text(copy("onboarding.n01.node.selected"))
-                        .font(.custom(theme.font, size: theme.size_secondary))
+                        .rfFont(.size(theme.size_secondary))
                         .foregroundStyle(theme.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -93,29 +94,29 @@ public struct OnboardingScreen: View {
     @ViewBuilder private var content: some View {
         switch state.stage {
         case .welcome, .launch, .start:
-            Text(FeatureOnboardingStrings.text("copy.57fb564a5f32", locale: locale))
-            action(FeatureOnboardingStrings.text("copy.8b8843897868", locale: locale), .unlockExisting); action(FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale), .create); action(FeatureOnboardingStrings.text("copy.cb4bd1634dfb", locale: locale), .recover)
-            action(FeatureOnboardingStrings.text("copy.5dfe7b2bb38d", locale: locale), .link); action(FeatureOnboardingStrings.text("copy.8e9aff1d599c", locale: locale), .customNode)
+            Text(FeatureOnboardingStrings.text("onboarding.welcome.primaryDevice", locale: locale))
+            action(FeatureOnboardingStrings.text("onboarding.welcome.unlockSaved", locale: locale), .unlockExisting); action(FeatureOnboardingStrings.text("onboarding.create.title", locale: locale), .create); action(FeatureOnboardingStrings.text("onboarding.welcome.recover", locale: locale), .recover)
+            action(FeatureOnboardingStrings.text("onboarding.link.title", locale: locale), .link); action(FeatureOnboardingStrings.text("onboarding.node.choose", locale: locale), .customNode)
         case .create:
             EmptyView()
         case .address, .connection, .defaultNode:
-            TextField(FeatureOnboardingStrings.text("copy.c9aadf9cd263", locale: locale), text: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }))
+            TextField(FeatureOnboardingStrings.text("onboarding.address.field", locale: locale), text: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }))
                 .textFieldStyle(.roundedBorder).rfAddressInput()
-            action(FeatureOnboardingStrings.text("copy.2b0ebbd9991d", locale: locale), .checkAddress)
+            action(FeatureOnboardingStrings.text("onboarding.address.check", locale: locale), .checkAddress)
         case .normalizedAddress, .checkingAddress:
             if let normalized = state.normalized {
-                LabeledContent(FeatureOnboardingStrings.text("copy.db7dc45de14f", locale: locale), value: normalized.entered)
-                LabeledContent(FeatureOnboardingStrings.text("copy.0caae4e9b4c4", locale: locale), value: normalized.origin).textSelection(.enabled)
-                if normalized.changed { Text(FeatureOnboardingStrings.text("copy.e2d11145163b", locale: locale)) }
-                action(FeatureOnboardingStrings.text("copy.1710d243883c", locale: locale), .inspectOrigin)
+                LabeledContent(FeatureOnboardingStrings.text("onboarding.address.entered", locale: locale), value: normalized.entered)
+                LabeledContent(FeatureOnboardingStrings.text("onboarding.address.normalized", locale: locale), value: normalized.origin).textSelection(.enabled)
+                if normalized.changed { Text(FeatureOnboardingStrings.text("onboarding.address.originOnly", locale: locale)) }
+                action(FeatureOnboardingStrings.text("onboarding.address.connect", locale: locale), .inspectOrigin)
             }
         case .identity:
             if let candidate = state.candidate {
-                Text(candidate.origin).textSelection(.enabled)
+                Text(untrusted: candidate.origin).textSelection(.enabled)
                 if let fingerprint = state.visibleNodeFingerprint {
                     Text(FeatureOnboardingStrings.text("node.fingerprintInstructions", locale: locale))
-                    Text(fingerprint).font(theme.captionFont).textSelection(.enabled)
-                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.text("node.confirmFingerprint", locale: locale) + " · " + candidate.origin + " · " + fingerprint, enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
+                    KitIdentifierText(fingerprint, tag: "onboarding-node-fingerprint").textSelection(.enabled)
+                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.confirmFingerprint.summary", [.untrusted(candidate.origin), .identifier(fingerprint)], locale: locale), enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
                     action(FeatureOnboardingStrings.text("node.editOperatorKey", locale: locale), .expectedNodeKeyChanged(""))
                 } else {
                     Text(FeatureOnboardingStrings.text("node.operatorInstructions", locale: locale))
@@ -125,64 +126,64 @@ public struct OnboardingScreen: View {
                 }
             }
         case .saved:
-            Text(FeatureOnboardingStrings.text("copy.2ba256d7a297", locale: locale))
-            action(FeatureOnboardingStrings.text("copy.7ae2c8b71f1a", locale: locale), .setDefault); action(FeatureOnboardingStrings.text("copy.86033f75a4c0", locale: locale), .create)
+            Text(FeatureOnboardingStrings.text("onboarding.node.saved.message", locale: locale))
+            action(FeatureOnboardingStrings.text("onboarding.node.useAsDefault", locale: locale), .setDefault); action(FeatureOnboardingStrings.text("onboarding.create.title", locale: locale), .create)
         case .savePhrase:
-            Text(FeatureOnboardingStrings.text("copy.1b01d88bd34d", locale: locale))
+            Text(FeatureOnboardingStrings.text("onboarding.phrase.keepPrivate", locale: locale))
             if state.displayID != nil {
                 #if os(iOS)
                 securePresentation
                 #else
-                Text(FeatureOnboardingStrings.text("copy.deb375ac99ed", locale: locale))
+                Text(FeatureOnboardingStrings.text("onboarding.phrase.hostRequired", locale: locale))
                 #endif
-                action(FeatureOnboardingStrings.text("copy.5ccd5b11457e", locale: locale), .hidePhrase)
-            } else { action(FeatureOnboardingStrings.text("copy.f23cb9253e3e", locale: locale), .showPhrase) }
+                action(FeatureOnboardingStrings.text("onboarding.phrase.hideAndContinue", locale: locale), .hidePhrase)
+            } else { action(FeatureOnboardingStrings.text("onboarding.phrase.showOnce", locale: locale), .showPhrase) }
         case .confirmPhrase:
-            Text(FeatureOnboardingStrings.text("copy.985536fc1f55", locale: locale))
+            Text(FeatureOnboardingStrings.text("onboarding.confirmPhrase.instructions", locale: locale))
             ForEach(state.positions, id: \.self) { Text(FeatureOnboardingStrings.format("recovery.word.position", $0.formatted(.number.locale(locale)), locale: locale)) }
-            Text(FeatureOnboardingStrings.text("copy.e0e8eed587f2", locale: locale))
-            action(FeatureOnboardingStrings.text("copy.2fcb31c28a31", locale: locale), .continueUnlock)
+            Text(FeatureOnboardingStrings.text("onboarding.phrase.erased", locale: locale))
+            action(FeatureOnboardingStrings.text("onboarding.stage.localUnlock", locale: locale), .continueUnlock)
         case .localUnlock:
             if state.unlockingSavedAccount {
-                TextField(FeatureOnboardingStrings.text("copy.68295d2e45cf", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
-            } else { Text(FeatureOnboardingStrings.text("copy.0896fec51d88", locale: locale)) }
+                TextField(FeatureOnboardingStrings.text("onboarding.localUnlock.accountID", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
+            } else { Text(FeatureOnboardingStrings.text("onboarding.localUnlock.instructions", locale: locale)) }
             #if os(iOS)
-            SecureOnboardingForm(labels: (state.unlockingSavedAccount ? [] : state.positions.enumerated().map { ("word\($0.offset + 1)", FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }) + [("passphrase", FeatureOnboardingStrings.text("copy.5cafb0b934b6", locale: locale))], enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
+            SecureOnboardingForm(labels: (state.unlockingSavedAccount ? [] : state.positions.enumerated().map { ("word\($0.offset + 1)", FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }) + [("passphrase", FeatureOnboardingStrings.text("onboarding.localUnlock.passphrase", locale: locale))], enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
                 .frame(minHeight: theme.composer_min * (state.unlockingSavedAccount ? 3 : 6))
             #else
-            Text(FeatureOnboardingStrings.text("copy.a1bcb108941e", locale: locale))
+            Text(FeatureOnboardingStrings.text("common.secureInput.hostRequired", locale: locale))
             #endif
         case .recover:
             if let metadata = state.metadata, let anchor = metadata.anchor {
-                Text(anchor).textSelection(.enabled)
-                Text(FeatureOnboardingStrings.text("copy.103d79748699", locale: locale))
-                Toggle(FeatureOnboardingStrings.text("copy.cdfc37ac7863", locale: locale), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
+                KitIdentifierText(anchor, tag: "onboarding-recover-fingerprint").textSelection(.enabled)
+                Text(FeatureOnboardingStrings.text("onboarding.recover.warning", locale: locale))
+                Toggle(FeatureOnboardingStrings.text("onboarding.recover.fingerprintChecked", locale: locale), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
                 #if os(iOS)
-                SecureOnboardingForm(labels: [("phrase", FeatureOnboardingStrings.text("copy.41edd3f47328", locale: locale)), ("passphrase", FeatureOnboardingStrings.text("copy.04eef37abc74", locale: locale))], enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
+                SecureOnboardingForm(labels: [("phrase", FeatureOnboardingStrings.text("onboarding.recover.phrase", locale: locale)), ("passphrase", FeatureOnboardingStrings.text("onboarding.recover.existingPassphrase", locale: locale))], enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
                 #endif
             } else {
-                TextField(FeatureOnboardingStrings.text("copy.4a248ed11c79", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
-                Text(FeatureOnboardingStrings.text("copy.10f868719bac", locale: locale))
-                action(FeatureOnboardingStrings.text("copy.63466cf4d5b0", locale: locale), .beginRecovery)
+                TextField(FeatureOnboardingStrings.text("onboarding.recover.accountID", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
+                Text(FeatureOnboardingStrings.text("onboarding.recover.scope", locale: locale))
+                action(FeatureOnboardingStrings.text("onboarding.recover.readFingerprint", locale: locale), .beginRecovery)
             }
         case .complete:
-            if let account = state.completedAccount { Text(account.displayName); Text(account.id).font(theme.captionFont); Text(account.networking == .live ? FeatureOnboardingStrings.text("copy.22965568d22a", locale: locale) : FeatureOnboardingStrings.text("copy.0b547581bb84", locale: locale)) }
-            action(FeatureOnboardingStrings.text("copy.31fbef162594", locale: locale), .done)
+            if let account = state.completedAccount { Text(untrusted: account.displayName); KitIdentifierText(account.id, color: theme.secondary); Text(account.networking == .live ? FeatureOnboardingStrings.text("onboarding.complete.connected", locale: locale) : FeatureOnboardingStrings.text("onboarding.complete.notConnected", locale: locale)) }
+            action(FeatureOnboardingStrings.text("onboarding.complete.continue", locale: locale), .done)
         case .link:
-            Text(FeatureOnboardingStrings.text("copy.a93020e0cfed", locale: locale))
+            Text(FeatureOnboardingStrings.text("onboarding.link.unavailable", locale: locale))
         case .verifying, .restoring, .saving: ProgressView(state.stage.title(locale: locale))
         case .connectionFailed, .verificationFailed, .saveFailed, .configuration, .offline:
-            Text(FeatureOnboardingStrings.text("copy.07af72e6141b", locale: locale))
-            action(FeatureOnboardingStrings.text("copy.1b2db98c4d8d", locale: locale), .customNode)
+            Text(FeatureOnboardingStrings.text("onboarding.connection.preserved", locale: locale))
+            action(FeatureOnboardingStrings.text("onboarding.connection.editAddress", locale: locale), .customNode)
         }
     }
     @ViewBuilder private var nodeChoices: some View {
-        if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("copy.cf339d96c54f", locale: locale)) }
+        if state.nodes.isEmpty { Text(FeatureOnboardingStrings.text("onboarding.node.noneConfirmed", locale: locale)) }
         ForEach(state.nodes) { node in
-            Button { onAction(.nodeSelected(node.id)) } label: { Label(node.origin, systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
+            Button { onAction(.nodeSelected(node.id)) } label: { Label(RFUntrustedText.clean(node.origin), systemImage: state.selectedNodeID == node.id ? "checkmark.circle.fill" : "circle") }
                 .disabled(!node.canCreateAccount || state.busy)
         }
-        action(FeatureOnboardingStrings.text("copy.2afe8ba12d97", locale: locale), .customNode)
+        action(FeatureOnboardingStrings.text("onboarding.node.other", locale: locale), .customNode)
     }
     private func action(_ title: String, _ action: OnboardingAction) -> some View {
         KitButton(title, action: { onAction(action) }, kind: .primary, enabled: !state.busy, tag: title)

@@ -94,21 +94,53 @@ class LocalizationGuardTests(unittest.TestCase):
         self.assertIn('plural two is not a CLDR category of ru', result.stderr)
         self.assertIn('no CLDR plural data for xx', result.stderr)
 
+    def test_bundle_localizations_must_follow_the_catalogs(self):
+        strings = {'a.title': {'comment': 'c', 'localizations': {'en': unit('Title'), 'zh-CN': unit('标题'), 'ar': unit('عنوان')}}}
+        stale = 'info:\n  properties:\n    CFBundleDevelopmentRegion: en\n    CFBundleLocalizations: [en, zh-CN]\n'
+        result = self.check(strings=strings, extra={'project.yml': stale})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("CFBundleLocalizations ['en', 'zh-CN'] must equal the catalog locales ['ar', 'en', 'zh-CN']", result.stderr)
+        current = 'info:\n  properties:\n    CFBundleDevelopmentRegion: en\n    CFBundleLocalizations: [ar, en, zh-CN]\n'
+        self.assertEqual(self.check(strings=strings, extra={'project.yml': current}).returncode, 0)
+        wrong_region = current.replace('Region: en', 'Region: zh-CN')
+        result = self.check(strings=strings, extra={'project.yml': wrong_region})
+        self.assertIn("CFBundleDevelopmentRegion must be the fallback language 'en'", result.stderr)
+
+    def test_identifiers_must_use_the_identifier_view(self):
+        swift = 'Text(safety.number).monospaced()\nText(state.nodeFingerprint)\nText(device.id)\nKitIdentifierText(safety.fingerprint)\nText(contact.displayName)\n'
+        result = self.check(swift=swift)
+        self.assertNotEqual(result.returncode, 0)
+        for identifier in ('safety.number', 'state.nodeFingerprint', 'device.id'):
+            self.assertIn(f"identifier '{identifier}' shown with Text", result.stderr)
+        self.assertNotIn('displayName', result.stderr)
+        self.assertNotIn('safety.fingerprint', result.stderr)
+
     def test_every_key_needs_the_english_fallback(self):
         result = self.check(strings={'a.title': {'comment': 'c', 'localizations': {'zh-CN': unit('标题')}}})
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('a.title: missing in fallback language en', result.stderr)
 
-    def test_new_hashed_or_uncommented_keys_are_rejected_unless_baselined(self):
-        strings = {'copy.0123456789ab': {'localizations': {'en': unit('Old')}}, 'feature.screen.title': {'localizations': {'en': unit('New')}}}
+    def test_uncommented_keys_are_rejected_unless_baselined(self):
+        strings = {'feature.screen.title': {'localizations': {'en': unit('New')}}}
         result = self.check(strings=strings)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('copy.0123456789ab: new hashed key', result.stderr)
         self.assertIn('feature.screen.title: new key without a translator comment', result.stderr)
-        baseline = {'hashed_keys': {'App/Localizable.xcstrings': ['copy.0123456789ab']},
-                    'uncommented_keys': {'App/Localizable.xcstrings': ['copy.0123456789ab', 'feature.screen.title']}}
+        baseline = {'uncommented_keys': {'App/Localizable.xcstrings': ['feature.screen.title']}}
         result = self.check(strings=strings, baseline=baseline)
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_hashed_keys_are_rejected_even_when_listed_or_prefixed(self):
+        strings = {'copy.0123456789ab': {'comment': 'c', 'localizations': {'en': unit('Old')}},
+                   'FeatureChat.copy.89abcdef0123': {'comment': 'c', 'localizations': {'en': unit('Prefixed')}}}
+        baseline = {'hashed_keys': {'App/Localizable.xcstrings': ['copy.0123456789ab']},
+                    'uncommented_keys': {'App/Localizable.xcstrings': ['copy.0123456789ab']}}
+        result = self.check(strings=strings, baseline=baseline, swift='let key = "copy.fedcba987654"\n')
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('copy.0123456789ab: hashed key', result.stderr)
+        self.assertIn('FeatureChat.copy.89abcdef0123: hashed key', result.stderr)
+        self.assertIn("App/Screen.swift: hashed key 'copy.fedcba987654'", result.stderr)
+        readable = {'chat.copy.title': {'comment': 'c', 'localizations': {'en': unit('Copy')}}}
+        self.assertEqual(self.check(strings=readable).returncode, 0)
 
     def test_assembled_localized_text_is_rejected_unless_baselined(self):
         swift = 'let a = FooStrings.text("x", locale: locale) + " · " + name\nlet b = name + FooStrings.text("y", locale: locale)\nlet c = parts.joined(separator: " · ")\nlet d = rows + [(1, FooStrings.text("z", locale: locale))]\n'

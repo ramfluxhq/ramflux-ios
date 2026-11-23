@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct ConversationsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -12,26 +13,26 @@ public struct ConversationsScreen: View {
     public var body: some View {
         RFPage { VStack(spacing: 0) {
             KitPageHeader(
-                FeatureConversationsStrings.text("copy.04d7b4833927", locale: locale),
+                FeatureConversationsStrings.text("common.tab.messages", locale: locale),
                 large: true,
                 subtitle: accountSubtitle,
                 actions: [
-                    KitHeaderAction(icon: "user-round", label: FeatureConversationsStrings.text("copy.b450645debe2", locale: locale), action: { onAction(.contacts) }),
-                    KitHeaderAction(icon: "refresh-cw", label: FeatureConversationsStrings.text("copy.0e9161011702", locale: locale), action: { onAction(.refresh) }),
+                    KitHeaderAction(icon: "user-round", label: FeatureConversationsStrings.text("common.tab.contacts", locale: locale), action: { onAction(.contacts) }),
+                    KitHeaderAction(icon: "refresh-cw", label: FeatureConversationsStrings.text("common.action.refresh", locale: locale), action: { onAction(.refresh) }),
                 ],
                 tag: "messages-header"
             )
-            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.queryChanged($0)) }), placeholder: FeatureConversationsStrings.text("copy.ddf0602b21a7", locale: locale), tag: "message-search")
+            KitSearchField(value: Binding(get: { state.query }, set: { onAction(.queryChanged($0)) }), placeholder: FeatureConversationsStrings.text("conversations.search.placeholder", locale: locale), tag: "message-search")
                 .padding(.horizontal, theme.gap)
                 .padding(.top, 20)
                 .padding(.bottom, 12)
                 .onSubmit { onAction(.search) }
-            if state.loading { ProgressView(FeatureConversationsStrings.text("copy.8d384c507b47", locale: locale)) }
+            if state.loading { ProgressView(FeatureConversationsStrings.text("conversations.loading", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) { onAction(.refresh) } }
-            if state.rows.isEmpty && state.strangersDetail.isEmpty && !state.loading && state.failure == nil { RFUnavailableView(title: FeatureConversationsStrings.text("copy.0d60084f056e", locale: locale), message: FeatureConversationsStrings.text("copy.10eb36925a11", locale: locale)) }
+            if state.rows.isEmpty && state.strangersDetail.isEmpty && !state.loading && state.failure == nil { RFUnavailableView(title: FeatureConversationsStrings.text("conversations.empty.title", locale: locale), message: FeatureConversationsStrings.text("conversations.empty.message", locale: locale)) }
             ScrollView { LazyVStack(spacing: 0) {
                 KitConversationRow(
-                    FeatureConversationsStrings.text("copy.4ebdb8769377", locale: locale),
+                    FeatureConversationsStrings.text("contacts.strangers.title", locale: locale),
                     preview: state.strangersDetail,
                     time: "",
                     badge: badge(state.strangersUnread),
@@ -64,8 +65,7 @@ public struct ConversationsScreen: View {
     private var accountSubtitle: String? {
         let name = state.accountTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { return nil }
-        let current = FeatureConversationsStrings.text("conversations.account.current", locale: locale)
-        return name + " · " + current
+        return FeatureConversationsStrings.sentence("conversations.account.subtitle", [.untrusted(name)], locale: locale)
     }
     private func badge(_ count: UInt?) -> String? {
         guard let count, count > 0 else { return nil }

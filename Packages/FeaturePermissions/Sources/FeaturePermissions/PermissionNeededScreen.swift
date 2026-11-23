@@ -13,7 +13,7 @@ public struct PermissionNeededScreen: View {
     private func copy(_ key: String) -> String { FeaturePermissionsStrings.text(key, locale: locale) }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            Text(copy(permission.rawValue + ".needed")).font(theme.pageFont)
+            Text(copy(permission.rawValue + ".needed")).rfFont(.page)
             Text(copy(permission.rawValue + ".without"))
             Text(copy("denied"))
             Button(copy("cancel"), role: .cancel) { onAction(.dismissNeeded) }.disabled(busy)

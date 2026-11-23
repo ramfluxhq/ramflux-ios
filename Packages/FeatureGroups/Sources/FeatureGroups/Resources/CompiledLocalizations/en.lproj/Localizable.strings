@@ -32,6 +32,8 @@
 	<string>Cancel</string>
 	<key>groups.confirm</key>
 	<string>Confirm this operation</string>
+	<key>groups.confirm.summary</key>
+	<string>%1$@ · %2$@</string>
 	<key>groups.create</key>
 	<string>Create group</string>
 	<key>groups.created</key>

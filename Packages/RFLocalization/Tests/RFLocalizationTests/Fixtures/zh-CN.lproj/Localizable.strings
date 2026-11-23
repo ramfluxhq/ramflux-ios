@@ -1,1 +1,2 @@
 "fixture.greeting" = "你好";
+"fixture.sentence" = "%1$@ 移除了 %2$@";

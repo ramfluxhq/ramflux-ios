@@ -36,8 +36,10 @@ public struct KitSheet<Extra: View>: View {
         let shape = UnevenRoundedRectangle(topLeadingRadius: theme.radius_sheet, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: theme.radius_sheet)
         VStack(spacing: KitMetrics.sheetGap) {
             Capsule().fill(theme.line_strong).frame(width: KitMetrics.grabberWidth, height: KitMetrics.grabberHeight)
-            KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+            KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineBody, lines: nil)
+                .multilineTextAlignment(.center)
             KitLabel(bodyText, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody, lines: nil)
+                .frame(maxWidth: .infinity, alignment: .leading)
             extra
             if showClose { KitButton(closeLabel, action: onClose, kind: .secondary) }
         }
@@ -76,7 +78,7 @@ public struct KitTipBar: View {
             KitLabel(text, size: theme.size_secondary, weight: .regular, color: theme.text, line: KitMetrics.lineSecondary, lines: nil)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if let actionTitle, let onAction {
-                KitLabel(actionTitle, size: theme.size_secondary, weight: .semibold, color: theme.text, line: KitMetrics.lineSecondary)
+                KitLabel(actionTitle, size: theme.size_secondary, weight: .semibold, color: theme.text, line: KitMetrics.lineSecondary, lines: nil)
                     .contentShape(Rectangle())
                     .onTapGesture(perform: onAction)
             }
@@ -189,16 +191,16 @@ public struct KitApprovalCard: View {
         VStack(alignment: .leading, spacing: KitMetrics.approvalGap) {
             HStack(spacing: KitMetrics.headerGap) {
                 KitAvatar("", size: KitMetrics.approvalAvatar, kind: .agent)
-                KitLabel(requester, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary)
+                KitLabel(requester, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                KitLabel(status, size: theme.size_meta, weight: .regular, color: theme.text, line: KitMetrics.lineTitle)
+                KitLabel(status, size: theme.size_meta, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: nil)
                     .padding(.horizontal, KitMetrics.tagPadH)
                     .padding(.vertical, KitMetrics.tagPadV)
                     .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_chip))
             }
-            KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle, lines: nil)
+            KitLabel(title, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineBody, lines: nil)
             VStack(alignment: .leading, spacing: KitMetrics.summaryGap) {
-                KitLabel(scopeLabel, size: theme.size_secondary, weight: .medium, color: theme.text, line: KitMetrics.lineSecondary)
+                KitLabel(scopeLabel, size: theme.size_secondary, weight: .medium, color: theme.text, line: KitMetrics.lineSecondary, lines: nil)
                 KitLabel(scopeDetail, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
             }
             .padding(KitMetrics.scopePad)
@@ -215,7 +217,7 @@ public struct KitApprovalCard: View {
             }
         }
         .padding(KitMetrics.approvalPad)
-        .frame(width: KitMetrics.approval, alignment: .leading)
+        .frame(idealWidth: KitMetrics.approvalMax, maxWidth: KitMetrics.approvalMax, alignment: .leading)
         .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_card))
         .overlay { RoundedRectangle(cornerRadius: theme.radius_card).strokeBorder(theme.line, lineWidth: KitMetrics.stroke) }
         .kitTag(tag)
@@ -234,7 +236,7 @@ public struct KitMonoBlock: View {
     }
     public var body: some View {
         HStack(spacing: KitMetrics.bubbleGap) {
-            KitLabel(value, size: theme.size_body, weight: .regular, color: theme.text, line: KitMetrics.lineBody, role: .mono, lines: nil)
+            KitIdentifierText(value)
                 .frame(maxWidth: .infinity, alignment: .leading)
             KitIconHit(icon: "copy", size: KitMetrics.iconInfo, tint: theme.secondary, label: RFDesignStrings.text("kit.copy"), action: onCopy)
         }
@@ -254,9 +256,9 @@ public struct KitPairingCode: View {
     @Environment(\.rfTheme) private var theme
     public init(_ code: String, tag: String? = nil) { self.code = code; self.tag = tag }
     public var body: some View {
-        KitLabel(code, size: KitMetrics.pairingSize, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle, role: .mono, tracking: KitMetrics.pairingTrack)
-            .frame(maxWidth: .infinity)
-            .frame(height: KitMetrics.pairing)
+        KitIdentifierText(code, style: .code)
+            .padding(.horizontal, KitMetrics.gutter)
+            .frame(maxWidth: .infinity, minHeight: KitMetrics.pairing)
             .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             .kitTag(tag)
     }

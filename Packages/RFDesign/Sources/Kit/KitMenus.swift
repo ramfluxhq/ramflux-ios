@@ -41,7 +41,7 @@ public struct KitContextMenu: View {
                 }
             }
         }
-        .frame(width: KitMetrics.menu)
+        .frame(minWidth: KitMetrics.menu, idealWidth: KitMetrics.menu, maxWidth: KitMetrics.menu)
         .background(theme.overlay, in: shape)
         .overlay { shape.strokeBorder(theme.overlay_border, lineWidth: KitMetrics.stroke) }
         .kitTag(tag)
@@ -74,13 +74,13 @@ private struct MenuRow: View {
         let tint = entry.danger ? theme.danger : theme.text
         KitHit(enabled: true, label: entry.label, hitTag: hitTag, onPress: { holding = $0 }, action: action) {
             HStack(spacing: KitMetrics.headerGap) {
-                KitLabel(entry.label, size: theme.size_mobile_body, weight: .regular, color: tint, line: KitMetrics.lineTitle)
+                KitLabel(entry.label, size: theme.size_mobile_body, weight: .regular, color: tint, line: KitMetrics.lineTitle, lines: nil)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 KitIcon(name: entry.icon, size: KitMetrics.menuIcon, tint: tint)
             }
             .padding(.horizontal, KitMetrics.menuPad)
-            .frame(maxWidth: .infinity)
-            .frame(height: KitMetrics.menuItem)
+            .padding(.vertical, KitMetrics.tagPadV)
+            .frame(maxWidth: .infinity, minHeight: KitMetrics.menuItem)
             .background((holding || previewPressed) ? theme.selected : .clear)
             .kitHairline(hairline ? theme.line : .clear)
         }
@@ -106,7 +106,7 @@ public struct KitReactionBar: View {
         HStack(spacing: KitMetrics.reactionGap) {
             ForEach(Array(reactions.enumerated()), id: \.offset) { index, reaction in
                 KitHit(enabled: true, label: reaction, hitTag: tag.map { "\($0)-\(index)" }, action: { onReaction(index) }) {
-                    KitLabel(reaction, size: theme.size_page, weight: .regular, color: theme.text, line: KitMetrics.lineTitle)
+                    KitLabel(reaction, size: theme.size_page, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, scales: false)
                         .frame(width: KitMetrics.reactionCell, height: KitMetrics.reaction)
                         .kitTag(tag.map { "\($0)-cell-\(index)" })
                 }
@@ -119,7 +119,7 @@ public struct KitReactionBar: View {
             }
         }
         .padding(.horizontal, KitMetrics.reactionPad)
-        .frame(height: KitMetrics.reaction)
+        .frame(minHeight: KitMetrics.reaction)
         .background(theme.overlay, in: shape)
         .overlay { shape.strokeBorder(theme.overlay_border, lineWidth: KitMetrics.stroke) }
         .kitTag(tag)
@@ -132,7 +132,8 @@ public struct KitDateChip: View {
     @Environment(\.rfTheme) private var theme
     public init(_ label: String, tag: String? = nil) { self.label = label; self.tag = tag }
     public var body: some View {
-        KitLabel(label, size: theme.size_meta, weight: .medium, color: theme.secondary, line: KitMetrics.lineTitle)
+        KitLabel(label, size: theme.size_meta, weight: .medium, color: theme.secondary, line: KitMetrics.lineTitle, lines: nil)
+            .multilineTextAlignment(.center)
             .padding(.horizontal, KitMetrics.chipPadH)
             .padding(.vertical, KitMetrics.chipPadV)
             .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_chip))
@@ -150,11 +151,12 @@ public struct KitUnreadDivider: View {
     public var body: some View {
         HStack(spacing: KitMetrics.unreadGap) {
             Rectangle().fill(theme.line_strong).frame(height: KitMetrics.unreadLine)
-            KitLabel(label, size: theme.size_meta, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+            KitLabel(label, size: theme.size_meta, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle, lines: nil)
+                .multilineTextAlignment(.center)
+                .layoutPriority(1)
             Rectangle().fill(theme.line_strong).frame(height: KitMetrics.unreadLine)
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: KitMetrics.unread)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.unread)
         .kitTag(tag)
     }
 }

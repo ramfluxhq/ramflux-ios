@@ -3,6 +3,7 @@
 import SwiftUI
 import AppData
 import RFDesign
+import RFLocalization
 public struct GroupsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -55,8 +56,8 @@ public struct GroupsScreen: View {
                 }
             }
             if let outcome = state.outcome {
-                Text(FeatureGroupsStrings.text(outcome.expired ? "groups.requestExpired" : outcome.waitingForOwner ? "groups.waitingOwner" : "groups.acknowledged", locale: locale)).font(theme.bodyFont.weight(.semibold))
-                Text(outcome.groupID).font(theme.captionFont).textSelection(.enabled)
+                Text(FeatureGroupsStrings.text(outcome.expired ? "groups.requestExpired" : outcome.waitingForOwner ? "groups.waitingOwner" : "groups.acknowledged", locale: locale)).rfFont(.body, weight: .semibold)
+                Text(outcome.groupID).rfFont(.caption).textSelection(.enabled)
                 if outcome.waitingForOwner || outcome.expired { Text(FeatureGroupsStrings.text("groups.waitingOwner.message", locale: locale)) }
             }
             if state.detail != nil && !state.authorityFresh { KitTipBar(FeatureGroupsStrings.text("groups.lastConfirmed", locale: locale), icon: "clock-3", tag: "groups-last-confirmed") }
@@ -78,17 +79,17 @@ public struct GroupsScreen: View {
             if state.visibleGroups.isEmpty && !state.loading && state.failure == nil {
                 VStack(alignment: .leading, spacing: theme.gap) {
                     KitStatusHero(icon: "users", tag: "groups-empty")
-                    Text(FeatureGroupsStrings.text("groups.empty.title", locale: locale)).font(theme.bodyFont.weight(.semibold))
-                    Text(FeatureGroupsStrings.text("groups.empty.message", locale: locale)).font(theme.captionFont).foregroundStyle(theme.secondary)
+                    Text(FeatureGroupsStrings.text("groups.empty.title", locale: locale)).rfFont(.body, weight: .semibold)
+                    Text(FeatureGroupsStrings.text("groups.empty.message", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
                     KitButton(FeatureGroupsStrings.text("groups.create", locale: locale), action: { onAction(.mode(.create)) }, tag: "groups-empty-create")
                 }
             }
             ForEach(state.visibleGroups) { group in groupRow(group) }
             if !state.invitations.isEmpty {
-                Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).font(theme.bodyFont.weight(.semibold))
+                Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
                 ForEach(state.invitations) { invitation in Button(invitation.name ?? invitation.id) { onAction(.mode(.invitation(invitation.id))) } }
             }
-            Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).font(theme.captionFont)
+            Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).rfFont(.caption)
         case .create:
             KitTextField(value: Binding(get: { state.name }, set: { onAction(.name($0)) }), label: FeatureGroupsStrings.text("groups.name", locale: locale), tag: "group-name")
             Text(FeatureGroupsStrings.text("groups.creatorOnly", locale: locale))
@@ -96,7 +97,7 @@ public struct GroupsScreen: View {
         case .detail, .created:
             if case .created = state.mode { Text(FeatureGroupsStrings.text("groups.created.message", locale: locale)) }
             if let detail = state.detail {
-                Text(detail.group.name ?? detail.group.id).font(theme.pageFont)
+                Text(untrusted: detail.group.name ?? detail.group.id).rfFont(.page)
                 Text(detail.group.id).textSelection(.enabled)
                 LabeledContent(FeatureGroupsStrings.text("groups.epoch", locale: locale), value: detail.group.epoch.formatted(.number.locale(locale)))
                 Button(FeatureGroupsStrings.text("groups.members", locale: locale)) { onAction(.mode(.members(detail.group.id))) }
@@ -106,7 +107,7 @@ public struct GroupsScreen: View {
                 if state.canManage {
                     KitTextField(value: Binding(get: { state.name }, set: { onAction(.name($0)) }), label: FeatureGroupsStrings.text("groups.name", locale: locale), tag: "rename-group")
                     Button(FeatureGroupsStrings.text("groups.rename", locale: locale)) { onAction(.prepareRename) }.disabled(state.name.isEmpty || state.busy || state.pending != nil)
-                } else { Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).font(theme.captionFont) }
+                } else { Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).rfFont(.caption) }
                 Button(FeatureGroupsStrings.text("groups.transfer", locale: locale)) { onAction(.unavailable(.ownershipTransfer)) }
                 Button(FeatureGroupsStrings.text("groups.leave", locale: locale)) { onAction(.unavailable(.leave)) }
                 Button(FeatureGroupsStrings.text("groups.historyPolicy", locale: locale)) { onAction(.unavailable(.historyPolicy)) }
@@ -117,9 +118,9 @@ public struct GroupsScreen: View {
                 ForEach(state.memberRows) { row in
                     let member = row.member
                     VStack(alignment: .leading, spacing: theme.gap / 2) {
-                        Text(member.principal.isEmpty ? member.device : member.principal).font(theme.bodyFont.weight(.semibold))
-                        Text(member.device).textSelection(.enabled)
-                        if let root = member.root { Text(root).font(theme.captionFont).textSelection(.enabled) }
+                        Text(untrusted: member.principal.isEmpty ? member.device : member.principal).rfFont(.body, weight: .semibold)
+                        KitIdentifierText(member.device).textSelection(.enabled)
+                        if let root = member.root { Text(root).rfFont(.caption).textSelection(.enabled) }
                         Text(role(member.role))
                         if !member.isActive { Text(FeatureGroupsStrings.text("groups.inactive", locale: locale)) }
                         if row.canManage {
@@ -130,7 +131,7 @@ public struct GroupsScreen: View {
                     }.disabled(state.busy || state.pending != nil)
                 }
                 if state.canManage {
-                    Text(FeatureGroupsStrings.text("groups.add", locale: locale)).font(theme.bodyFont.weight(.semibold))
+                    Text(FeatureGroupsStrings.text("groups.add", locale: locale)).rfFont(.body, weight: .semibold)
                     if state.eligibleContacts.isEmpty { Text(FeatureGroupsStrings.text("groups.addNone", locale: locale)) }
                     ForEach(state.eligibleContacts) { contact in Button(contact.displayName) { onAction(.prepareAdd(contact.id)) }.disabled(state.busy || state.pending != nil) }
                 }
@@ -140,7 +141,7 @@ public struct GroupsScreen: View {
             ForEach(state.requests) { request in VStack(alignment: .leading) { Text(request.id); Text(requestStatus(request)); expiry(request.expiresAt) } }
         case .invitation(let id):
             if let invitation = state.invitations.first(where: { $0.id == id }) {
-                Text(invitation.name ?? invitation.id).font(theme.pageFont); Text(invitation.id)
+                Text(untrusted: invitation.name ?? invitation.id).rfFont(.page); Text(invitation.id)
                 LabeledContent(FeatureGroupsStrings.text("groups.creator", locale: locale), value: invitation.creator)
                 LabeledContent(FeatureGroupsStrings.text("groups.inviter", locale: locale), value: invitation.inviter); expiry(invitation.expiresAt)
                 Button(FeatureGroupsStrings.text("groups.accept", locale: locale)) { onAction(.prepareInvitation(id, true)) }.disabled(state.pending != nil || state.busy)
@@ -153,7 +154,7 @@ public struct GroupsScreen: View {
         }
     }
     private func groupRow(_ group: GroupRecord) -> some View {
-        KitRow(group.name ?? group.id, action: { onAction(.mode(.detail(group.id))) }, icon: "users", value: group.id, tag: group.id)
+        KitRow(RFUntrustedText.clean(group.name ?? group.id), action: { onAction(.mode(.detail(group.id))) }, icon: "users", value: group.id, tag: group.id)
     }
     private func role(_ value: String) -> String { FeatureGroupsStrings.text(["owner","admin","member","bot"].contains(value) ? "groups." + value : "groups.unknownRole", locale: locale) }
     private func requestStatus(_ request: GroupRequestRecord) -> String {
@@ -172,7 +173,9 @@ public struct GroupsScreen: View {
         case .add: "groups.add"
         case .invitation(_, let accept): accept ? "groups.accept" : "groups.decline"
         }
-        return ([FeatureGroupsStrings.text(key, locale: locale)] + facts(change).map(\.value)).joined(separator: " · ")
+        // Fact values are names and identifiers: each is isolated, and the locale's list format joins them.
+        let values = facts(change).map { RFBidi.isolate($0.value) }.formatted(.list(type: .and, width: .narrow).locale(locale))
+        return FeatureGroupsStrings.sentence("groups.confirm.summary", [.localized(FeatureGroupsStrings.text(key, locale: locale)), .localized(values)], locale: locale)
     }
     private func facts(_ change: GroupMutation) -> [RFHostFact] {
         var values = [RFHostFact(id: "account", label: FeatureGroupsStrings.text("groups.account", locale: locale), value: state.accountID), RFHostFact(id: "group", label: FeatureGroupsStrings.text("groups.id", locale: locale), value: change.groupID)]

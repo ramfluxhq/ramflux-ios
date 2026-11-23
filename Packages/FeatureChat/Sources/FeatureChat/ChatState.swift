@@ -20,6 +20,9 @@ public struct ChatState: Equatable, Sendable {
     public var displayTitle = ""
     public var conversationID = ""
     public var messages: [MessageRecord] = []
+    /// The first unread message; the timeline draws the unread divider above it. Nil while the
+    /// data layer supplies no read position.
+    public var unreadAnchorID: String?
     public var draft = ""
     public var loading = false
     public var sending = false

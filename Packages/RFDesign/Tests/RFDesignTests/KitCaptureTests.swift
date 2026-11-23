@@ -158,6 +158,23 @@ struct KitCaptureTests {
     }
 }
 
+extension KitCaptureTests {
+    /// The same components across sample copy (Arabic, right-to-left pseudo, long pseudo), width and
+    /// text size. Files go to `matrix/` under the capture directory; the design comparison reads only
+    /// the top level, where design previews exist.
+    @Test(arguments: KitMatrixVariant.all)
+    func captureKitMatrix(_ variant: KitMatrixVariant) async throws {
+        let boards = KitCatalog.matrix(variant)
+        var images: [(String, Data)] = []
+        try await KitRaster.render(boards) { board, data in images.append((board.name, data)) }
+        let env = ProcessInfo.processInfo.environment
+        guard let dir = env["KIT_CAPTURE_DIR"] ?? env["TEST_RUNNER_KIT_CAPTURE_DIR"] ?? (env["SIMULATOR_UDID"] == nil ? nil : "/tmp/kit-ios-captures"), !dir.isEmpty else { return }
+        let root = URL(fileURLWithPath: dir, isDirectory: true).appendingPathComponent("matrix", isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        for (name, data) in images { try data.write(to: root.appendingPathComponent("\(name).png")) }
+    }
+}
+
 private struct KitCaptureDirectoryError: Error, CustomStringConvertible {
     var description: String
     init(_ description: String) { self.description = description }
@@ -186,13 +203,15 @@ enum KitRaster {
             .environment(\.rfTheme, theme)
             .environment(\.kitPreviewPressed, board.pressed)
             .environment(\.kitSpinnerAnimated, false)
-            .environment(\.locale, Locale(identifier: board.name.hasSuffix("--en") ? "en" : "zh-CN"))
+            .environment(\.locale, Locale(identifier: board.locale ?? (board.name.hasSuffix("--en") ? "en" : "zh-CN")))
+            .environment(\.layoutDirection, board.direction)
+            .environment(\.dynamicTypeSize, board.typeSize)
             .environment(\.kitCapturing, true)
-            .background(theme.bg)
         let proposed = board.width ?? 800
+        // The board background fills the board frame, also around components that hug their content.
         let sized = board.width == nil
-            ? AnyView(root.fixedSize())
-            : AnyView(root.frame(width: board.width, alignment: .topLeading).fixedSize(horizontal: false, vertical: true))
+            ? AnyView(root.fixedSize().background(theme.bg))
+            : AnyView(root.frame(width: board.width, alignment: .topLeading).fixedSize(horizontal: false, vertical: true).background(theme.bg))
         let fit = measure(sized, proposed: proposed)
         let width = max(1, fit.width.rounded())
         let height = max(1, fit.height.rounded())

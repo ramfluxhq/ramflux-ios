@@ -2,110 +2,86 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>FeatureChat.copy.8a7b78a5873c</key>
-	<string>账户服务报告发送失败。原始操作已保留。</string>
-	<key>FeatureOnboarding.copy.5fca79c1258a</key>
-	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
-	<key>FeatureOnboarding.copy.d59626702d22</key>
-	<string>设置已过期。请重新开始账户设置。</string>
 	<key>agents.unavailable</key>
 	<string>此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。</string>
+	<key>backup.import.tooLarge</key>
+	<string>此归档超过手机端 256 MiB 的导入上限。</string>
 	<key>calls.audioUnavailable</key>
 	<string>此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。</string>
 	<key>cards.unavailable</key>
 	<string>此设备暂不支持交互卡片。您可以继续使用消息和账户功能。</string>
-	<key>copy.04d7b4833927</key>
-	<string>消息</string>
-	<key>copy.0e3b0c4afad6</key>
-	<string>附件传输需要手机文件存储集成。尚未下载任何文件。</string>
-	<key>copy.11cc2995d69e</key>
-	<string>账户设置需要手机的受保护密钥服务。</string>
-	<key>copy.1b6fe0889add</key>
-	<string>此操作可能已完成。请先核实当前状态，再开始其他操作。</string>
-	<key>copy.25c796d9c8f8</key>
+	<key>chat.message.unsupported</key>
 	<string>此消息没有可显示的文本。</string>
-	<key>copy.25f5b958f6a6</key>
-	<string>验证操作尚未绑定到这里显示的确切指纹。未记录新的验证结果。</string>
-	<key>copy.279b44d2ab4b</key>
-	<string>Agents</string>
-	<key>copy.29ea6afd1a52</key>
-	<string>请检查输入内容</string>
-	<key>copy.39bbb719fa2b</key>
-	<string>群组</string>
-	<key>copy.4f3713e485e9</key>
-	<string>上次已确认的状态已保留。</string>
-	<key>copy.528e4d2bc7b7</key>
-	<string>账户服务暂不支持举报陌生人。你仍可拒绝或屏蔽请求。</string>
-	<key>copy.536ec5ca4da6</key>
-	<string>无法读取此信息</string>
-	<key>copy.5562fbd3e629</key>
-	<string>账户服务不可用</string>
-	<key>copy.5856eb3d60b0</key>
-	<string>需要更新</string>
-	<key>copy.61e1cb437dd3</key>
-	<string>暂不支持本地消息搜索。</string>
-	<key>copy.68d02ee6497e</key>
-	<string>解锁此账户</string>
-	<key>copy.6bf512f2eab9</key>
-	<string>账户服务暂不支持本地消息搜索。</string>
-	<key>copy.6d135fefd8df</key>
-	<string>尚未安装此功能模块。</string>
-	<key>copy.6dc7a42f5b47</key>
-	<string>暂不支持批量处理。请逐条审核请求。</string>
-	<key>copy.70336657918f</key>
-	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
-	<key>copy.70de3acff368</key>
-	<string>请先解锁此设备，再打开本地记录。</string>
-	<key>copy.787406ddea2a</key>
-	<string>暂不可用</string>
-	<key>copy.79ee17726170</key>
-	<string>此归档超过手机端 256 MiB 的导入上限。</string>
-	<key>copy.7cca3d86d331</key>
-	<string>此版本的账户服务不可用。已保存的数据未被更改。</string>
-	<key>copy.7fe3baa7c52d</key>
-	<string>服务返回了此应用无法显示的信息。</string>
-	<key>copy.84f9c932bfcd</key>
-	<string>请填写必填项后再继续。</string>
-	<key>copy.8f3374ffa405</key>
+	<key>chat.send.deliveryFailed</key>
+	<string>账户服务报告发送失败。原始操作已保留。</string>
+	<key>chat.unavailable.attachmentTransfer</key>
+	<string>附件传输需要手机文件存储集成。尚未下载任何文件。</string>
+	<key>chat.unavailable.calls</key>
 	<string>此手机版本暂不支持通话。</string>
-	<key>copy.90e302595fee</key>
-	<string>编辑、表情回应和引用回复需要更新后的消息服务。</string>
-	<key>copy.9503c0e50707</key>
-	<string>刷新本地记录</string>
-	<key>copy.98b57b0920ec</key>
+	<key>chat.unavailable.details</key>
 	<string>此手机版本暂不支持查看会话详情。</string>
-	<key>copy.9dcdd3257d89</key>
-	<string>请稍后重试</string>
-	<key>copy.a18c44969ead</key>
-	<string>账户服务不支持此操作。</string>
-	<key>copy.ab827e3fe17d</key>
-	<string>出现错误</string>
-	<key>copy.b5e82d852d43</key>
-	<string>结果尚未确认</string>
-	<key>copy.b72e06e9393e</key>
-	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
-	<key>copy.c294a0b00e74</key>
-	<string>请检查连接。本地记录和草稿已保留。</string>
-	<key>copy.c3654c6a066c</key>
-	<string>此版本无法打开账户服务。已保存的数据未被更改。</string>
-	<key>copy.cdf40b9785de</key>
-	<string>请在桌面端管理已连接服务的高级配置。</string>
-	<key>copy.d47d7cb0e4f8</key>
-	<string>更多</string>
-	<key>copy.dafb5d4bae01</key>
-	<string>其他操作或账户写入进程仍在运行。</string>
-	<key>copy.dcaee1a8b499</key>
-	<string>更新出现中断。请刷新以加载最新记录并重新订阅更新。</string>
-	<key>copy.e1f1db374598</key>
-	<string>此版本暂不支持脱敏诊断导出。未共享任何账户隐私数据。</string>
-	<key>copy.e40966162b11</key>
+	<key>common.connection.failed</key>
 	<string>无法连接</string>
-	<key>copy.e48183526bae</key>
-	<string>服务尚未提供此请求的回复会话。未接受任何联系人请求。</string>
-	<key>copy.e6aaf3412a3a</key>
+	<key>common.tab.agents</key>
+	<string>Agents</string>
+	<key>common.tab.groups</key>
+	<string>群组</string>
+	<key>common.tab.messages</key>
+	<string>消息</string>
+	<key>common.tab.more</key>
+	<string>更多</string>
+	<key>contacts.unavailable.atomicVerification</key>
+	<string>验证操作尚未绑定到这里显示的确切指纹。未记录新的验证结果。</string>
+	<key>contacts.unavailable.batch</key>
+	<string>暂不支持批量处理。请逐条审核请求。</string>
+	<key>contacts.unavailable.identityCommitment</key>
 	<string>当前联系人的身份承诺不可用。</string>
-	<key>copy.f92268007794</key>
+	<key>contacts.unavailable.replyWithoutAcceptance</key>
+	<string>服务尚未提供此请求的回复会话。未接受任何联系人请求。</string>
+	<key>contacts.unavailable.reporting</key>
+	<string>账户服务暂不支持举报陌生人。你仍可拒绝或屏蔽请求。</string>
+	<key>conversations.unavailable.search</key>
+	<string>暂不支持本地消息搜索。</string>
+	<key>conversations.unavailable.searchService</key>
+	<string>账户服务暂不支持本地消息搜索。</string>
+	<key>failure.busy.message</key>
+	<string>其他操作或账户写入进程仍在运行。</string>
+	<key>failure.busy.title</key>
+	<string>请稍后重试</string>
+	<key>failure.invalidData.message</key>
+	<string>服务返回了此应用无法显示的信息。</string>
+	<key>failure.invalidData.title</key>
+	<string>无法读取此信息</string>
+	<key>failure.invalidInput.message</key>
+	<string>请填写必填项后再继续。</string>
+	<key>failure.invalidInput.title</key>
+	<string>请检查输入内容</string>
+	<key>failure.locked.message</key>
+	<string>请先解锁此设备，再打开本地记录。</string>
+	<key>failure.locked.title</key>
+	<string>解锁此账户</string>
+	<key>failure.offline.message</key>
+	<string>请检查连接。本地记录和草稿已保留。</string>
+	<key>failure.outcomeUnknown.message</key>
+	<string>此操作可能已完成。请先核实当前状态，再开始其他操作。</string>
+	<key>failure.outcomeUnknown.title</key>
+	<string>结果尚未确认</string>
+	<key>failure.resyncRequired.message</key>
+	<string>更新出现中断。请刷新以加载最新记录并重新订阅更新。</string>
+	<key>failure.resyncRequired.title</key>
+	<string>刷新本地记录</string>
+	<key>failure.sdkUnavailable.message</key>
+	<string>此版本无法打开账户服务。已保存的数据未被更改。</string>
+	<key>failure.sdkUnavailable.title</key>
+	<string>账户服务不可用</string>
+	<key>failure.unavailable.title</key>
+	<string>暂不可用</string>
+	<key>failure.unsupported.message</key>
+	<string>账户服务不支持此操作。</string>
+	<key>failure.upgradeRequired.message</key>
 	<string>请更新 Ramflux 后再继续使用此账户。</string>
+	<key>failure.upgradeRequired.title</key>
+	<string>需要更新</string>
 	<key>groups.unavailable.archive</key>
 	<string>当前 SDK 暂不支持归档群组。</string>
 	<key>groups.unavailable.history</key>
@@ -118,6 +94,10 @@
 	<string>此手机版本暂不支持群组线程和论坛帖子。</string>
 	<key>groups.unavailable.transfer</key>
 	<string>转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。</string>
+	<key>onboarding.failure.pairingUnavailable</key>
+	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
+	<key>onboarding.failure.setupExpired</key>
+	<string>设置已过期。请重新开始账户设置。</string>
 	<key>onboarding.nodeKeyMismatch</key>
 	<string>运营方公钥必须与发现的节点公钥一致。请先向运营方核对，再确认。</string>
 	<key>onboarding.nodeRequired</key>
@@ -212,8 +192,22 @@
 	<string>本地文件操作失败。请检查可用存储空间和文件访问权限后再重试。</string>
 	<key>request.refusal.title</key>
 	<string>请求未能完成</string>
+	<key>session.unavailable.custodyProvider</key>
+	<string>账户设置需要手机的受保护密钥服务。</string>
+	<key>session.unavailable.featureNotInstalled</key>
+	<string>尚未安装此功能模块。</string>
+	<key>session.unavailable.nativeCore</key>
+	<string>此版本的账户服务不可用。已保存的数据未被更改。</string>
 	<key>settings.mobileBackup</key>
 	<string>备份和恢复请使用桌面客户端。此手机不会启动备份任务。</string>
+	<key>settings.unavailable.connectedServices</key>
+	<string>请在桌面端管理已连接服务的高级配置。</string>
+	<key>settings.unavailable.diagnosticExport</key>
+	<string>此版本暂不支持脱敏诊断导出。未共享任何账户隐私数据。</string>
+	<key>settings.unavailable.openAccount</key>
+	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
+	<key>settings.unavailable.pairing</key>
+	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>

@@ -8,14 +8,6 @@
 	<string>Cancel</string>
 	<key>confirmation.confirm</key>
 	<string>Confirm</string>
-	<key>copy.a2538eaa411f</key>
-	<string>Confirm once</string>
-	<key>copy.c771af79a1fe</key>
-	<string>Reading your local records</string>
-	<key>copy.d8b8392e2c54</key>
-	<string>Try again</string>
-	<key>copy.dc380888c4e2</key>
-	<string>Loading</string>
 	<key>kit.back</key>
 	<string>Back</string>
 	<key>kit.call</key>
@@ -28,10 +20,18 @@
 	<string>Copy</string>
 	<key>kit.info</key>
 	<string>Info</string>
+	<key>kit.load.loading</key>
+	<string>Loading</string>
+	<key>kit.load.readingRecords</key>
+	<string>Reading your local records</string>
+	<key>kit.load.retry</key>
+	<string>Try again</string>
 	<key>kit.more</key>
 	<string>More</string>
 	<key>kit.search</key>
 	<string>Search</string>
+	<key>kit.secret.confirmOnce</key>
+	<string>Confirm once</string>
 	<key>kit.send</key>
 	<string>Send</string>
 	<key>theme.dark</key>
