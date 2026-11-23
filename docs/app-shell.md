@@ -114,6 +114,65 @@ so a background URL session cannot carry them. Each active transfer holds a
 suspended, the queued send stays sealed and resumes with the same operation id on the next
 activation, and an import restarts because the SDK keeps import handles in memory only.
 
+## Calls and the media engine boundary
+
+Calls use the SDK's one-to-one voice contract: `call.invite {conversation_id}` (voice only),
+`call.answer`, `call.reject` and `call.hangup {call_id}`, `call.list {}` (at most 128 rows,
+newest first, read as one history page with no cursor) and live state through the explicit
+`call.changed` topic of the shared event fan-out. Calls reach `active` through relay
+signalling alone; audio and video need a media engine. `NativeCallsRepository` takes a
+`CallMediaEngine` (default `RefusingCallMediaEngine`) and sends invite and answer only while
+the engine reports itself available, because a real invite rings the peer. While it refuses,
+the call screens say that voice and video are not available in this build; incoming calls can
+be seen and declined but not answered, and no connected state is shown.
+
+`call.media.session {call_id}` is read at most once per call, only for an `active` call, and
+only by the repository. The SDK returns the material once (`media_taken`); a lost read or an
+engine restart requires a new call. The reply is a secret-output frame: the repository checks
+only `code`, `response.ok` and the presence of `relay` and `sframe`, copies the frame into an
+erasable `SecretBytes` and hands it to `CallMediaEngine.start(_:)` as a `CallMediaSession`.
+The engine reads it once with `consume`; the bytes are the UTF-8 JSON frame
+`{"code":0,"response":{"ok":true,"body":BODY}}` where BODY is exactly:
+
+```text
+relay:  {endpoint: "host:port", token: base64url(32 bytes), lease_id: base64url(16 bytes),
+         side: 0 (caller) | 1 (callee), rebind_key: base64url(32 bytes)}
+sframe: {cipher_suite: 5 (AES_256_GCM_SHA512_128),
+         send: {kid, base_key: base64url(32 bytes)}, receive: {kid, base_key: base64url(32 bytes)}}
+```
+
+KIDs are 0 for caller-to-callee and 1 for the reverse; counters start at zero per key with a
+128-counter receive replay window. Media is Opus 48 kHz mono, 20 ms frames, minimal RTP with
+payload type 111, SFrame (RFC 9605) over the RTP payload with the RTP header as authenticated
+data. Datagrams to the relay are `u32be(token length) || token || RTP/SFrame`; empty framed
+datagrams every 5 s keep NAT bindings; on an address change the relay sends the `RFVC`
+challenge and the engine answers `RFVE || cookie || HMAC-SHA256(rebind_key, ...)[0..16]`
+within five seconds (the core repository's `docs/voice-calls.md` is the normative source).
+Never log, persist or journal any of these values.
+
+An engine implements `CallMediaEngine`: `availability()` (synchronous; capabilities audio,
+video, camera switch, speaker route), `start(_:)` (owns and erases the material; the result is
+final for that call), `stop(callID:)`, `control(_:callID:)` (mute, route, camera on or off,
+switch camera), `audioSession(active:)` (CallKit activated or deactivated the audio session,
+or an interruption began or ended; audio I/O runs only while active), `events()` (state
+`starting`, `connected`, `reconnecting`, `stopped`, `failed`, audio levels and remote video
+on or off) and `attach(_:slot:callID:)` on the main actor (a `CallVideoSurface` view for the
+local or remote slot, nil to detach). The rf side supplies the production engine (request
+R28); the app constructs it in the factory's `NativeCallsRepository(... engine:)`.
+
+`FeatureCalls` owns the system call integration: `CallKitProvider` (one `CXProvider` and
+`CXCallController`, generic handles, not added to Recents, hold refused), `CallSystemBridge`
+(maps `call.*` state to the system UI and system actions to repository intents; inert while
+the engine refuses, because the system incoming-call UI always offers Answer),
+`CallAudioSession` (play-and-record in voice or video chat mode with Bluetooth, speaker
+override, interruption and route-change events) and `CallSystemService` (the app-lifetime
+owner for the active account). Microphone and camera are requested through
+`CallPermissionRequesting`, which `AppComposition.requestPermission(_:resolved:)` satisfies,
+right before an invite or answer the engine can carry. Incoming calls while the app is not
+running need a VoIP push from the node and PushKit registration; the node has no VoIP push
+today (requests R21 and R28), so incoming calls appear only while the app is running and
+connected.
+
 Local search, phone pairing, stranger reporting and
 atomic safety-fingerprint verification are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published
