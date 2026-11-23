@@ -1,5 +1,5 @@
 {
- "source": "Ramflux-Desktop-Design.pen via Pencil MCP GetVariables(), 2026-11-16. Themes axis: mode = light | dark. All values exact as Pencil reports them. Names are the Pencil variable names (referenced in the design as $name).",
+ "source": "Ramflux-Desktop-Design.pen, exported from the design file variables, 2026-11-16. Themes axis: mode = light | dark. All values are exact as exported. Names are the design variable names (referenced in the design as $name).",
  "themes": {
   "mode": [
    "light",
@@ -12,7 +12,7 @@
    "height": 852,
    "statusBarHeight": 59,
    "homeIndicatorSafeBottom": 34,
-   "note": "RF 393x852, safe 59/34 (CURRENT-HANDOFF). Tab bar frame is 83 tall: 8 top padding + 44 item row, remaining 31 is bottom inset (not equal to the 34 safe-bottom: see README inconsistencies)."
+   "note": "RF 393x852, safe 59/34. Tab bar frame is 83 tall: 8 top padding + 44 item row, remaining 31 is bottom inset (not equal to the 34 safe-bottom: see README inconsistencies)."
   }
  },
  "color": {
@@ -297,7 +297,7 @@
     1.45,
     1.5
    ],
-   "note": "Multipliers of font size as stored by Pencil; unset means the font's built-in line height. No line-height variables exist."
+   "note": "Multipliers of font size as stored in the design file; unset means the font's built-in line height. No line-height variables exist."
   },
   "letterSpacingUsed": [
    0.5,
@@ -464,7 +464,7 @@
    "1.5": "checkbox/radio off outline, radio on ring, composer draft checkbox, bubble error state outline (B05 override)",
    "2": "avatar ring override (C09, 40px), chart series lines"
   },
-  "note": "No stroke-width variables; strokeAlignment default (inner/center per Pencil default)."
+  "note": "No stroke-width variables; strokeAlignment default (inner/center per design-file default)."
  },
  "elevation": {
   "note": "Only three shadow styles exist, all outer, color $rf-shadow (light #0000001F, dark #0000007A).",

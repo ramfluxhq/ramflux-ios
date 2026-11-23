@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DESIGN_SHA256 = "5af83dc4aafa883c1bfaa4a33c222be577567eb4327953ba80a7f0d78d680632"
+DESIGN_SHA256 = "20493443ec546b65fb7d283f2b35a6fec258c14a004201886e5c620c0d10b6c5"
 SOURCE = ROOT / "Packages/RFDesign/Generated/RFTokens.swift"
 THEMES = ROOT / "Packages/RFDesign/Resources/Themes"
 COLOR = re.compile(
