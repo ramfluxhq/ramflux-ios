@@ -15,7 +15,8 @@ import AppData
         switch event {
         case .navigate(let route): sheet = nil; path.append(route)
         case .showAccounts: sheet = .accounts
-        case .accountSelected, .dismissPrivateNavigation: path = []; sheet = nil
+        case .accountSelected: path = []; sheet = nil
+        case .dismissPrivateNavigation: viewModel.park(path); path = []; sheet = nil
         }
     }
 }

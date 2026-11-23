@@ -103,6 +103,20 @@ private actor SessionFake: SessionRepository {
         model.send(.unlockAccount("b"))
         #expect(events == [.navigate(.unlockAccount("b"))])
     }
+    @Test func screensOpenWhenTheShieldWentUpReopenForTheSameAccount() async {
+        let coordinator = AppShellCoordinator(repository: SessionFake())
+        coordinator.send(.appeared); await coordinator.viewModel.settle()
+        coordinator.send(.open(.contacts)); coordinator.send(.open(.conversation("c1")))
+        coordinator.send(.sceneInactive)
+        #expect(coordinator.path.isEmpty)
+        coordinator.send(.sceneActive); await coordinator.viewModel.settle()
+        #expect(coordinator.path == [.contacts, .conversation("c1")])
+        // Only once: a later return does not push them again.
+        coordinator.path = []
+        coordinator.send(.sceneInactive); coordinator.send(.sceneActive); await coordinator.viewModel.settle()
+        #expect(coordinator.path.isEmpty)
+        coordinator.send(.disappeared); await coordinator.viewModel.settle()
+    }
     @Test func coordinatorOwnsNavigationAndClearsItOnBackground() async {
         let coordinator = AppShellCoordinator(repository: SessionFake())
         coordinator.send(.appeared); await coordinator.viewModel.settle()
