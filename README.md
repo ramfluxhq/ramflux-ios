@@ -91,3 +91,5 @@ fresh install (the peer-control server moves the encrypted archive to the
 simulator's "On My iPhone" storage and reinstalls the app; the archive
 passphrase stays in the test process). `--only` takes a test of
 `RealRunFlowTests`, a class name, or `Class/test`.
+The script opens the simulator window (DeviceHub on Xcode 27) before booting the
+`rf-realrun` simulator and leaves both open after the run.

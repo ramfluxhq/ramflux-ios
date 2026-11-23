@@ -92,6 +92,9 @@ print(sorted(r, key=lambda x: [int(p) for p in x["version"].split(".")])[-1]["id
   UDID=$(xcrun simctl create "$SIM_NAME" com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro "$RUNTIME")
   say "created simulator $SIM_NAME ($UDID)"
 fi
+# The simulator runs in its window, not headless: on Xcode 27 that window is DeviceHub. It stays open
+# after the run, and so does the simulator, so the app state can be inspected afterwards.
+open /Applications/Xcode.app/Contents/Applications/DeviceHub.app 2>/dev/null || say "DeviceHub is not available; the simulator runs without its window"
 xcrun simctl boot "$UDID" 2>/dev/null || true
 xcrun simctl bootstatus "$UDID" -b > /dev/null
 
