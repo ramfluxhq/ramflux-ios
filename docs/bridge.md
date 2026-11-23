@@ -102,7 +102,9 @@ active account and multicasts to any number of `RepositoryObservation`s:
   `AsyncStream<TransientFrame>` (newest 32 buffered) carrying the live `message.transient` frames of
   the account (typing indicators) as the frame topic and its body in JSON bytes. Only observers that
   ask receive them; a transient frame never sends `.invalidated` and is never replayed after a resync.
-  The stream finishes with the observation.
+  The stream finishes with the observation. The chat reads them through `UpdateSourceChatTransients`
+  (AppData), a `ChatTransientSource` that registers one such observer per typing subscription, yields
+  the JSON bodies of `message.transient` frames and leaves the fan-out when the chat stops reading.
 - The topic list is fixed in `NativeUpdateSource.topics`; there is no `*` subscription.
   Events carry no payload to observers: a feature that needs to filter (for example a
   chat that only cares about its own conversation) re-reads its window and compares.

@@ -52,7 +52,7 @@ private actor GroupsFake: GroupsRepository {
             guard let confirmation = vm.state.confirmation else { Issue.record("No creation selected"); return }
             vm.send(.confirm(confirmation.id)); await vm.settle()
             let destinations = events.compactMap { event -> AppRoute? in if case .navigate(let route) = event { route } else { nil } }
-            #expect(destinations == (kind == 0 ? [.groupConversation("canonical-thread", title: "Research")] : []))
+            #expect(destinations == (kind == 0 ? [.groupConversation("canonical-thread", group: "g", title: "Research")] : []))
             if kind == 1 { #expect(vm.state.failure == .offline) }
             if kind == 2 { #expect(vm.state.outcome?.waitingForOwner == true) }
             vm.send(.disappeared)
@@ -62,7 +62,7 @@ private actor GroupsFake: GroupsRepository {
         var events: [GroupsEvent] = []
         let vm = GroupsViewModel(repository: GroupsFake(), contacts: UnavailableContactsRepository(), account: "a", emit: { events.append($0) })
         vm.send(.refresh); await vm.settle(); vm.send(.openMessages("unknown")); await vm.settle(); #expect(events.isEmpty)
-        vm.send(.openMessages("g")); await vm.settle(); #expect(events == [.navigate(.groupConversation("canonical-thread", title: "Research"))]); vm.send(.disappeared)
+        vm.send(.openMessages("g")); await vm.settle(); #expect(events == [.navigate(.groupConversation("canonical-thread", group: "g", title: "Research"))]); vm.send(.disappeared)
     }
     @Test func exactConfirmationPrecedesRoleMutationAndPendingDoesNotInventAppliedRole() async {
         let fake = GroupsFake(), state = GroupsState(mode: .members("g"))

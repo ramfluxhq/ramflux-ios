@@ -24,6 +24,10 @@
 	<string>No conversations yet</string>
 	<key>conversations.failure.retry</key>
 	<string>Retry</string>
+	<key>conversations.forward.empty</key>
+	<string>No other conversations yet</string>
+	<key>conversations.forward.title</key>
+	<string>Forward to</string>
 	<key>conversations.loading</key>
 	<string>Loading conversations</string>
 	<key>conversations.loadingMore</key>

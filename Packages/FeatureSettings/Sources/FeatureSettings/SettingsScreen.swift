@@ -132,16 +132,12 @@ public struct SettingsScreen: View {
                 indexRow(.nodes, icon: "network", detail: "settings.index.nodes.detail"),
                 indexRow(.backup, icon: "database-backup", detail: "settings.index.backup.detail"),
                 indexRow(.permissions, icon: "plug", detail: "settings.index.connectedServices.detail"),
-                KitRow(copy("settings.storage.title"), action: { onAction(.unavailable(.storage)) }, icon: "database", value: copy("settings.index.storage.detail"), tag: "settings-storage"),
+                KitRow(copy("settings.storage.title"), action: { onAction(.open(.mediaStorage)) }, icon: "database", value: copy("settings.index.storage.detail"), tag: "settings-storage"),
             ])
             group(copy("settings.section.app"), [
                 indexRow(.appearance, icon: "palette", detail: "settings.index.appearance.detail"),
                 indexRow(.about, icon: "activity", detail: "settings.index.about.detail"),
                 KitRow(label(.systemPermissions), action: { onAction(.open(.systemPermissions)) }, icon: "sliders-horizontal", tag: "settings-system-permissions"),
-            ])
-            group(copy("settings.section.activity"), [
-                KitRow(label(.calls(nil)), action: { onAction(.open(.calls(nil))) }, icon: "phone", tag: "settings-calls"),
-                KitRow(label(.cards), action: { onAction(.open(.cards)) }, icon: "app-window", tag: "settings-cards"),
             ])
         }
     }
@@ -184,5 +180,5 @@ public struct SettingsScreen: View {
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
         KitRow(title, action: { onAction(.open(route)) }, value: subtitle.isEmpty ? nil : subtitle, tag: id)
     }
-    private func label(_ route: AppRoute) -> String { switch route { case .cards: FeatureSettingsStrings.text("cards.title", locale: locale); case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .calls: FeatureSettingsStrings.text("calls.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
+    private func label(_ route: AppRoute) -> String { switch route { case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
 }

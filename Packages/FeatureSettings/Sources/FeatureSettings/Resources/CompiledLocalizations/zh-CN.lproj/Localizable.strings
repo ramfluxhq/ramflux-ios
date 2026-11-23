@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>calls.title</key>
-	<string>通话</string>
-	<key>cards.title</key>
-	<string>交互卡片</string>
 	<key>common.action.refresh</key>
 	<string>刷新</string>
 	<key>common.appName</key>
@@ -362,8 +358,6 @@
 	<string>核对原始操作</string>
 	<key>settings.section.accountDevices</key>
 	<string>账户与设备</string>
-	<key>settings.section.activity</key>
-	<string>动态</string>
 	<key>settings.section.app</key>
 	<string>应用</string>
 	<key>settings.section.connectionData</key>

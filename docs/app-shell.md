@@ -25,10 +25,22 @@ an explicit unavailable presentation.
 
 - `AppRepositories.lifecycle` (`AccountLifecycleHooks`) lets account-scoped stores register for
   `willLock` (awaited before `account.lock` is sent) and `willRemove` (for sign-out or removal; the
-  pinned SDK has no account removal method, so nothing triggers it yet).
+  pinned SDK has no account removal method, so nothing triggers it yet). The composition registers the
+  chat on it: `willLock` seals the unsent-chat vault and purges the image pipeline's decoded images,
+  `willRemove` erases the account's chat vault, staged and stored media. When the session reports a newly
+  unlocked active account the composition calls `ChatRepository.resumeAfterUnlock` (queued sends resume
+  with their operation ids) and starts `CallSystemService` for it; lock and account switch stop it.
 - `AppComposition.requestPermission(_:resolved:)` runs the permission explanation and system prompt for
   a feature and calls back with whether the permission is usable (`PermissionsEvent.ready` or
-  `.declined`). Feature hosts receive it as their permission-request handler.
+  `.declined`). Feature hosts receive it as their permission-request handler: the chat's
+  `.requestPermission` events (camera, add-only Photos) are answered with `.permissionResolved`, and
+  `AppComposition` conforms to `CallPermissionRequesting` for calls.
+- Forwarding a message: the chat emits `.chooseForwardTarget`; the composition presents
+  `ForwardTargetsScreen` (FeatureConversations, the inbox's bounded directory window without the source
+  conversation) and answers with `.forwardTo` carrying the target's conversation id and `group_id`.
+- Group conversations open through `AppRoute.groupConversation(conversation, group:, title:)` from the
+  groups tab and from inbox rows whose directory entry has a `group_id`, so the chat knows the real
+  `group_id` for media sends and forwards.
 
 ## Build modes
 
@@ -149,7 +161,8 @@ unchanged.
 
 Settings follow board MOB-G02: grouped cards for account and devices, connection and data (nodes,
 backup and restore, connected services, storage) and app (appearance and language, diagnostics and
-about, system permissions), plus call history and cards until their own module places those entries.
+about, system permissions). Call history is a row of the More hub (and the chat header's call button
+opens a direct call); cards render inside the chat timeline, so neither has a settings entry.
 Account and security offers lock, changing the six-digit code (`account.passphrase.rotate` with the
 current code as `old_passphrase`; both codes are checked locally first and never journaled) and privacy.
 Privacy switches `contact.requests.policy.set` between `manual` and `auto_accept`, the only honest part of
@@ -157,8 +170,8 @@ Privacy switches `contact.requests.policy.set` between `manual` and `auto_accept
 unavailable states because the SDK has no username, open-account or reach methods. The language list
 shows the fifteen launch languages with their translation state from the package catalogs (English and
 Simplified Chinese today; no placeholder translations ship) and opens the app's system settings, where
-iOS offers the per-app language. Storage management is the media module's screen; its entry shows a
-typed unavailable state until then. Devices offers "Link new device" (route `pairDevice`, board MOB-G24): this phone, as the primary,
+iOS offers the per-app language. The storage entry opens the media module's `MediaStorageScreen` for the account
+(route `mediaStorage`). Devices offers "Link new device" (route `pairDevice`, board MOB-G24): this phone, as the primary,
 names the new device, shows the show-once invitation as a QR code (covered while the app is not active),
 compares the seven symbols, reviews the joining device's name, id, rights and lease before a host-confirmed
 approval (MOB-P02/P02S facts) and shows the completed, cancelled, expired or declined result

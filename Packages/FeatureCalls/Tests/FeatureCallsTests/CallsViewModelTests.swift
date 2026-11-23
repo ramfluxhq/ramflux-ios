@@ -85,12 +85,14 @@ private struct MicrophoneFake: MicrophoneRepository { var value: MicrophoneStatu
     }
     @Test func availableEngineAsksForTheMicrophoneBeforeInviting() async {
         let fake = CallsFake(media: everything), permissions = PermissionFake(grant: false)
-        let vm = CallsViewModel(repository: fake, microphone: MicrophoneFake(), account: "a", state: CallsState(mode: .dial("thread")), permissions: permissions, emit: { _ in })
+        var events: [CallsEvent] = []
+        let vm = CallsViewModel(repository: fake, microphone: MicrophoneFake(), account: "a", state: CallsState(mode: .dial("thread")), permissions: permissions, emit: { events.append($0) })
         vm.send(.start); await vm.settle()
-        #expect(permissions.asked == [.microphone]); #expect(vm.state.permissionNeeded == .microphone); #expect(await fake.invites.isEmpty)
+        #expect(permissions.asked == [.microphone]); #expect(vm.state.permissionNeeded == .microphone); #expect(await fake.invites.isEmpty); #expect(events.isEmpty)
         vm.send(.dismissPermission); #expect(vm.state.permissionNeeded == nil)
         permissions.grant = true; vm.send(.start); await vm.settle()
         #expect(await fake.invites == ["thread"]); #expect(vm.state.mode == .detail("out")); #expect(vm.state.stage == .outgoing)
+        #expect(events.map { if case .outgoingStarted(let row) = $0 { row.id } else { "" } } == ["out"])
         vm.send(.disappeared)
     }
     @Test func answerConnectsMediaOnceAndFollowsEngineState() async {

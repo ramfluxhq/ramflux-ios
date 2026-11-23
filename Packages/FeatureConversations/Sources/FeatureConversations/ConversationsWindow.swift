@@ -86,7 +86,7 @@ public struct ConversationsWindow: Sendable, Equatable {
         return sorted.map { row in
             ConversationRecord(id: row.id, title: row.title, preview: row.preview, lastActivity: row.lastActivity, unreadCount: row.unreadCount,
                                timeLabel: row.lastActivity.map(labels.label) ?? row.timeLabel, kind: row.kind, avatarIcon: row.avatarIcon,
-                               muted: row.muted, pinned: row.pinned, readReceipt: row.readReceipt, sender: row.sender)
+                               muted: row.muted, pinned: row.pinned, readReceipt: row.readReceipt, sender: row.sender, groupID: row.groupID)
         }
     }
 }

@@ -13,6 +13,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
     public let pinned: Bool
     public let readReceipt: Bool
     public let sender: String
+    /// The SDK `group_id` of a group conversation (the two ids can differ for groups created elsewhere).
+    public let groupID: String?
     public init(
         id: String,
         title: String,
@@ -25,7 +27,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         muted: Bool = false,
         pinned: Bool = false,
         readReceipt: Bool = false,
-        sender: String = ""
+        sender: String = "",
+        groupID: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -39,5 +42,6 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         self.pinned = pinned
         self.readReceipt = readReceipt
         self.sender = sender
+        self.groupID = groupID
     }
 }

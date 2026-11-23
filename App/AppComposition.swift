@@ -15,6 +15,7 @@ import FeatureTasks
 import FeatureAgents
 import FeatureCalls
 import FeatureGroups
+import RFMedia
 import Observation
 import UserNotifications
 @Observable @MainActor final class AppComposition {
@@ -47,12 +48,38 @@ import UserNotifications
         let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account, accountTitle: title) { [weak self] route in self?.shell.send(.open(route)) }
         inbox = (account, coordinator); return coordinator
     }
-    @ObservationIgnored private var currentChat: (String, String, Bool, ChatCoordinator)?
-    func chat(account: String, conversation: String, isGroup: Bool = false, title: String? = nil) -> ChatCoordinator {
-        if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == isGroup { return currentChat.3 }
+    @ObservationIgnored private var currentChat: (String, String, String?, ChatCoordinator)?
+    /// Opens a conversation; `group` is the SDK `group_id` of a group conversation (nil for a direct one).
+    func chat(account: String, conversation: String, group: String? = nil, title: String? = nil) -> ChatCoordinator {
+        if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == group { return currentChat.3 }
         currentChat?.3.send(.disappeared)
-        let coordinator = ChatCoordinator(repository: repositories.chat, account: account, conversation: conversation, isGroup: isGroup, title: title) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
-        currentChat = (account, conversation, isGroup, coordinator); return coordinator
+        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: title) { [weak self] event in
+            self?.chatEvent(event, account: account, conversation: conversation)
+        }
+        currentChat = (account, conversation, group, coordinator); return coordinator
+    }
+    /// A message waiting for its forward target; drives the conversation picker sheet.
+    struct ForwardRequest: Identifiable, Equatable { let id: String; let account: String; let conversation: String }
+    var forwarding: ForwardRequest?
+    private func chatEvent(_ event: ChatEvent, account: String, conversation: String) {
+        switch event {
+        case .navigate(let route): shell.send(.open(route))
+        case .requestPermission(let permission):
+            requestPermission(permission) { [weak self] granted in self?.openChat(account, conversation)?.send(.permissionResolved(permission, granted: granted)) }
+        case .chooseForwardTarget(let message): forwarding = ForwardRequest(id: message, account: account, conversation: conversation)
+        case .messageSubmitted: break
+        }
+    }
+    /// The picker closed: forwards to the chosen conversation, or does nothing when it was cancelled.
+    func forwardChosen(_ target: ForwardTarget?) {
+        guard let request = forwarding else { return }
+        forwarding = nil
+        guard let target, let chat = openChat(request.account, request.conversation) else { return }
+        chat.send(.forwardTo(messageID: request.id, conversation: target.conversation, groupID: target.groupID))
+    }
+    private func openChat(_ account: String, _ conversation: String) -> ChatCoordinator? {
+        guard let currentChat, currentChat.0 == account, currentChat.1 == conversation else { return nil }
+        return currentChat.3
     }
     @ObservationIgnored private var currentContacts: (String, ContactsMode, ContactsCoordinator)?
     func contacts(account: String, mode: ContactsMode) -> ContactsCoordinator {
@@ -73,7 +100,11 @@ import UserNotifications
         let mode: CallsMode = conversation.map { .dial($0) } ?? .history
         if let currentCalls, currentCalls.0 == account, currentCalls.1 == mode { return currentCalls.2 }
         currentCalls?.2.send(.disappeared)
-        let coordinator = CallsCoordinator(repository: repositories.calls, microphone: repositories.microphone, account: account, mode: mode)
+        let coordinator = CallsCoordinator(repository: repositories.calls, microphone: repositories.microphone, account: account, mode: mode, permissions: self,
+                                           peerNames: ContactCallPeerNames(contacts: repositories.contacts)) { [weak self] row in
+            guard let service = self?.callService else { return }
+            Task { await service.outgoingStarted(row) }
+        }
         currentCalls = (account, mode, coordinator); return coordinator
     }
     @ObservationIgnored private var currentAgents: (String, AgentsCoordinator)?
@@ -101,7 +132,7 @@ import UserNotifications
             preferences: repositories.preferences, account: account, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))
-            case .locked: self?.shell.path = []; self?.shell.send(.retry)
+            case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
             case .restored: self?.shell.path = []; self?.shell.send(.retry)
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
@@ -116,6 +147,34 @@ import UserNotifications
     func sessionChanged(_ session: SessionSnapshot) {
         guard session.phase == .ready else { return }
         notifier.follow(account: session.activeAccountID)
+        guard session.activeAccountID != unlockedAccount else { return }
+        unlockedAccount = session.activeAccountID
+        callService.stop()
+        guard let account = session.activeAccountID else { return }
+        // After unlock: queued sends resume with their operation ids, and the system call UI follows the account.
+        Task { [chat = repositories.chat] in _ = await chat.resumeAfterUnlock(account: account) }
+        callService.start(account: account)
+    }
+    /// The account the composition last saw unlocked; calls and the outbox follow it.
+    @ObservationIgnored private var unlockedAccount: String?
+    /// One system call integration per process (one CallKit provider). It reports nothing while the
+    /// media engine refuses (see docs/app-shell.md, "Calls and the media engine boundary").
+    @ObservationIgnored private(set) lazy var callService = CallSystemService(repository: repositories.calls, provider: CallKitProvider(supportsVideo: false), audio: CallAudioSession())
+    private func accountLocked() { unlockedAccount = nil; callService.stop() }
+    /// Account-scoped stores react before the SDK locks or removes the account.
+    private func registerLifecycle() {
+        repositories.lifecycle.register { [weak self, chat = repositories.chat] event in
+            switch event {
+            case .willLock(let account):
+                await MainActor.run { self?.accountLocked() }
+                await chat.sealForLock(account: account)
+                ImagePipeline.shared.purge()
+            case .willRemove(let account):
+                await MainActor.run { self?.accountLocked() }
+                await chat.purgeAccount(account: account)
+                ImagePipeline.shared.purge()
+            }
+        }
     }
     private func openNotification(_ token: String) {
         guard let target = notifier.route(for: token) else { return }
@@ -131,5 +190,8 @@ import UserNotifications
     init() { _ = DesignFonts.registered; let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session)
         let delegate = MessageNotificationDelegate { [weak self] token in self?.openNotification(token) }
         notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
+        registerLifecycle()
     }
 }
+/// Calls ask for the microphone and camera through the shared explanation flow.
+extension AppComposition: CallPermissionRequesting {}

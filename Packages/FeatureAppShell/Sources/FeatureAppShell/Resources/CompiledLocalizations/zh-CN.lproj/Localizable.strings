@@ -40,6 +40,10 @@
 	<string>正在打开账户服务</string>
 	<key>shell.locked.accessibility</key>
 	<string>Ramflux 已锁定</string>
+	<key>shell.more.calls</key>
+	<string>通话</string>
+	<key>shell.more.calls.preview</key>
+	<string>通话记录与语音通话</string>
 	<key>shell.more.navigation</key>
 	<string>编辑导航</string>
 	<key>shell.more.navigation.detail</key>

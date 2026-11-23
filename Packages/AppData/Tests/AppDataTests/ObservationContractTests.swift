@@ -111,6 +111,23 @@ private func waitFor(_ condition: @Sendable () -> Bool) async {
         await chat.stop(); await list.stop()
         #expect(await frames.next() == nil)
     }
+    @Test func chatTransientAdapterYieldsTransientBodiesAndLeavesTheFanOutWhenStopped() async {
+        let factory = QueueFactory()
+        let transport = ProxyTransport(onSubscribe: { _ in factory.make() }) { _ in .object([:]) }
+        let source = NativeUpdateSource(client: RamfluxClient(transport: transport))
+        let adapter = UpdateSourceChatTransients(updates: source)
+        let bodies = await adapter.transients(account: "A")
+        #expect(await source.observerCount == 1)
+        let typing: JSONValue = .object(["identity": .object(["conversationId": .string("dm:x")]), "content": .object(["typing": .object(["active": .bool(true)])])])
+        factory.last?.push([changed, .object(["kind": .string("event"), "topic": .string("message.transient"), "body": typing])])
+        let reader = Task { var iterator = bodies.makeAsyncIterator(); return await iterator.next() }
+        #expect(await reader.value == typing)
+        let consumer = Task { for await _ in bodies {} }
+        consumer.cancel(); await consumer.value
+        await waitFor { factory.last?.finished.withLock { $0 } == true }
+        #expect(factory.last?.finished.withLock { $0 } == true)
+        #expect(await source.observerCount == 0)
+    }
     @Test func lagResubscribesAutomaticallyAndKeepsEveryObserverLive() async {
         let factory = QueueFactory(), resets = Mutex(0)
         let transport = ProxyTransport(onReset: { resets.withLock { $0 += 1 } }, onSubscribe: { _ in factory.make() }) { _ in .object([:]) }

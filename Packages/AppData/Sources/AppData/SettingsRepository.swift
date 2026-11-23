@@ -14,8 +14,6 @@ public struct SettingsSnapshot: Equatable, Sendable {
     }
 }
 public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport
-    /// Storage management is the media module's screen; until it lands the entry says so.
-    case storage
     /// @username lookup and conversations with non-contacts (boards MOB-G27–G30): no SDK methods at the pin.
     case username
 }
@@ -105,7 +103,6 @@ public struct NativeSettingsRepository: SettingsRepository {
         case .pairing: .unavailableResource("settings.unavailable.pairing")
         case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")
         case .diagnosticExport: .unavailableResource("settings.unavailable.diagnosticExport")
-        case .storage: .unavailableResource("settings.unavailable.storage")
         case .username: .unavailableResource("settings.unavailable.username")
         }
     }

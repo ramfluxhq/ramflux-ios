@@ -29,7 +29,7 @@ import AppData
             navigation = Task { [weak self, repository, account] in
                 let result = await repository.conversation(account: account, group: group)
                 guard !Task.isCancelled, let self, self.epoch == current else { return }
-                switch result { case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, title: row.name))); case .failure(let failure): self.state.failure = failure }
+                switch result { case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, group: group, title: row.name))); case .failure(let failure): self.state.failure = failure }
             }
         case .appeared, .refresh: refresh(); observe()
         case .filter(let query):
@@ -103,7 +103,7 @@ import AppData
                         let destination = await repository.conversation(account: account, group: value.group.id)
                         guard !Task.isCancelled, self.epoch == current else { return }
                         switch destination {
-                        case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, title: value.group.name))); return
+                        case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, group: value.group.id, title: value.group.name))); return
                         case .failure(let failure): self.state.failure = failure; return
                         }
                     case .failure(let failure): self.state.failure = failure; return

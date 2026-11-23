@@ -122,7 +122,9 @@ import AppData
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.busy = false; self.state.pending = pending
             switch result { case .success(let row):
-                self.state.failure = nil; self.state.mode = .detail(row.id); self.refresh()
+                self.state.failure = nil; self.state.mode = .detail(row.id)
+                if row.direction == .outgoing, row.phase == .outgoingRinging { self.emit(.outgoingStarted(row)) }
+                self.refresh()
             case .failure(let failure): self.state.failure = failure; self.state.fresh = false; if failure == .locked { self.state.calls = []; self.state.selected = nil }; if self.pendingRefresh { self.pendingRefresh = false; self.refresh() } }
         }
     }

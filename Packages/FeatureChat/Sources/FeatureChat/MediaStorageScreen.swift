@@ -54,10 +54,12 @@ public struct MediaStorageScreen: View {
     let onAction: (MediaStorageAction) -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
     public init(state: MediaStorageState, onAction: @escaping (MediaStorageAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
-        RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
-            Text(FeatureChatStrings.text("chat.storage.title", locale: locale)).rfFont(.page)
+        RFPage { VStack(spacing: 0) {
+            KitPageHeader(FeatureChatStrings.text("chat.storage.title", locale: locale), onBack: { dismiss() }, tag: "media-storage-header")
+            ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             if let usage = state.usage {
                 KitRow(FeatureChatStrings.text("chat.storage.downloaded", locale: locale), icon: "image-down", value: bytes(usage.originals), trailing: .none)
                 KitRow(FeatureChatStrings.text("chat.storage.waiting", locale: locale), icon: "clock-3", value: bytes(usage.outbox), trailing: .none)
@@ -74,8 +76,16 @@ public struct MediaStorageScreen: View {
             } else {
                 ProgressView(FeatureChatStrings.text("chat.loading", locale: locale))
             }
-        }.padding(theme.gap) } }
+        }.padding(theme.gap) } } }
         .onAppear { onAction(.appeared) }
+        .privacySensitive().rfHidesNavigationBar()
     }
     private func bytes(_ value: Int64) -> String { value.formatted(.byteCount(style: .file).locale(locale)) }
+}
+
+/// Hosts the account's media storage page for a route; the view model lives as long as the page.
+public struct MediaStorageHost: View {
+    @State private var model: MediaStorageViewModel
+    public init(repository: any ChatRepository, account: String) { _model = State(initialValue: MediaStorageViewModel(repository: repository, account: account)) }
+    public var body: some View { MediaStorageScreen(state: model.state, onAction: model.send) }
 }

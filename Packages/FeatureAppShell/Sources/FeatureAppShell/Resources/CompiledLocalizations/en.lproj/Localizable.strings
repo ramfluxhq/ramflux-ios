@@ -40,6 +40,10 @@
 	<string>Opening account services</string>
 	<key>shell.locked.accessibility</key>
 	<string>Ramflux is locked</string>
+	<key>shell.more.calls</key>
+	<string>Calls</string>
+	<key>shell.more.calls.preview</key>
+	<string>Call history and voice calls</string>
 	<key>shell.more.navigation</key>
 	<string>Edit navigation</string>
 	<key>shell.more.navigation.detail</key>

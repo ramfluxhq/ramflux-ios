@@ -2,40 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "calls.title": {
-      "comment": "Settings row that opens the Calls section.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Calls"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "通话"
-          }
-        }
-      }
-    },
-    "cards.title": {
-      "comment": "Settings row that opens interactive cards (rich message cards with buttons).",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interactive cards"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交互卡片"
-          }
-        }
-      }
-    },
     "settings.devices.link": {
       "comment": "Button that starts linking a new device to this account.",
       "localizations": {
@@ -1781,23 +1747,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "应用"
-          }
-        }
-      }
-    },
-    "settings.section.activity": {
-      "comment": "Settings section label: call history and cards.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Activity"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "动态"
           }
         }
       }

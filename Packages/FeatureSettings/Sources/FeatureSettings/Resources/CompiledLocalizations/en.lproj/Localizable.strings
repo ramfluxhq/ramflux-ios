@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>calls.title</key>
-	<string>Calls</string>
-	<key>cards.title</key>
-	<string>Interactive cards</string>
 	<key>common.action.refresh</key>
 	<string>Refresh</string>
 	<key>common.appName</key>
@@ -362,8 +358,6 @@
 	<string>Reconcile original action</string>
 	<key>settings.section.accountDevices</key>
 	<string>Account and devices</string>
-	<key>settings.section.activity</key>
-	<string>Activity</string>
 	<key>settings.section.app</key>
 	<string>App</string>
 	<key>settings.section.connectionData</key>

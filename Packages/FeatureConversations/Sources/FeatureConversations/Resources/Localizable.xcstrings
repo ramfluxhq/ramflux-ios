@@ -343,6 +343,40 @@
           }
         }
       }
+    },
+    "conversations.forward.title": {
+      "comment": "Title of the page that picks the conversation a message is forwarded to.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward to"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转发到"
+          }
+        }
+      }
+    },
+    "conversations.forward.empty": {
+      "comment": "Shown in the forward picker when there is no other conversation to forward to.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No other conversations yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有其他会话"
+          }
+        }
+      }
     }
   }
 }

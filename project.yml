@@ -38,6 +38,8 @@ packages:
     path: Packages/FeatureOnboarding
   RFDesign:
     path: Packages/RFDesign
+  RFMedia:
+    path: Packages/RFMedia
   AppData:
     path: Packages/AppData
   RFLocalization:
@@ -74,6 +76,7 @@ targets:
       - package: FeatureConversations
       - package: FeatureOnboarding
       - package: RFDesign
+      - package: RFMedia
       - package: FeatureAppShell
       - package: AppData
       - package: RFLocalization

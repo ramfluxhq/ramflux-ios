@@ -316,8 +316,6 @@
 	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
 	<key>settings.unavailable.pairing</key>
 	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
-	<key>settings.unavailable.storage</key>
-	<string>Storage management is not available in this version yet.</string>
 	<key>settings.unavailable.username</key>
 	<string>Finding people by @username is not available yet. Share your contact card instead.</string>
 	<key>status.accept</key>

@@ -34,8 +34,8 @@ public struct NativeConversationsRepository: ConversationsRepository {
                 if row["archived"] == .bool(true) || row["hidden"] == .bool(true) { return nil }
                 let id = try ProxyGateway.text(row, "id")
                 let title = row["title"]?.string.flatMap { $0.isEmpty ? nil : $0 } ?? id
-                let kind = row["group_id"]?.string == nil ? "person" : "group"
-                return ConversationRecord(id: id, title: title, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]), kind: kind, muted: row["muted"] == .bool(true))
+                let group = row["group_id"]?.string.flatMap { $0.isEmpty ? nil : $0 }
+                return ConversationRecord(id: id, title: title, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]), kind: group == nil ? "person" : "group", muted: row["muted"] == .bool(true), groupID: group)
             }
             let next: String?
             switch body["next_cursor"] {

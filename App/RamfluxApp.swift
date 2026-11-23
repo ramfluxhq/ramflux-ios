@@ -46,11 +46,14 @@ import RFDesign
                 case .calls(let conversation):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(CallsHost(coordinator: composition.calls(account: account, conversation: conversation))) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
-                case .groupConversation(let id, let title):
-                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, isGroup: true, title: title))) }
+                case .groupConversation(let id, let group, let title):
+                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, group: group, title: title))) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
+                    else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                case .mediaStorage:
+                    if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(MediaStorageHost(repository: composition.repositories.chat, account: account)) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
                 case .contacts, .strangers, .contact, .safetyNumber:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
@@ -70,6 +73,10 @@ import RFDesign
             }
             }
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))
+                .sheet(item: Binding(get: { composition.forwarding }, set: { if $0 == nil { composition.forwardChosen(nil) } })) { request in
+                    ForwardTargetsScreen(repository: composition.repositories.conversations, account: request.account, excluding: request.conversation,
+                                         onPick: { composition.forwardChosen($0) }, onCancel: { composition.forwardChosen(nil) })
+                }
                 .onAppear { composition.permissions.send(phase == .active ? .foreground : .sceneInactive); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }

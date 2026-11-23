@@ -16,3 +16,25 @@ import AppData
 public protocol CallPeerNames: Sendable {
     func names(account: String, peers: [String]) async -> [String: String]
 }
+
+/// Peer names from the accepted contacts: pages `contactsPage` (the repository pages its
+/// snapshot off the main actor) in steps of `batch` rows and stops as soon as every requested peer
+/// is named. A peer that is not a contact keeps no name and is shown by its identifier.
+public struct ContactCallPeerNames: CallPeerNames {
+    private let contacts: any ContactsRepository
+    private let batch: Int
+    public init(contacts: any ContactsRepository, batch: Int = 200) { self.contacts = contacts; self.batch = max(1, batch) }
+    public func names(account: String, peers: [String]) async -> [String: String] {
+        var wanted = Set(peers), names: [String: String] = [:], cursor: String?
+        guard !wanted.isEmpty else { return [:] }
+        repeat {
+            guard !Task.isCancelled, case .success(let page) = await contacts.contactsPage(account: account, query: "", cursor: cursor, limit: batch) else { break }
+            for contact in page.rows where wanted.remove(contact.id) != nil {
+                let name = contact.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !name.isEmpty, name != contact.id { names[contact.id] = name }
+            }
+            cursor = page.nextCursor
+        } while cursor != nil && !wanted.isEmpty
+        return names
+    }
+}

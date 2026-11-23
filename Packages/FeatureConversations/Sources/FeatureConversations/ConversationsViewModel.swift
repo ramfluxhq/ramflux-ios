@@ -46,7 +46,9 @@ import AppData
         case .localeChanged(let value): guard value.identifier != locale.identifier else { return }; locale = value; if !state.rows.isEmpty { reload(search: false) }
         case .queryChanged(let query): state.query = String(query.prefix(1024))
         case .search: reload(search: true)
-        case .open(let id): if state.rows.contains(where: { $0.id == id }) { emit(.navigate(.conversation(id))) }
+        case .open(let id):
+            guard let row = state.rows.first(where: { $0.id == id }) else { return }
+            emit(.navigate(row.groupID.map { .groupConversation(id, group: $0, title: row.title) } ?? .conversation(id)))
         case .contacts, .newConversation, .addContact: emit(.navigate(.contacts))
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
