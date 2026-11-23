@@ -141,6 +141,8 @@ import FeatureCards
         if case .edit(_, let previous) = state.composer { state.draft = previous }
         state.composer = nil
     }
+    /// The edit revision the timeline shows for a message (the base of an edit).
+    private func revision(of id: String) -> Int64 { state.messages.first { $0.id == id }?.revision ?? 0 }
     private func submitComposer() {
         guard !state.sending, state.held == nil else { return }
         guard !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -148,7 +150,8 @@ import FeatureCards
         case .edit(let messageID, _):
             let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft)
             state.held = .revision(operationID: attempt.operationID, messageID: messageID, text: attempt.text, reply: false)
-            runHeld { [repository, account, conversation] in await repository.edit(account: account, conversation: conversation, message: messageID, text: attempt.text, operationID: attempt.operationID) }
+            let base = revision(of: messageID)
+            runHeld { [repository, account, conversation] in await repository.edit(account: account, conversation: conversation, message: messageID, text: attempt.text, expectedRevision: base, operationID: attempt.operationID) }
         case .reply(let messageID, _):
             let attempt = FrozenSend(operationID: UUID().uuidString, text: state.draft)
             state.held = .revision(operationID: attempt.operationID, messageID: messageID, text: attempt.text, reply: true)
@@ -196,9 +199,10 @@ import FeatureCards
         guard !state.sending, let held = state.held else { return }
         switch held {
         case .revision(let operationID, let messageID, let text, let reply):
+            let base = revision(of: messageID)
             runHeld { [repository, account, conversation] in
                 reply ? await repository.reply(account: account, conversation: conversation, message: messageID, text: text, operationID: operationID)
-                    : await repository.edit(account: account, conversation: conversation, message: messageID, text: text, operationID: operationID)
+                    : await repository.edit(account: account, conversation: conversation, message: messageID, text: text, expectedRevision: base, operationID: operationID)
             }
         case .reaction(let operationID, let messageID, let token, let remove):
             runHeld { [repository, account, conversation] in await repository.react(account: account, conversation: conversation, message: messageID, token: token, remove: remove, operationID: operationID) }

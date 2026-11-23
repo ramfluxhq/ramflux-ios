@@ -49,7 +49,8 @@ public protocol ChatRepository: Sendable {
     /// Puts a failed entry back into the queue with its original key and text, then flushes.
     func retryOutbox(account: String, conversation: String, operationID: String) async -> [SendOutcome]
     func discardOutbox(account: String, conversation: String, operationID: String) async -> Bool
-    func edit(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void>
+    /// `expectedRevision` is the edit revision the caller saw (`MessageRecord.revision`); the SDK requires it.
+    func edit(account: String, conversation: String, message: String, text: String, expectedRevision: Int64, operationID: String) async -> RepositoryResult<Void>
     func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void>
     func react(account: String, conversation: String, message: String, token: String, remove: Bool, operationID: String) async -> RepositoryResult<Void>
     func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) async -> RepositoryResult<Void>
@@ -349,8 +350,8 @@ public struct NativeChatRepository: ChatRepository {
         guard text.utf8.count <= 65_536, Self.identity(conversation) else { return }
         await queue.saveDraft(account, conversation, text: text)
     }
-    public func edit(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> {
-        await mutate(.conversationEdit, account: account, conversation: conversation, message: message, operationID: operationID, text: text, extra: [:], states: ["submitted"])
+    public func edit(account: String, conversation: String, message: String, text: String, expectedRevision: Int64, operationID: String) async -> RepositoryResult<Void> {
+        await mutate(.conversationEdit, account: account, conversation: conversation, message: message, operationID: operationID, text: text, extra: ["expected_revision": .number(Double(max(expectedRevision, 0)))], states: ["submitted"])
     }
     public func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> {
         await mutate(.conversationReply, account: account, conversation: conversation, message: message, operationID: operationID, text: text, extra: [:], states: ["submitted"])
@@ -435,7 +436,7 @@ public struct UnavailableChatRepository: ChatRepository {
     public func changes(account: String, conversation: String, after: UInt64) async -> RepositoryResult<MessageChangeBatch> { .failure(.sdkUnavailable) }
     public func send(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<SendOutcome> { .failure(.sdkUnavailable) }
     public func enqueue(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<[SendOutcome]> { .failure(.sdkUnavailable) }
-    public func edit(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
+    public func edit(account: String, conversation: String, message: String, text: String, expectedRevision: Int64, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func react(account: String, conversation: String, message: String, token: String, remove: Bool, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }

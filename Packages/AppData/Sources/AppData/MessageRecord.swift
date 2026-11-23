@@ -51,14 +51,17 @@ public struct MessageRecord: Identifiable, Sendable, Equatable, CustomStringConv
     public let order: MessageOrder?
     /// Durable sequence of this row's last change (the change cursor).
     public let journalSequence: UInt64?
-    public init(id: String, sender: String, kind: Kind, isOwn: Bool?, timestamp: Int64? = nil, delivery: MessageDelivery? = nil, receipts: [MessageReceipt] = [], attachments: [AttachmentRecord] = [], edited: Bool = false, replyTo: String? = nil, replyPreview: String? = nil, reactions: [MessageReaction] = [], authorAnchor: String? = nil, order: MessageOrder? = nil, journalSequence: UInt64? = nil) {
+    /// Highest applied edit revision (0 when unedited); `conversation.edit` needs it as `expected_revision`.
+    public let revision: Int64
+    public init(id: String, sender: String, kind: Kind, isOwn: Bool?, timestamp: Int64? = nil, delivery: MessageDelivery? = nil, receipts: [MessageReceipt] = [], attachments: [AttachmentRecord] = [], edited: Bool = false, replyTo: String? = nil, replyPreview: String? = nil, reactions: [MessageReaction] = [], authorAnchor: String? = nil, order: MessageOrder? = nil, journalSequence: UInt64? = nil, revision: Int64 = 0) {
+        self.revision = revision
         self.id = id; self.sender = sender; self.kind = kind; self.isOwn = isOwn; self.timestamp = timestamp; self.delivery = delivery; self.receipts = receipts; self.attachments = attachments
         self.edited = edited; self.replyTo = replyTo; self.replyPreview = replyPreview; self.reactions = reactions
         self.authorAnchor = authorAnchor; self.order = order; self.journalSequence = journalSequence
     }
     /// A copy with the reply preview resolved from another row of the window.
     public func withReplyPreview(_ preview: String?) -> MessageRecord {
-        MessageRecord(id: id, sender: sender, kind: kind, isOwn: isOwn, timestamp: timestamp, delivery: delivery, receipts: receipts, attachments: attachments, edited: edited, replyTo: replyTo, replyPreview: preview, reactions: reactions, authorAnchor: authorAnchor, order: order, journalSequence: journalSequence)
+        MessageRecord(id: id, sender: sender, kind: kind, isOwn: isOwn, timestamp: timestamp, delivery: delivery, receipts: receipts, attachments: attachments, edited: edited, replyTo: replyTo, replyPreview: preview, reactions: reactions, authorAnchor: authorAnchor, order: order, journalSequence: journalSequence, revision: revision)
     }
 }
 

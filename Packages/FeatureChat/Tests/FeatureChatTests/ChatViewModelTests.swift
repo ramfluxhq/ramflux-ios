@@ -86,7 +86,8 @@ actor ChatFake: ChatRepository {
         for item in entry.media { try? FileManager.default.removeItem(at: item.file) }
         return true
     }
-    func edit(account: String, conversation: String, message: String, text: String, operationID: String) -> RepositoryResult<Void> { edits.append((message, text, operationID)); return editResult }
+    private(set) var editBases: [Int64] = []
+    func edit(account: String, conversation: String, message: String, text: String, expectedRevision: Int64, operationID: String) -> RepositoryResult<Void> { edits.append((message, text, operationID)); editBases.append(expectedRevision); return editResult }
     private var retainedReply: PendingChatMutation?
     func reply(account: String, conversation: String, message: String, text: String, operationID: String) async -> RepositoryResult<Void> {
         replies.append((message, text, operationID))
@@ -256,6 +257,7 @@ extension MessageWindowPage {
         #expect(model.state.draft == "Hello there"); #expect(model.state.held == nil)
         await fake.setEditResult(.failure(.outcomeUnknown))
         model.send(.send); await model.settle()
+        #expect(await fake.editBases.last == 0)
         let first = await fake.edits.last?.2
         model.send(.retrySameSend); await model.settle()
         let second = await fake.edits.last?.2

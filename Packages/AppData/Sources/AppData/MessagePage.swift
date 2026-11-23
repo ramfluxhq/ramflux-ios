@@ -151,9 +151,11 @@ enum MessagePage {
         let message = row["content"]?["message"]
         var text = row["text"]?.string ?? message?["text"]?.string
         var edited = row["edited"] == .bool(true) || rowRevision > 0
+        var revision = rowRevision
         if let overlay = overlays[normalizeIdentifier(id)], overlay.revision > rowRevision || text == nil {
             text = overlay.text
             edited = true
+            revision = max(revision, overlay.revision)
         }
         let attachments = media(message, messageID: id, conversation: conversation)
         let kind: MessageRecord.Kind
@@ -163,7 +165,7 @@ enum MessagePage {
         let receipts = own == true ? receiptRows(row["receipts"]) : []
         return MessageRecord(id: id, sender: sender, kind: kind, isOwn: own, timestamp: stamp, delivery: own == true ? receipts.map(\.state).max() : nil, receipts: receipts,
                              attachments: attachments, edited: edited, replyTo: reply?.isEmpty == false ? reply : nil, reactions: reactions(row["reactions"]),
-                             authorAnchor: anchor, order: order, journalSequence: journal)
+                             authorAnchor: anchor, order: order, journalSequence: journal, revision: revision)
     }
 
     /// Parses `content.message.media[]`. Generated content uses protobuf JSON (camelCase); the

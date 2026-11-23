@@ -97,7 +97,8 @@ import RamfluxCore
         let transport = ProxyTransport { request in
             switch request.method {
             case "conversation.edit":
-                #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Next")]))
+                // The SDK refuses an edit without the revision the caller saw (bus/dispatch/conversation_mutation.rs).
+                #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Next"), "expected_revision": .number(2)]))
             case "conversation.reply":
                 #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Back")]))
             case "conversation.react":
@@ -114,7 +115,7 @@ import RamfluxCore
         }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
         func accepted(_ result: RepositoryResult<Void>) -> Bool { if case .success = result { return true }; return false }
-        #expect(accepted(await repo.edit(account: "a", conversation: "c", message: "m", text: "Next", operationID: "op")))
+        #expect(accepted(await repo.edit(account: "a", conversation: "c", message: "m", text: "Next", expectedRevision: 2, operationID: "op")))
         #expect(accepted(await repo.reply(account: "a", conversation: "c", message: "m", text: "Back", operationID: "op")))
         #expect(accepted(await repo.react(account: "a", conversation: "c", message: "m", token: "👍", remove: false, operationID: "op")))
         #expect(accepted(await repo.react(account: "a", conversation: "c", message: "m", token: "👍", remove: true, operationID: "op")))
