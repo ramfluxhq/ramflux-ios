@@ -2,10 +2,76 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>agents.unavailable</key>
-	<string>Agent directory and configuration are unavailable in this SDK. Bot installation does not create an Agent.</string>
-	<key>backup.import.tooLarge</key>
-	<string>This archive exceeds the 256 MiB mobile import limit.</string>
+	<key>accountCode.failure.attemptsExhausted</key>
+	<string>Too many wrong account codes. Restore the account with its recovery phrase.</string>
+	<key>accountCode.failure.deviceUnlockUnavailable</key>
+	<string>This phone no longer holds the key that unlocks this account. Restore the account with its recovery phrase.</string>
+	<key>accountCode.failure.mismatch</key>
+	<string>The two account codes do not match. Enter them again.</string>
+	<key>accountCode.failure.notSixDigits</key>
+	<string>The account code must be exactly 6 digits (0–9).</string>
+	<key>accountCode.failure.required</key>
+	<string>This account is locked. Enter its account code.</string>
+	<key>accountCode.failure.retryLater</key>
+	<string>Too many wrong account codes. Wait a while before the next try.</string>
+	<key>accountCode.failure.title</key>
+	<string>Account code</string>
+	<key>accountCode.failure.trivial</key>
+	<string>This code is too easy to guess (repeated digits or a straight run). Choose another.</string>
+	<key>agents.unavailable.access</key>
+	<string>Changing who can reach this agent is not available on this phone yet.</string>
+	<key>agents.unavailable.chat</key>
+	<string>A chat with this agent cannot be opened from this phone.</string>
+	<key>agents.unavailable.creationDecision</key>
+	<string>Approving or declining this agent creation is not available on this phone yet. Decide on the desktop that started it.</string>
+	<key>agents.unavailable.goal</key>
+	<string>Goal settings are not available yet.</string>
+	<key>agents.unavailable.hide</key>
+	<string>Hiding an agent is not available yet.</string>
+	<key>agents.unavailable.pause</key>
+	<string>Pausing an agent is not available yet.</string>
+	<key>backup.failure.accountLocked</key>
+	<string>Unlock the account first.</string>
+	<key>backup.failure.attachmentsUnavailable</key>
+	<string>Some attachments are not on this phone.</string>
+	<key>backup.failure.attendanceRequired</key>
+	<string>Keep this screen open and try again once it is connected.</string>
+	<key>backup.failure.authorizationRejected</key>
+	<string>The account did not authorise this restore.</string>
+	<key>backup.failure.conflict</key>
+	<string>The archive conflicts with account data on this phone.</string>
+	<key>backup.failure.damaged</key>
+	<string>The archive is damaged or was changed after it was written.</string>
+	<key>backup.failure.importTooLarge</key>
+	<string>This archive exceeds the 256 MiB import limit of this phone.</string>
+	<key>backup.failure.insufficientSpace</key>
+	<string>There is not enough free storage on this phone.</string>
+	<key>backup.failure.interrupted</key>
+	<string>The job stopped before it finished. Start it again.</string>
+	<key>backup.failure.networkingPending</key>
+	<string>The account is still waiting for its node. Try again when it is connected.</string>
+	<key>backup.failure.notWritable</key>
+	<string>The archive could not be written.</string>
+	<key>backup.failure.other</key>
+	<string>The job could not finish.</string>
+	<key>backup.failure.passphraseEmpty</key>
+	<string>Enter the archive passphrase.</string>
+	<key>backup.failure.passphraseMismatch</key>
+	<string>The two passphrases do not match.</string>
+	<key>backup.failure.passphraseTooCommon</key>
+	<string>This passphrase is too common. Choose a less predictable one.</string>
+	<key>backup.failure.passphraseTooShort</key>
+	<string>Use at least 15 characters for the archive passphrase.</string>
+	<key>backup.failure.restoreSetupRequired</key>
+	<string>Set a six-digit account code for the restored account.</string>
+	<key>backup.failure.title</key>
+	<string>Backup or restore did not go ahead</string>
+	<key>backup.failure.unreadable</key>
+	<string>The archive could not be read.</string>
+	<key>backup.failure.unsupportedVersion</key>
+	<string>This archive needs a newer version of the app.</string>
+	<key>backup.failure.wrongPassphrase</key>
+	<string>This passphrase does not open the archive.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
 	<key>cards.unavailable</key>
@@ -17,7 +83,7 @@
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
 	<key>chat.unavailable.calls</key>
-	<string>Calling is not available in this phone build.</string>
+	<string>Group calls are not available. Calls are one to one.</string>
 	<key>chat.unavailable.details</key>
 	<string>Conversation details are not available in this phone build.</string>
 	<key>common.connection.failed</key>
@@ -30,10 +96,10 @@
 	<string>Messages</string>
 	<key>common.tab.more</key>
 	<string>More</string>
-	<key>contacts.unavailable.atomicVerification</key>
-	<string>The verification operation is not bound to the exact fingerprint shown here. No new verification has been recorded.</string>
 	<key>contacts.unavailable.batch</key>
 	<string>Batch decisions are not available yet. Review each request separately.</string>
+	<key>contacts.unavailable.contactGone</key>
+	<string>This contact no longer exists. Refresh your contacts.</string>
 	<key>contacts.unavailable.identityCommitment</key>
 	<string>The current contact identity commitment is unavailable.</string>
 	<key>contacts.unavailable.replyWithoutAcceptance</key>
@@ -94,6 +160,8 @@
 	<string>Group threads and forum posts are not available in this phone build.</string>
 	<key>groups.unavailable.transfer</key>
 	<string>Ownership transfer requires the new owner’s authenticated acceptance and certificate. This phone integration does not provide that flow yet.</string>
+	<key>notification.message.title</key>
+	<string>New message</string>
 	<key>onboarding.failure.pairingUnavailable</key>
 	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
 	<key>onboarding.failure.setupExpired</key>
@@ -120,8 +188,52 @@
 	<string>This app cannot access its private Keychain. Install a correctly signed build with the app’s Keychain entitlement.</string>
 	<key>onboarding.vaultUnavailable</key>
 	<string>The private Keychain provider is unavailable on this device.</string>
-	<key>receipt.deviceState</key>
-	<string>%1$@: %2$@</string>
+	<key>pairing.failure.Busy</key>
+	<string>Another linking step is still running. Try again in a moment.</string>
+	<key>pairing.failure.Expired</key>
+	<string>The invitation expired. Start again to create a new one.</string>
+	<key>pairing.failure.HeadChanged</key>
+	<string>The account's device list changed while linking. Start again.</string>
+	<key>pairing.failure.InvalidInput</key>
+	<string>The linking request was not valid. Start again.</string>
+	<key>pairing.failure.NotFound</key>
+	<string>Linking is not available on this node, or this linking session no longer exists.</string>
+	<key>pairing.failure.PrimaryRequired</key>
+	<string>Only the account's primary device can link new devices.</string>
+	<key>pairing.failure.PublicationPending</key>
+	<string>The change is still being published to the node. Check again in a moment.</string>
+	<key>pairing.failure.Replay</key>
+	<string>A repeated message was detected, so linking stopped for safety. Start again.</string>
+	<key>pairing.failure.Retired</key>
+	<string>This linking session was closed. Start again.</string>
+	<key>pairing.failure.SasMismatch</key>
+	<string>The symbols did not match, so linking was stopped on both devices.</string>
+	<key>pairing.failure.TransferCapacity</key>
+	<string>There is not enough capacity to move the account data.</string>
+	<key>pairing.failure.TransferFloorsTooLarge</key>
+	<string>The account data to move is too large.</string>
+	<key>pairing.failure.UpdateRequired</key>
+	<string>The node or the other device needs an update before linking.</string>
+	<key>pairing.failure.VaultUnavailable</key>
+	<string>This phone's protected key storage is not available right now.</string>
+	<key>pairing.failure.WrongContext</key>
+	<string>The other device does not belong to this account or node.</string>
+	<key>pairing.failure.WrongRole</key>
+	<string>This device cannot do this step of linking.</string>
+	<key>pairing.failure.comparisonChanged</key>
+	<string>The symbols changed. Compare them again before confirming.</string>
+	<key>pairing.failure.deviceName</key>
+	<string>Enter a device name of up to 128 bytes without control characters.</string>
+	<key>pairing.failure.invitationTooLarge</key>
+	<string>The invitation is too large to show as a QR code, so linking was cancelled.</string>
+	<key>pairing.failure.other</key>
+	<string>Linking stopped for a reason this app does not recognise.</string>
+	<key>pairing.failure.title</key>
+	<string>Linking did not complete</string>
+	<key>refusal.already_contact</key>
+	<string>This account is already one of your contacts. Its card was not applied.</string>
+	<key>refusal.already_contact.title</key>
+	<string>Already a contact</string>
 	<key>refusal.crypto_failure</key>
 	<string>This message could not be protected.</string>
 	<key>refusal.crypto_failure.title</key>
@@ -198,8 +310,6 @@
 	<string>This feature module is not installed yet.</string>
 	<key>session.unavailable.nativeCore</key>
 	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
-	<key>settings.mobileBackup</key>
-	<string>Backup and restore are available on the desktop client. No backup task can be started from this phone.</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>Advanced connected-service configuration is managed on your desktop.</string>
 	<key>settings.unavailable.diagnosticExport</key>
@@ -208,6 +318,8 @@
 	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
 	<key>settings.unavailable.pairing</key>
 	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
+	<key>settings.unavailable.username</key>
+	<string>Finding people by @username is not available yet. Share your contact card instead.</string>
 	<key>status.accept</key>
 	<string>Accept</string>
 	<key>status.accepted</key>
@@ -254,6 +366,8 @@
 	<string>Verifying</string>
 	<key>status.writing</key>
 	<string>Writing</string>
+	<key>tasks.approval.appSignature</key>
+	<string>Approving this request needs an app signature this phone cannot make yet. You can still deny it.</string>
 	<key>tasks.unavailable</key>
 	<string>Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted.</string>
 </dict>

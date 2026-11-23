@@ -124,12 +124,13 @@ public struct KitComposer: View {
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             }
             HStack(spacing: KitMetrics.bubbleGap) {
-                KitIcon(name: "plus", size: KitMetrics.attachIcon, tint: theme.secondary)
-                    .frame(width: KitMetrics.iconButton, height: KitMetrics.iconButton)
-                    .opacity(attachEnabled ? 1 : KitMetrics.disabledAlpha)
-                    .contentShape(Rectangle())
-                    .onTapGesture { if attachEnabled { onAttach() } }
-                    .allowsHitTesting(attachEnabled)
+                // A real button for assistive technology and UI tests (label, button trait, enabled state);
+                // a plain image with a tap gesture was neither labelled nor hittable.
+                KitHit(enabled: attachEnabled, label: RFDesignStrings.text("kit.attach"), hitTag: tag.map { $0 + "-attach" }, action: { if attachEnabled { onAttach() } }) {
+                    KitIcon(name: "plus", size: KitMetrics.attachIcon, tint: theme.secondary)
+                        .frame(width: KitMetrics.iconButton, height: KitMetrics.iconButton)
+                        .opacity(attachEnabled ? 1 : KitMetrics.disabledAlpha)
+                }
                 HStack(spacing: KitMetrics.headerGap) {
                     if capturing {
                         KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)
@@ -143,6 +144,7 @@ public struct KitComposer: View {
                             .modifier(KitFieldFont(size: theme.size_mobile_body))
                             .foregroundStyle(theme.text)
                             .multilineTextAlignment(KitMessageText.direction(of: value, surrounding: layoutDirection) == layoutDirection ? .leading : .trailing)
+                            .accessibilityIdentifier(tag.map { $0 + "-input" } ?? "")
                     }
                     KitHit(enabled: sendActive, label: RFDesignStrings.text("kit.send"), hitTag: tag.map { $0 + "-send" }, action: onSend) {
                         KitIcon(name: "arrow-up", size: KitMetrics.sendIcon, tint: sendActive ? theme.on_accent : theme.control)
@@ -164,6 +166,6 @@ public struct KitComposer: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(theme.bg)
         .kitHairline(theme.line, top: true)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }

@@ -14,7 +14,6 @@ public enum ConversationsPreviews {
     ]
     public static let states: [ConversationsState] = {
         var populated = ConversationsState(rows: sampleRows)
-        populated.strangersDetail = "3 位非联系人的消息"
         populated.strangersUnread = 3
         return [ConversationsState(), ConversationsState(loading: true), ConversationsState(failure: .offline), populated].map { original in
             var state = original

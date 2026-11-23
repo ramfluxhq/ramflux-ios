@@ -12,8 +12,8 @@ struct LocalizationTests {
         #expect(english != key); #expect(chinese != key); #expect(chinese != english); #expect(expanded.count > english.count)
     }
     @Test func expandedVariablesAreFormattedBeforeExpansion() {
-        let english = FeatureSettingsStrings.format("backup.jobSummary", "restore", "verified", locale: Locale(identifier: "en"))
-        let expanded = FeatureSettingsStrings.format("backup.jobSummary", "restore", "verified", locale: Locale(identifier: "en-XA"))
+        let english = FeatureSettingsStrings.format("settings.backup.job.title", "Restore", "Done", locale: Locale(identifier: "en"))
+        let expanded = FeatureSettingsStrings.format("settings.backup.job.title", "Restore", "Done", locale: Locale(identifier: "en-XA"))
         #expect(expanded == "［" + english + " · " + english + "］")
     }
 }

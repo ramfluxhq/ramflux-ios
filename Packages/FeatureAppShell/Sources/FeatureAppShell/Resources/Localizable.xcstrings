@@ -628,6 +628,108 @@
           }
         }
       }
+    },
+    "shell.more.calls": {
+      "comment": "Row in the More hub that opens the call history.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
+    "shell.more.calls.preview": {
+      "comment": "Second line of the More hub row that opens the call history.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call history and voice calls"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话记录与语音通话"
+          }
+        }
+      }
+    },
+    "shell.locked.title": {
+      "comment": "Title of the locked state shown on a tab or screen while no account is unlocked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your account is locked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户已锁定"
+          }
+        }
+      }
+    },
+    "shell.locked.message": {
+      "comment": "Body of the locked state shown on a tab or screen while no account is unlocked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock it with your six-digit account code to see your conversations, contacts and groups."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入六位账户密码解锁后，即可查看会话、联系人和群组。"
+          }
+        }
+      }
+    },
+    "shell.locked.unlock": {
+      "comment": "Button that opens the unlock screen for an account on this phone. %@ is the account's display name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁 %@"
+          }
+        }
+      }
+    },
+    "shell.accounts.locked": {
+      "comment": "Trailing caption of an account row in the account switcher: the account is on this phone but locked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已锁定"
+          }
+        }
+      }
     }
   }
 }

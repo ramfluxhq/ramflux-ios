@@ -152,6 +152,10 @@ system-text message bubbles, per-script faces) were stacked on the board
 verification work: each changed reference was compared pair by pair and its
 reason extended with what moved and why; no rectangle was accepted in bulk.
 
+Wave 2 pass 4 redrew the onboarding and unlock screens (MOB-S01, S02, S18, N01, A01, A02) and added
+the MOB-A07 capture; each of those entries was re-recorded from its own pair and its reason rewritten
+with the remaining residuals; no other entry changed.
+
 ## Capture toolchain
 
 CI runs on the hosted `macos-26` image with Xcode 26.6, the newest Xcode any

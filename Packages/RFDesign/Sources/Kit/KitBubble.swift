@@ -14,6 +14,7 @@ public struct KitBubble: View {
     var agentTag: String?
     var pending: Bool
     var read: Bool
+    var sentOnly: Bool
     var failed: Bool
     var transient: Bool
     var fileName: String?
@@ -33,6 +34,7 @@ public struct KitBubble: View {
         agentTag: String? = nil,
         pending: Bool = false,
         read: Bool = false,
+        sentOnly: Bool = false,
         failed: Bool = false,
         transient: Bool = false,
         fileName: String? = nil,
@@ -49,6 +51,7 @@ public struct KitBubble: View {
         self.agentTag = agentTag
         self.pending = pending
         self.read = read
+        self.sentOnly = sentOnly
         self.failed = failed
         self.transient = transient
         self.fileName = fileName
@@ -116,11 +119,24 @@ public struct KitBubble: View {
                 KitLabel(time, size: theme.size_mobile_caption, weight: .regular, color: meta, line: KitMetrics.lineTitle, role: .latin)
             }
             if pending { KitIcon(name: "clock-3", size: KitMetrics.metaIcon, tint: meta) }
+            // One check: sent, no device has confirmed delivery yet. Two checks: delivered; two
+            // checks in the text colour: read on at least one device.
             if own && !pending && (read || !(time ?? "").isEmpty) {
-                KitIcon(name: "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
+                KitIcon(name: sentOnly && !read ? "check" : "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
             }
         }
         .fixedSize()
+        // The ticks and the clock are drawn as hidden icons; their meaning is the cluster's value.
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(Text(receiptStatus(own: own)))
+    }
+
+    /// What the ticks or the clock say, for assistive technology (empty when nothing is drawn).
+    private func receiptStatus(own: Bool) -> String {
+        if pending { return RFDesignStrings.text("kit.receipt.pending") }
+        guard own, read || !(time ?? "").isEmpty else { return "" }
+        if read { return RFDesignStrings.text("kit.receipt.read") }
+        return RFDesignStrings.text(sentOnly ? "kit.receipt.sent" : "kit.receipt.delivered")
     }
 
     private var bubbleShape: UnevenRoundedRectangle {

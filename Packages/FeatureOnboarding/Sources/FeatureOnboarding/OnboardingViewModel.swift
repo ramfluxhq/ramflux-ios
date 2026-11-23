@@ -10,10 +10,15 @@ import AppData
     private let emit: @MainActor (OnboardingEvent) -> Void
     @ObservationIgnored private var work: Task<Void, Never>?
     @ObservationIgnored private var expiry: Task<Void, Never>?
+    @ObservationIgnored private var network: Task<Void, Never>?
+    /// How long the completion step follows networking, and how often it asks.
+    @ObservationIgnored var networkWatch: (attempts: Int, interval: Duration) = (45, .seconds(2))
     @ObservationIgnored private var unresolvedConfirmation = false
     @ObservationIgnored private var generation: UInt64 = 0
+    /// The state a cleanup returns to: the plain start, or the unlock step of a known account.
+    @ObservationIgnored private let base: OnboardingState
     public init(repository: any OnboardingRepository, nodes: any NodeRepository, state: OnboardingState = OnboardingState(), emit: @escaping @MainActor (OnboardingEvent) -> Void) {
-        self.repository = repository; self.nodes = nodes; self.state = state; self.emit = emit
+        self.repository = repository; self.nodes = nodes; self.state = state; self.base = state; self.emit = emit
     }
     public func send(_ action: OnboardingAction) {
         switch action {
@@ -28,11 +33,16 @@ import AppData
         case .nameChanged(let value): state.name = String(value.prefix(256))
         case .expectedNodeKeyChanged(let value): state.expectedNodeKey = value.trimmingCharacters(in: .whitespacesAndNewlines); state.reviewedNode = nil
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil; state.reviewedNode = nil; state.expectedNodeKey = ""
-        case .recoveryAccountChanged(let value): state.recoveryAccount = String(value.prefix(256))
+        case .recoveryAccountChanged(let value): if state.knownAccountName == nil { state.recoveryAccount = String(value.prefix(256)) }
+        case .forgetKnownAccount: if state.knownAccountName != nil, !state.recoveryAccount.isEmpty { emit(.forgetAccount(state.recoveryAccount)) }
         case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.canCreateAccount }) { state.selectedNodeID = id }
-        case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.stage = .localUnlock
+        case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.showingUnlockInfo = false; state.stage = .localUnlock
+        case .getStarted: if state.stage == .connection { state.stage = .welcome }
+        case .existingAccount: state.creatingAccount = false; state.stage = .start
+        case .unlockInfo(let visible): state.showingUnlockInfo = visible
         case .create: state.creatingAccount = true; state.unlockingSavedAccount = false; state.stage = .create
         case .recover: state.creatingAccount = false; state.stage = .recover
+        case .restoreBackup: emit(.restoreBackup)
         case .link:
             state.stage = .link
             state.failure = .unavailableResource("onboarding.failure.pairingUnavailable")
@@ -75,6 +85,8 @@ import AppData
         case .continueUnlock: if state.stage == .confirmPhrase { state.stage = .localUnlock }
         case .submit(let input):
             guard !state.confirmationConsumed else { input.erase(); return }
+            // A code the SDK would refuse must not spend the single-attempt confirmation.
+            if let issue = input.accountCodeIssue { input.erase(); state.failure = .accountCode(issue); return }
             if state.unlockingSavedAccount {
                 guard !state.recoveryAccount.isEmpty else { input.erase(); state.failure = .invalidInput; return }
                 let id = state.recoveryAccount
@@ -128,7 +140,9 @@ import AppData
             let id = UUID(); state.displayID = id; emit(.presentRecovery(id, display))
         case .challenge(.success(let positions)): state.positions = positions; state.stage = .confirmPhrase
         case .recovery(.success(let metadata)): state.metadata = metadata; scheduleExpiry(metadata)
-        case .confirmed(.success(let account)): expiry?.cancel(); state.completedAccount = account; state.stage = .complete
+        case .confirmed(.success(let account)):
+            expiry?.cancel(); state.completedAccount = account; state.stage = .complete
+            if account.networking != .live { watchNetwork(account) }
         case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error)), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
             state.failure = (error == .failed || error == .invalidData) ? .onboardingProtocol : error
             if state.stage == .verifying { state.stage = .connectionFailed }
@@ -143,11 +157,32 @@ import AppData
             self?.send(.expired)
         }
     }
+    /// Follows `account.status` after creation or unlock until the SDK reports networking live, so the
+    /// completion step shows the real state instead of the confirmation's snapshot.
+    private func watchNetwork(_ account: AccountRecord) {
+        network?.cancel(); state.watchingNetwork = true
+        let plan = networkWatch
+        network = Task { [weak self, repository] in
+            for _ in 0..<plan.attempts {
+                do { try await Task.sleep(for: plan.interval) } catch { return }
+                guard case .success(let networking) = await repository.networking(accountID: account.id) else { continue }
+                guard let self, !Task.isCancelled, self.state.completedAccount?.id == account.id else { return }
+                if networking == .live {
+                    self.state.completedAccount = AccountRecord(id: account.id, displayName: account.displayName, isLocked: account.isLocked, networking: .live)
+                    self.state.watchingNetwork = false; return
+                }
+            }
+            self?.state.watchingNetwork = false
+        }
+    }
+    /// Test barrier for the networking watch.
+    func settleNetwork() async { await network?.value }
     private func cleanup(dismiss: Bool) {
+        network?.cancel(); network = nil
         generation &+= 1; let epoch = generation
         emit(.revokeRecovery); expiry?.cancel(); expiry = nil
         let previous = work; previous?.cancel()
-        state = OnboardingState(); state.busy = true
+        state = base; state.busy = true
         work = Task { [weak self, repository] in
             await previous?.value
             let result = await repository.cancel()
@@ -162,5 +197,5 @@ import AppData
         }
     }
     public func settle() async { await work?.value }
-    deinit { work?.cancel(); expiry?.cancel() }
+    deinit { work?.cancel(); expiry?.cancel(); network?.cancel() }
 }

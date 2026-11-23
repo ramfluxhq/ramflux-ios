@@ -3,7 +3,7 @@
 import Foundation
 import AppData
 public struct OnboardingState: Equatable, Sendable {
-    public var stage: OnboardingStage = .welcome
+    public var stage: OnboardingStage = .connection
     public var name = ""
     public var address = ""
     public var recoveryAccount = ""
@@ -25,5 +25,18 @@ public struct OnboardingState: Equatable, Sendable {
     public var creatingAccount = false
     public var confirmationConsumed = false
     public var completedAccount: AccountRecord?
-    public init(stage: OnboardingStage = .welcome) { self.stage = stage }
+    /// The completion step is following the SDK's networking state until it reports live.
+    public var watchingNetwork = false
+    /// The device unlock information (MOB-A07) is shown over the current step.
+    public var showingUnlockInfo = false
+    /// The display name of a known account being unlocked (from the device's registry); the unlock step then
+    /// shows this name instead of the account id field.
+    public var knownAccountName: String?
+    public init(stage: OnboardingStage = .connection) { self.stage = stage }
+    /// The unlock step for an account this device knows: it asks only for the account code.
+    public static func unlockKnown(account: String, name: String) -> OnboardingState {
+        var state = OnboardingState(stage: .localUnlock)
+        state.unlockingSavedAccount = true; state.recoveryAccount = account; state.knownAccountName = name
+        return state
+    }
 }

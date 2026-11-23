@@ -3,7 +3,7 @@
 import Foundation
 import AppData
 public enum GroupsAction: Equatable, Sendable {
-    case openMessages(String), appeared, disappeared, refresh, filter(String), name(String), mode(GroupsMode)
+    case openMessages(String), appeared, disappeared, refresh, loadMore, loadMoreContacts, filter(String), name(String), mode(GroupsMode)
     case prepareCreate, prepareRename, prepareAdd(String), prepareRole(String, String), prepareRemove(String), prepareInvitation(String, Bool)
     case confirm(UUID), cancelConfirmation, reconcileOriginal(String), unavailable(GroupUnavailable)
 }

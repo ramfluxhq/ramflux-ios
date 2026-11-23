@@ -2,6 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.attach.camera</key>
+	<string>相机</string>
+	<key>chat.attach.file</key>
+	<string>文件</string>
+	<key>chat.attach.photos</key>
+	<string>照片</string>
+	<key>chat.attach.title</key>
+	<string>添加附件</string>
+	<key>chat.attachment.typeSize</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.composer.cancel</key>
 	<string>取消</string>
 	<key>chat.composer.placeholder</key>
@@ -20,6 +30,32 @@
 	<string>删除消息</string>
 	<key>chat.delete.mine.title</key>
 	<string>要从你自己的设备中删除吗？</string>
+	<key>chat.details.close</key>
+	<string>完成</string>
+	<key>chat.details.conversationID</key>
+	<string>会话 ID</string>
+	<key>chat.details.groupMembers</key>
+	<string>请在群组中管理成员和角色。</string>
+	<key>chat.details.members</key>
+	<string>成员</string>
+	<key>chat.details.mute</key>
+	<string>消息免打扰</string>
+	<key>chat.details.muteUnknown</key>
+	<string>此会话暂时没有免打扰状态。</string>
+	<key>chat.details.safety</key>
+	<string>安全码</string>
+	<key>chat.details.safetyUnavailable</key>
+	<string>对方成为联系人并给你发过消息后，才能查看安全码。</string>
+	<key>chat.details.title</key>
+	<string>会话详情</string>
+	<key>chat.details.you</key>
+	<string>你</string>
+	<key>chat.draft.caption</key>
+	<string>添加说明</string>
+	<key>chat.draft.remove</key>
+	<string>移除</string>
+	<key>chat.draft.send</key>
+	<string>发送</string>
 	<key>chat.edit.banner</key>
 	<string>正在编辑</string>
 	<key>chat.edited</key>
@@ -28,18 +64,98 @@
 	<string>此会话的消息将在这里显示。</string>
 	<key>chat.empty.title</key>
 	<string>暂无消息</string>
+	<key>chat.gallery.empty</key>
+	<string>暂无内容</string>
+	<key>chat.gallery.files</key>
+	<string>文件</string>
+	<key>chat.gallery.media</key>
+	<string>媒体</string>
+	<key>chat.gallery.more</key>
+	<string>加载更早的内容</string>
+	<key>chat.gallery.newest</key>
+	<string>回到最新</string>
+	<key>chat.gallery.title</key>
+	<string>媒体和文件</string>
 	<key>chat.loading</key>
 	<string>正在加载消息</string>
+	<key>chat.media.accessibility</key>
+	<string>%1$@，%2$@</string>
+	<key>chat.media.cancelDownload</key>
+	<string>取消下载</string>
+	<key>chat.media.download</key>
+	<string>下载</string>
+	<key>chat.media.downloading</key>
+	<string>正在下载</string>
+	<key>chat.media.expired</key>
+	<string>已不可用</string>
+	<key>chat.media.failed</key>
+	<string>下载失败，点按重试</string>
+	<key>chat.media.notAvailable</key>
+	<string>在此设备上不可用</string>
+	<key>chat.media.open</key>
+	<string>点按打开</string>
+	<key>chat.media.peerUpgrade</key>
+	<string>对方需要更新 Ramflux 才能接收附件。</string>
+	<key>chat.media.photo</key>
+	<string>照片</string>
+	<key>chat.media.preparing</key>
+	<string>正在准备附件…</string>
+	<key>chat.media.recipientLimit</key>
+	<string>此群组过大，暂不支持发送附件。</string>
+	<key>chat.media.removed</key>
+	<string>已被发送者删除</string>
+	<key>chat.media.save</key>
+	<string>存储到照片</string>
+	<key>chat.media.saveFailed</key>
+	<string>无法存储到照片</string>
+	<key>chat.media.saved</key>
+	<string>已存储到照片</string>
+	<key>chat.media.share</key>
+	<string>分享</string>
+	<key>chat.media.show</key>
+	<string>显示</string>
+	<key>chat.media.storageFull</key>
+	<string>存储空间不足，无法发送此附件。</string>
+	<key>chat.media.tapToDownload</key>
+	<string>点按下载，%@</string>
+	<key>chat.media.tooLarge</key>
+	<string>文件过大，无法发送。</string>
+	<key>chat.media.untrusted</key>
+	<string>来自非联系人</string>
+	<key>chat.media.video</key>
+	<string>视频</string>
+	<key>chat.message.actions</key>
+	<string>消息操作</string>
 	<key>chat.message.callHistory</key>
 	<string>通话记录</string>
+	<key>chat.message.copy</key>
+	<string>复制文字</string>
 	<key>chat.message.deleteMine</key>
 	<string>从我的设备中删除</string>
 	<key>chat.message.deleted</key>
 	<string>消息已删除</string>
 	<key>chat.message.edit</key>
 	<string>编辑</string>
+	<key>chat.message.forward</key>
+	<string>转发</string>
 	<key>chat.message.react</key>
 	<string>表情回应</string>
+	<key>chat.message.selectText</key>
+	<string>选择文本</string>
+	<key>chat.offline.banner</key>
+	<string>当前离线 · 消息将在恢复连接后发送</string>
+	<key>chat.outbox.details</key>
+	<string>发送详情</string>
+	<key>chat.outbox.discard</key>
+	<string>删除未发送的消息</string>
+	<key>chat.outbox.failed</key>
+	<string>未发送</string>
+	<key>chat.outbox.pending</key>
+	<string>待发送</string>
+	<key>chat.outbox.retry</key>
+	<string>重试</string>
+	<key>chat.outbox.sending</key>
+	<string>发送中</string>
 	<key>chat.reaction.add</key>
 	<string>添加表情</string>
 	<key>chat.reaction.remove</key>
@@ -50,14 +166,32 @@
 	<string>正在回复</string>
 	<key>chat.reply.quote</key>
 	<string>回复</string>
-	<key>chat.send.failed</key>
-	<string>发送失败</string>
 	<key>chat.send.retry</key>
 	<string>重试原始发送操作</string>
-	<key>chat.send.submitted</key>
-	<string>已提交到账户服务</string>
+	<key>chat.storage.clear</key>
+	<string>清除已下载的媒体</string>
+	<key>chat.storage.clearAll</key>
+	<string>清除全部已下载的媒体</string>
+	<key>chat.storage.clearFact</key>
+	<string>已下载的照片、视频和文件将从本设备移除。超过一天的内容可能无法再次下载。等待发送的消息会保留。</string>
+	<key>chat.storage.conversation</key>
+	<string>本设备上的媒体</string>
+	<key>chat.storage.downloaded</key>
+	<string>已下载的媒体</string>
+	<key>chat.storage.policy</key>
+	<string>已下载的媒体会保留在本设备上，直到你或发送者删除，或你在此处清除。不会自动删除任何内容。</string>
+	<key>chat.storage.title</key>
+	<string>媒体存储</string>
+	<key>chat.storage.waiting</key>
+	<string>等待发送</string>
+	<key>chat.timeline.jumpToLatest</key>
+	<string>回到最新</string>
+	<key>chat.timeline.loadingOlder</key>
+	<string>正在加载更早的消息</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>以下为未读消息</string>
+	<key>chat.typing</key>
+	<string>正在输入…</string>
 	<key>common.action.refresh</key>
 	<string>刷新</string>
 	<key>common.action.reply</key>

@@ -6,7 +6,8 @@ import AppData
 private actor DirectoryFake: ConversationsRepository {
     var failure: AppFailure?
     func fail() { failure = .offline }
-    func list(account: String) -> RepositoryResult<[ConversationRecord]> { if let failure { return .failure(failure) }; return .success([ConversationRecord(id: "thread", title: "Thread", preview: "")]) }
+    func page(account: String, cursor: String?, limit: Int) -> RepositoryResult<ConversationPage> { if let failure { return .failure(failure) }; return .success(ConversationPage(rows: [ConversationRecord(id: "thread", title: "Thread", preview: ""), ConversationRecord(id: "team-thread", title: "Team", preview: "", kind: "group", groupID: "team")], nextCursor: nil)) }
+    func pendingRequests(account: String) -> RepositoryResult<UInt> { .success(2) }
     func search(account: String, query: String) -> RepositoryResult<[ConversationRecord]> { .failure(.notAvailable("Search unavailable")) }
     func observe(account: String) -> RepositoryObservation { {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
@@ -18,19 +19,43 @@ private actor DirectoryFake: ConversationsRepository {
         let repository = DirectoryFake(); var events: [ConversationsEvent] = []
         let model = ConversationsViewModel(repository: repository, account: "a", emit: { events.append($0) })
         model.send(.refresh); await model.settle()
-        #expect(model.state.rows.map(\.id) == ["thread"])
+        #expect(model.state.rows.map(\.id) == ["team-thread", "thread"])
         model.send(.open("unknown")); #expect(events.isEmpty)
         model.send(.open("thread")); #expect(events == [.navigate(.conversation("thread"))])
+        model.send(.open("team-thread")); #expect(events.last == .navigate(.groupConversation("team-thread", group: "team", title: "Team")))
         model.send(.disappeared); #expect(model.state.rows.isEmpty)
     }
     @Test func offlineRefreshPreservesConfirmedRowsAndSearchIsTypedUnavailable() async {
         let repository = DirectoryFake(); let model = ConversationsViewModel(repository: repository, account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()
         await repository.fail(); model.send(.refresh); await model.settle()
-        #expect(model.state.failure == .offline); #expect(model.state.rows.count == 1)
+        #expect(model.state.failure == .offline); #expect(model.state.rows.count == 2)
         model.send(.queryChanged("text")); model.send(.search); await model.settle()
-        #expect(model.state.failure == .notAvailable("Search unavailable")); #expect(model.state.rows.count == 1)
+        #expect(model.state.failure == .notAvailable("Search unavailable")); #expect(model.state.rows.count == 2)
         model.send(.disappeared)
+    }
+    @Test func screenContentFollowsTheBoardStates() {
+        func content(_ state: ConversationsState) -> ConversationsScreen.Content { ConversationsScreen(state: state, onAction: { _ in }).content }
+        #expect(content(ConversationsState(loading: true)) == .loading)
+        #expect(content(ConversationsState(loading: true, failure: .offline)) == .failure(.offline))
+        #expect(content(ConversationsState()) == .empty)
+        var strangers = ConversationsState(); strangers.strangersUnread = 2
+        #expect(content(strangers) == .list)
+        let rows = [ConversationRecord(id: "thread", title: "Thread", preview: "")]
+        #expect(content(ConversationsState(rows: rows, loading: true, failure: .offline)) == .list)
+    }
+    @Test func addContactOpensContacts() {
+        var events: [ConversationsEvent] = []
+        let model = ConversationsViewModel(repository: DirectoryFake(), account: "a", emit: { events.append($0) })
+        model.send(.addContact); #expect(events == [.navigate(.contacts)])
+    }
+    @Test func forwardPickerListsOtherConversationsWithTheirGroupIDs() async {
+        let model = ForwardTargetsViewModel(repository: DirectoryFake(), account: "a", excluding: "thread")
+        model.appeared(locale: .init(identifier: "en")); await model.settle()
+        #expect(model.state.rows.map(\.id) == ["team-thread"])
+        #expect(model.target("team-thread") == ForwardTarget(conversation: "team-thread", groupID: "team"))
+        #expect(model.target("thread") == nil)
+        model.disappeared(); #expect(model.state.rows.isEmpty)
     }
     @Test func unavailableHasNoRecords() async {
         let model = ConversationsViewModel(repository: UnavailableConversationsRepository(), account: "a", emit: { _ in })

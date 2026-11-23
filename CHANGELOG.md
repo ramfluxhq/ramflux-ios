@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+- Real-run harness: every machine-specific input (node facts, peers, rf CLI, conversation id helper, optional node check, peer control, clock container, toolchain file) is an environment variable, read from an untracked `scripts/realrun.local.env` (see the committed example); a missing input stops the script with a message naming it.
+- Shell: after the code unlock that follows a return from the background, the screens that were open (for example the chat) come back in the same navigation change that closes the unlock step; before, the stack finished popping the unlock step after the chat was pushed and dropped it.
+- Chat: a media send that the SDK refuses at `conversation.send` with an internal failure (code 16) reads "not sent" with a retry under the same operation id instead of waiting behind an offline banner; the debug trace records the request shape for the SDK team.
+- Groups: a new group opens the conversation named by the creation reply, without reads that could run before the group list caught up; opening a listed group asks the group's metadata for its conversation before history.
+- Groups: a contact is added to a group by its principal id alone; the explicit root made the SDK read the principal id as a device id and refuse the add (code 16).
+- Backup: once an archive chosen for restore is verified, the install step (new account code, or the merge confirmation) opens by itself.
+- Contacts: a verification whose reply was lost is reconciled by reading the verification state again instead of reporting an unknown outcome.
+- Real-run harness: phased runs (`prepare`, `rebuild`, `run`, `finish`) so every command stays short; run state kept in the loopback control server's memory between phases; the device event trace is saved for every flow that does not pass.
+- Real-run suite reads the recovery phrase through a debug-only accessibility seam of the phrase display (launch argument `-RFRealRunPhraseAccess`, never compiled into release builds) instead of text recognition, so the word check no longer misses a word.
 - Repository clean-up: remove the committed simulator evidence capture (CI regenerates it as a build artifact), list the bundled fonts in `NOTICE`, and neutralise design-token metadata and notes that referred to internal tooling and documents.
 
 ## [0.2.6] - 2026-11-23

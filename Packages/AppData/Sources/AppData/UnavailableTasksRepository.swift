@@ -7,6 +7,8 @@ public struct UnavailableTasksRepository: TasksRepository {
     public func pending(account: String) async -> PendingTaskMutation? { nil }
     public func mutate(account: String, attempt: PendingTaskMutation) async -> RepositoryResult<TaskMutationOutcome> { .failure(.sdkUnavailable) }
     public func permissions(account: String) async -> RepositoryResult<[PermissionRecord]> { .failure(.sdkUnavailable) }
+    public func permissionsPage(account: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<PermissionRecord>> { .failure(.sdkUnavailable) }
+    public func decideApproval(account: String, approval: PermissionApproval, approve: Bool, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func unavailable() -> AppFailure { .unavailableResource("tasks.unavailable") }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
 }

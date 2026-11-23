@@ -23,8 +23,11 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> { confirmations += 1; if let gate { await gate.wait() }; submission.erase(); return confirmSucceeds ? .success(AccountRecord(id: "new-account", displayName: "New account", isLocked: false)) : .failure(.outcomeUnknown) }
     func beginRecovery(accountID: String) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "recovery", expiresInMilliseconds: 60_000, anchor: "fingerprint")) }
     func confirmRecovery(anchor: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { confirmations += 1; submission.erase(); return .success(AccountRecord(id: "account", displayName: "Account", isLocked: false)) }
-    func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { submission.erase(); return .failure(.locked) }
+    private(set) var unlocked: [String] = []
+    func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { unlocked.append(accountID); submission.erase(); return .failure(.locked) }
     func cancel() -> RepositoryResult<Void> { cancellations += 1; return .success(()) }
+    private(set) var networkReads = 0
+    func networking(accountID: String) -> RepositoryResult<AccountNetworking> { networkReads += 1; return .success(networkReads >= 2 ? .live : .networkingPending) }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct OnboardingViewModelTests {
     @Test func concealAfterConfirmationDispatchKeepsRepositoryFenceAfterCleanup() async {
@@ -38,6 +41,70 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(model.state.confirmationConsumed); #expect(model.state.failure == .outcomeUnknown)
         model.send(.create); model.send(.nameChanged("Fresh")); model.send(.beginCreation); await model.settle()
         #expect(model.state.failure == .outcomeUnknown); #expect(await fake.confirmations == 1)
+    }
+    @Test func refusedAccountCodeDoesNotSpendTheSingleConfirmation() async {
+        let fake = FlowFake(confirmSucceeds: true)
+        var state = OnboardingState(stage: .localUnlock); state.positions = [3, 7, 11]
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        let words = ["word1": "a", "word2": "b", "word3": "c"]
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "111111", "passphraseRepeat": "111111"]) { $1 }, accountCode: .new)))
+        #expect(model.state.failure == .accountCode(.trivial)); #expect(!model.state.confirmationConsumed)
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135709"]) { $1 }, accountCode: .new)))
+        #expect(model.state.failure == .accountCode(.mismatch)); #expect(await fake.confirmations == 0)
+        model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
+        #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
+    }
+    @Test func completionFollowsTheSDKNetworkingStateUntilLive() async {
+        let fake = FlowFake(confirmSucceeds: true)
+        var state = OnboardingState(stage: .localUnlock); state.positions = [3, 7, 11]
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        model.networkWatch = (5, .milliseconds(1))
+        let words = ["word1": "a", "word2": "b", "word3": "c", "passphrase": "135790", "passphraseRepeat": "135790"]
+        model.send(.submit(SensitiveSubmission(values: words, accountCode: .new))); await model.settle()
+        #expect(model.state.stage == .complete); #expect(model.state.completedAccount?.networking != .live)
+        await model.settleNetwork()
+        #expect(model.state.completedAccount?.networking == .live); #expect(!model.state.watchingNetwork)
+        #expect(await fake.networkReads == 2)
+    }
+    @Test func onlyStepsWithAKitHeaderHideTheSystemBackControl() {
+        #expect(!OnboardingScreen.drawsOwnBack(OnboardingState(stage: .connection)))
+        #expect(!OnboardingScreen.drawsOwnBack(OnboardingState(stage: .welcome)))
+        #expect(OnboardingScreen.drawsOwnBack(OnboardingState(stage: .start)))
+        #expect(OnboardingScreen.drawsOwnBack(OnboardingState(stage: .address)))
+        #expect(OnboardingScreen.drawsOwnBack(.unlockKnown(account: "a", name: "A")))
+    }
+    @Test func knownAccountUnlockAsksOnlyForTheCodeAndCanForgetARefusedAccount() async {
+        let fake = FlowFake(); var events: [OnboardingEvent] = []
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: .unlockKnown(account: "account-a", name: "Ada"), emit: { events.append($0) })
+        #expect(model.state.stage == .localUnlock && model.state.unlockingSavedAccount && model.state.knownAccountName == "Ada")
+        // The account id is fixed by the registry entry, not typed.
+        model.send(.recoveryAccountChanged("account-other")); #expect(model.state.recoveryAccount == "account-a")
+        model.send(.submit(SensitiveSubmission(values: ["passphrase": "135790"], accountCode: .existing))); await model.settle()
+        #expect(await fake.unlocked == ["account-a"]); #expect(model.state.failure == .locked)
+        model.send(.forgetKnownAccount)
+        #expect(events.contains(.forgetAccount("account-a")))
+        // A conceal returns to the same unlock step, not to the start of onboarding.
+        model.send(.conceal); await model.settle()
+        #expect(model.state.stage == .localUnlock && model.state.recoveryAccount == "account-a" && model.state.knownAccountName == "Ada")
+    }
+    @Test func restoreFromBackupHandsOverToTheBackupScreenWithoutTouchingTheRepository() async {
+        let fake = FlowFake(); var events: [OnboardingEvent] = []
+        let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { events.append($0) })
+        #expect(model.state.stage == .connection)
+        model.send(.getStarted); #expect(model.state.stage == .welcome)
+        model.send(.restoreBackup)
+        #expect(events == [.restoreBackup]); #expect(model.state.stage == .welcome); #expect(!model.state.busy)
+    }
+    @Test func startBoardsLeadToTheExistingIdentityAndUnlockInformation() async {
+        let fake = FlowFake()
+        let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
+        model.send(.existingAccount); #expect(model.state.stage == .start)
+        model.send(.unlockInfo(true)); #expect(model.state.showingUnlockInfo)
+        model.send(.unlockExisting)
+        #expect(model.state.stage == .localUnlock && model.state.unlockingSavedAccount && !model.state.showingUnlockInfo)
+        model.send(.getStarted); #expect(model.state.stage == .localUnlock, "get started only leaves the start board")
+        model.send(.cancel); await model.settle()
+        #expect(model.state.stage == .connection && !model.state.showingUnlockInfo)
     }
     @Test func originMustBeReviewedBeforeNetworkAndSavedKeyIsExact() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })

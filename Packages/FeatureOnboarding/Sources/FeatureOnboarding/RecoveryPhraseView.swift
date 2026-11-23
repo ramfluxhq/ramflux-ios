@@ -21,6 +21,6 @@ public struct RecoveryPhraseView: UIViewRepresentable {
         let lineHeight = CTFontGetAscent(font) + CTFontGetDescent(font) + CTFontGetLeading(font) + size * 0.6
         return CGSize(width: width, height: CGFloat(24 / columns) * lineHeight + size)
     }
-    public static func dismantleUIView(_ view: RecoveryGlyphView, coordinator: ()) { view.display = nil; view.setNeedsDisplay() }
+    public static func dismantleUIView(_ view: RecoveryGlyphView, coordinator: ()) { view.display = nil; view.accessibilityValue = nil; view.setNeedsDisplay() }
 }
 #endif

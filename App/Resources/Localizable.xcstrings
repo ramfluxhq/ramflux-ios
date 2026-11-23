@@ -2,23 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "app.locked.title": {
-      "comment": "Title of the placeholder shown instead of a screen while the account is locked.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unlock your account"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "解锁账户"
-          }
-        }
-      }
-    },
     "app.locked.contactsMessage": {
       "comment": "Message under the locked placeholder: contacts can only be read after the account is opened (unlocked).",
       "localizations": {

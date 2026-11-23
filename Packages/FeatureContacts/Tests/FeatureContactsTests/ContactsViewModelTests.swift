@@ -8,6 +8,7 @@ private actor ContactsFake: ContactsRepository {
     let gate: MutationGate?
     private(set) var attempts: [(String, String)] = []
     init(gate: MutationGate? = nil) { self.gate = gate }
+    func ownCard(account: String) async -> RepositoryResult<ContactCardExport> { .success(ContactCardExport(card: "ramflux-card:v3:" + account, link: "ramflux://contact/v3/" + account)) }
     func pendingMutation(account: String) async -> PendingContactMutation? {
         guard let row = await journal.snapshot(scope: account), row.unresolved else { return nil }
         return PendingContactMutation(arguments: row.arguments, operationID: row.operationID)
@@ -33,6 +34,13 @@ private actor ContactsFake: ContactsRepository {
     nonisolated func unavailable(_ capability: ContactUnavailable) -> AppFailure { .unsupported }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct ContactsViewModelTests {
+    @Test func myCardModeReadsThisAccountsCard() async {
+        let coordinator = ContactsCoordinator(repository: ContactsFake(), account: "a", mode: .contacts, navigate: { _ in })
+        coordinator.send(.mode(.myCard)); await coordinator.viewModel.settle()
+        #expect(coordinator.viewModel.state.ownCard == ContactCardExport(card: "ramflux-card:v3:a", link: "ramflux://contact/v3/a"))
+        #expect(coordinator.viewModel.state.failure == nil)
+        coordinator.send(.disappeared)
+    }
     @Test func accountFenceAndOriginalArgumentsSurviveCancelledWaiterAndCoordinatorReplacement() async {
         let gate = MutationGate(), fake = ContactsFake(gate: gate)
         defer { gate.release() }
@@ -50,7 +58,7 @@ private actor ContactsFake: ContactsRepository {
     }
     @Test func onlyIncomingPendingRequestsCanBeSelectedAndNoDecisionBeforeConfirm() async {
         let fake = ContactsFake(); let model = ContactsViewModel(repository: fake, account: "a", emit: { _ in })
-        model.send(.refresh); await model.settle()
+        model.send(.mode(.strangers)); await model.settle()
         model.send(.requestDecision("outgoing", .accept)); #expect(model.state.pending == nil)
         model.send(.requestDecision("incoming", .decline)); #expect(model.state.pending?.request.id == "incoming"); #expect(await fake.decisions.isEmpty)
         model.send(.confirmDecision); await model.settle(); #expect(await fake.decisions == ["incoming:decline"])

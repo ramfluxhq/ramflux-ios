@@ -39,6 +39,7 @@ public struct NoticesScreen: View {
         }
         .background(theme.bg)
         .shellHidesSystemBar()
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("open-source-notices")
     }
 }

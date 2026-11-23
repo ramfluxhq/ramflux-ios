@@ -186,23 +186,6 @@
         }
       }
     },
-    "onboarding.recover.existingPassphrase": {
-      "comment": "Field label for the local passphrase of an account already on this phone.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Existing local passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "现有本地口令"
-          }
-        }
-      }
-    },
     "onboarding.connection.preserved": {
       "comment": "Reassurance that the last confirmed connection is kept after an error.",
       "localizations": {
@@ -221,18 +204,18 @@
       }
     },
     "onboarding.localUnlock.instructions": {
-      "comment": "Instructions: choose a local passphrase, then enter the requested recovery words. Only one attempt is allowed.",
+      "comment": "Instructions on the step where the user sets the account code and confirms three recovery words.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt."
+            "value": "Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置本地口令，然后输入指定的三个助记词。确认操作仅可尝试一次。"
+            "value": "设置一个 6 位数字账户码并再次输入，然后填写所要求的三个恢复词。确认只有一次机会。"
           }
         }
       }
@@ -442,18 +425,18 @@
       }
     },
     "onboarding.stage.localUnlock": {
-      "comment": "Title and button for setting up the local unlock passphrase.",
+      "comment": "Title of the step where the user sets the six-digit account code.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Set up local unlock"
+            "value": "Set account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置本地解锁"
+            "value": "设置账户码"
           }
         }
       }
@@ -544,7 +527,7 @@
       }
     },
     "onboarding.welcome.primaryDevice": {
-      "comment": "Note on the welcome screen that this phone can be the main device of the account.",
+      "comment": "Line on the welcome screen: this phone can be the account's primary device.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -555,7 +538,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此手机可作为你的主要设备。"
+            "value": "这部手机可以作为你的主设备。"
           }
         }
       }
@@ -573,23 +556,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在保存节点"
-          }
-        }
-      }
-    },
-    "onboarding.localUnlock.passphrase": {
-      "comment": "Field label for the new local passphrase.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Local passphrase"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "本地口令"
           }
         }
       }
@@ -765,18 +731,18 @@
       }
     },
     "onboarding.welcome.unlockSaved": {
-      "comment": "Button that unlocks an account already saved on this phone.",
+      "comment": "Button and page title: unlock an account that is already stored on this phone.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unlock saved account"
+            "value": "Unlock existing account"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "解锁已保存的账户"
+            "value": "解锁现有账户"
           }
         }
       }
@@ -850,18 +816,18 @@
       }
     },
     "onboarding.link.unavailable": {
-      "comment": "Shown when linking is not available in this build; no QR code or pairing code is created.",
+      "comment": "Explains honestly why linking this phone to an account on another device is not available yet.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Linking needs a registered phone pairing coordinator. This build does not create a QR code or pairing code."
+            "value": "Linking this phone to an account on another device is not available yet: joining needs the new device to hand its new account code to the account securely, which this version of the app cannot do. You can create an account, recover with your recovery phrase or restore a backup. If this phone is your primary device, you can link other devices from Settings › Devices."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "关联设备需要已注册的手机配对服务。此版本不会创建二维码或配对码。"
+            "value": "暂不支持将这部手机关联到其他设备上的账户：加入时需要新设备安全地提交新的账户码，此版本的应用还无法做到。你可以创建账户、用恢复短语恢复或从备份恢复。如果这部手机是主设备，可以在“设置 › 设备”中关联其他设备。"
           }
         }
       }
@@ -901,35 +867,18 @@
       }
     },
     "onboarding.welcome.title": {
-      "comment": "Headline of the first setup screen.",
+      "comment": "Title of the welcome step (used by assistive technology and as the step name).",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep your conversations connected"
+            "value": "Keep conversations and collaboration connected"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "保持会话畅通"
-          }
-        }
-      }
-    },
-    "onboarding.cancel": {
-      "comment": "Button that cancels account setup.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel setup"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消设置"
+            "value": "让会话与协作保持连接"
           }
         }
       }
@@ -1302,6 +1251,703 @@
           "stringUnit": {
             "state": "translated",
             "value": "确认指纹并固定节点 · %1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.new": {
+      "comment": "Placeholder of the secure field where the user chooses a new six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New account code (6 digits)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新账户码（6 位数字）"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.repeat": {
+      "comment": "Placeholder of the secure field where the user types the new six-digit account code again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入账户码"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.existing": {
+      "comment": "Placeholder of the secure field where the user enters the six-digit account code of an existing account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account code (6 digits)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码（6 位数字）"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.local": {
+      "comment": "Explains that the six-digit account code is checked on this phone only.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account code is checked on this phone only. It is never sent to the node or to your other devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码只在本机校验，不会发送到节点或你的其他设备。"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.restoreBackup": {
+      "comment": "Welcome screen action: recover an account on a new install from a backup archive file.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore from a backup"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从备份恢复"
+          }
+        }
+      }
+    },
+    "onboarding.recover.newInstall": {
+      "comment": "Explains that phrase recovery needs the account on this phone, and that a new install restores from a backup archive instead.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On a new install, restore the account from a backup archive first."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果是新安装，请先从备份归档恢复账号。"
+          }
+        }
+      }
+    },
+    "onboarding.brand.letter": {
+      "comment": "The single letter drawn in the app mark on the launch screen. It is part of the brand; keep R unless the product has an official localised mark.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "R"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "R"
+          }
+        }
+      }
+    },
+    "onboarding.s01.starting": {
+      "comment": "Status under the brand on the launch screen while the app starts.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在启动"
+          }
+        }
+      }
+    },
+    "onboarding.s02.purpose": {
+      "comment": "Line under the headline on the first screen, before choosing a node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create an account, or continue with an existing one."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建账户，或继续使用已有账户。"
+          }
+        }
+      }
+    },
+    "onboarding.s02.official": {
+      "comment": "Title of the selected default node card on the first screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Official node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "官方节点"
+          }
+        }
+      }
+    },
+    "onboarding.s02.official.detail": {
+      "comment": "Detail under the official node: it is the default connection.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default connection"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "默认连接"
+          }
+        }
+      }
+    },
+    "onboarding.s02.changeNode": {
+      "comment": "Row that opens choosing a different node (server).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改节点"
+          }
+        }
+      }
+    },
+    "onboarding.s02.changeNode.detail": {
+      "comment": "Detail under the change node row on the first screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also use your own node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你也可以使用自己的节点"
+          }
+        }
+      }
+    },
+    "onboarding.s18.existing": {
+      "comment": "Button on the welcome screen for people who already have an account on this phone or elsewhere.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with an existing account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联已有账户"
+          }
+        }
+      }
+    },
+    "onboarding.s18.recover": {
+      "comment": "Text button on the welcome screen that recovers an account with its recovery phrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recover with recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从恢复短语恢复"
+          }
+        }
+      }
+    },
+    "onboarding.a01.header": {
+      "comment": "Page title: continue with an identity (account) that already exists.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with existing identity"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续使用已有身份"
+          }
+        }
+      }
+    },
+    "onboarding.a01.heading": {
+      "comment": "Heading: the node and the account are confirmed in separate steps.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection and account are confirmed separately"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接与账户分别确认"
+          }
+        }
+      }
+    },
+    "onboarding.a01.changeNode.detail": {
+      "comment": "Detail under change node: changing the node here does not move the account or its authorisation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Does not change the account's node or authorisation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不会改变账户所属节点或授权"
+          }
+        }
+      }
+    },
+    "onboarding.a01.local": {
+      "comment": "Section title: accounts already stored on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accounts on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已有本机账户"
+          }
+        }
+      }
+    },
+    "onboarding.a01.unauthorized": {
+      "comment": "Row: this phone is not yet authorised for an account on another device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device not yet authorised"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备尚未获授权"
+          }
+        }
+      }
+    },
+    "onboarding.a01.unauthorized.detail": {
+      "comment": "Detail under the unauthorised device row: opens the ways this phone can join an account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the ways to join that are available now"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看当前可用的接入方式"
+          }
+        }
+      }
+    },
+    "onboarding.a01.noAccount": {
+      "comment": "Footnote for people without an account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account? Create one on this phone, or recover with a recovery phrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有账户？可以在这部手机上创建，或从恢复短语恢复。"
+          }
+        }
+      }
+    },
+    "onboarding.a02.localOnly": {
+      "comment": "Section title above the account code entry: unlocking happens on this phone only.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要在本机完成解锁"
+          }
+        }
+      }
+    },
+    "onboarding.a02.info": {
+      "comment": "Button (and accessibility label of the info button) that opens how unlocking works on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View device unlock info"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看设备解锁说明"
+          }
+        }
+      }
+    },
+    "onboarding.a07.header": {
+      "comment": "Page title: how unlocking works on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device unlock info"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备解锁说明"
+          }
+        }
+      }
+    },
+    "onboarding.a07.intro": {
+      "comment": "Introduction on the device unlock information page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlocking happens on this phone only. Your six-digit account code is never sent to the node or to your other devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁只在这部手机上进行。你的 6 位账户码不会发送到节点或你的其他设备。"
+          }
+        }
+      }
+    },
+    "onboarding.a07.code": {
+      "comment": "Row title: unlock with the six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with your account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用账户码解锁"
+          }
+        }
+      }
+    },
+    "onboarding.a07.code.detail": {
+      "comment": "Row detail: which code to enter.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the six-digit code you set when you created or recovered the account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入创建或恢复账户时设置的 6 位账户码"
+          }
+        }
+      }
+    },
+    "onboarding.a07.local": {
+      "comment": "Row title: the code is checked only on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checked on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在本机校验"
+          }
+        }
+      }
+    },
+    "onboarding.a07.local.detail": {
+      "comment": "Row detail: wrong attempts are limited and unlocking never widens access.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrong attempts are limited. Unlocking never widens what this device may do."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误尝试次数有限。解锁不会扩大此设备的权限。"
+          }
+        }
+      }
+    },
+    "onboarding.a07.forgot": {
+      "comment": "Row title: forgot the account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot your account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "忘记账户码"
+          }
+        }
+      }
+    },
+    "onboarding.a07.forgot.detail": {
+      "comment": "Row detail: how to regain access without the code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recover the account on this phone with your recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用恢复短语在这部手机上恢复账户"
+          }
+        }
+      }
+    },
+    "onboarding.a07.unlock": {
+      "comment": "Button on the device unlock information page that returns to unlocking with the account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用账户码解锁"
+          }
+        }
+      }
+    },
+    "onboarding.address.instructions": {
+      "comment": "Explains the node address field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the HTTPS address your node operator gave you. Only its origin is used."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入节点运营方提供的 HTTPS 地址。只会使用其源地址。"
+          }
+        }
+      }
+    },
+    "onboarding.address.placeholder": {
+      "comment": "Placeholder of the node address field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://node.example"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "https://node.example"
+          }
+        }
+      }
+    },
+    "onboarding.recover.fingerprint": {
+      "comment": "Title of the warning above the account fingerprint during recovery.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the account fingerprint"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "核对账户指纹"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.headline.first": {
+      "comment": "First line of the two-line headline on the first screens; the second line follows below it. Split the sentence where the language breaks naturally.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep conversations"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让会话与协作"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.headline.second": {
+      "comment": "Second line of the two-line headline on the first screens, shown under the first line.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "and collaboration connected"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持连接"
+          }
+        }
+      }
+    },
+    "onboarding.a02.knownAccount": {
+      "comment": "Label above the display name of the account being unlocked (an account created or restored on this phone).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机上的账户"
+          }
+        }
+      }
+    },
+    "onboarding.a02.forget": {
+      "comment": "Button on the unlock screen: removes an account the SDK refused to unlock from this phone's list of known accounts. Nothing is deleted from the account itself.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from this phone's list"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从此手机的列表中移除"
+          }
+        }
+      }
+    },
+    "onboarding.complete.connecting": {
+      "comment": "Completion step after creating or unlocking an account while the SDK reports that networking is not live yet; it changes to Connected when it is.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local account is ready. Connecting to the network…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地账户已就绪。正在连接网络…"
           }
         }
       }

@@ -12,7 +12,7 @@ struct LocalizationTests {
         #expect(english != "agents.title"); #expect(chinese != english); #expect(expanded.count > english.count)
     }
     @Test func unavailableReasonResolvesAtPresentationInChineseAndExpandedLocale() {
-        let reason = AppFailure.unavailableResource("agents.unavailable")
+        let reason = AppFailure.unavailableResource("agents.unavailable.creationDecision")
         let en = reason.message(locale: Locale(identifier: "en")), zh = reason.message(locale: Locale(identifier: "zh-CN")), pseudo = reason.message(locale: Locale(identifier: "en-XA"))
         #expect(en != zh); #expect(pseudo.count > en.count); #expect(!en.contains("unavailableResource"))
     }

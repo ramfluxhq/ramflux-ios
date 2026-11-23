@@ -2,52 +2,240 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "cards.title": {
-      "comment": "Title of the interactive cards feature (rich message cards with buttons).",
+    "cards.contentUnavailable": {
+      "comment": "Shown in an agent card when its content cannot be displayed and it has no fallback text.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Interactive cards"
+            "value": "Card content unavailable"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "交互卡片"
+            "value": "卡片内容不可用"
           }
         }
       }
     },
-    "cards.checking": {
+    "cards.closed": {
+      "comment": "Note under an agent card that no longer accepts actions.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Checking availability"
+            "value": "This card is closed"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在检查可用性"
+            "value": "此卡片已关闭"
           }
         }
       }
     },
-    "cards.retry": {
-      "comment": "Button that checks again whether interactive cards are available.",
+    "cards.outOfSync": {
+      "comment": "Note under an agent card whose state is out of sync; its controls are disabled.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check again"
+            "value": "This card is out of sync; actions are paused"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "再次检查"
+            "value": "此卡片未同步，操作已暂停"
+          }
+        }
+      }
+    },
+    "cards.sending": {
+      "comment": "Progress line while an action from an agent card is sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在发送…"
+          }
+        }
+      }
+    },
+    "cards.streaming": {
+      "comment": "Accessibility label of the indicator while the agent is still writing this text.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still writing"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍在输入"
+          }
+        }
+      }
+    },
+    "cards.unsupportedValue": {
+      "comment": "Placeholder for a value in an agent card that this app cannot show.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not shown in this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用无法显示"
+          }
+        }
+      }
+    },
+    "cards.unsupported": {
+      "comment": "Placeholder for a part of an agent card that this app cannot show; the card's summary follows.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This part of the card is not supported in this app"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此应用不支持卡片的这一部分"
+          }
+        }
+      }
+    },
+    "cards.link": {
+      "comment": "Placeholder for a link button in an agent card whose destination cannot be opened safely.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This link cannot be opened"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法打开此链接"
+          }
+        }
+      }
+    },
+    "cards.approval.pending": {
+      "comment": "Status of an approval card; the decision is made in the task or approval screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decide in tasks"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在任务中决定"
+          }
+        }
+      }
+    },
+    "cards.approval.request": {
+      "comment": "Label of the request reference in an approval card.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求"
+          }
+        }
+      }
+    },
+    "cards.link.confirm.title": {
+      "comment": "Title of the confirmation before opening a link from an agent card. %@ is the destination host, for example example.com.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a page on %@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要打开 %@ 上的网页吗？"
+          }
+        }
+      }
+    },
+    "cards.link.confirm.message": {
+      "comment": "Explains the link confirmation: the page opens in the browser and the agent chose the destination.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The agent chose this link. It opens in your browser; check the address before you continue."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此链接由智能体提供，将在浏览器中打开。继续前请核对网址。"
+          }
+        }
+      }
+    },
+    "cards.link.open": {
+      "comment": "Button in the link confirmation that opens the page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开"
+          }
+        }
+      }
+    },
+    "cards.link.cancel": {
+      "comment": "Button in the link confirmation that closes it without opening the page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }

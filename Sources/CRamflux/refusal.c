@@ -83,7 +83,8 @@ const char *rf_completion_refusal_reason(const struct RamfluxBuffer *buffer) {
     if (!field(root, "response", &response) || !field(response, "error", &error) || !field(error, "reason_code", &encoded)) return NULL;
     struct parser s = {encoded.p, encoded.n, 0};
     if (!string(&s, &reason) || s.i != s.n) return NULL;
-    static const char *const allowed[] = {"vault_permission", "vault_locked", "vault_missing", "vault_corrupt", "vault_busy", "vault_primary_unavailable"};
+    static const char *const allowed[] = {"vault_permission", "vault_locked", "vault_missing", "vault_corrupt", "vault_busy", "vault_primary_unavailable",
+        "not_six_digits", "trivial_code", "unlock_retry_later", "unlock_attempts_exhausted", "account_code_required", "device_unlock_unavailable"};
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) if (equal(reason, allowed[i])) return allowed[i];
     return NULL;
 }

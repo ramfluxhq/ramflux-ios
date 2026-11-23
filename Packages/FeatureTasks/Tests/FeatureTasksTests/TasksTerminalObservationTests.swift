@@ -33,6 +33,8 @@ private actor TerminalTasksRepository: TasksRepository {
         return .success(row)
     }
     func permissions(account: String) -> RepositoryResult<[PermissionRecord]> { .success([]) }
+    func permissionsPage(account: String, cursor: String?, limit: Int) -> RepositoryResult<RowPage<PermissionRecord>> { .success(RowPage(rows: [], nextCursor: nil)) }
+    func decideApproval(account: String, approval: PermissionApproval, approve: Bool, operationID: String) -> RepositoryResult<Void> { .failure(.unsupported) }
     func pending(account: String) -> PendingTaskMutation? { nil }
     func mutate(account: String, attempt: PendingTaskMutation) -> RepositoryResult<TaskMutationOutcome> { .failure(.unsupported) }
     nonisolated func unavailable() -> AppFailure { .unsupported }
@@ -69,7 +71,7 @@ private actor TerminalTasksRepository: TasksRepository {
             withObservationTracking { _ = vm.state.failure } onChange: { changed.continuation.yield(()) }
             await repository.end(failure); var transition = changed.stream.makeAsyncIterator(); #expect(await transition.next() != nil)
             #expect(!vm.state.fresh); #expect(!vm.state.loading); #expect(vm.state.confirmation == nil)
-            if failure == .locked { #expect(vm.state.selected == nil); #expect(vm.state.rows.isEmpty); #expect(vm.state.permissions.isEmpty) }
+            if failure == .locked { #expect(vm.state.selected == nil); #expect(vm.state.tasks.isEmpty); #expect(vm.state.permissions.isEmpty) }
             await repository.releaseRead(); await vm.settle()
             #expect(!vm.state.fresh); #expect(vm.state.failure == (failure ?? .resyncRequired)); #expect(vm.state.selected?.title != "Old read")
             vm.send(.prepare(.accept)); #expect(vm.state.confirmation == nil)

@@ -38,6 +38,7 @@ public struct SettingsScreen: View {
     private static var appBuild: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-" }
     private var modal: SettingsModal? {
         if let device = state.pendingRevoke { return .revoke(device) }
+        if state.changingCode { return .changeCode }
         return nil
     }
     private var title: String {
@@ -47,7 +48,7 @@ public struct SettingsScreen: View {
     @ViewBuilder private var content: some View {
         switch state.route {
         case .devices:
-            Button(FeatureSettingsStrings.text("settings.devices.link", locale: locale)) { onAction(.unavailable(.pairing)) }
+            Button(FeatureSettingsStrings.text("settings.devices.link", locale: locale)) { onAction(state.snapshot.accountID == nil ? .unavailable(.pairing) : .open(.pairDevice)) }
             if state.snapshot.accountID == nil { Text(FeatureSettingsStrings.text("settings.devices.noAccount", locale: locale)) }
             ForEach(state.snapshot.devices) { device in
                 row(id: device.id, title: device.id, subtitle: device.isLocal ? FeatureSettingsStrings.text("settings.devices.thisDevice", locale: locale) : FeatureSettingsStrings.text("settings.devices.linked", locale: locale), route: .device(device.id))
@@ -71,28 +72,49 @@ public struct SettingsScreen: View {
                 Button(FeatureSettingsStrings.text("settings.nodes.useAsDefault", locale: locale)) { onAction(.setDefault(node.id)) }.disabled(state.busy || state.unknownMutation || !node.enabled)
             }
         case .appearance:
-            Picker(FeatureSettingsStrings.text("settings.appearance.theme", locale: locale), selection: Binding(get: { state.appearance }, set: { onAction(.appearance($0)) })) {
-                Text(FeatureSettingsStrings.text("settings.appearance.system", locale: locale)).tag(AppearanceMode.system); ForEach(RFThemeRegistry.themes) { entry in
+            Picker(copy("settings.appearance.theme"), selection: Binding(get: { state.appearance }, set: { onAction(.appearance($0)) })) {
+                Text(copy("settings.appearance.system")).tag(AppearanceMode.system); ForEach(RFThemeRegistry.themes) { entry in
                     if let mode = AppearanceMode(rawValue: entry.id) { Text(RFDesignStrings.text(entry.labelKey, locale: locale)).tag(mode) }
                 }
             }.pickerStyle(.segmented).disabled(state.busy)
-            Text(FeatureSettingsStrings.text("settings.appearance.languageNote", locale: locale))
+            Text(copy("settings.language.title")).rfFont(.body, weight: .semibold)
+            Text(copy("settings.language.note")).foregroundStyle(theme.secondary)
+            KitButton(copy("settings.language.change"), action: { onAction(.openSystemLanguage) }, kind: .secondary, tag: "settings-language-system")
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(SettingsLanguages.launch, id: \.self) { identifier in
+                    KitRow(Locale(identifier: identifier).localizedString(forIdentifier: identifier) ?? identifier, icon: nil,
+                           value: SettingsLanguages.translated.contains(identifier) ? copy("settings.language.translated") : copy("settings.language.pending"),
+                           trailing: SettingsLanguages.isCurrent(identifier, locale: locale) ? .check : .none, enabled: false, tag: "settings-language-" + identifier)
+                }
+            }
         case .account:
             if let account = state.snapshot.accountID {
-                Text(account).textSelection(.enabled)
-                Text(state.snapshot.networking == .live ? FeatureSettingsStrings.text("settings.account.networkLive", locale: locale) : FeatureSettingsStrings.text("settings.account.networkUnconfirmed", locale: locale))
-                Button(FeatureSettingsStrings.text("settings.account.lock", locale: locale), systemImage: "lock") { onAction(.lock) }.disabled(state.busy || state.unknownMutation)
-            } else { Button(FeatureSettingsStrings.text("settings.account.openOrCreate", locale: locale)) { onAction(.open(.onboarding)) } }
-            Picker(FeatureSettingsStrings.text("settings.privacy.retention.label", locale: locale), selection: Binding(get: { state.retentionSeconds }, set: { onAction(.retention($0)) })) {
-                Text(FeatureSettingsStrings.text("settings.privacy.retention.oneHour", locale: locale)).tag(Int64(3600)); Text(FeatureSettingsStrings.text("settings.privacy.retention.oneDay", locale: locale)).tag(Int64(86400)); Text(FeatureSettingsStrings.text("settings.privacy.retention.sevenDays", locale: locale)).tag(Int64(604800))
+                KitIdentifierText(account).textSelection(.enabled)
+                Text(state.snapshot.networking == .live ? copy("settings.account.networkLive") : copy("settings.account.networkUnconfirmed")).foregroundStyle(theme.secondary)
+                group(copy("settings.account.security"), [
+                    KitRow(copy("settings.account.lock"), action: { onAction(.lock) }, icon: "lock", value: copy("settings.account.lock.detail"), trailing: .none, enabled: !state.busy && !state.unknownMutation, tag: "settings-lock"),
+                    KitRow(copy("settings.account.changeCode"), action: { onAction(.startChangeCode) }, icon: "lock-keyhole", value: copy("settings.account.changeCode.detail"), enabled: !state.busy, tag: "settings-change-code"),
+                    KitRow(copy("settings.privacy.title"), action: { onAction(.open(.privacy)) }, icon: "shield", value: copy("settings.index.privacy.detail"), tag: "settings-privacy"),
+                ])
+                if state.codeChanged { KitTipBar(copy("settings.account.changeCode.done"), icon: "circle-check", tag: "settings-code-changed") }
+            } else { KitButton(copy("settings.account.openOrCreate"), action: { onAction(.open(.onboarding)) }) }
+            Picker(copy("settings.privacy.retention.label"), selection: Binding(get: { state.retentionSeconds }, set: { onAction(.retention($0)) })) {
+                Text(copy("settings.privacy.retention.oneHour")).tag(Int64(3600)); Text(copy("settings.privacy.retention.oneDay")).tag(Int64(86400)); Text(copy("settings.privacy.retention.sevenDays")).tag(Int64(604800))
             }
-            Button(FeatureSettingsStrings.text("settings.privacy.retention.save", locale: locale)) { onAction(.saveRetention) }.disabled(state.busy || state.unknownMutation || state.snapshot.accountID == nil)
-            Text(FeatureSettingsStrings.text("settings.privacy.retention.note", locale: locale)).rfFont(.caption)
+            Button(copy("settings.privacy.retention.save")) { onAction(.saveRetention) }.disabled(state.busy || state.unknownMutation || state.snapshot.accountID == nil)
+            Text(copy("settings.privacy.retention.note")).rfFont(.caption)
         case .privacy:
-            Text(FeatureSettingsStrings.format("privacy.requestApproval", AppDataStrings.status(state.snapshot.requestPolicy, locale: locale), locale: locale))
-            if state.snapshot.requestPolicy == "auto_accept" { Button(FeatureSettingsStrings.text("settings.privacy.requireApproval", locale: locale)) { onAction(.manualRequests) }.disabled(state.busy || state.unknownMutation) }
-            Button(FeatureSettingsStrings.text("settings.privacy.openAccount", locale: locale)) { onAction(.unavailable(.openAccount)) }
-        case .backup: backupContent
+            let automatic = state.snapshot.requestPolicy == "auto_accept"
+            group(copy("settings.privacy.requests"), [
+                KitRow(copy("settings.privacy.autoAccept"), action: { onAction(.requestPolicy(autoAccept: !automatic)) }, icon: "user-round-check",
+                       value: FeatureSettingsStrings.format("privacy.requestApproval", AppDataStrings.status(state.snapshot.requestPolicy, locale: locale), locale: locale),
+                       trailing: automatic ? .check : .none, enabled: state.snapshot.requestPolicy != nil && !state.busy && !state.unknownMutation, tag: "settings-auto-accept"),
+            ])
+            Text(copy(automatic ? "settings.privacy.autoAccept.on" : "settings.privacy.autoAccept.off")).foregroundStyle(theme.secondary)
+            group(copy("settings.privacy.openAccount.section"), [
+                KitRow(copy("settings.privacy.openAccount"), action: { onAction(.unavailable(.openAccount)) }, icon: "globe", tag: "settings-open-account"),
+                KitRow(copy("settings.privacy.username"), action: { onAction(.unavailable(.username)) }, icon: "at-sign", tag: "settings-username"),
+            ])
         case .permissions:
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))
             Button(FeatureSettingsStrings.text("settings.connectedServices.manage", locale: locale)) { onAction(.unavailable(.connectedServices)) }
@@ -102,11 +124,22 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.format("settings.version", Self.appVersion, Self.appBuild, locale: locale)).rfFont(.caption).accessibilityIdentifier("about-version")
             Button(FeatureSettingsStrings.text("settings.about.exportDiagnostics", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
         default:
-            ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .systemPermissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }
+            group(copy("settings.section.accountDevices"), [
+                indexRow(.account, icon: "user-round", detail: "settings.index.account.detail"),
+                indexRow(.devices, icon: "smartphone", detail: "settings.index.devices.detail"),
+            ])
+            group(copy("settings.section.connectionData"), [
+                indexRow(.nodes, icon: "network", detail: "settings.index.nodes.detail"),
+                indexRow(.backup, icon: "database-backup", detail: "settings.index.backup.detail"),
+                indexRow(.permissions, icon: "plug", detail: "settings.index.connectedServices.detail"),
+                KitRow(copy("settings.storage.title"), action: { onAction(.open(.mediaStorage)) }, icon: "database", value: copy("settings.index.storage.detail"), tag: "settings-storage"),
+            ])
+            group(copy("settings.section.app"), [
+                indexRow(.appearance, icon: "palette", detail: "settings.index.appearance.detail"),
+                indexRow(.about, icon: "activity", detail: "settings.index.about.detail"),
+                KitRow(label(.systemPermissions), action: { onAction(.open(.systemPermissions)) }, icon: "sliders-horizontal", tag: "settings-system-permissions"),
+            ])
         }
-    }
-    @ViewBuilder private var backupContent: some View {
-        RFUnavailableView(title: FeatureSettingsStrings.text("settings.backup.title", locale: locale), message: AppFailure.unavailableResource("settings.mobileBackup").message(locale: locale))
     }
     @ViewBuilder private func modalContent(_ modal: SettingsModal) -> some View {
         switch modal {
@@ -115,11 +148,37 @@ public struct SettingsScreen: View {
             if let origin = device.webOrigin { Text(untrusted: origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("settings.devices.revoke.fact", locale: locale))
             RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.devices.revoke.summary", [.identifier(device.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
-        case .backup, .share: backupContent
+        case .changeCode:
+            Text(copy("settings.account.changeCode")).rfFont(.page)
+            Text(copy("settings.account.changeCode.body"))
+            #if os(iOS)
+            RFSecureEntryForm(fields: [RFSecureEntryField(id: "oldPassphrase", label: copy("settings.account.changeCode.current"), kind: .accountCode),
+                                       RFSecureEntryField(id: "passphrase", label: copy("settings.account.changeCode.new"), kind: .accountCode),
+                                       RFSecureEntryField(id: "passphraseRepeat", label: copy("settings.account.changeCode.repeat"), kind: .accountCode)],
+                              enabled: !state.busy) { onAction(.submitChangeCode(SensitiveSubmission(values: $0, accountCode: .new))) }
+                .frame(minHeight: theme.composer_min * 4)
+            #endif
+            KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelChangeCode) }, kind: .text, enabled: !state.busy)
+        }
+    }
+    private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }
+    private func indexRow(_ route: AppRoute, icon: String, detail: String) -> KitRow {
+        KitRow(label(route), action: { onAction(.open(route)) }, icon: icon, value: copy(detail), tag: "settings-" + String(describing: route))
+    }
+    /// A titled card of rows (board MOB-G02): a section label above rows on one surface with dividers.
+    private func group(_ title: String, _ rows: [KitRow]) -> some View {
+        VStack(alignment: .leading, spacing: theme.gap / 2) {
+            Text(title).rfFont(.caption).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap)
+            VStack(spacing: 0) {
+                ForEach(rows.indices, id: \.self) { index in
+                    rows[index]
+                    if index < rows.count - 1 { Divider().padding(.leading, theme.gap) }
+                }
+            }.background(theme.surface_white).clipShape(RoundedRectangle(cornerRadius: theme.radius_card))
         }
     }
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
         KitRow(title, action: { onAction(.open(route)) }, value: subtitle.isEmpty ? nil : subtitle, tag: id)
     }
-    private func label(_ route: AppRoute) -> String { switch route { case .cards: FeatureSettingsStrings.text("cards.title", locale: locale); case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .calls: FeatureSettingsStrings.text("calls.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
+    private func label(_ route: AppRoute) -> String { switch route { case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
 }

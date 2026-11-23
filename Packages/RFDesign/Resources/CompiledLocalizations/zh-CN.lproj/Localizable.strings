@@ -8,6 +8,8 @@
 	<string>取消</string>
 	<key>confirmation.confirm</key>
 	<string>确认</string>
+	<key>kit.attach</key>
+	<string>添加附件</string>
 	<key>kit.back</key>
 	<string>返回</string>
 	<key>kit.call</key>
@@ -28,6 +30,14 @@
 	<string>重试</string>
 	<key>kit.more</key>
 	<string>更多</string>
+	<key>kit.receipt.delivered</key>
+	<string>已送达</string>
+	<key>kit.receipt.pending</key>
+	<string>正在发送</string>
+	<key>kit.receipt.read</key>
+	<string>已读</string>
+	<key>kit.receipt.sent</key>
+	<string>已发送</string>
 	<key>kit.search</key>
 	<string>搜索</string>
 	<key>kit.secret.confirmOnce</key>

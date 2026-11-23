@@ -12,13 +12,31 @@
 	<string>Strangers</string>
 	<key>conversations.account.subtitle</key>
 	<string>%@ · Current account</string>
+	<key>conversations.action.more</key>
+	<string>More</string>
+	<key>conversations.action.new</key>
+	<string>New conversation</string>
+	<key>conversations.empty.action</key>
+	<string>Add contact</string>
 	<key>conversations.empty.message</key>
-	<string>Add someone to your contacts to start a conversation.</string>
+	<string>Add a contact to start a conversation. Once they accept, the conversation appears here.</string>
 	<key>conversations.empty.title</key>
 	<string>No conversations yet</string>
+	<key>conversations.failure.retry</key>
+	<string>Retry</string>
+	<key>conversations.forward.empty</key>
+	<string>No other conversations yet</string>
+	<key>conversations.forward.title</key>
+	<string>Forward to</string>
 	<key>conversations.loading</key>
 	<string>Loading conversations</string>
+	<key>conversations.loadingMore</key>
+	<string>Loading more conversations</string>
+	<key>conversations.order.note</key>
+	<string>Sorted by recent activity among the conversations loaded so far.</string>
 	<key>conversations.search.placeholder</key>
 	<string>Search messages</string>
+	<key>conversations.time.yesterday</key>
+	<string>Yesterday</string>
 </dict>
 </plist>

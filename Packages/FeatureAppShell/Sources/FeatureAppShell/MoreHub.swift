@@ -16,6 +16,7 @@ public enum MoreHubItem: Equatable, Sendable {
         case .route(.permissions): "common.perm.title"
         case .route(.settings): "common.nav.settings"
         case .route(.notices): "shell.notices.title"
+        case .route(.calls): "shell.more.calls"
         case .navigation: "shell.more.navigation"
         case .accounts: "shell.accounts.title"
         case .route: "common.nav.settings"
@@ -29,6 +30,7 @@ public enum MoreHubItem: Equatable, Sendable {
         case .route(.permissions): "settings.more.hub.access.preview"
         case .route(.settings): "settings.more.hub.settings.preview"
         case .route(.notices): "shell.notices.preview"
+        case .route(.calls): "shell.more.calls.preview"
         case .navigation: "shell.more.navigation.detail"
         case .accounts: "shell.accounts.preview"
         case .route: "settings.more.hub.settings.preview"
@@ -42,6 +44,7 @@ public enum MoreHubItem: Equatable, Sendable {
         case .route(.permissions): "shield"
         case .route(.settings): "settings"
         case .route(.notices): "file-text"
+        case .route(.calls): "phone"
         case .navigation: "sliders-horizontal"
         case .accounts: "user-round"
         case .route: "settings"
@@ -50,6 +53,7 @@ public enum MoreHubItem: Equatable, Sendable {
 
     var tag: String {
         switch self {
+        case .route(.calls): "more-calls"
         case .route(let route): "more-\(String(describing: route))"
         case .navigation: "shell-more-navigation"
         case .accounts: "more-accounts"
@@ -58,14 +62,14 @@ public enum MoreHubItem: Equatable, Sendable {
 }
 
 public enum MoreHub {
-    /// Designed G01 rows, then the account picker and the font notices.
-    /// The account picker and notices have no board yet.
+    /// Designed G01 rows, then call history, the account picker and the font notices.
+    /// Call history, the account picker and notices have no board yet.
     public static func items(order: String = ShellShortcuts.defaultOrder, hidden: String = "") -> [MoreHubItem] {
         let shortcuts: [MoreHubItem] = ShellShortcuts.moreIds(order: order, hidden: hidden).map { id in
             id == "tasks" ? .route(.tasks) : .route(.contacts)
         }
         return shortcuts + [
-            .route(.permissions), .route(.settings), .navigation, .accounts, .route(.notices),
+            .route(.permissions), .route(.settings), .navigation, .route(.calls(nil)), .accounts, .route(.notices),
         ]
     }
 }
@@ -105,6 +109,7 @@ public struct MoreHubScreen: View {
             }
         }
         .shellHidesSystemBar()
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("more-hub")
     }
 

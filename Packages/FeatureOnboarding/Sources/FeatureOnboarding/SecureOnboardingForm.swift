@@ -8,10 +8,10 @@ import AppData
 import RFDesign
 
 public struct SecureOnboardingForm: View {
-    @Environment(\.locale) private var locale
-    public let labels: [(String, String)]
+    public let fields: [RFSecureEntryField]
+    public let accountCode: SensitiveSubmission.AccountCodeRule?
     public let enabled: Bool
     public let submit: (SensitiveSubmission) -> Void
-    public var body: some View { RFSecretFields(labels: labels, enabled: enabled) { submit(SensitiveSubmission(values: $0)) } }
+    public var body: some View { RFSecureEntryForm(fields: fields, enabled: enabled) { submit(SensitiveSubmission(values: $0, accountCode: accountCode)) } }
 }
 #endif

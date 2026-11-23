@@ -4,6 +4,19 @@ import Testing
 import RamfluxCore
 @testable import AppData
 @Suite(.timeLimit(.minutes(1))) struct ChatRepositoryTests {
+    /// An own reply arrives with `is_own: false` from the SDK; the author device decides then.
+    @Test func ownReplyIsOwnByAuthorDevice() throws {
+        func row(_ id: String, own: Bool, device: String) -> JSONValue {
+            .object(["id": .string(id), "conversation_id": .string("dm:c"), "is_own": .bool(own), "kind": .string("message"), "state": .string("content"), "hlc_ms": .number(1),
+                     "author": .object(["device_id": .string(device), "account_anchor": .string("anchor")]),
+                     "content": .object(["message": .object(["text": .string("t"), "replyTo": .object(["id": .string("base")])])])])
+        }
+        let body: JSONValue = .object(["schema": .string(MessagePage.readModel), "conversation_id": .string("dm:c"),
+                                       "messages": .array([row("reply", own: false, device: "device-me"), row("theirs", own: false, device: "device-peer"), row("base", own: true, device: "device-me")])])
+        let records = try MessagePage.page(body: body, conversation: "dm:c", ownDevice: "device-me").records
+        #expect(records.map(\.isOwn) == [true, false, true])
+        #expect(try MessagePage.page(body: body, conversation: "dm:c").records.map(\.isOwn) == [false, false, true])
+    }
     @Test func missingOrWrongSchemaIsInvalidData() async {
         let pages: [JSONValue] = [
             .object(["messages": .array([.object(["message_id": .string("m"), "conversation_id": .string("c"), "body_utf8": .string("Authenticated display text"), "direction": .string("outgoing")])])]),
@@ -12,7 +25,7 @@ import RamfluxCore
         for page in pages {
             let transport = ProxyTransport { _ in page }
             let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-            guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c") else { Issue.record("A page without the pinned schema must refuse"); return }
+            guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("A page without the pinned schema must refuse"); return }
         }
     }
     @Test func malformedCommittedSendProjectionKeepsOriginalAttemptUnknown() async {
@@ -33,13 +46,15 @@ import RamfluxCore
     }
     @Test func messageReadRequestsTheReadModelAndRefusesAPageWithoutTheSchema() async {
         let transport = ProxyTransport { request in
+            // The ownership fallback reads this device's id once per account.
+            if request.method == "account.status" { return .object(["device_id": .string("device-me")]) }
             #expect(request.method == "message.read")
             #expect(request.body["read_model"] == .bool(true))
-            #expect(request.body["limit"] == .number(100))
+            #expect(request.body["limit"] == .number(50))
             return .object(["messages": .array([.object(["message_id": .string("m"), "conversation_id": .string("c"), "body_utf8": .string("Legacy")])])])
         }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Legacy page must refuse"); return }
+        guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Legacy page must refuse"); return }
     }
     @Test func readModelFoldsEditsReactionsAndRepliesWithoutMutationBubbles() async {
         let target = "AQID"
@@ -56,7 +71,8 @@ import RamfluxCore
             ])
         ]) }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .success(let rows) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Read model must load"); return }
+        guard case .success(let page) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Read model must load"); return }
+        let rows = page.records
         #expect(rows.map(\.id) == [target, "reply", "gone"])
         #expect(rows[0].kind == .text("Updated")); #expect(rows[0].edited); #expect(rows[0].reactions == [MessageReaction(token: "👍", count: 2)])
         #expect(rows[0].timestamp == 1_700_000_000)
@@ -72,7 +88,8 @@ import RamfluxCore
             ]),
         ]) }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .success(let rows) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Read model must load"); return }
+        guard case .success(let page) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Read model must load"); return }
+        let rows = page.records
         #expect(rows.count == 1)
         #expect(rows[0].timestamp == nil)
     }
@@ -80,7 +97,8 @@ import RamfluxCore
         let transport = ProxyTransport { request in
             switch request.method {
             case "conversation.edit":
-                #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Next")]))
+                // The SDK refuses an edit without the revision the caller saw (bus/dispatch/conversation_mutation.rs).
+                #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Next"), "expected_revision": .number(2)]))
             case "conversation.reply":
                 #expect(request.body == .object(["conversation_id": .string("c"), "message_id": .string("m"), "text": .string("Back")]))
             case "conversation.react":
@@ -97,7 +115,7 @@ import RamfluxCore
         }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
         func accepted(_ result: RepositoryResult<Void>) -> Bool { if case .success = result { return true }; return false }
-        #expect(accepted(await repo.edit(account: "a", conversation: "c", message: "m", text: "Next", operationID: "op")))
+        #expect(accepted(await repo.edit(account: "a", conversation: "c", message: "m", text: "Next", expectedRevision: 2, operationID: "op")))
         #expect(accepted(await repo.reply(account: "a", conversation: "c", message: "m", text: "Back", operationID: "op")))
         #expect(accepted(await repo.react(account: "a", conversation: "c", message: "m", token: "👍", remove: false, operationID: "op")))
         #expect(accepted(await repo.react(account: "a", conversation: "c", message: "m", token: "👍", remove: true, operationID: "op")))

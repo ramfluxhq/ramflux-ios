@@ -25,9 +25,12 @@ acceptance, not which Settings page was displayed.
 Foreground refresh reads changes made there. The settings list includes unavailable
 incoming-call support, current microphone status, picker/file access that needs no
 permission, and system background refresh restrictions. Microphone requests remain
-unavailable until voice media exists. Attachment transfer and pairing are currently
-unavailable, so those features do not request camera, photo-library or file access;
-the local intent APIs are ready for their future integration. No broad photo-library,
+unavailable until voice media exists (request R28). The chat requests the camera through
+this flow only when the user takes a photo for a message, and add-only Photos access only
+when the user saves an image; the system photo and file pickers need no permission. Linking
+a device from this phone shows a code and never scans one (joining is request R32), so
+pairing requests nothing. Incoming calls use CallKit, which needs no permission; the
+integration stays inert while the call media engine refuses. No broad photo-library,
 storage, contacts, location, Bluetooth, calendar, tracking or local-network grant exists.
 
 The app declares only camera, microphone and add-only Photos usage descriptions,
@@ -61,3 +64,59 @@ On fresh simulators the public Settings routes can open the Settings root instea
 of the app page. The denied screen provides the manual Settings > Apps > Ramflux
 path in English and Simplified Chinese and scrolls for larger text. Cold navigation
 to the app and notification pages still requires physical-device verification.
+
+## Message notifications (beta flow 11)
+
+`MessageNotifier` (AppData) posts local notifications for messages that arrive while the app is not
+active and the process and core are alive. It is one more observer on the shared event source: on every
+invalidation it reads the first `conversation.directory` page (100 rows) and compares unread counts with
+its previous read. The first read after following an account is only a baseline; muted conversations
+neither notify nor count. The app follows the active unlocked account (a locked session stops it; the
+privacy shield of an inactive scene does not) and tells it whether the scene is active.
+
+- Content is the catalog's generic "New message" (`notification.message.title`), with no message text, no
+  sender, no conversation title and no conversation id. A notification carries only a random token in
+  `userInfo`; the running app maps it back to the account and conversation in memory (at most 64 routes).
+  After the process ends a tap opens the app only. No sender-name setting exists yet.
+- A tap sends `AppShellAction.openWhenReady(.conversation(id), account:)`: the shell opens the conversation
+  once that account is active and unlocked and the privacy shield is down, so a locked or concealed
+  session shows unlock first, and another account becoming active drops the route.
+- Notifications are not presented while the app is active; becoming active removes delivered ones.
+- The badge is the unread total of the loaded rows (the first directory page, without muted rows).
+  Limitation: the directory is ordered by conversation id, not activity, and the SDK has no account-wide
+  unread total, so detection and the badge cover only those rows.
+- Authorisation stays with the existing permission flow. `NativeMessageNotificationCenter` never
+  requests it; it posts only when alerts are allowed and sets the badge only when badges are allowed.
+- Limitation: entering the background shuts the core down to release the database writer
+  (`PhoneLifecycle`), so nothing is observed there. In practice local notifications cover the inactive
+  scene (Notification Centre or Control Centre over the app, the app switcher, an incoming system
+  alert); delivery to a backgrounded or terminated app needs the push work below.
+
+### What background delivery needs from the SDK and the node (requests R21 and R28)
+
+The pinned SDK has `device.push_route.set` with a registration `{provider: apns | apns_voip | fcm |
+webpush, token}` that the gateway stores per device (`gateway/push_route.rs`, `bus/dispatch/device.rs`).
+That is push-route registration; nothing else needed for phones exists yet:
+
+1. Node: send an APNs alert push with `mutable-content` (or a background push) when a delivery is queued for
+   an offline device, with a payload that names no sender or content (an opaque mailbox hint at most),
+   and an `apns_voip` push for an incoming call (R28). Rate and coalescing rules, and what the node may log.
+2. SDK, for a Notification Service Extension: a decrypt-only entry point that an extension process may
+   call within its 24 MiB / 30 s limits. It must open the account read-only with a key the extension can
+   reach, fetch and decrypt only the pending deliveries named by the push, and return display-safe fields
+   (conversation id, sender display name, a text preview or a kind) without taking the database writer,
+   advancing ratchets the main app needs, sending receipts or touching the event journal. Today
+   `NativeCore` must not be constructed in an extension (bridge notes) and the database belongs in the
+   app's own container.
+3. App Group storage for that path: which state may live in a shared container (a separate
+   decrypt-only store or key-wrapped copy), its data-protection class (complete-until-first-unlock at
+   most) and how the main app reconciles what the extension decrypted. The Keychain item would need an
+   access group shared with the extension; today it has none by design.
+4. SDK, for VoIP pushes: PushKit requires reporting a CallKit call for every VoIP push, so the payload
+   must carry enough to report the call (call id, caller display decision) before the core is open, and
+   `call.*` must accept answering after a cold start (R28).
+5. Token forwarding: the app would call `device.push_route.set` after
+   `registerForRemoteNotifications` reports a token (APNs) and after PushKit registration (VoIP), and
+   clear the route on lock or account removal; it does not call it today because the node sends no push.
+
+No extension target is added until 1–3 are answered.

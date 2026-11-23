@@ -15,5 +15,8 @@ xcuserdata/
 .swiftpm/
 
 __pycache__/
+
+# Machine-specific inputs of scripts/realrun.sh (see scripts/realrun.local.env.example).
+scripts/realrun.local.env
 /kit-evidence/
 /kit-evidence-ci/

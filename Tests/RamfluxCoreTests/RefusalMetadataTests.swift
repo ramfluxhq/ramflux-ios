@@ -18,6 +18,10 @@ struct RefusalMetadataTests {
         #expect(reason(#"{"code":16,"reason_code":"vault_permission","response":{"error":{"reason_code":"peer-controlled message"}}}"#) == nil)
         #expect(reason(#"{"code":16,"response":{"error":{"reason_code":"vault_locked","reason_code":"vault_permission"}}}"#) == nil)
         #expect(reason(#"{"code":16,"response":{"error":{"reason_code":"vault_permission"}}"#) == nil)
+        for token in ["not_six_digits", "trivial_code", "unlock_retry_later", "unlock_attempts_exhausted", "account_code_required", "device_unlock_unavailable"] {
+            #expect(reason(#"{"code":1,"response":{"kind":"error","error":{"code":"UnlockRetryLater","reason_code":""# + token + #""}}}"#) == token)
+        }
+        #expect(reason(#"{"code":1,"response":{"error":{"reason_code":"unlock_retry_later_by_peer"}}}"#) == nil)
     }
     private func typedName(_ frame: String) -> String? {
         var data = Array(frame.utf8)

@@ -53,20 +53,11 @@ enum BoardFixtures {
         ]
     }
 
-    static func strangersDetail(_ language: FixtureLanguage) -> String {
-        switch language {
-        case .zh: "3 位非联系人的消息"
-        case .en: "Messages from 3 people who are not contacts"
-        case .ar: "رسائل من 3 أشخاص ليسوا جهات اتصال"
-        }
-    }
-
     static func conversations(_ board: String, _ language: FixtureLanguage) -> ConversationsState {
         var state: ConversationsState
         switch board {
         case "MOB-B01":
             state = ConversationsState(rows: conversationRows(language))
-            state.strangersDetail = strangersDetail(language)
             state.strangersUnread = 3
         case "MOB-B01L":
             state = ConversationsState(loading: true)
@@ -106,7 +97,7 @@ enum BoardFixtures {
         // The SDK page is newest first; the timeline reverses it.
         state.messages = [
             MessageRecord(id: "m3", sender: state.displayTitle, kind: .text(text[2]), isOwn: false, timestamp: today(10, 24), attachments: [AttachmentRecord(id: "notes", name: text[3], mime: "application/pdf")]),
-            MessageRecord(id: "m2", sender: "", kind: .text(text[1]), isOwn: true, timestamp: today(10, 23)),
+            MessageRecord(id: "m2", sender: "", kind: .text(text[1]), isOwn: true, timestamp: today(10, 23), delivery: .delivered),
             MessageRecord(id: "m1", sender: state.displayTitle, kind: .text(text[0]), isOwn: false, timestamp: today(10, 21)),
         ]
         return state

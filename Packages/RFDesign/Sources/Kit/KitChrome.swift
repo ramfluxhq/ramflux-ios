@@ -141,7 +141,7 @@ public struct KitPageHeader: View {
         .frame(maxWidth: .infinity, minHeight: KitMetrics.header)
         .background(theme.bg)
         .kitHairline(theme.line)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }
 
@@ -192,7 +192,7 @@ public struct KitChatHeader<Avatar: View>: View {
         .frame(maxWidth: .infinity, minHeight: KitMetrics.header)
         .background(theme.bg)
         .kitHairline(theme.line)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }
 
@@ -249,6 +249,6 @@ public struct KitTabBar: View {
         .frame(maxWidth: .infinity, minHeight: KitMetrics.tabBar, alignment: .top)
         .background(theme.bg)
         .kitHairline(theme.line, top: true)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }

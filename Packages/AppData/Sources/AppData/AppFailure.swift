@@ -7,6 +7,9 @@ public enum AppFailure: Error, Sendable, Equatable {
     case sdkRefusal(Int32), onboardingProtocol, localStorage, localFailure
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
+    case accountCode(AccountCodeIssue)
+    case backup(BackupIssue)
+    case pairing(PairingIssue)
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
@@ -25,6 +28,9 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.title", locale: locale)
         case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
+        case .accountCode: AppDataStrings.text("accountCode.failure.title", locale: locale)
+        case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
+        case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -56,16 +62,28 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.message", locale: locale)
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
+        case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
+        case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
+        case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         }
+    }
+    /// A refusal of the typed account code itself (wrong, malformed, retry later), not of the account.
+    public var isAccountCodeEntry: Bool {
+        if case .accountCode = self { return true }
+        return self == .invalidInput || self == .busy
     }
     public var canRetry: Bool {
         if case .typedRefusal = self { return false }
+        if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }
         return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
     }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
+            if let issue = AccountCodeIssue.sdk(failure.reasonCode) { return .accountCode(issue) }
+            // A definite refusal named by its reason, whatever effect the bridge reports.
+            if let reason = failure.reasonCode, reason == "already_contact" { return .typedRefusal(reason) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission
@@ -107,6 +125,17 @@ public enum AppFailure: Error, Sendable, Equatable {
         if error is BridgeError { return .invalidData }
         return .localFailure
     }
+    private static func accountCodeMessage(_ issue: AccountCodeIssue) -> String {
+        switch issue {
+        case .notSixDigits: "accountCode.failure.notSixDigits"
+        case .trivial: "accountCode.failure.trivial"
+        case .mismatch: "accountCode.failure.mismatch"
+        case .retryLater: "accountCode.failure.retryLater"
+        case .attemptsExhausted: "accountCode.failure.attemptsExhausted"
+        case .required: "accountCode.failure.required"
+        case .deviceUnlockUnavailable: "accountCode.failure.deviceUnlockUnavailable"
+        }
+    }
     private static func knownRefusal(_ name: String) -> AppFailure? {
         switch name {
         case "invalid_argument", "invalid_json", "peer_upgrade_required", "storage_capacity", "schema_reset_required", "resync_required", "edit_conflict", "not_authorized", "target_not_found", "target_deleted", "payload_too_large", "rate_limited", "ephemeral_unavailable", "crypto_failure", "not_connected", "internal":
@@ -132,6 +161,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "crypto_failure": "refusal.crypto_failure.title"
         case "not_connected": "refusal.not_connected.title"
         case "internal": "refusal.internal.title"
+        case "already_contact": "refusal.already_contact.title"
         default: "request.refusal.title"
         }
     }
@@ -153,6 +183,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "crypto_failure": "refusal.crypto_failure"
         case "not_connected": "refusal.not_connected"
         case "internal": "refusal.internal"
+        case "already_contact": "refusal.already_contact"
         default: "request.localFailure"
         }
     }

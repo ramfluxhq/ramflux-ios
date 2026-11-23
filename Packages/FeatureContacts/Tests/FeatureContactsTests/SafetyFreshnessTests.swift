@@ -62,8 +62,8 @@ private actor SafetyDirectory: ContactsRepository {
             await model.settle(); #expect(model.state.safety == nil); #expect(model.state.safetyPrincipal == nil)
             await repo.set(.present); model.send(.refresh); await model.settle(); #expect(model.state.safety?.verified == true)
         }
-        model.send(.mode(.contacts)); model.send(.filter("missing")); #expect(model.state.visibleContacts.isEmpty)
-        model.send(.filter("Peer")); #expect(model.state.visibleContacts.map(\.id) == ["peer"])
+        model.send(.mode(.contacts)); model.send(.filter("missing")); await model.settle(); #expect(model.state.contacts.isEmpty)
+        model.send(.filter("Peer")); await model.settle(); #expect(model.state.contacts.map(\.id) == ["peer"])
         model.send(.disappeared)
     }
 }

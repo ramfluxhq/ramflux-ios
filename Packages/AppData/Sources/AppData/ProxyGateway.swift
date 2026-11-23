@@ -35,8 +35,28 @@ struct ProxyGateway: Sendable {
             return body
         }
     }
+    /// The rows of an array field. There is no row-count ceiling: the size guard is the bridge's byte ceiling
+    /// (`CoreLimits.frameBytes`, 1 MiB per response, enforced before JSON decoding in RamfluxCore), so a
+    /// response can never hold more rows than fit in 1 MiB, whatever their count.
     static func rows(_ body: JSONValue, _ key: String) throws -> [JSONValue] {
-        guard case .array(let values) = body[key], values.count <= 4096 else { throw AppFailure.invalidData }; return values
+        guard case .array(let values) = body[key] else { throw AppFailure.invalidData }; return values
+    }
+    /// Rows a snapshot path maps per decode step before it yields; bounded work between suspension points.
+    static let decodeChunk = 1_024
+    /// Maps the rows of an unpaged snapshot in bounded chunks, off the main actor, yielding and checking
+    /// cancellation between chunks so a large roster neither blocks an executor nor outlives its reader.
+    @concurrent static func mapRows<Row: Sendable>(_ body: JSONValue, _ key: String, _ transform: @Sendable (JSONValue) throws -> Row) async throws -> [Row] {
+        let values = try rows(body, key)
+        var mapped: [Row] = []; mapped.reserveCapacity(values.count)
+        var start = 0
+        while start < values.count {
+            try Task.checkCancellation()
+            let end = min(start + decodeChunk, values.count)
+            for value in values[start..<end] { mapped.append(try transform(value)) }
+            start = end
+            if start < values.count { await Task.yield() }
+        }
+        return mapped
     }
     static func text(_ body: JSONValue, _ key: String) throws -> String {
         guard let value = body[key]?.string, !value.isEmpty, value.utf8.count <= 65_536 else { throw AppFailure.invalidData }; return value

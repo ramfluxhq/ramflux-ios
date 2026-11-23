@@ -76,6 +76,39 @@ reserved under the mutex, so cancellation and concurrent admission remain respon
 leave foreground retryable.
 Foreground reacquires the core. Extensions must never construct a NativeCore.
 
+## Shared event fan-out (AppData)
+
+Features never open a native subscription. They call `observe(account:)` on their
+repository, which forwards to the one `NativeUpdateSource` shared by every repository
+built over the client (`AppDataFactory`). The hub keeps one native subscription per
+active account and multicasts to any number of `RepositoryObservation`s:
+
+- `observe(account:) async -> RepositoryObservation` registers an observer. The first
+  observer resets the event slot and opens the subscription; later observers join it.
+  Every observer receives `.invalidated` once it is live.
+- `observation.stream` is an `AsyncStream<RepositoryUpdate>` buffering only the newest
+  update: `.invalidated` means "reload your visible window"; `.failed(AppFailure)` is
+  terminal and the stream finishes after it.
+- `observation.stop()` is idempotent; cancelling the consuming task also removes the
+  observer. When the last observer leaves, the hub stops and joins the native
+  subscription. Subscribe on appear and stop on disappear.
+- A lag notification, queue overflow or byte-credit exhaustion (`resyncRequired`)
+  never reaches features as a failure: the hub stops the stream, resets, resubscribes
+  and sends `.invalidated` to every observer so each reloads from read models. After
+  four consecutive resubscriptions without a delivered event it reports `.failed`.
+- Observing a different account finishes the previous account's observers and joins
+  their native stop before resetting and subscribing for the new account.
+- Transient frames: `observe(account:transientFrames: true)` also returns `observation.transient`, an
+  `AsyncStream<TransientFrame>` (newest 32 buffered) carrying the live `message.transient` frames of
+  the account (typing indicators) as the frame topic and its body in JSON bytes. Only observers that
+  ask receive them; a transient frame never sends `.invalidated` and is never replayed after a resync.
+  The stream finishes with the observation. The chat reads them through `UpdateSourceChatTransients`
+  (AppData), a `ChatTransientSource` that registers one such observer per typing subscription, yields
+  the JSON bodies of `message.transient` frames and leaves the fan-out when the chat stops reading.
+- The topic list is fixed in `NativeUpdateSource.topics`; there is no `*` subscription.
+  Events carry no payload to observers: a feature that needs to filter (for example a
+  chat that only cares about its own conversation) re-reads its window and compares.
+
 ## Secrets and app storage
 
 `SecretBytes` is single-use, non-Codable and redacted. Its private allocation is
@@ -117,3 +150,52 @@ Agent configuration and stranger reporting still have no published methods, so
 those proxies stay local refusals and perform no SDK call. Conversation send,
 reply, edit, reaction and delete use the published conversation methods. There
 are no fake results, guessed wire methods, or preview fixtures in the product.
+
+Linking this phone to an existing account is not available at SDK `3dafe1f8`. The
+joining device must supply its new account code through the SDK's attended credential
+channel during `device.pair.join` (`bus/credentials.rs`, credential action `setup`).
+That channel exists only on local-bus socket connections (`bus/connection.rs`) and on
+the narrow `ramflux_pairing_call` ABI, which needs a same-user local daemon socket
+(`pairing_socket`). The in-process v2 operation ABI that this app uses opens no
+credential channel, and the SDK's `docs/device_pairing.md` states that phone pairing
+companions are outside the release. The onboarding "device not yet authorised" row (MOB-A01) therefore shows the
+typed unavailable state. Device list and revocation use `device.list` and
+`device.revoke` and are available.
+
+The other direction, this phone as the primary inviting another device, does not use the credential
+channel: `bus/credentials.rs` routes only `device.pair.join`, `device.transfer.join/prepare/status` and
+an unlock without a passphrase through it, and pairing is enabled by default
+(`RAMFLUX_DEVICE_PAIRING_ENABLED` unset). The node must advertise `device_pairing_v2`.
+`NativePairingRepository` (AppData) drives it, following the reference caller
+`apps/rf/src/handlers/pairing.rs`:
+
+- `device.pair.begin` with `ramflux.pairing.Begin.v2`: the label the user gives the new device, the
+  reference caller's default rights `message`, `register`, `sync`, and a lease from now to the SDK maximum
+  (`MAX_BRANCH_LEASE_SECONDS`, 30 days). The response is secret output. `SealedPairingFrame` reads the
+  sealed frame by byte ranges, decodes only the operation id, generation and expiry, checks that the token
+  is bound to the operation, and re-encodes `invite_token` canonically (RFC 8785: sorted keys, no
+  whitespace, scalars copied verbatim, integers only; the bytes `InviteToken::to_wire_bytes` produces and
+  a joining device reads) straight into `PairingInvitation`'s erasable buffer. The token never becomes a
+  String, Data or JSONValue in AppData and is never persisted or logged.
+- `PairingViewModel` reads the token once into a QR image (`KitQrCode.render`, error correction M, or L
+  when M cannot hold it; an invitation that does not fit one code is cancelled with a typed failure) and
+  erases the buffer at once. Core Image's internal buffers and the image cannot be erased; the image is
+  dropped when the other device joins, the ceremony ends or the screen goes away. The screen covers the
+  code whenever the scene is not active and is `privacySensitive`. Leaving the screen cancels a running
+  ceremony. The SDK has no short pairing code, so the board's manual code field is not offered.
+- Progress is read with `device.pair.status` every two seconds while the screen is visible (the SDK's
+  `device.pairing.event` display topic is not in the shared event source's fixed topic list). Phases map
+  to steps: `invited`/`commitments` show the code, `sas_pending` with seven indices shows the symbols
+  (`SAS_EMOJI` order, drawn through `KitPairingCode`), `proposal_pending` shows the review, terminal
+  phases show the result with the SDK result code.
+- `device.pair.confirm`: a positive answer re-reads the status and refuses when the transcript or symbols
+  changed since they were shown (as the reference caller does); a negative answer ends the ceremony on both
+  devices. The phone keeps waiting while the SDK stays in `sas_pending` for the other side.
+- `device.pair.approve` carries the reviewed transcript and proposal hashes and is sent only after the host
+  confirmation (`RFHostConfirmationActions`) that shows the joining device's name (untrusted text) and id
+  (identifier primitive); declining sends `approved: false`. `device.pair.cancel` ends the ceremony.
+- SDK pairing codes (`Busy`, `Expired`, `SasMismatch`, `NotFound`, ...) map to `AppFailure.pairing`;
+  a code other than a transient one stops following the ceremony.
+
+Not verified against a node at this pin: whether the in-process client is admitted for `device.pair.confirm`
+and `approve` exactly like a local-bus connection. The headless tests run against the fake transport.

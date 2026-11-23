@@ -8,6 +8,22 @@
 	<string>账户</string>
 	<key>tasks.approval</key>
 	<string>审批请求</string>
+	<key>tasks.approval.appSignature</key>
+	<string>批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。</string>
+	<key>tasks.approval.approve</key>
+	<string>批准</string>
+	<key>tasks.approval.approve.summary</key>
+	<string>批准来自 %2$@ 的 %1$@</string>
+	<key>tasks.approval.approve.title</key>
+	<string>批准此请求？</string>
+	<key>tasks.approval.deny</key>
+	<string>拒绝</string>
+	<key>tasks.approval.deny.summary</key>
+	<string>拒绝来自 %2$@ 的 %1$@</string>
+	<key>tasks.approval.deny.title</key>
+	<string>拒绝此请求？</string>
+	<key>tasks.approval.scope</key>
+	<string>范围</string>
 	<key>tasks.assignee</key>
 	<string>执行者</string>
 	<key>tasks.cancel</key>
@@ -52,8 +68,6 @@
 	<string>请在受信任客户端审核干预</string>
 	<key>tasks.loading</key>
 	<string>正在加载</string>
-	<key>tasks.more</key>
-	<string>加载下一页</string>
 	<key>tasks.needs_me</key>
 	<string>需要您的输入</string>
 	<key>tasks.noAuthority</key>
@@ -106,8 +120,6 @@
 	<string>结果摘要</string>
 	<key>tasks.review</key>
 	<string>审核此任务操作</string>
-	<key>tasks.reviewPermission</key>
-	<string>检查审批功能</string>
 	<key>tasks.revoked</key>
 	<string>已撤销</string>
 	<key>tasks.running</key>

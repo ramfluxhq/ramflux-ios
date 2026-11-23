@@ -2,6 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>chat.attach.camera</key>
+	<string>Camera</string>
+	<key>chat.attach.file</key>
+	<string>File</string>
+	<key>chat.attach.photos</key>
+	<string>Photos</string>
+	<key>chat.attach.title</key>
+	<string>Attach</string>
+	<key>chat.attachment.typeSize</key>
+	<string>%1$@ · %2$@</string>
 	<key>chat.composer.cancel</key>
 	<string>Cancel</string>
 	<key>chat.composer.placeholder</key>
@@ -20,6 +30,32 @@
 	<string>Delete message</string>
 	<key>chat.delete.mine.title</key>
 	<string>Delete from your own devices?</string>
+	<key>chat.details.close</key>
+	<string>Done</string>
+	<key>chat.details.conversationID</key>
+	<string>Conversation ID</string>
+	<key>chat.details.groupMembers</key>
+	<string>Open the group to manage members and roles.</string>
+	<key>chat.details.members</key>
+	<string>Members</string>
+	<key>chat.details.mute</key>
+	<string>Mute notifications</string>
+	<key>chat.details.muteUnknown</key>
+	<string>Mute state is not available for this conversation yet.</string>
+	<key>chat.details.safety</key>
+	<string>Safety number</string>
+	<key>chat.details.safetyUnavailable</key>
+	<string>The safety number is available once this person is a contact and has written to you.</string>
+	<key>chat.details.title</key>
+	<string>Conversation details</string>
+	<key>chat.details.you</key>
+	<string>You</string>
+	<key>chat.draft.caption</key>
+	<string>Add a caption</string>
+	<key>chat.draft.remove</key>
+	<string>Remove</string>
+	<key>chat.draft.send</key>
+	<string>Send</string>
 	<key>chat.edit.banner</key>
 	<string>Editing</string>
 	<key>chat.edited</key>
@@ -28,18 +64,98 @@
 	<string>Messages in this conversation will appear here.</string>
 	<key>chat.empty.title</key>
 	<string>No messages yet</string>
+	<key>chat.gallery.empty</key>
+	<string>Nothing here yet</string>
+	<key>chat.gallery.files</key>
+	<string>Files</string>
+	<key>chat.gallery.media</key>
+	<string>Media</string>
+	<key>chat.gallery.more</key>
+	<string>Load older items</string>
+	<key>chat.gallery.newest</key>
+	<string>Back to newest</string>
+	<key>chat.gallery.title</key>
+	<string>Media and files</string>
 	<key>chat.loading</key>
 	<string>Loading messages</string>
+	<key>chat.media.accessibility</key>
+	<string>%1$@, %2$@</string>
+	<key>chat.media.cancelDownload</key>
+	<string>Cancel download</string>
+	<key>chat.media.download</key>
+	<string>Download</string>
+	<key>chat.media.downloading</key>
+	<string>Downloading</string>
+	<key>chat.media.expired</key>
+	<string>No longer available</string>
+	<key>chat.media.failed</key>
+	<string>Download failed, tap to retry</string>
+	<key>chat.media.notAvailable</key>
+	<string>Not available on this device</string>
+	<key>chat.media.open</key>
+	<string>Tap to open</string>
+	<key>chat.media.peerUpgrade</key>
+	<string>The other person needs to update Ramflux to receive attachments.</string>
+	<key>chat.media.photo</key>
+	<string>Photo</string>
+	<key>chat.media.preparing</key>
+	<string>Preparing attachments…</string>
+	<key>chat.media.recipientLimit</key>
+	<string>This group is too large for attachments.</string>
+	<key>chat.media.removed</key>
+	<string>Removed by sender</string>
+	<key>chat.media.save</key>
+	<string>Save to Photos</string>
+	<key>chat.media.saveFailed</key>
+	<string>Could not save to Photos</string>
+	<key>chat.media.saved</key>
+	<string>Saved to Photos</string>
+	<key>chat.media.share</key>
+	<string>Share</string>
+	<key>chat.media.show</key>
+	<string>Show</string>
+	<key>chat.media.storageFull</key>
+	<string>Not enough storage to send this attachment.</string>
+	<key>chat.media.tapToDownload</key>
+	<string>Tap to download, %@</string>
+	<key>chat.media.tooLarge</key>
+	<string>This file is too large to send.</string>
+	<key>chat.media.untrusted</key>
+	<string>From someone not in your contacts</string>
+	<key>chat.media.video</key>
+	<string>Video</string>
+	<key>chat.message.actions</key>
+	<string>Message actions</string>
 	<key>chat.message.callHistory</key>
 	<string>Call history</string>
+	<key>chat.message.copy</key>
+	<string>Copy text</string>
 	<key>chat.message.deleteMine</key>
 	<string>Delete from my devices</string>
 	<key>chat.message.deleted</key>
 	<string>Message deleted</string>
 	<key>chat.message.edit</key>
 	<string>Edit</string>
+	<key>chat.message.forward</key>
+	<string>Forward</string>
 	<key>chat.message.react</key>
 	<string>React</string>
+	<key>chat.message.selectText</key>
+	<string>Select text</string>
+	<key>chat.offline.banner</key>
+	<string>Offline · messages will be sent when the connection returns</string>
+	<key>chat.outbox.details</key>
+	<string>Send details</string>
+	<key>chat.outbox.discard</key>
+	<string>Delete unsent message</string>
+	<key>chat.outbox.failed</key>
+	<string>Not sent</string>
+	<key>chat.outbox.pending</key>
+	<string>Pending</string>
+	<key>chat.outbox.retry</key>
+	<string>Retry</string>
+	<key>chat.outbox.sending</key>
+	<string>Sending</string>
 	<key>chat.reaction.add</key>
 	<string>Add reaction</string>
 	<key>chat.reaction.remove</key>
@@ -50,14 +166,32 @@
 	<string>Replying</string>
 	<key>chat.reply.quote</key>
 	<string>Reply</string>
-	<key>chat.send.failed</key>
-	<string>Delivery failed</string>
 	<key>chat.send.retry</key>
 	<string>Retry original send</string>
-	<key>chat.send.submitted</key>
-	<string>Submitted to account service</string>
+	<key>chat.storage.clear</key>
+	<string>Clear downloaded media</string>
+	<key>chat.storage.clearAll</key>
+	<string>Clear all downloaded media</string>
+	<key>chat.storage.clearFact</key>
+	<string>Downloaded photos, videos and files are removed from this device. Items older than a day may no longer be available to download again. Messages waiting to be sent are kept.</string>
+	<key>chat.storage.conversation</key>
+	<string>Media on this device</string>
+	<key>chat.storage.downloaded</key>
+	<string>Downloaded media</string>
+	<key>chat.storage.policy</key>
+	<string>Downloaded media stays on this device until you or the sender delete it, or you clear it here. Nothing is removed automatically.</string>
+	<key>chat.storage.title</key>
+	<string>Media storage</string>
+	<key>chat.storage.waiting</key>
+	<string>Waiting to be sent</string>
+	<key>chat.timeline.jumpToLatest</key>
+	<string>Jump to latest</string>
+	<key>chat.timeline.loadingOlder</key>
+	<string>Loading earlier messages</string>
 	<key>chat.timeline.unreadDivider</key>
 	<string>Unread messages below</string>
+	<key>chat.typing</key>
+	<string>Typing…</string>
 	<key>common.action.refresh</key>
 	<string>Refresh</string>
 	<key>common.action.reply</key>

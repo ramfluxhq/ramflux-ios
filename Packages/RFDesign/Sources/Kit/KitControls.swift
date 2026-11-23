@@ -125,6 +125,6 @@ public struct KitSegmented: View {
         .frame(maxWidth: .infinity, minHeight: KitMetrics.segmented)
         .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
         .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }

@@ -15,10 +15,10 @@ public struct GroupsScreen: View {
             if state.mode == .list {
                 VStack(spacing: 0) {
                     listHeader
-                    ScrollView { listBody.padding(.top, 20).padding(.horizontal, theme.gap).padding(.bottom, theme.gap) }
+                    ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) { listBody }.padding(.top, 20).padding(.horizontal, theme.gap).padding(.bottom, theme.gap) }
                 }
             } else {
-                ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
+                ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) {
                     pushedHeader
                     listBody
                 }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) }
@@ -40,15 +40,18 @@ public struct GroupsScreen: View {
     }
 
     private var listHeader: some View {
-        KitPageHeader(title, large: true, actionLabel: FeatureGroupsStrings.text("groups.create", locale: locale), onAction: { onAction(.mode(.create)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
+        // A large header draws no text action, so creating a group is an icon action next to refresh.
+        KitPageHeader(title, large: true, actions: [KitHeaderAction(icon: "plus", label: FeatureGroupsStrings.text("groups.create", locale: locale), action: { onAction(.mode(.create)) }),
+                                                    KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
     }
 
     private var pushedHeader: some View {
         KitPageHeader(title, onBack: { onAction(.mode(.list)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
     }
 
+    /// The children of the lazy stack around it: a `Group`, so long lists inside `content` stay lazy.
     private var listBody: some View {
-        VStack(alignment: .leading, spacing: theme.gap) {
+        Group {
             if state.loading { ProgressView(FeatureGroupsStrings.text("groups.loading", locale: locale)) }
             if let pending = state.pending {
                 RFHostFacts(title: FeatureGroupsStrings.text("groups.pending", locale: locale), origin: state.accountID, facts: facts(pending.mutation)) {
@@ -84,7 +87,13 @@ public struct GroupsScreen: View {
                     KitButton(FeatureGroupsStrings.text("groups.create", locale: locale), action: { onAction(.mode(.create)) }, tag: "groups-empty-create")
                 }
             }
-            ForEach(state.visibleGroups) { group in groupRow(group) }
+            ForEach(state.visibleGroups) { group in
+                groupRow(group).onAppear { if group.id == state.visibleGroups.last?.id && state.canLoadMore { onAction(.loadMore) } }
+            }
+            if let failure = state.invitationsFailure {
+                Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
+                RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale))
+            }
             if !state.invitations.isEmpty {
                 Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
                 ForEach(state.invitations) { invitation in Button(invitation.name ?? invitation.id) { onAction(.mode(.invitation(invitation.id))) } }
@@ -129,11 +138,16 @@ public struct GroupsScreen: View {
                             Button(FeatureGroupsStrings.text("groups.remove", locale: locale), role: .destructive) { onAction(.prepareRemove(member.id)) }
                         }
                     }.disabled(state.busy || state.pending != nil)
+                    .onAppear { if row.id == state.memberRows.last?.id && state.canLoadMoreMembers { onAction(.loadMore) } }
                 }
                 if state.canManage {
                     Text(FeatureGroupsStrings.text("groups.add", locale: locale)).rfFont(.body, weight: .semibold)
                     if state.eligibleContacts.isEmpty { Text(FeatureGroupsStrings.text("groups.addNone", locale: locale)) }
-                    ForEach(state.eligibleContacts) { contact in Button(contact.displayName) { onAction(.prepareAdd(contact.id)) }.disabled(state.busy || state.pending != nil) }
+                    ForEach(state.eligibleContacts) { contact in
+                        Button(contact.displayName) { onAction(.prepareAdd(contact.id)) }.disabled(state.busy || state.pending != nil)
+                            .onAppear { if contact.id == state.eligibleContacts.last?.id && state.canLoadMoreContacts { onAction(.loadMoreContacts) } }
+                    }
+                    if state.canLoadMoreContacts && state.eligibleContacts.isEmpty { Button(FeatureGroupsStrings.text("groups.refresh", locale: locale)) { onAction(.loadMoreContacts) } }
                 }
             }
         case .requests:

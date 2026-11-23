@@ -11,13 +11,23 @@
 	<key>contacts.add.action</key>
 	<string>添加</string>
 	<key>contacts.add.address</key>
-	<string>账户地址</string>
+	<string>账户地址或联系人名片</string>
 	<key>contacts.add.notVerifiedNote</key>
 	<string>发送请求并不表示对方账户已通过验证。</string>
 	<key>contacts.add.send</key>
 	<string>发送联系人请求</string>
 	<key>contacts.add.title</key>
 	<string>添加联系人</string>
+	<key>contacts.change.applying</key>
+	<string>正在应用更改</string>
+	<key>contacts.change.confirm.block</key>
+	<string>屏蔽该联系人？取消屏蔽之前，对方无法联系你。</string>
+	<key>contacts.change.confirm.remove</key>
+	<string>删除该联系人？之后可以重新发送请求添加。</string>
+	<key>contacts.change.confirm.unblock</key>
+	<string>取消屏蔽该联系人？对方将可以再次联系你。</string>
+	<key>contacts.change.confirm.verify</key>
+	<string>将此安全码标记为已验证？只有在通过可信渠道逐位核对一致后才确认。</string>
 	<key>contacts.decision.applying</key>
 	<string>正在执行操作</string>
 	<key>contacts.decision.confirmAccept</key>
@@ -34,12 +44,32 @@
 	<string>筛选联系人</string>
 	<key>contacts.loading</key>
 	<string>正在加载联系人</string>
+	<key>contacts.loadingMore</key>
+	<string>正在加载更多</string>
+	<key>contacts.myCard.explain</key>
+	<string>对方添加此名片后，即可通过您的主节点联系您。名片七天后失效，届时请重新打开此页面获取新名片。</string>
+	<key>contacts.myCard.qr</key>
+	<string>您的联系人名片二维码</string>
+	<key>contacts.myCard.share</key>
+	<string>分享联系人名片</string>
+	<key>contacts.myCard.text</key>
+	<string>名片文本</string>
+	<key>contacts.myCard.title</key>
+	<string>我的联系人名片</string>
+	<key>contacts.profile.block</key>
+	<string>屏蔽联系人</string>
+	<key>contacts.profile.blocked</key>
+	<string>已屏蔽</string>
 	<key>contacts.profile.missing</key>
 	<string>此联系人不可用。请刷新联系人列表。</string>
 	<key>contacts.profile.notVerified</key>
 	<string>身份未验证</string>
+	<key>contacts.profile.remove</key>
+	<string>删除联系人</string>
 	<key>contacts.profile.title</key>
 	<string>联系人</string>
+	<key>contacts.profile.unblock</key>
+	<string>取消屏蔽</string>
 	<key>contacts.profile.verified</key>
 	<string>身份已验证</string>
 	<key>contacts.profile.viewSafety</key>
@@ -78,6 +108,8 @@
 	<string>此联系人的安全信息不可用。</string>
 	<key>contacts.safety.verified</key>
 	<string>已验证</string>
+	<key>contacts.safety.verifiedNote</key>
+	<string>你已将此安全码标记为已验证。如果对方身份变化，会提示你重新核对。</string>
 	<key>contacts.sent.title</key>
 	<string>已发送的请求</string>
 	<key>contacts.strangers.batch</key>

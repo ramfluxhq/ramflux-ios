@@ -4,6 +4,8 @@ import Foundation
 import RamfluxCore
 public protocol GroupsRepository: Sendable {
     func list(account: String) async -> RepositoryResult<[GroupRecord]>
+    /// One page of groups whose name or id contains `query` (empty matches all).
+    func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>>
     func conversation(account: String, group: String) async -> RepositoryResult<String>
     func detail(account: String, group: String) async -> RepositoryResult<GroupDetail>
     func invitations(account: String) async -> RepositoryResult<[GroupInvitation]>
@@ -18,19 +20,37 @@ public struct NativeGroupsRepository: GroupsRepository {
     private let updates: NativeUpdateSource
     private let creationPins = GroupCreationPins()
     private let mutations = RetainedMutation<GroupMutation, GroupMutationOutcome>()
+    /// `group.list` is unpaged in the SDK; this pages its snapshot.
+    private let pager = SnapshotPager<GroupRecord>()
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
+    public func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>> {
+        let query = String(query.prefix(256))
+        return await pager.page(cursor: cursor, limit: limit, read: { await self.list(account: account) }, include: { GroupRecord.matches($0, query) })
+    }
     public func list(account: String) async -> RepositoryResult<[GroupRecord]> {
         do {
-            let rows = try ProxyGateway.rows(await gateway.call(.groupList, account: account), "groups").map(Self.record)
+            let rows = try await ProxyGateway.mapRows(await gateway.call(.groupList, account: account), "groups", Self.record)
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.list", error); return .failure(AppFailure.map(error)) }
     }
     public func conversation(account: String, group: String) async -> RepositoryResult<String> {
         do {
+            // The group row names its conversation (`conversation_id`); for a group created on this phone it
+            // differs from the group id, and group.history refuses the group id as conversation (invalid_argument).
+            let rows = try ProxyGateway.rows(try await gateway.call(.groupList, account: account), "groups")
+            if let row = rows.first(where: { $0["group_id"]?.string == group || $0["id"]?.string == group }),
+               let conversation = row["conversation_id"]?.string, !conversation.isEmpty, conversation.utf8.count <= 256 {
+                return .success(conversation)
+            }
+            // The group's metadata (group.members) names the conversation of a shared group; history is the last resort.
+            let members = try await gateway.call(.groupMembers, account: account, body: .object(["group_id": .string(group)]))
+            if members["group_id"] == .string(group), let conversation = members["conversation_id"]?.string, !conversation.isEmpty, conversation.utf8.count <= 256 {
+                return .success(conversation)
+            }
             let body = try await gateway.call(.groupHistory, account: account, body: .object(["group_id": .string(group), "conversation_id": .string(group), "limit": .number(0)]))
             guard body["group_id"] == .string(group) else { throw AppFailure.invalidData }
             return .success(try ProxyGateway.text(body, "conversation_id"))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.history", error); return .failure(AppFailure.map(error)) }
     }
     public func detail(account: String, group: String) async -> RepositoryResult<GroupDetail> {
         do {
@@ -53,7 +73,7 @@ public struct NativeGroupsRepository: GroupsRepository {
             }
             guard Set(roster.map(\.id)).count == roster.count else { throw AppFailure.invalidData }
             return .success(GroupDetail(group: record, roster: roster, ownRoot: try ProxyGateway.text(status, "principal_commitment"), ownDevice: try ProxyGateway.text(status, "device_id"), authorized: status["local_device_authorized"] == .bool(true) && status["authority_blocked"] != .bool(true)))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.members", error); return .failure(AppFailure.map(error)) }
     }
     public func invitations(account: String) async -> RepositoryResult<[GroupInvitation]> {
         do {
@@ -62,7 +82,7 @@ public struct NativeGroupsRepository: GroupsRepository {
                 return GroupInvitation(id: try ProxyGateway.text(row, "group_id"), name: row["name"]?.string, creator: try ProxyGateway.text(row, "creator"), inviter: try ProxyGateway.text(row, "inviter"), expiresAt: expiry)
             }
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.invitations.list", error); return .failure(AppFailure.map(error)) }
     }
     public func requests(account: String, group: String) async -> RepositoryResult<[GroupRequestRecord]> {
         do {
@@ -71,7 +91,7 @@ public struct NativeGroupsRepository: GroupsRepository {
                 return GroupRequestRecord(id: try ProxyGateway.text(row, "request_id"), groupID: group, status: try ProxyGateway.text(row, "status"), waitingForOwner: waiting, expiresAt: expiry)
             }
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.requests.list", error); return .failure(AppFailure.map(error)) }
     }
     public func pending(account: String) async -> PendingGroupMutation? {
         guard let entry = await mutations.snapshot(scope: account), entry.unresolved else { return nil }
@@ -109,7 +129,11 @@ public struct NativeGroupsRepository: GroupsRepository {
                         fields["member_id"] = .string(member.device); fields["member_principal_commitment"] = member.root.map(JSONValue.string); operation = .groupMemberRemove
                     case .add(_, let epoch, let principal, let root):
                         guard epoch == detail.group.epoch, !principal.isEmpty, principal.utf8.count <= 2048, !root.isEmpty, root.utf8.count <= 1024 else { return .failure(.invalidInput) }
-                        fields["member_id"] = .string(principal); fields["member_principal_commitment"] = .string(root); fields["role"] = .string("member"); operation = .groupMemberAdd
+                        // A contact is added by its principal id alone: the SDK selects the contact's one active device
+                        // from its verified identity record and checks the manifest root. With an explicit
+                        // member_principal_commitment the SDK reads member_id as a literal device id, so a principal id
+                        // there fails ("member is absent from its verified manifest", code 16).
+                        fields["member_id"] = .string(principal); fields["role"] = .string("member"); operation = .groupMemberAdd
                     default: return .failure(.invalidInput)
                     }
                 }
@@ -127,8 +151,10 @@ public struct NativeGroupsRepository: GroupsRepository {
                     return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: true, requestID: request))
                 }
                 // Mutation acknowledgement is not a claim that member devices received state.
-                return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: false))
-            } catch { return .failure(AppFailure.map(error)) }
+                // A creation's reply is the group's metadata, which names the conversation the SDK bound to it.
+                let conversation = body["conversation_id"]?.string.flatMap { !$0.isEmpty && $0.utf8.count <= 256 ? $0 : nil }
+                return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: false, conversationID: conversation))
+            } catch { EventDiagnostics.failed("group mutation", error); return .failure(AppFailure.map(error)) }
         }
     }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
@@ -157,4 +183,21 @@ public struct UnavailableGroupsRepository: GroupsRepository {
     public func mutate(account: String, mutation: GroupMutation, operationID: String) async -> RepositoryResult<GroupMutationOutcome> { .failure(.sdkUnavailable) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: GroupUnavailable) -> AppFailure { NativeGroupsRepository.refusal(capability) }
+}
+
+public extension GroupsRepository {
+    /// Stateless fallback for repositories without a pager: re-reads the list and pages it by offset.
+    func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>> {
+        switch await list(account: account) {
+        case .failure(let failure): return .failure(failure)
+        case .success(let rows):
+            let matching = rows.filter { GroupRecord.matches($0, query) }
+            let start = min(cursor.flatMap(Int.init) ?? 0, matching.count), end = min(start + max(1, limit), matching.count)
+            return .success(RowPage(rows: Array(matching[start..<end]), nextCursor: end < matching.count ? String(end) : nil))
+        }
+    }
+}
+public extension GroupRecord {
+    /// Case-insensitive match of the name (or the id of an unnamed group); an empty query matches every group.
+    static func matches(_ group: GroupRecord, _ query: String) -> Bool { query.isEmpty || (group.name ?? group.id).localizedCaseInsensitiveContains(query) }
 }

@@ -7,10 +7,10 @@ import AppData
 
 @Suite(.timeLimit(.minutes(1)))
 struct ShellHubTests {
-    @Test func moreHubKeepsTheDesignedRowsThenAccountsAndNotices() {
+    @Test func moreHubKeepsTheDesignedRowsThenCallsAccountsAndNotices() {
         #expect(MoreHub.items() == [
             .route(.contacts), .route(.tasks), .route(.permissions), .route(.settings),
-            .navigation, .accounts, .route(.notices),
+            .navigation, .route(.calls(nil)), .accounts, .route(.notices),
         ])
         for item in MoreHub.items() {
             let english = FeatureAppShellStrings.text(item.titleKey, locale: Locale(identifier: "en"))

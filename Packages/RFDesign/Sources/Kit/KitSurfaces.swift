@@ -50,7 +50,7 @@ public struct KitSheet<Extra: View>: View {
         .background(theme.overlay, in: shape)
         .overlay { shape.strokeBorder(theme.overlay_border, lineWidth: KitMetrics.stroke) }
         .shadow(color: theme.shadow, radius: KitMetrics.shadowBlur)
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }
 
@@ -220,7 +220,7 @@ public struct KitApprovalCard: View {
         .frame(idealWidth: KitMetrics.approvalMax, maxWidth: KitMetrics.approvalMax, alignment: .leading)
         .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_card))
         .overlay { RoundedRectangle(cornerRadius: theme.radius_card).strokeBorder(theme.line, lineWidth: KitMetrics.stroke) }
-        .kitTag(tag)
+        .kitContainerTag(tag)
     }
 }
 

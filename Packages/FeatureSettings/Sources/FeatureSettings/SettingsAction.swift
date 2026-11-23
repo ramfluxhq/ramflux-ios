@@ -5,8 +5,8 @@ import AppData
 public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case reconcileOriginal(String)
     case appeared, disappeared, refresh, open(AppRoute), lock, requestRevoke(String), cancelRevoke, confirmRevoke(String)
-    case appearance(AppearanceMode), retention(Int64), saveRetention, manualRequests, unavailable(SettingsUnavailable)
-    case createBackup, selectImport, importSelected(URL), cancelImport, requestInstall(String), requestRestore(String, UInt64), dismissModal, submitBackup(SensitiveSubmission), cancelBackupForm
-    case cancelJob(String), share(String), closeShare, setDefault(String)
+    case appearance(AppearanceMode), retention(Int64), saveRetention, requestPolicy(autoAccept: Bool), unavailable(SettingsUnavailable)
+    case dismissModal, setDefault(String)
+    case startChangeCode, submitChangeCode(SensitiveSubmission), cancelChangeCode, openSystemLanguage
     public var description: String { "SettingsAction" }
 }

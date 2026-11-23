@@ -22,6 +22,54 @@
 	<string>Operator public key</string>
 	<key>node.reviewFingerprint</key>
 	<string>Review fingerprint</string>
+	<key>onboarding.a01.changeNode.detail</key>
+	<string>Does not change the account's node or authorisation</string>
+	<key>onboarding.a01.header</key>
+	<string>Continue with existing identity</string>
+	<key>onboarding.a01.heading</key>
+	<string>Connection and account are confirmed separately</string>
+	<key>onboarding.a01.local</key>
+	<string>Accounts on this phone</string>
+	<key>onboarding.a01.noAccount</key>
+	<string>No account? Create one on this phone, or recover with a recovery phrase.</string>
+	<key>onboarding.a01.unauthorized</key>
+	<string>Device not yet authorised</string>
+	<key>onboarding.a01.unauthorized.detail</key>
+	<string>See the ways to join that are available now</string>
+	<key>onboarding.a02.forget</key>
+	<string>Remove from this phone's list</string>
+	<key>onboarding.a02.info</key>
+	<string>View device unlock info</string>
+	<key>onboarding.a02.knownAccount</key>
+	<string>Account on this phone</string>
+	<key>onboarding.a02.localOnly</key>
+	<string>Unlock on this phone</string>
+	<key>onboarding.a07.code</key>
+	<string>Unlock with your account code</string>
+	<key>onboarding.a07.code.detail</key>
+	<string>Enter the six-digit code you set when you created or recovered the account</string>
+	<key>onboarding.a07.forgot</key>
+	<string>Forgot your account code</string>
+	<key>onboarding.a07.forgot.detail</key>
+	<string>Recover the account on this phone with your recovery phrase</string>
+	<key>onboarding.a07.header</key>
+	<string>Device unlock info</string>
+	<key>onboarding.a07.intro</key>
+	<string>Unlocking happens on this phone only. Your six-digit account code is never sent to the node or to your other devices.</string>
+	<key>onboarding.a07.local</key>
+	<string>Checked on this phone</string>
+	<key>onboarding.a07.local.detail</key>
+	<string>Wrong attempts are limited. Unlocking never widens what this device may do.</string>
+	<key>onboarding.a07.unlock</key>
+	<string>Unlock with account code</string>
+	<key>onboarding.accountCode.existing</key>
+	<string>Account code (6 digits)</string>
+	<key>onboarding.accountCode.local</key>
+	<string>The account code is checked on this phone only. It is never sent to the node or to your other devices.</string>
+	<key>onboarding.accountCode.new</key>
+	<string>New account code (6 digits)</string>
+	<key>onboarding.accountCode.repeat</key>
+	<string>Repeat account code</string>
 	<key>onboarding.address.check</key>
 	<string>Check address</string>
 	<key>onboarding.address.connect</key>
@@ -30,16 +78,22 @@
 	<string>Entered</string>
 	<key>onboarding.address.field</key>
 	<string>Node address</string>
+	<key>onboarding.address.instructions</key>
+	<string>Enter the HTTPS address your node operator gave you. Only its origin is used.</string>
 	<key>onboarding.address.normalized</key>
 	<string>Connect to</string>
 	<key>onboarding.address.originOnly</key>
 	<string>Only the HTTPS origin will be used. Paths and invitations are not sent.</string>
+	<key>onboarding.address.placeholder</key>
+	<string>https://node.example</string>
+	<key>onboarding.brand.letter</key>
+	<string>R</string>
 	<key>onboarding.busy</key>
 	<string>Please wait</string>
-	<key>onboarding.cancel</key>
-	<string>Cancel setup</string>
 	<key>onboarding.complete.connected</key>
 	<string>Connected</string>
+	<key>onboarding.complete.connecting</key>
+	<string>Local account is ready. Connecting to the network…</string>
 	<key>onboarding.complete.continue</key>
 	<string>Continue</string>
 	<key>onboarding.complete.notConnected</key>
@@ -55,13 +109,11 @@
 	<key>onboarding.link.title</key>
 	<string>Link an existing account</string>
 	<key>onboarding.link.unavailable</key>
-	<string>Linking needs a registered phone pairing coordinator. This build does not create a QR code or pairing code.</string>
+	<string>Linking this phone to an account on another device is not available yet: joining needs the new device to hand its new account code to the account securely, which this version of the app cannot do. You can create an account, recover with your recovery phrase or restore a backup. If this phone is your primary device, you can link other devices from Settings › Devices.</string>
 	<key>onboarding.localUnlock.accountID</key>
 	<string>Local account ID</string>
 	<key>onboarding.localUnlock.instructions</key>
-	<string>Choose a local passphrase, then enter the three requested recovery words. Confirmation is a single attempt.</string>
-	<key>onboarding.localUnlock.passphrase</key>
-	<string>Local passphrase</string>
+	<string>Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt.</string>
 	<key>onboarding.n01.create</key>
 	<string>Create the account</string>
 	<key>onboarding.n01.header</key>
@@ -102,10 +154,12 @@
 	<string>Show recovery phrase once</string>
 	<key>onboarding.recover.accountID</key>
 	<string>Existing local account ID</string>
-	<key>onboarding.recover.existingPassphrase</key>
-	<string>Existing local passphrase</string>
+	<key>onboarding.recover.fingerprint</key>
+	<string>Check the account fingerprint</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>I checked this account fingerprint</string>
+	<key>onboarding.recover.newInstall</key>
+	<string>On a new install, restore the account from a backup archive first.</string>
 	<key>onboarding.recover.phrase</key>
 	<string>Recovery phrase</string>
 	<key>onboarding.recover.readFingerprint</key>
@@ -114,6 +168,22 @@
 	<string>Recovery resumes an account already stored on this phone.</string>
 	<key>onboarding.recover.warning</key>
 	<string>Confirm this account fingerprint through a trusted channel. Recovery revokes all other devices. Enter your phrase only for recovery you started yourself.</string>
+	<key>onboarding.s01.starting</key>
+	<string>Starting</string>
+	<key>onboarding.s02.changeNode</key>
+	<string>Change node</string>
+	<key>onboarding.s02.changeNode.detail</key>
+	<string>You can also use your own node</string>
+	<key>onboarding.s02.official</key>
+	<string>Official node</string>
+	<key>onboarding.s02.official.detail</key>
+	<string>Default connection</string>
+	<key>onboarding.s02.purpose</key>
+	<string>Create an account, or continue with an existing one.</string>
+	<key>onboarding.s18.existing</key>
+	<string>Continue with an existing account</string>
+	<key>onboarding.s18.recover</key>
+	<string>Recover with recovery phrase</string>
 	<key>onboarding.stage.checkingAddress</key>
 	<string>Check the node address</string>
 	<key>onboarding.stage.complete</key>
@@ -127,7 +197,7 @@
 	<key>onboarding.stage.identity</key>
 	<string>Check the node identity</string>
 	<key>onboarding.stage.localUnlock</key>
-	<string>Set up local unlock</string>
+	<string>Set account code</string>
 	<key>onboarding.stage.offline</key>
 	<string>You are offline</string>
 	<key>onboarding.stage.recover</key>
@@ -146,14 +216,20 @@
 	<string>Node verification failed</string>
 	<key>onboarding.stage.verifying</key>
 	<string>Verifying the node</string>
+	<key>onboarding.welcome.headline.first</key>
+	<string>Keep conversations</string>
+	<key>onboarding.welcome.headline.second</key>
+	<string>and collaboration connected</string>
 	<key>onboarding.welcome.primaryDevice</key>
 	<string>This phone can be your primary device.</string>
 	<key>onboarding.welcome.recover</key>
 	<string>Recover an account</string>
+	<key>onboarding.welcome.restoreBackup</key>
+	<string>Restore from a backup</string>
 	<key>onboarding.welcome.title</key>
-	<string>Keep your conversations connected</string>
+	<string>Keep conversations and collaboration connected</string>
 	<key>onboarding.welcome.unlockSaved</key>
-	<string>Unlock saved account</string>
+	<string>Unlock existing account</string>
 	<key>recovery.word.position</key>
 	<string>Word %@</string>
 </dict>

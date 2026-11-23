@@ -1153,6 +1153,550 @@
           }
         }
       }
+    },
+    "calls.connectionLost.message": {
+      "comment": "Explains what happens while the call's connection is lost.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trying to reconnect. The call ends if the connection does not come back."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在尝试重新连接。如果连接无法恢复，通话将结束。"
+          }
+        }
+      }
+    },
+    "calls.connectionLost.title": {
+      "comment": "Title of the notice shown while the call's connection is lost.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection lost"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接已中断"
+          }
+        }
+      }
+    },
+    "calls.control.camera": {
+      "comment": "Call control that turns the camera on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "摄像头"
+          }
+        }
+      }
+    },
+    "calls.control.cameraOff": {
+      "comment": "Call control that turns the camera off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭摄像头"
+          }
+        }
+      }
+    },
+    "calls.control.mute": {
+      "comment": "Call control that mutes the microphone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静音"
+          }
+        }
+      }
+    },
+    "calls.control.speaker": {
+      "comment": "Call control that switches audio to the loudspeaker.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaker"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "扬声器"
+          }
+        }
+      }
+    },
+    "calls.control.switchCamera": {
+      "comment": "Call control that switches between the front and back camera.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flip"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "翻转"
+          }
+        }
+      }
+    },
+    "calls.control.unmute": {
+      "comment": "Call control that unmutes the microphone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmute"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消静音"
+          }
+        }
+      }
+    },
+    "calls.control.unsupported": {
+      "comment": "Accessibility hint on a call control this phone does not support.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not supported on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机不支持。"
+          }
+        }
+      }
+    },
+    "calls.failed.message": {
+      "comment": "Shown when a call failed and no reason is known.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The call could not be completed."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法完成此次通话。"
+          }
+        }
+      }
+    },
+    "calls.failed.title": {
+      "comment": "Title of the notice shown when a call failed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call failed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话失败"
+          }
+        }
+      }
+    },
+    "calls.incoming.cannotAnswer": {
+      "comment": "Explains on an incoming call that this phone build cannot answer, but can decline.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone cannot answer calls in this build. You can decline the call or answer it on another device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机版本无法接听通话。你可以拒绝来电，或在其他设备上接听。"
+          }
+        }
+      }
+    },
+    "calls.offline.message": {
+      "comment": "Explains that calls need a connection to the node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls need a connection to your node. Try again when you are back online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话需要连接到你的节点。恢复联网后请重试。"
+          }
+        }
+      }
+    },
+    "calls.offline.title": {
+      "comment": "Title shown when a call cannot be started because the phone is offline.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are offline"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已离线"
+          }
+        }
+      }
+    },
+    "calls.permission.camera.message": {
+      "comment": "Explains why camera access is needed and where to allow it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow camera access in Settings to share your video in calls."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在设置中允许访问摄像头，以便在通话中共享视频。"
+          }
+        }
+      }
+    },
+    "calls.permission.camera.title": {
+      "comment": "Title shown when camera access is needed for video in a call.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access needed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要摄像头权限"
+          }
+        }
+      }
+    },
+    "calls.permission.microphone.message": {
+      "comment": "Explains why microphone access is needed and where to allow it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow microphone access in Settings so the other person can hear you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在设置中允许访问麦克风，以便对方能听到你。"
+          }
+        }
+      }
+    },
+    "calls.permission.microphone.title": {
+      "comment": "Title shown when microphone access is needed for a call.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access needed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要麦克风权限"
+          }
+        }
+      }
+    },
+    "calls.permission.notNow": {
+      "comment": "Button that dismisses the permission notice without opening Settings.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不"
+          }
+        }
+      }
+    },
+    "calls.row.detail": {
+      "comment": "Subtitle of a call history row. %1$@ is the direction (Incoming or Outgoing), %2$@ the outcome (for example Missed), %3$@ the duration or the start time. Keep or change the separators as natural for the language.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "calls.stage.connecting": {
+      "comment": "Call screen status after the call was answered, while it connects.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在连接…"
+          }
+        }
+      }
+    },
+    "calls.stage.connectionLost": {
+      "comment": "Call screen status while the call's audio connection is lost.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在重新连接…"
+          }
+        }
+      }
+    },
+    "calls.stage.ended": {
+      "comment": "Call screen status after the call ended.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call ended"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话已结束"
+          }
+        }
+      }
+    },
+    "calls.stage.failed": {
+      "comment": "Call screen status after the call failed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call failed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话失败"
+          }
+        }
+      }
+    },
+    "calls.stage.inCall": {
+      "comment": "Call screen status during a connected call when no duration is known.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话中"
+          }
+        }
+      }
+    },
+    "calls.stage.incoming": {
+      "comment": "Call screen title and status for a ringing incoming voice call.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incoming voice call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语音来电"
+          }
+        }
+      }
+    },
+    "calls.stage.outgoing": {
+      "comment": "Call screen status while the other person's phone is ringing.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calling…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在呼叫…"
+          }
+        }
+      }
+    },
+    "calls.start.video": {
+      "comment": "Button that would start a video call; shown disabled while video calls cannot be started.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频通话"
+          }
+        }
+      }
+    },
+    "calls.start.voice": {
+      "comment": "Button that starts a voice call with the person in this conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语音通话"
+          }
+        }
+      }
+    },
+    "calls.unavailable.message": {
+      "comment": "Explains that voice and video calls cannot be started or answered in this build, and what still works.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice and video calls are not available in this build. You can see your call history and decline or end calls."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不支持语音和视频通话。你可以查看通话记录，并拒绝或结束通话。"
+          }
+        }
+      }
+    },
+    "calls.unavailable.title": {
+      "comment": "Title of the notice shown when this phone build cannot carry call audio or video.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls are not available"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持通话"
+          }
+        }
+      }
+    },
+    "calls.video.unavailable": {
+      "comment": "Note under the disabled video call button.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video calls cannot be started yet: your account service supports voice calls only."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂时无法发起视频通话：你的账户服务目前只支持语音通话。"
+          }
+        }
+      }
     }
   }
 }

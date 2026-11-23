@@ -22,12 +22,45 @@ import RamfluxCore
                 if expiredRequest { return .object(["group_id": .string("g"), "accepted": .bool(false), "pending": .bool(false), "status": .string("expired"), "request_id": .string("expired-request")]) }
                 #expect(request.body["name"] == .string("New name")); #expect(request.operationID?.rawValue == "rename")
                 return .object(["group_id": .string("g"), "accepted": .bool(true), "pending": .bool(true), "request_id": .string("owner-request")])
+            case "group.member.add":
+                // A contact is selected by principal id alone; an explicit root would make member_id a device id.
+                #expect(request.body["member_id"] == .string("principal-new")); #expect(request.body["member_principal_commitment"] == nil)
+                #expect(request.body["role"] == .string("member"))
+                return .object(["group_id": .string("g"), "accepted": .bool(true)])
             case "group.role.set":
                 #expect(request.body["member_id"] == .string("peer-phone")); #expect(request.body["member_principal_commitment"] == .string("root-peer")); #expect(request.body["role"] == .string("admin"))
                 return .object(["group_id": .string("g"), "accepted": .bool(true)])
             default: return .object([:])
             }
         }
+    }
+    /// A group created on the phone has a conversation id of its own; the row names it and history is not asked.
+    @Test func theGroupRowNamesItsConversation() async {
+        let transport = ProxyTransport { request in
+            #expect(request.method == "group.list")
+            return .object(["groups": .array([.object(["group_id": .string("g-uuid"), "conversation_id": .string("group-thread")])])])
+        }
+        let client = RamfluxClient(transport: transport)
+        let repository = NativeGroupsRepository(client: client, updates: NativeUpdateSource(client: client))
+        #expect(await repository.conversation(account: "a", group: "g-uuid") == .success("group-thread"))
+    }
+    /// A creation's reply names the conversation; without a list row, the group's metadata names it before history is asked.
+    @Test func creationReplyAndGroupMetadataNameTheConversation() async {
+        let transport = ProxyTransport { request in
+            switch request.method {
+            case "account.status": return .object(["principal_id": .string("owner"), "principal_commitment": .string("root-owner"), "device_id": .string("phone"), "local_device_authorized": .bool(true)])
+            case "group.create": return .object(["group_id": request.body["group_id"] ?? .null, "conversation_id": .string("bound-thread"), "accepted": .bool(true)])
+            case "group.list": return .object(["groups": .array([])])
+            case "group.members": return .object(["group_id": .string("g2"), "conversation_id": .string("metadata-thread")])
+            default: Issue.record("unexpected \(request.method)"); return .object([:])
+            }
+        }
+        let client = RamfluxClient(transport: transport)
+        let repository = NativeGroupsRepository(client: client, updates: NativeUpdateSource(client: client))
+        let created = await repository.mutate(account: "a", mutation: .create(id: "g1", name: "Team"), operationID: "create")
+        #expect(created == .success(GroupMutationOutcome(groupID: "g1", waitingForOwner: false, conversationID: "bound-thread")))
+        #expect(await repository.conversation(account: "a", group: "g2") == .success("metadata-thread"))
+        #expect(!transport.calls.withLock { $0.contains { $0.method == "group.history" } })
     }
     @Test func exactEpochRootQualifiedTargetAndPendingOwnerOutcomeArePreserved() async {
         let fixture = transport(), client = RamfluxClient(transport: transport())
@@ -41,6 +74,8 @@ import RamfluxCore
         #expect(rename == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: true, requestID: "owner-request")))
         guard let peer = detail.roster.first(where: { $0.root == "root-peer" }) else { Issue.record("Peer absent"); return }
         #expect(await repository.mutate(account: "a", mutation: .role(group: "g", epoch: UInt64.max, member: peer, role: "admin"), operationID: "role") == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: false)))
+        #expect(await repository.mutate(account: "a", mutation: .add(group: "g", epoch: UInt64.max, principal: "principal-new", root: "root-new"), operationID: "add") == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: false)))
+        #expect(fixture.calls.withLock { $0.contains { $0.method == "group.member.add" } })
         let replaced = GroupMemberRecord(principal: "peer", root: "replaced-root", device: peer.device, role: "member")
         #expect(await repository.mutate(account: "a", mutation: .remove(group: "g", epoch: UInt64.max, member: replaced), operationID: "replaced") == .failure(.invalidInput))
     }

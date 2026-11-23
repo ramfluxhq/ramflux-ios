@@ -13,6 +13,10 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
     public let pinned: Bool
     public let readReceipt: Bool
     public let sender: String
+    /// The SDK `group_id` of a group conversation (the two ids can differ for groups created elsewhere).
+    public let groupID: String?
+    /// True when no name is known and `title` is a short identifier (left-to-right isolated) instead.
+    public let titleIsIdentifier: Bool
     public init(
         id: String,
         title: String,
@@ -25,8 +29,11 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         muted: Bool = false,
         pinned: Bool = false,
         readReceipt: Bool = false,
-        sender: String = ""
+        sender: String = "",
+        groupID: String? = nil,
+        titleIsIdentifier: Bool = false
     ) {
+        self.titleIsIdentifier = titleIsIdentifier
         self.id = id
         self.title = title
         self.preview = preview
@@ -39,5 +46,11 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         self.pinned = pinned
         self.readReceipt = readReceipt
         self.sender = sender
+        self.groupID = groupID
     }
+}
+public extension ConversationRecord {
+    /// The route that opens this directory row: a group conversation with its `group_id`, otherwise a
+    /// direct one. The inbox and message notifications both open rows through it.
+    var route: AppRoute { groupID.map { .groupConversation(id, group: $0, title: title) } ?? .conversation(id) }
 }

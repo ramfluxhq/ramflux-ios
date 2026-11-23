@@ -19,6 +19,14 @@ public struct TasksScreen: View {
             if case .detail = state.mode, let row = state.selected { TasksDetailScreen(state: state, row: row, onAction: onAction) }
             else { regularBody }
         }.privacySensitive().rfHidesNavigationBar()
+        .sheet(item: Binding(get: { state.approvalConfirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
+            RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
+                Text(copy(confirmation.approve ? "approval.approve.title" : "approval.deny.title")).rfFont(.page)
+                TaskPermissionDetails(row: .approval(confirmation.approval))
+                RFHostConfirmationActions(summary: FeatureTasksStrings.sentence(confirmation.approve ? "tasks.approval.approve.summary" : "tasks.approval.deny.summary", [.untrusted(confirmation.approval.tool), .untrusted(confirmation.approval.server)], locale: locale),
+                    enabled: state.fresh && !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.confirmApproval(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
+            }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
+        }
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in
             RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                 Text(copy("review")).rfFont(.page); facts(confirmation.attempt)
@@ -43,18 +51,24 @@ public struct TasksScreen: View {
         switch state.mode {
         case .conversations:
             Text(copy("context"))
-            ForEach(state.conversations) { row in Button(RFUntrustedText.clean(row.title)) { onAction(.mode(.list(row.id))) } }
+            LazyVStack(alignment: .leading, spacing: theme.gap / 2) {
+                ForEach(state.conversations.rows) { row in KitRow(RFUntrustedText.clean(row.title), action: { onAction(.mode(.list(row.id))) }, icon: "messages-square", tag: "tasks-conversation-" + row.id)
+                    .onAppear { if row.id == state.conversations.rows.last?.id, state.conversations.canLoadAfter { onAction(.loadMore) } } }
+            }
             Button(copy("create")) { onAction(.unavailable) }
         case .list(let conversation):
             Text(conversation).rfFont(.caption)
-            if state.rows.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
-            ForEach(state.rows) { row in KitRow(RFUntrustedText.clean(row.title), action: { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) }, icon: "list-checks", value: status(row.status), tag: row.id) }
-            if state.nextCursor != nil { Button(copy("more")) { onAction(.loadMore) }.disabled(state.loading || state.busy) }
+            if state.tasks.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
+            LazyVStack(alignment: .leading, spacing: theme.gap / 2) {
+                ForEach(state.tasks.rows) { row in KitRow(RFUntrustedText.clean(row.title), action: { onAction(.mode(.detail(conversation: row.conversationID, task: row.id))) }, icon: "list-checks", value: status(row.status), tag: row.id)
+                    .onAppear { if row.id == state.tasks.rows.last?.id, state.tasks.canLoadAfter { onAction(.loadMore) } } }
+            }
         case .detail: EmptyView()
         case .permissions:
             Text(copy("noAuthority")).rfFont(.caption)
             if state.permissions.isEmpty && !state.loading && state.failure == nil { Text(copy("empty")) }
-            ForEach(state.permissions) { row in Button { onAction(.mode(.permission(row.id))) } label: {
+            LazyVStack(alignment: .leading, spacing: theme.gap / 2) {
+            ForEach(state.permissions.rows) { row in Button { onAction(.mode(.permission(row.id))) } label: {
                 VStack(alignment: .leading) {
                     switch row {
                     case .grant(let grant): Text(grant.state.tool); Text(copy("grant")); Text(grant.state.server).rfFont(.caption)
@@ -62,11 +76,19 @@ public struct TasksScreen: View {
                     case .receipt(let receipt): Text(copy("receipt")); Text(receipt.binding.taskID).rfFont(.caption)
                     }
                 }
-            } }
+            }.onAppear { if row.id == state.permissions.rows.last?.id, state.permissions.canLoadAfter { onAction(.loadMore) } } }
+            }
         case .permission:
             if let row = state.selectedPermission {
+                if case .approval(let approval) = row, approval.status == "pending" {
+                    KitApprovalCard(requester: RFUntrustedText.clean(approval.server), status: copy("approval"), title: RFUntrustedText.clean(approval.tool),
+                                    scopeLabel: copy("approval.scope"), scopeDetail: RFUntrustedText.clean(approval.scope ?? approval.capability),
+                                    decline: copy("approval.deny"), approve: copy("approval.approve"),
+                                    onDecline: { onAction(.prepareApproval(approve: false)) }, onApprove: { onAction(.prepareApproval(approve: true)) },
+                                    actions: state.fresh && !state.busy, tag: "tasks-approval-card")
+                    if approval.needsAppSignature { Text(copy("approval.appSignature")).rfFont(.caption).foregroundStyle(theme.secondary) }
+                }
                 TaskPermissionDetails(row: row)
-                Text(copy("noAuthority")); Button(copy("reviewPermission")) { onAction(.unavailable) }
             }
         }
     }

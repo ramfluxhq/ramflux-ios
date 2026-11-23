@@ -2,10 +2,76 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>agents.unavailable</key>
-	<string>此 SDK 暂不支持智能体列表和配置。安装机器人不等于创建智能体。</string>
-	<key>backup.import.tooLarge</key>
-	<string>此归档超过手机端 256 MiB 的导入上限。</string>
+	<key>accountCode.failure.attemptsExhausted</key>
+	<string>错误的账户码次数过多。请用恢复短语恢复此账户。</string>
+	<key>accountCode.failure.deviceUnlockUnavailable</key>
+	<string>此手机已不再保存解锁此账户的密钥。请用恢复短语恢复此账户。</string>
+	<key>accountCode.failure.mismatch</key>
+	<string>两次输入的账户码不一致，请重新输入。</string>
+	<key>accountCode.failure.notSixDigits</key>
+	<string>账户码必须正好是 6 位数字（0–9）。</string>
+	<key>accountCode.failure.required</key>
+	<string>此账户已锁定。请输入账户码。</string>
+	<key>accountCode.failure.retryLater</key>
+	<string>错误的账户码次数过多。请稍候再试。</string>
+	<key>accountCode.failure.title</key>
+	<string>账户码</string>
+	<key>accountCode.failure.trivial</key>
+	<string>此账户码太容易被猜到（重复数字或连续数字），请另选一个。</string>
+	<key>agents.unavailable.access</key>
+	<string>此手机暂不支持更改谁可以联系此智能体。</string>
+	<key>agents.unavailable.chat</key>
+	<string>无法在本机打开与此代理的对话。</string>
+	<key>agents.unavailable.creationDecision</key>
+	<string>此手机暂不支持批准或拒绝此智能体创建。请在发起创建的桌面端处理。</string>
+	<key>agents.unavailable.goal</key>
+	<string>暂不支持目标设置。</string>
+	<key>agents.unavailable.hide</key>
+	<string>暂不支持隐藏智能体。</string>
+	<key>agents.unavailable.pause</key>
+	<string>暂不支持暂停智能体。</string>
+	<key>backup.failure.accountLocked</key>
+	<string>请先解锁账号。</string>
+	<key>backup.failure.attachmentsUnavailable</key>
+	<string>部分附件不在本机上。</string>
+	<key>backup.failure.attendanceRequired</key>
+	<string>请保持此页面打开，连接后再试一次。</string>
+	<key>backup.failure.authorizationRejected</key>
+	<string>该账号未授权此次恢复。</string>
+	<key>backup.failure.conflict</key>
+	<string>该归档与本机已有的账号数据冲突。</string>
+	<key>backup.failure.damaged</key>
+	<string>该归档已损坏或在写入后被更改。</string>
+	<key>backup.failure.importTooLarge</key>
+	<string>此归档超过本机 256 MiB 的导入上限。</string>
+	<key>backup.failure.insufficientSpace</key>
+	<string>本机可用存储空间不足。</string>
+	<key>backup.failure.interrupted</key>
+	<string>任务在完成前中断，请重新开始。</string>
+	<key>backup.failure.networkingPending</key>
+	<string>账号仍在等待节点，请在连接后再试。</string>
+	<key>backup.failure.notWritable</key>
+	<string>无法写入该归档。</string>
+	<key>backup.failure.other</key>
+	<string>任务未能完成。</string>
+	<key>backup.failure.passphraseEmpty</key>
+	<string>请输入归档密码。</string>
+	<key>backup.failure.passphraseMismatch</key>
+	<string>两次输入的密码不一致。</string>
+	<key>backup.failure.passphraseTooCommon</key>
+	<string>此密码过于常见，请换一个更难猜到的密码。</string>
+	<key>backup.failure.passphraseTooShort</key>
+	<string>归档密码至少需要 15 个字符。</string>
+	<key>backup.failure.restoreSetupRequired</key>
+	<string>请为恢复的账号设置六位数账号码。</string>
+	<key>backup.failure.title</key>
+	<string>备份或恢复未能进行</string>
+	<key>backup.failure.unreadable</key>
+	<string>无法读取该归档。</string>
+	<key>backup.failure.unsupportedVersion</key>
+	<string>此归档需要更新版本的应用。</string>
+	<key>backup.failure.wrongPassphrase</key>
+	<string>此密码无法打开该归档。</string>
 	<key>calls.audioUnavailable</key>
 	<string>此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。</string>
 	<key>cards.unavailable</key>
@@ -17,7 +83,7 @@
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>附件传输需要手机文件存储集成。尚未下载任何文件。</string>
 	<key>chat.unavailable.calls</key>
-	<string>此手机版本暂不支持通话。</string>
+	<string>暂不支持群组通话，通话仅限一对一。</string>
 	<key>chat.unavailable.details</key>
 	<string>此手机版本暂不支持查看会话详情。</string>
 	<key>common.connection.failed</key>
@@ -30,10 +96,10 @@
 	<string>消息</string>
 	<key>common.tab.more</key>
 	<string>更多</string>
-	<key>contacts.unavailable.atomicVerification</key>
-	<string>验证操作尚未绑定到这里显示的确切指纹。未记录新的验证结果。</string>
 	<key>contacts.unavailable.batch</key>
 	<string>暂不支持批量处理。请逐条审核请求。</string>
+	<key>contacts.unavailable.contactGone</key>
+	<string>该联系人已不存在。请刷新联系人。</string>
 	<key>contacts.unavailable.identityCommitment</key>
 	<string>当前联系人的身份承诺不可用。</string>
 	<key>contacts.unavailable.replyWithoutAcceptance</key>
@@ -94,6 +160,8 @@
 	<string>此手机版本暂不支持群组线程和论坛帖子。</string>
 	<key>groups.unavailable.transfer</key>
 	<string>转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。</string>
+	<key>notification.message.title</key>
+	<string>新消息</string>
 	<key>onboarding.failure.pairingUnavailable</key>
 	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
 	<key>onboarding.failure.setupExpired</key>
@@ -120,8 +188,52 @@
 	<string>此应用无法访问其私有钥匙串。请安装包含应用钥匙串权限且正确签名的版本。</string>
 	<key>onboarding.vaultUnavailable</key>
 	<string>此设备上的私有钥匙串提供程序不可用。</string>
-	<key>receipt.deviceState</key>
-	<string>%1$@：%2$@</string>
+	<key>pairing.failure.Busy</key>
+	<string>另一个关联步骤仍在进行，请稍后再试。</string>
+	<key>pairing.failure.Expired</key>
+	<string>邀请已过期。请重新开始以生成新邀请。</string>
+	<key>pairing.failure.HeadChanged</key>
+	<string>关联期间账户的设备列表发生了变化。请重新开始。</string>
+	<key>pairing.failure.InvalidInput</key>
+	<string>关联请求无效，请重新开始。</string>
+	<key>pairing.failure.NotFound</key>
+	<string>此节点未提供关联功能，或此次关联已不存在。</string>
+	<key>pairing.failure.PrimaryRequired</key>
+	<string>只有账户的主设备可以关联新设备。</string>
+	<key>pairing.failure.PublicationPending</key>
+	<string>变更仍在发布到节点，请稍后再查看。</string>
+	<key>pairing.failure.Replay</key>
+	<string>检测到重复消息，为安全起见已停止关联。请重新开始。</string>
+	<key>pairing.failure.Retired</key>
+	<string>此次关联已关闭，请重新开始。</string>
+	<key>pairing.failure.SasMismatch</key>
+	<string>符号不一致，两台设备上的关联均已停止。</string>
+	<key>pairing.failure.TransferCapacity</key>
+	<string>没有足够的容量来迁移账户数据。</string>
+	<key>pairing.failure.TransferFloorsTooLarge</key>
+	<string>需要迁移的账户数据过大。</string>
+	<key>pairing.failure.UpdateRequired</key>
+	<string>节点或另一台设备需要更新后才能关联。</string>
+	<key>pairing.failure.VaultUnavailable</key>
+	<string>此手机的受保护密钥存储目前不可用。</string>
+	<key>pairing.failure.WrongContext</key>
+	<string>另一台设备不属于此账户或节点。</string>
+	<key>pairing.failure.WrongRole</key>
+	<string>此设备无法执行这一步关联。</string>
+	<key>pairing.failure.comparisonChanged</key>
+	<string>符号已变化。请重新比对后再确认。</string>
+	<key>pairing.failure.deviceName</key>
+	<string>请输入不超过 128 字节、不含控制字符的设备名称。</string>
+	<key>pairing.failure.invitationTooLarge</key>
+	<string>邀请过大，无法显示为二维码，已取消关联。</string>
+	<key>pairing.failure.other</key>
+	<string>关联因本应用无法识别的原因而停止。</string>
+	<key>pairing.failure.title</key>
+	<string>关联未完成</string>
+	<key>refusal.already_contact</key>
+	<string>此账户已是您的联系人，未应用其名片。</string>
+	<key>refusal.already_contact.title</key>
+	<string>已是联系人</string>
 	<key>refusal.crypto_failure</key>
 	<string>无法保护这条消息。</string>
 	<key>refusal.crypto_failure.title</key>
@@ -198,8 +310,6 @@
 	<string>尚未安装此功能模块。</string>
 	<key>session.unavailable.nativeCore</key>
 	<string>此版本的账户服务不可用。已保存的数据未被更改。</string>
-	<key>settings.mobileBackup</key>
-	<string>备份和恢复请使用桌面客户端。此手机不会启动备份任务。</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>请在桌面端管理已连接服务的高级配置。</string>
 	<key>settings.unavailable.diagnosticExport</key>
@@ -208,6 +318,8 @@
 	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
 	<key>settings.unavailable.pairing</key>
 	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
+	<key>settings.unavailable.username</key>
+	<string>暂不支持通过 @用户名查找。请改为分享你的联系人名片。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>
@@ -254,6 +366,8 @@
 	<string>正在验证</string>
 	<key>status.writing</key>
 	<string>正在写入</string>
+	<key>tasks.approval.appSignature</key>
+	<string>批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。</string>
 	<key>tasks.unavailable</key>
 	<string>智能体任务创建及移动端审批和干预决策需要额外的已验证上下文。请在受信任客户端审核；尚未授予任何权限。</string>
 </dict>

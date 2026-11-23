@@ -11,8 +11,9 @@ public actor NativeSessionRepository: SessionRepository {
     private var observer: AsyncStream<SessionSnapshot>.Continuation?
     private var current = SessionSnapshot(phase: .stopped)
     private var revision: UInt64 = 0
-    public init(client: RamfluxClient, dataRoot: URL) {
-        self.client = client; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
+    private let known: any KnownAccountRegistry
+    public init(client: RamfluxClient, dataRoot: URL, known: any KnownAccountRegistry = MemoryKnownAccountRegistry()) {
+        self.client = client; self.known = known; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
         observer?.finish()
@@ -27,7 +28,7 @@ public actor NativeSessionRepository: SessionRepository {
         do {
             try await lifecycle.foreground()
             let sealed = try await proxy.accountList(context: context())
-            let snapshot = try Self.decodeAccounts(sealed)
+            let snapshot = SessionSnapshot.merging(try Self.decodeAccounts(sealed), known: await known.all())
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             publish(snapshot); return .success(snapshot)
         } catch {
@@ -43,7 +44,7 @@ public actor NativeSessionRepository: SessionRepository {
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
     }
     public func selectAccount(_ id: String) async -> RepositoryResult<SessionSnapshot> {
-        guard current.phase == .ready, current.accounts.contains(where: { $0.id == id }) else { return .failure(.locked) }
+        guard current.phase == .ready, current.accounts.contains(where: { $0.id == id && !$0.isLocked }) else { return .failure(.locked) }
         let epoch = revision
         do {
             let result = try await proxy.accountSwitch(context: context(account: id, operation: .fresh()))

@@ -32,8 +32,9 @@ import Observation
             guard !state.busy, let permission = state.explanation else { return }
             pending = permission; state.explanation = nil; state.busy = true
         case .cancelExplanation:
-            guard state.explanation != nil else { return }
+            guard let permission = state.explanation else { return }
             pending = nil; state.explanation = nil
+            if permission != .notifications { emit(.declined(permission)) }
         case .explanationDismissed:
             if let accountID = notificationOfferAccount {
                 repository.consumeNotificationOffer(accountID: accountID); notificationOfferAccount = nil
@@ -49,7 +50,9 @@ import Observation
             guard !state.busy else { return }
             settingsPending = state.permissionNeeded == .notifications ? .notifications : .app
             openSettingsIfReady()
-        case .dismissNeeded: state.permissionNeeded = nil; settingsPending = nil
+        case .dismissNeeded:
+            if let permission = state.permissionNeeded, permission != .notifications { emit(.declined(permission)) }
+            state.permissionNeeded = nil; settingsPending = nil
         }
     }
     private func openSettingsIfReady() {
@@ -105,7 +108,7 @@ import Observation
                 switch result {
                 case .success(let status) where permission.isUsable(status): self.emit(.ready(permission))
                 case .success: self.state.permissionNeeded = permission
-                case .failure(let failure): self.state.failure = failure
+                case .failure(let failure): self.state.failure = failure; if permission != .notifications { self.emit(.declined(permission)) }
                 }
             case .settings(let result, let activation):
                 switch result {

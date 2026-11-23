@@ -19,17 +19,14 @@ struct LocalizationTests {
         #expect(AppDataStrings.text(key, locale: Locale(identifier: "de-DE")) == english)
         #expect(AppDataStrings.status("delivered", locale: Locale(identifier: "ar")) == AppDataStrings.status("delivered", locale: Locale(identifier: "en")))
     }
-    @Test func receiptsKeepDeviceIdsLeftToRightWithoutALiteralSeparator() throws {
+    /// Receipts are structured data, never pre-formatted text; only known states are kept.
+    @Test func receiptsAreStructuredWithoutPreformattedText() {
         let rows: JSONValue = .array([
-            .object(["device_id": .string("٤٢\u{202E}a"), "state": .string("read")]),
+            .object(["device_id": .string("phone-1"), "state": .string("read")]),
             .object(["device_id": .string("phone-2"), "state": .string("delivered")]),
             .object(["device_id": .string("ignored"), "state": .string("typing")]),
         ])
-        let text = try #require(MessagePage.receiptText(rows, own: true))
-        #expect(text.contains("\u{2066}42a\u{2069}"))
-        #expect(text.contains("\u{2066}phone-2\u{2069}"))
-        #expect(!text.contains("\u{202E}"))
-        #expect(!text.contains("ignored"))
-        #expect(MessagePage.receiptText(rows, own: false) == nil)
+        #expect(MessagePage.receiptRows(rows) == [MessageReceipt(device: "phone-1", state: .read), MessageReceipt(device: "phone-2", state: .delivered)])
+        #expect(MessagePage.receiptRows(.string("read")).isEmpty)
     }
 }

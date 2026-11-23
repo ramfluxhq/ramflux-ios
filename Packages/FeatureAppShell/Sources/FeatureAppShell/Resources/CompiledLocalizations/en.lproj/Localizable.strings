@@ -32,6 +32,8 @@
 	<string>Account setup and unlock belong to the onboarding module.</string>
 	<key>shell.accounts.empty.title</key>
 	<string>No open accounts</string>
+	<key>shell.accounts.locked</key>
+	<string>Locked</string>
 	<key>shell.accounts.preview</key>
 	<string>Switch the account on this phone</string>
 	<key>shell.accounts.title</key>
@@ -40,6 +42,16 @@
 	<string>Opening account services</string>
 	<key>shell.locked.accessibility</key>
 	<string>Ramflux is locked</string>
+	<key>shell.locked.message</key>
+	<string>Unlock it with your six-digit account code to see your conversations, contacts and groups.</string>
+	<key>shell.locked.title</key>
+	<string>Your account is locked</string>
+	<key>shell.locked.unlock</key>
+	<string>Unlock %@</string>
+	<key>shell.more.calls</key>
+	<string>Calls</string>
+	<key>shell.more.calls.preview</key>
+	<string>Call history and voice calls</string>
 	<key>shell.more.navigation</key>
 	<string>Edit navigation</string>
 	<key>shell.more.navigation.detail</key>

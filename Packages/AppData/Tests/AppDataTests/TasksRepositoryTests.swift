@@ -4,6 +4,20 @@ import Testing
 import RamfluxCore
 @testable import AppData
 @Suite(.timeLimit(.minutes(1))) struct TasksRepositoryTests {
+    @Test func approvalDecisionsRereadTheApprovalAndRefuseAppSignedApprovals() async {
+        let pending: JSONValue = .object(["approval_id": .string("ap"), "server_id": .string("service"), "tool_name": .string("email"), "capability": .string("email_send"), "confirmation_mode": .string("explicit"), "expires_at": .number(1_900_000_000), "status": .string("pending")])
+        let transport = ProxyTransport { request in request.method == "grant.list" ? .object(["grants": .array([]), "approvals": .array([pending])]) : .object(["status": .string("denied")]) }
+        let client = RamfluxClient(transport: transport), repository = NativeTasksRepository(client: client, updates: NativeUpdateSource(client: client))
+        guard case .success(let page) = await repository.permissionsPage(account: "a", cursor: nil, limit: 10), case .approval(let approval)? = page.rows.first else { Issue.record("no approval"); return }
+        #expect(approval.confirmationMode == "explicit"); #expect(!approval.needsAppSignature)
+        let remote = PermissionApproval(referenceID: "ap", server: "service", tool: "email", capability: "email_send", status: "pending", expiresAt: 1_900_000_000, confirmationMode: "remote_app")
+        let before = transport.calls.withLock { $0.count }
+        guard case .failure(.unavailableResource("tasks.approval.appSignature")) = await repository.decideApproval(account: "a", approval: remote, approve: true, operationID: "x") else { Issue.record("app-signed approval approved"); return }
+        #expect(transport.calls.withLock { $0.count } == before)
+        guard case .failure(.busy) = await repository.decideApproval(account: "a", approval: remote, approve: false, operationID: "y") else { Issue.record("changed approval decided"); return }
+        guard case .success = await repository.decideApproval(account: "a", approval: approval, approve: false, operationID: "z") else { Issue.record("deny refused"); return }
+        #expect(transport.calls.withLock { $0.last?.method } == "grant.deny"); #expect(transport.calls.withLock { $0.last?.body["approval_id"] } == .string("ap"))
+    }
     private func row(_ version: UInt64 = 1) -> JSONValue {
         .object(["task_id": .string("t"), "conversation_id": .string("thread"), "version": .unsigned(version), "title": .string("Review"), "state": .string("proposed"), "requester": .null, "assignee": .string("agent"), "steps": .array([.object(["id": .string("step"), "title": .string("Review sources"), "state": .string("proposed"), "needs_me": .null])]), "pending_resolution": .null])
     }

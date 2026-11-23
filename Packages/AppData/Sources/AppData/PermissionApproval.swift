@@ -9,5 +9,8 @@ public struct PermissionApproval: Equatable, Sendable {
     public let expiresAt: Int64
     public let scope: String?
     public let argumentsHash: String?
-    public init(referenceID: String, server: String, tool: String, capability: String, status: String, expiresAt: Int64, scope: String? = nil, argumentsHash: String? = nil) { self.referenceID = referenceID; self.server = server; self.tool = tool; self.capability = capability; self.status = status; self.expiresAt = expiresAt; self.scope = scope; self.argumentsHash = argumentsHash }
+    /// SDK `confirmation_mode`; `remote_app` approvals need an app-signed grant this app cannot produce.
+    public let confirmationMode: String?
+    public var needsAppSignature: Bool { confirmationMode == nil || confirmationMode == "remote_app" }
+    public init(referenceID: String, server: String, tool: String, capability: String, status: String, expiresAt: Int64, scope: String? = nil, argumentsHash: String? = nil, confirmationMode: String? = nil) { self.referenceID = referenceID; self.server = server; self.tool = tool; self.capability = capability; self.status = status; self.expiresAt = expiresAt; self.scope = scope; self.argumentsHash = argumentsHash; self.confirmationMode = confirmationMode }
 }

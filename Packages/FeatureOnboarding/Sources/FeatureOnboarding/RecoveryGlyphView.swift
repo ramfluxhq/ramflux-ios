@@ -15,7 +15,22 @@ import RFDesign
     func present(display: RecoveryDisplay, label: String, ink: UIColor, fontName: String, pointSize: CGFloat) {
         self.display = display; accessibilityLabel = label; self.ink = ink; self.fontName = fontName; self.pointSize = pointSize
         invalidateIntrinsicContentSize(); setNeedsDisplay()
+        #if DEBUG
+        exposeForRealRun(display)
+        #endif
     }
+    #if DEBUG
+    /// Debug builds launched by the real-run suite (launch argument `-RFRealRunPhraseAccess YES`) expose
+    /// the words as this element's accessibility value, so the suite reads them deterministically instead
+    /// of by text recognition. Release builds never compile this, and without the argument nothing is exposed.
+    private func exposeForRealRun(_ display: RecoveryDisplay) {
+        guard UserDefaults.standard.bool(forKey: "RFRealRunPhraseAccess") else { accessibilityValue = nil; return }
+        var bytes = [UInt8]()
+        display.withDrawingBytes { bytes = Array($0) }
+        accessibilityValue = String(decoding: bytes, as: UTF8.self)
+        bytes.withUnsafeMutableBytes { $0.initializeMemory(as: UInt8.self, repeating: 0) }
+    }
+    #endif
     init(display: RecoveryDisplay) {
         self.display = display; super.init(frame: .zero); backgroundColor = .clear
         isAccessibilityElement = true

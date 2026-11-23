@@ -20,7 +20,7 @@
       }
     },
     "conversations.empty.title": {
-      "comment": "Title when there are no conversations.",
+      "comment": "Title of the empty conversation list.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -31,7 +31,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂无会话"
+            "value": "还没有会话"
           }
         }
       }
@@ -54,18 +54,18 @@
       }
     },
     "conversations.empty.message": {
-      "comment": "Explains that adding a contact starts a conversation.",
+      "comment": "Explains under the empty conversation list that adding a contact starts a conversation once they accept.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add someone to your contacts to start a conversation."
+            "value": "Add a contact to start a conversation. Once they accept, the conversation appears here."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加联系人即可开始会话。"
+            "value": "添加联系人后就可以开始会话。对方接受后，会话会出现在这里。"
           }
         }
       }
@@ -186,6 +186,194 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ · 当前账号"
+          }
+        }
+      }
+    },
+    "conversations.requests.pending %llu": {
+      "comment": "Detail line of the message requests row: how many people who are not contacts are waiting.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Messages from %llu person who is not a contact"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Messages from %llu people who are not contacts"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%llu 位非联系人的消息"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "conversations.time.yesterday": {
+      "comment": "Time column of a conversation row whose last activity was yesterday.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yesterday"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "昨天"
+          }
+        }
+      }
+    },
+    "conversations.action.new": {
+      "comment": "Header button that starts a new conversation by choosing a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New conversation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新会话"
+          }
+        }
+      }
+    },
+    "conversations.action.more": {
+      "comment": "Header button that opens more actions for the conversation list.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
+          }
+        }
+      }
+    },
+    "conversations.loadingMore": {
+      "comment": "Shown at the end of the conversation list while the next page loads.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading more conversations"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更多会话"
+          }
+        }
+      }
+    },
+    "conversations.order.note": {
+      "comment": "Footnote at the end of the loaded conversation list: only loaded conversations are sorted by recent activity.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorted by recent activity among the conversations loaded so far."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按最近活动排序（仅限已加载的会话）。"
+          }
+        }
+      }
+    },
+    "conversations.empty.action": {
+      "comment": "Button on the empty conversation list that opens contacts to add one.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加联系人"
+          }
+        }
+      }
+    },
+    "conversations.failure.retry": {
+      "comment": "Button under the conversation list failure that loads the list again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试加载"
+          }
+        }
+      }
+    },
+    "conversations.forward.title": {
+      "comment": "Title of the page that picks the conversation a message is forwarded to.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward to"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转发到"
+          }
+        }
+      }
+    },
+    "conversations.forward.empty": {
+      "comment": "Shown in the forward picker when there is no other conversation to forward to.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No other conversations yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有其他会话"
           }
         }
       }

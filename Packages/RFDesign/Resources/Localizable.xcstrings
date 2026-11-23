@@ -307,6 +307,91 @@
           }
         }
       }
+    },
+    "kit.attach": {
+      "comment": "Accessibility label of the composer's plus button that opens the attach sheet (photos, camera, files).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attach"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加附件"
+          }
+        }
+      }
+    },
+    "kit.receipt.pending": {
+      "comment": "Accessibility value of an own message bubble whose send is pending (clock icon).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在发送"
+          }
+        }
+      }
+    },
+    "kit.receipt.sent": {
+      "comment": "Accessibility value of an own message bubble with one tick: sent, no device has confirmed delivery yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已发送"
+          }
+        }
+      }
+    },
+    "kit.receipt.delivered": {
+      "comment": "Accessibility value of an own message bubble with two grey ticks: delivered to at least one device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delivered"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已送达"
+          }
+        }
+      }
+    },
+    "kit.receipt.read": {
+      "comment": "Accessibility value of an own message bubble with two ticks in the text colour: read on at least one device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已读"
+          }
+        }
+      }
     }
   }
 }

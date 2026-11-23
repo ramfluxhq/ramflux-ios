@@ -2,16 +2,112 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>backup.jobSummary</key>
-	<string>%@ · %@</string>
-	<key>calls.title</key>
-	<string>Calls</string>
-	<key>cards.title</key>
-	<string>Interactive cards</string>
 	<key>common.action.refresh</key>
 	<string>Refresh</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
+	<key>pairing.approve.confirm.action</key>
+	<string>Approve device</string>
+	<key>pairing.approve.confirm.summary</key>
+	<string>Add %1$@ (%2$@) to this account?</string>
+	<key>pairing.approve.confirm.title</key>
+	<string>Confirm approval</string>
+	<key>pairing.cancel</key>
+	<string>Cancel linking</string>
+	<key>pairing.compare.body</key>
+	<string>Check that the new device shows the same seven symbols in the same order. If anything differs, someone else may be trying to join.</string>
+	<key>pairing.compare.match</key>
+	<string>They match</string>
+	<key>pairing.compare.mismatch</key>
+	<string>They don't match</string>
+	<key>pairing.compare.title</key>
+	<string>Compare the symbols</string>
+	<key>pairing.done</key>
+	<string>Done</string>
+	<key>pairing.facts.device</key>
+	<string>Device ID</string>
+	<key>pairing.facts.lease</key>
+	<string>Valid until %@</string>
+	<key>pairing.facts.name</key>
+	<string>Name on that device</string>
+	<key>pairing.facts.rights</key>
+	<string>Rights</string>
+	<key>pairing.failure.SasMismatch.body</key>
+	<string>The symbols did not match, so linking was stopped on both devices. If you did not expect this, someone else may have tried to join.</string>
+	<key>pairing.finished.cancelled</key>
+	<string>Linking cancelled</string>
+	<key>pairing.finished.cancelled.body</key>
+	<string>No device was added. The invitation can no longer be used.</string>
+	<key>pairing.finished.completed</key>
+	<string>Device linked</string>
+	<key>pairing.finished.completed.body</key>
+	<string>The new device is in your device list. You can revoke it there.</string>
+	<key>pairing.finished.expired</key>
+	<string>Invitation expired</string>
+	<key>pairing.finished.expired.body</key>
+	<string>The invitation was not used in time. Start again to create a new one.</string>
+	<key>pairing.finished.rejected</key>
+	<string>Device declined</string>
+	<key>pairing.finished.rejected.body</key>
+	<string>The device was not added to your account.</string>
+	<key>pairing.invitation.body</key>
+	<string>On the new device, choose to link to an existing account and scan this code. Keep this screen open until the devices are linked.</string>
+	<key>pairing.invitation.covered</key>
+	<string>The invitation is hidden while Ramflux is not in use.</string>
+	<key>pairing.invitation.expires</key>
+	<string>Expires in %@</string>
+	<key>pairing.invitation.qrLabel</key>
+	<string>Invitation QR code for the new device</string>
+	<key>pairing.invitation.secret</key>
+	<string>Anyone who scans this code before the new device can try to join. Show it only to your new device.</string>
+	<key>pairing.join.unavailable</key>
+	<string>Joining another account from this phone is not available yet: the app cannot yet receive the new device code that joining needs. This phone can invite other devices.</string>
+	<key>pairing.name.body</key>
+	<string>This phone is the account's primary device. Name the new device, then show the invitation to it. The new device joins with Ramflux on that device.</string>
+	<key>pairing.name.create</key>
+	<string>Create invitation</string>
+	<key>pairing.name.label</key>
+	<string>Device name</string>
+	<key>pairing.name.note</key>
+	<string>Shown in your device list. Up to 128 bytes.</string>
+	<key>pairing.name.placeholder</key>
+	<string>For example: Office laptop</string>
+	<key>pairing.restart</key>
+	<string>Start again</string>
+	<key>pairing.review.approve</key>
+	<string>Approve</string>
+	<key>pairing.review.body</key>
+	<string>The device below asks to join your account. Approving gives it the rights listed until the date shown; you can revoke it at any time in Devices.</string>
+	<key>pairing.review.decline</key>
+	<string>Decline</string>
+	<key>pairing.review.title</key>
+	<string>Approve this device?</string>
+	<key>pairing.review.warning.body</key>
+	<string>A linked device can send and read messages for this account.</string>
+	<key>pairing.review.warning.title</key>
+	<string>Approve only your own device</string>
+	<key>pairing.right.call</key>
+	<string>Calls</string>
+	<key>pairing.right.group</key>
+	<string>Groups</string>
+	<key>pairing.right.message</key>
+	<string>Messages</string>
+	<key>pairing.right.other</key>
+	<string>Other right</string>
+	<key>pairing.right.register</key>
+	<string>Register with the node</string>
+	<key>pairing.right.sync</key>
+	<string>Sync with your devices</string>
+	<key>pairing.title</key>
+	<string>Link new device</string>
+	<key>pairing.waiting.install</key>
+	<string>Adding the device to your account…</string>
+	<key>pairing.waiting.joiner</key>
+	<string>Waiting for the new device…</string>
+	<key>pairing.waiting.peerConfirm</key>
+	<string>Waiting for the other device to confirm the symbols…</string>
+	<key>pairing.waiting.proposal</key>
+	<string>Waiting for the new device's request…</string>
 	<key>privacy.requestApproval</key>
 	<string>Request approval: %@</string>
 	<key>settings.about.exportDiagnostics</key>
@@ -22,26 +118,138 @@
 	<string>Notifications contain a generic alert. No message preview is sent through push.</string>
 	<key>settings.about.title</key>
 	<string>About and diagnostics</string>
+	<key>settings.account.changeCode</key>
+	<string>Change account code</string>
+	<key>settings.account.changeCode.body</key>
+	<string>Enter the current code, then the new six-digit code twice. The new code unlocks this account on this phone.</string>
+	<key>settings.account.changeCode.cancel</key>
+	<string>Cancel</string>
+	<key>settings.account.changeCode.current</key>
+	<string>Current code</string>
+	<key>settings.account.changeCode.detail</key>
+	<string>The six-digit code that unlocks this account</string>
+	<key>settings.account.changeCode.done</key>
+	<string>The account code was changed.</string>
+	<key>settings.account.changeCode.new</key>
+	<string>New code</string>
+	<key>settings.account.changeCode.repeat</key>
+	<string>Repeat the new code</string>
 	<key>settings.account.lock</key>
 	<string>Lock account</string>
+	<key>settings.account.lock.detail</key>
+	<string>Close the account on this phone until the code is entered</string>
 	<key>settings.account.networkLive</key>
 	<string>Network connection is live</string>
 	<key>settings.account.networkUnconfirmed</key>
 	<string>Network connection has not been confirmed</string>
 	<key>settings.account.openOrCreate</key>
 	<string>Open or create an account</string>
+	<key>settings.account.security</key>
+	<string>Security</string>
 	<key>settings.account.title</key>
 	<string>Account and security</string>
-	<key>settings.appearance.languageNote</key>
-	<string>Language follows the per-app language in system settings.</string>
 	<key>settings.appearance.system</key>
 	<string>System</string>
 	<key>settings.appearance.theme</key>
 	<string>Appearance</string>
 	<key>settings.appearance.title</key>
 	<string>Appearance and language</string>
+	<key>settings.backup.action.allowMissing</key>
+	<string>Back up without missing attachments</string>
+	<key>settings.backup.action.cancel</key>
+	<string>Cancel job</string>
+	<key>settings.backup.action.delete</key>
+	<string>Delete from this phone</string>
+	<key>settings.backup.action.install</key>
+	<string>Restore</string>
+	<key>settings.backup.action.save</key>
+	<string>Save to Files</string>
+	<key>settings.backup.archive.created</key>
+	<string>Written %@</string>
+	<key>settings.backup.connecting</key>
+	<string>Connecting. Backup jobs can start once this screen is connected.</string>
+	<key>settings.backup.create.action</key>
+	<string>Create backup</string>
+	<key>settings.backup.create.body</key>
+	<string>The archive is encrypted with a passphrase you choose. You need it to restore the archive, and nobody can recover it for you.</string>
+	<key>settings.backup.create.title</key>
+	<string>Back up this account</string>
+	<key>settings.backup.install.code.body</key>
+	<string>The archive becomes an account on this phone. Choose the six-digit code that unlocks it.</string>
+	<key>settings.backup.install.code.new</key>
+	<string>New six-digit code</string>
+	<key>settings.backup.install.code.repeat</key>
+	<string>Repeat the code</string>
+	<key>settings.backup.install.code.title</key>
+	<string>Set an account code</string>
+	<key>settings.backup.install.merge.fact</key>
+	<string>Messages, contacts and settings from the archive are merged into this account. Newer data on this phone is kept.</string>
+	<key>settings.backup.install.merge.summary</key>
+	<string>Restore the archive into account %@</string>
+	<key>settings.backup.install.merge.title</key>
+	<string>Restore into this account?</string>
+	<key>settings.backup.job.title</key>
+	<string>%1$@: %2$@</string>
+	<key>settings.backup.jobs.empty</key>
+	<string>No backup or restore jobs yet.</string>
+	<key>settings.backup.jobs.title</key>
+	<string>Jobs</string>
+	<key>settings.backup.kind.backup</key>
+	<string>Backup</string>
+	<key>settings.backup.kind.restore</key>
+	<string>Restore</string>
+	<key>settings.backup.passphrase.existing</key>
+	<string>Archive passphrase</string>
+	<key>settings.backup.passphrase.new</key>
+	<string>Archive passphrase</string>
+	<key>settings.backup.passphrase.repeat</key>
+	<string>Repeat passphrase</string>
+	<key>settings.backup.passphrase.rule</key>
+	<string>Use at least 15 characters. A short sentence is easy to remember.</string>
+	<key>settings.backup.passphrase.title</key>
+	<string>Set the archive passphrase</string>
+	<key>settings.backup.progress.bytes</key>
+	<string>%1$@ of %2$@</string>
+	<key>settings.backup.progress.partial</key>
+	<string>%@ so far</string>
+	<key>settings.backup.restore.action</key>
+	<string>Choose archive</string>
+	<key>settings.backup.restore.body</key>
+	<string>Choose a backup archive from Files. It is copied into this app's private storage and checked before anything changes.</string>
+	<key>settings.backup.restore.limit</key>
+	<string>Archives up to 256 MiB can be imported on this phone.</string>
+	<key>settings.backup.restore.newInstall</key>
+	<string>Choose a backup archive from Files. After it is checked with its passphrase, it becomes an account on this phone.</string>
+	<key>settings.backup.restore.title</key>
+	<string>Restore from an archive</string>
+	<key>settings.backup.restored.action</key>
+	<string>Continue</string>
+	<key>settings.backup.restored.body</key>
+	<string>Unlock it with the account code you just set.</string>
+	<key>settings.backup.restored.title</key>
+	<string>Account restored</string>
+	<key>settings.backup.state.cancelled</key>
+	<string>Cancelled</string>
+	<key>settings.backup.state.done</key>
+	<string>Done</string>
+	<key>settings.backup.state.failed</key>
+	<string>Failed</string>
+	<key>settings.backup.state.installing</key>
+	<string>Restoring</string>
+	<key>settings.backup.state.preparing</key>
+	<string>Preparing</string>
+	<key>settings.backup.state.verified</key>
+	<string>Ready to restore</string>
+	<key>settings.backup.state.verifying</key>
+	<string>Checking</string>
+	<key>settings.backup.state.writing</key>
+	<string>Writing</string>
 	<key>settings.backup.title</key>
 	<string>Backup and recovery</string>
+	<key>settings.backup.verify.body</key>
+	<string>Enter the passphrase the archive was written with. It is checked on this phone before anything is restored.</string>
+	<key>settings.backup.verify.title</key>
+	<string>Open the archive</string>
 	<key>settings.busy</key>
 	<string>Applying operation</string>
 	<key>settings.connectedServices.explanation</key>
@@ -72,6 +280,34 @@
 	<string>My devices</string>
 	<key>settings.devices.webOriginWarning</key>
 	<string>The origin's operator can read plaintext on this web device.</string>
+	<key>settings.index.about.detail</key>
+	<string>Version, licence and diagnostics</string>
+	<key>settings.index.account.detail</key>
+	<string>Lock, account code and privacy</string>
+	<key>settings.index.appearance.detail</key>
+	<string>Theme and language</string>
+	<key>settings.index.backup.detail</key>
+	<string>Encrypted archives on this phone</string>
+	<key>settings.index.connectedServices.detail</key>
+	<string>Servers, tools and read-only state</string>
+	<key>settings.index.devices.detail</key>
+	<string>Linked devices and revocation</string>
+	<key>settings.index.nodes.detail</key>
+	<string>Working node and default</string>
+	<key>settings.index.privacy.detail</key>
+	<string>Contact requests and open account</string>
+	<key>settings.index.storage.detail</key>
+	<string>Media and file storage</string>
+	<key>settings.language.change</key>
+	<string>Change in system settings</string>
+	<key>settings.language.note</key>
+	<string>Choose the app language in the system settings of Ramflux. Languages without a translation yet show English.</string>
+	<key>settings.language.pending</key>
+	<string>Not translated yet</string>
+	<key>settings.language.title</key>
+	<string>Language</string>
+	<key>settings.language.translated</key>
+	<string>Translated</string>
 	<key>settings.loading</key>
 	<string>Loading settings</string>
 	<key>settings.nodes.add</key>
@@ -90,10 +326,18 @@
 	<string>Use as default</string>
 	<key>settings.pending</key>
 	<string>An earlier Settings action is unresolved.</string>
+	<key>settings.privacy.autoAccept</key>
+	<string>Accept contact requests automatically</string>
+	<key>settings.privacy.autoAccept.off</key>
+	<string>You approve each contact request before the person can message you.</string>
+	<key>settings.privacy.autoAccept.on</key>
+	<string>Anyone who has your contact card becomes a contact without asking you.</string>
 	<key>settings.privacy.openAccount</key>
 	<string>Open account and username reachability</string>
-	<key>settings.privacy.requireApproval</key>
-	<string>Require manual approval</string>
+	<key>settings.privacy.openAccount.section</key>
+	<string>Open account</string>
+	<key>settings.privacy.requests</key>
+	<string>Contact requests</string>
 	<key>settings.privacy.retention.label</key>
 	<string>Retention for newly sent messages</string>
 	<key>settings.privacy.retention.note</key>
@@ -108,8 +352,18 @@
 	<string>7 days</string>
 	<key>settings.privacy.title</key>
 	<string>Privacy</string>
+	<key>settings.privacy.username</key>
+	<string>Find people by @username</string>
 	<key>settings.reconcile</key>
 	<string>Reconcile original action</string>
+	<key>settings.section.accountDevices</key>
+	<string>Account and devices</string>
+	<key>settings.section.app</key>
+	<string>App</string>
+	<key>settings.section.connectionData</key>
+	<string>Connection and data</string>
+	<key>settings.storage.title</key>
+	<string>Storage</string>
 	<key>settings.systemPermissions</key>
 	<string>System permissions</string>
 	<key>settings.title</key>
