@@ -90,7 +90,7 @@ jobs:
           device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
           xcrun simctl bootstatus "$device_id" -b
           cd Packages/RFDesign
-          xcodebuild -scheme RFDesign -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/kit-dd" test -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
+          xcodebuild -scheme RFDesign -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/kit-dd" -resultBundlePath "$GITHUB_WORKSPACE/build/KitCapture.xcresult" test -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
           test -n "$(find /tmp/kit-ios-captures -name '*.png' -print -quit)"
       - name: Compare captures with the design previews
         run: python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures "$GITHUB_WORKSPACE/kit-evidence-ci"
@@ -109,6 +109,12 @@ jobs:
         run: |
           python3 scripts/design-references.py --check
           python3 scripts/compare-boards.py /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci" --review
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kit-capture-result
+          path: build/KitCapture.xcresult
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always()
         with:
