@@ -562,7 +562,7 @@ final class RealRunFlowTests: RealRunTestCase {
     func addContact(_ peer: RealRunConfig.Peer) throws {
         try openMore()
         try tap(element("more-contacts"), "Contacts in More")
-        if element(peer.principal).waitForExistence(timeout: 5) { return }
+        if element(peer.principal).waitForExistence(timeout: 5) { _ = try addPeerCard(peer); return }
         try tap(element("contacts-add"), "Add contact")
         let address = try require(element("contacts-add-address"), "account address field")
         address.tap(); address.typeText(peer.principal)
@@ -590,6 +590,7 @@ final class RealRunFlowTests: RealRunTestCase {
         guard let card = control.rf(peer.name, ["contact", "card"]).json?["card"] as? String, card.hasPrefix("ramflux-card:") else {
             throw FlowStop.blocked("\(peer.name): rf contact card returned no card")
         }
+        try ensureReady()
         try openMore()
         try tap(element("more-contacts"), "Contacts in More")
         try tap(element("contacts-add"), "Add contact")
