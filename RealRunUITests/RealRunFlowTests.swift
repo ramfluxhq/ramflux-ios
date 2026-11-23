@@ -368,8 +368,14 @@ final class RealRunFlowTests: RealRunTestCase {
             for caption in RunSecrets.mediaCaptions {
                 guard text(containing: caption).waitForExistence(timeout: 90) else { throw FlowStop.fail("message \(caption) from alice did not appear") }
             }
-            // rf dm send --attach declares application/octet-stream for every file, so both arrive as file cards.
-            for name in ["rr-image.png", "rr-file.txt"] {
+            // rf dm send --attach declares the image's media type, so the image arrives as a photo (shown inline
+            // and downloaded by policy for a contact) and the text file as a file card.
+            if let caption = RunSecrets.mediaCaptions.first(where: { $0.contains("rr-image.png") }) {
+                let photo = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Photo' AND label CONTAINS %@", caption)).firstMatch
+                guard photo.waitForExistence(timeout: 60) else { throw FlowStop.fail("the image rr-image.png is not shown as a photo") }
+                notes.append("phone received rr-image.png as a photo (\(photo.label.components(separatedBy: ", ").prefix(2).joined(separator: ", ")))")
+            }
+            for name in ["rr-file.txt"] {
                 let card = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND NOT (identifier BEGINSWITH 'message-')", name)).firstMatch
                 guard card.waitForExistence(timeout: 30) else { throw FlowStop.fail("the attachment \(name) is not shown") }
                 try tap(card, "download \(name)")
@@ -594,9 +600,13 @@ final class RealRunFlowTests: RealRunTestCase {
         // The add is finished when the screen leaves the add form or its button is enabled again.
         let send = element("contacts-add-send")
         guard eventually(60, { !send.exists || send.isEnabled }) else { throw FlowStop.fail("adding \(peer.name)'s card did not finish: \(visibleFailure())") }
-        let failure = app.staticTexts.allElementsBoundByIndex.prefix(40).map(\.label).first { $0.contains("already") || $0.contains("could not") || $0.contains("refused") }
+        let labels = app.staticTexts.allElementsBoundByIndex.prefix(40).map(\.label)
+        let failure = labels.first { $0.contains("could not") || $0.contains("refused") }
+        // A card whose home is already pinned (an earlier run of this step) is refused as an existing contact.
+        let pinned = labels.contains { $0.localizedCaseInsensitiveContains("already") }
         snap("card-\(peer.name)")
         back()
+        if pinned { return "\(peer.name)'s card is already on the phone (home node pinned)" }
         if let failure { throw FlowStop.fail("the phone refused \(peer.name)'s contact card: \(failure)") }
         return "the phone added \(peer.name)'s contact card (home node pinned for attachments)"
     }
