@@ -1934,6 +1934,23 @@
           }
         }
       }
+    },
+    "onboarding.complete.connecting": {
+      "comment": "Completion step after creating or unlocking an account while the SDK reports that networking is not live yet; it changes to Connected when it is.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local account is ready. Connecting to the network…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本地账户已就绪。正在连接网络…"
+          }
+        }
+      }
     }
   }
 }

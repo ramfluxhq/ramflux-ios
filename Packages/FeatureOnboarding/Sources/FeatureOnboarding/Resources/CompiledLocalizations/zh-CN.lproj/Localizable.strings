@@ -92,6 +92,8 @@
 	<string>请稍候</string>
 	<key>onboarding.complete.connected</key>
 	<string>已连接</string>
+	<key>onboarding.complete.connecting</key>
+	<string>本地账户已就绪。正在连接网络…</string>
 	<key>onboarding.complete.continue</key>
 	<string>继续</string>
 	<key>onboarding.complete.notConnected</key>

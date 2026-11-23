@@ -18,6 +18,11 @@ public protocol OnboardingRepository: Sendable {
     func confirmRecovery(anchor: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord>
     func unlock(accountID: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord>
     func cancel() async -> RepositoryResult<Void>
+    /// The account's networking state as the SDK reports it now (`account.status`).
+    func networking(accountID: String) async -> RepositoryResult<AccountNetworking>
+}
+public extension OnboardingRepository {
+    func networking(accountID: String) async -> RepositoryResult<AccountNetworking> { .failure(.unsupported) }
 }
 public actor NativeOnboardingRepository: OnboardingRepository {
     private let proxy: SDKProxy
@@ -113,6 +118,13 @@ public actor NativeOnboardingRepository: OnboardingRepository {
             await remember(account, node: nil)
             return .success(account)
         } catch { return .failure(Self.failure(error)) }
+    }
+    public func networking(accountID: String) async -> RepositoryResult<AccountNetworking> {
+        do {
+            let status = try await gateway.call(.accountStatus, account: accountID)
+            guard let value = status["networking"]?.string else { throw AppFailure.invalidData }
+            return .success(value == AccountNetworking.live.rawValue ? .live : .networkingPending)
+        } catch { return .failure(AppFailure.map(error)) }
     }
     public func cancel() async -> RepositoryResult<Void> {
         display?.erase(); display = nil

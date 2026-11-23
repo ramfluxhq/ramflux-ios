@@ -25,6 +25,8 @@ public struct OnboardingState: Equatable, Sendable {
     public var creatingAccount = false
     public var confirmationConsumed = false
     public var completedAccount: AccountRecord?
+    /// The completion step is following the SDK's networking state until it reports live.
+    public var watchingNetwork = false
     /// The device unlock information (MOB-A07) is shown over the current step.
     public var showingUnlockInfo = false
     /// The display name of a known account being unlocked (from the device's registry); the unlock step then

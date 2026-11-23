@@ -414,7 +414,9 @@ public struct OnboardingScreen: View {
                     VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                         Text(untrusted: account.displayName).rfFont(.page, weight: .semibold)
                         KitIdentifierText(account.id, color: theme.secondary)
-                        Text(copy(account.networking == .live ? "onboarding.complete.connected" : "onboarding.complete.notConnected")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+                        Text(copy(account.networking == .live ? "onboarding.complete.connected" : state.watchingNetwork ? "onboarding.complete.connecting" : "onboarding.complete.notConnected"))
+                            .rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+                            .accessibilityIdentifier("onboarding-complete-network")
                     }
                     .padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading)
                 }

@@ -10,6 +10,9 @@ import AppData
     private let emit: @MainActor (OnboardingEvent) -> Void
     @ObservationIgnored private var work: Task<Void, Never>?
     @ObservationIgnored private var expiry: Task<Void, Never>?
+    @ObservationIgnored private var network: Task<Void, Never>?
+    /// How long the completion step follows networking, and how often it asks.
+    @ObservationIgnored var networkWatch: (attempts: Int, interval: Duration) = (45, .seconds(2))
     @ObservationIgnored private var unresolvedConfirmation = false
     @ObservationIgnored private var generation: UInt64 = 0
     /// The state a cleanup returns to: the plain start, or the unlock step of a known account.
@@ -137,7 +140,9 @@ import AppData
             let id = UUID(); state.displayID = id; emit(.presentRecovery(id, display))
         case .challenge(.success(let positions)): state.positions = positions; state.stage = .confirmPhrase
         case .recovery(.success(let metadata)): state.metadata = metadata; scheduleExpiry(metadata)
-        case .confirmed(.success(let account)): expiry?.cancel(); state.completedAccount = account; state.stage = .complete
+        case .confirmed(.success(let account)):
+            expiry?.cancel(); state.completedAccount = account; state.stage = .complete
+            if account.networking != .live { watchNetwork(account) }
         case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error)), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
             state.failure = (error == .failed || error == .invalidData) ? .onboardingProtocol : error
             if state.stage == .verifying { state.stage = .connectionFailed }
@@ -152,7 +157,28 @@ import AppData
             self?.send(.expired)
         }
     }
+    /// Follows `account.status` after creation or unlock until the SDK reports networking live, so the
+    /// completion step shows the real state instead of the confirmation's snapshot.
+    private func watchNetwork(_ account: AccountRecord) {
+        network?.cancel(); state.watchingNetwork = true
+        let plan = networkWatch
+        network = Task { [weak self, repository] in
+            for _ in 0..<plan.attempts {
+                do { try await Task.sleep(for: plan.interval) } catch { return }
+                guard case .success(let networking) = await repository.networking(accountID: account.id) else { continue }
+                guard let self, !Task.isCancelled, self.state.completedAccount?.id == account.id else { return }
+                if networking == .live {
+                    self.state.completedAccount = AccountRecord(id: account.id, displayName: account.displayName, isLocked: account.isLocked, networking: .live)
+                    self.state.watchingNetwork = false; return
+                }
+            }
+            self?.state.watchingNetwork = false
+        }
+    }
+    /// Test barrier for the networking watch.
+    func settleNetwork() async { await network?.value }
     private func cleanup(dismiss: Bool) {
+        network?.cancel(); network = nil
         generation &+= 1; let epoch = generation
         emit(.revokeRecovery); expiry?.cancel(); expiry = nil
         let previous = work; previous?.cancel()
@@ -171,5 +197,5 @@ import AppData
         }
     }
     public func settle() async { await work?.value }
-    deinit { work?.cancel(); expiry?.cancel() }
+    deinit { work?.cancel(); expiry?.cancel(); network?.cancel() }
 }

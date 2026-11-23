@@ -63,8 +63,12 @@ final class RealRunFlowTests: RealRunTestCase {
             try tap(element("secure-entry-submit"), "Confirm once")
             let connected = text(containing: "Connected")
             let pending = text(containing: "Network connection has not been confirmed")
-            guard eventually(90, { connected.exists || pending.exists }) else { throw FlowStop.fail("account completion did not appear: \(visibleFailure())") }
-            let networking = connected.exists ? "networking live at completion" : "completion says network not confirmed"
+            let connecting = text(containing: "Connecting to the network")
+            guard eventually(90, { connected.exists || pending.exists || connecting.exists }) else { throw FlowStop.fail("account completion did not appear: \(visibleFailure())") }
+            let firstShown = connected.exists ? "Connected" : connecting.exists ? "Connecting" : "not confirmed"
+            // The completion step follows the SDK's networking state and turns to Connected when it is live.
+            _ = eventually(90, { connected.exists || pending.exists })
+            let networking = connected.exists ? "completion showed \(firstShown), then Connected (SDK networking live)" : "completion showed \(firstShown) and ended not confirmed after 90 s"
             let shownID = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'account-'")).firstMatch.label
             RunSecrets.accountID = String(shownID.filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") })
             control.log("phone account \(RunSecrets.accountID ?? "?") named \(RunSecrets.displayName)")

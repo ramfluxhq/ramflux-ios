@@ -26,6 +26,8 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     private(set) var unlocked: [String] = []
     func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { unlocked.append(accountID); submission.erase(); return .failure(.locked) }
     func cancel() -> RepositoryResult<Void> { cancellations += 1; return .success(()) }
+    private(set) var networkReads = 0
+    func networking(accountID: String) -> RepositoryResult<AccountNetworking> { networkReads += 1; return .success(networkReads >= 2 ? .live : .networkingPending) }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct OnboardingViewModelTests {
     @Test func concealAfterConfirmationDispatchKeepsRepositoryFenceAfterCleanup() async {
@@ -51,6 +53,18 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(model.state.failure == .accountCode(.mismatch)); #expect(await fake.confirmations == 0)
         model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
         #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
+    }
+    @Test func completionFollowsTheSDKNetworkingStateUntilLive() async {
+        let fake = FlowFake(confirmSucceeds: true)
+        var state = OnboardingState(stage: .localUnlock); state.positions = [3, 7, 11]
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        model.networkWatch = (5, .milliseconds(1))
+        let words = ["word1": "a", "word2": "b", "word3": "c", "passphrase": "135790", "passphraseRepeat": "135790"]
+        model.send(.submit(SensitiveSubmission(values: words, accountCode: .new))); await model.settle()
+        #expect(model.state.stage == .complete); #expect(model.state.completedAccount?.networking != .live)
+        await model.settleNetwork()
+        #expect(model.state.completedAccount?.networking == .live); #expect(!model.state.watchingNetwork)
+        #expect(await fake.networkReads == 2)
     }
     @Test func onlyStepsWithAKitHeaderHideTheSystemBackControl() {
         #expect(!OnboardingScreen.drawsOwnBack(OnboardingState(stage: .connection)))

@@ -92,6 +92,8 @@
 	<string>Please wait</string>
 	<key>onboarding.complete.connected</key>
 	<string>Connected</string>
+	<key>onboarding.complete.connecting</key>
+	<string>Local account is ready. Connecting to the network…</string>
 	<key>onboarding.complete.continue</key>
 	<string>Continue</string>
 	<key>onboarding.complete.notConnected</key>
