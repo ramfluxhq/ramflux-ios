@@ -39,6 +39,7 @@ public struct SettingsScreen: View {
     private var modal: SettingsModal? {
         if let device = state.pendingRevoke { return .revoke(device) }
         if state.changingCode { return .changeCode }
+        if state.confirmingRemoval, let account = state.snapshot.accountID { return .removeLocal(account) }
         return nil
     }
     private var title: String {
@@ -95,6 +96,10 @@ public struct SettingsScreen: View {
                     KitRow(copy("settings.account.lock"), action: { onAction(.lock) }, icon: "lock", value: copy("settings.account.lock.detail"), trailing: .none, enabled: !state.busy && !state.unknownMutation, tag: "settings-lock"),
                     KitRow(copy("settings.account.changeCode"), action: { onAction(.startChangeCode) }, icon: "lock-keyhole", value: copy("settings.account.changeCode.detail"), enabled: !state.busy, tag: "settings-change-code"),
                     KitRow(copy("settings.privacy.title"), action: { onAction(.open(.privacy)) }, icon: "shield", value: copy("settings.index.privacy.detail"), tag: "settings-privacy"),
+                ])
+                group(copy("settings.account.thisPhone"), [
+                    KitRow(copy("settings.account.signOut"), action: { onAction(.signOut) }, icon: "user-lock", value: copy("settings.account.signOut.detail"), trailing: .none, enabled: !state.busy && !state.unknownMutation, tag: "settings-sign-out"),
+                    KitRow(copy("settings.account.removeLocal"), action: { onAction(.requestRemoveLocal) }, icon: "trash-2", value: copy("settings.account.removeLocal.detail"), trailing: .none, enabled: !state.busy && !state.unknownMutation, tag: "settings-remove-local"),
                 ])
                 if state.codeChanged { KitTipBar(copy("settings.account.changeCode.done"), icon: "circle-check", tag: "settings-code-changed") }
             } else { KitButton(copy("settings.account.openOrCreate"), action: { onAction(.open(.onboarding)) }) }
@@ -159,6 +164,10 @@ public struct SettingsScreen: View {
                 .frame(minHeight: theme.composer_min * 4)
             #endif
             KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelChangeCode) }, kind: .text, enabled: !state.busy)
+        case .removeLocal(let account):
+            Text(copy("settings.account.removeLocal.title")).rfFont(.page); KitIdentifierText(account).textSelection(.enabled)
+            Text(copy("settings.account.removeLocal.fact"))
+            RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.account.removeLocal.summary", [.identifier(account)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRemoveLocal) }, cancel: { onAction(.dismissModal) }).id(account)
         }
     }
     private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }

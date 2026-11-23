@@ -77,11 +77,13 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         let fake = FlowFake(); var events: [OnboardingEvent] = []
         let model = OnboardingViewModel(repository: fake, nodes: fake, state: .unlockKnown(account: "account-a", name: "Ada"), emit: { events.append($0) })
         #expect(model.state.stage == .localUnlock && model.state.unlockingSavedAccount && model.state.knownAccountName == "Ada")
-        // The account id is fixed by the registry entry, not typed.
+        // The account id is fixed by the SDK's account list, not typed.
         model.send(.recoveryAccountChanged("account-other")); #expect(model.state.recoveryAccount == "account-a")
         model.send(.submit(SensitiveSubmission(values: ["passphrase": "135790"], accountCode: .existing))); await model.settle()
         #expect(await fake.unlocked == ["account-a"]); #expect(model.state.failure == .locked)
-        model.send(.forgetKnownAccount)
+        // Removal from this phone asks for a confirmation first.
+        model.send(.forgetKnownAccount); #expect(model.state.confirmingForget && events.isEmpty)
+        model.send(.confirmForget(true))
         #expect(events.contains(.forgetAccount("account-a")))
         // A conceal returns to the same unlock step, not to the start of onboarding.
         model.send(.conceal); await model.settle()

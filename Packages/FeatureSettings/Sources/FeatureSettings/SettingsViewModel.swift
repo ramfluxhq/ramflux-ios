@@ -62,11 +62,18 @@ import AppData
         case .lock:
             guard account != nil else { return }
             dispatch(PendingSettingsMutation(change: .lock, operationID: UUID().uuidString))
+        case .signOut:
+            guard account != nil else { return }
+            dispatch(PendingSettingsMutation(change: .signOut, operationID: UUID().uuidString))
+        case .requestRemoveLocal: if account != nil, !state.busy, !state.unknownMutation { state.failure = nil; state.confirmingRemoval = true }
+        case .confirmRemoveLocal:
+            guard account != nil, state.confirmingRemoval else { return }
+            dispatch(PendingSettingsMutation(change: .removeLocal, operationID: UUID().uuidString))
         case .setDefault(let id):
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false }
+        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false }
         case .reconcileOriginal(let id):
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
@@ -84,7 +91,9 @@ import AppData
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.busy = false; self.state.pendingMutation = pending; self.state.unknownMutation = pending != nil
             switch result {
-            case .success: self.state.pendingRevoke = nil; if attempt.change == .lock { self.emit(.locked) } else { self.refresh() }
+            case .success:
+                self.state.pendingRevoke = nil; self.state.confirmingRemoval = false
+                if [.lock, .signOut, .removeLocal].contains(attempt.change) { self.emit(.locked) } else { self.refresh() }
             case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = pending != nil || failure == .outcomeUnknown || failure == .offline
             }
         }

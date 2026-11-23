@@ -8,5 +8,7 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case appearance(AppearanceMode), retention(Int64), saveRetention, requestPolicy(autoAccept: Bool), unavailable(SettingsUnavailable)
     case dismissModal, setDefault(String)
     case startChangeCode, submitChangeCode(SensitiveSubmission), cancelChangeCode, openSystemLanguage
+    /// `signOut` closes the account on this phone; removal asks for confirmation first.
+    case signOut, requestRemoveLocal, confirmRemoveLocal
     public var description: String { "SettingsAction" }
 }

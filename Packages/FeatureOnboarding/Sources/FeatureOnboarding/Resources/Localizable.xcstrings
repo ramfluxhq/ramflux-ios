@@ -1919,18 +1919,18 @@
       }
     },
     "onboarding.a02.forget": {
-      "comment": "Button on the unlock screen: removes an account the SDK refused to unlock from this phone's list of known accounts. Nothing is deleted from the account itself.",
+      "comment": "Button on the unlock screen, shown when the SDK refused to open the account for a reason other than the code: asks to remove the account from this phone.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove from this phone's list"
+            "value": "Remove from this phone"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "从此手机的列表中移除"
+            "value": "从此手机移除"
           }
         }
       }
@@ -1948,6 +1948,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "本地账户已就绪。正在连接网络…"
+          }
+        }
+      }
+    },
+    "onboarding.a02.forget.fact": {
+      "comment": "Confirmation text on the unlock screen before the account is removed from this phone; other devices and the account itself are not affected.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This erases the account's messages, keys and settings on this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这会清除此手机上该账户的消息、密钥和设置。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。"
+          }
+        }
+      }
+    },
+    "onboarding.a02.forget.confirm": {
+      "comment": "Destructive button on the unlock screen that removes the account from this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
+      }
+    },
+    "onboarding.a02.forget.keep": {
+      "comment": "Button on the unlock screen that keeps the account and closes the removal confirmation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保留账户"
           }
         }
       }

@@ -46,7 +46,7 @@ import UserNotifications
                      onUnlock: { [weak self] id in self?.shell.send(.unlockAccount(id)) }, onAccounts: { [weak self] in self?.shell.send(.openAccounts) })
     }
     @ObservationIgnored private var currentUnlock: (String, OnboardingCoordinator)?
-    /// The code-only unlock of a known account (from the device's registry); see docs/app-shell.md.
+    /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {
         if let currentUnlock, currentUnlock.0 == account { return currentUnlock.1 }
         let name = shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? account
@@ -59,11 +59,11 @@ import UserNotifications
         }
         currentUnlock = (account, coordinator); return coordinator
     }
-    /// Drops an account the SDK refused to unlock from the device's list; the SDK keeps whatever it holds.
+    /// Removes an account the SDK refused to unlock from this phone (`account.remove_local`, confirmed on the unlock step).
     private func forgetKnownAccount(_ id: String) {
         currentUnlock = nil
-        Task { [weak self, known = repositories.knownAccounts] in
-            await known.remove(id)
+        Task { [weak self, settings = repositories.settings] in
+            _ = await settings.mutate(account: id, change: .removeLocal, operationID: UUID().uuidString)
             self?.shell.path = []; self?.shell.send(.retry)
         }
     }

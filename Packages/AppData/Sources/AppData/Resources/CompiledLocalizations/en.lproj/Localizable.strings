@@ -18,6 +18,8 @@
 	<string>Account code</string>
 	<key>accountCode.failure.trivial</key>
 	<string>This code is too easy to guess (repeated digits or a straight run). Choose another.</string>
+	<key>accountCode.failure.wait</key>
+	<string>Too many wrong account codes. Try again in %@.</string>
 	<key>agents.unavailable.access</key>
 	<string>Changing who can reach this agent is not available on this phone yet.</string>
 	<key>agents.unavailable.chat</key>

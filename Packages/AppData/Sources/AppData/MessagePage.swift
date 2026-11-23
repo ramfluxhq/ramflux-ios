@@ -50,11 +50,11 @@ enum MessagePage {
 
     static func records(body: JSONValue, conversation: String) throws -> [MessageRecord] { try page(body: body, conversation: conversation).records }
 
-    static func page(body: JSONValue, conversation: String, ownDevice: String? = nil) throws -> MessageWindowPage {
+    static func page(body: JSONValue, conversation: String) throws -> MessageWindowPage {
         guard body["schema"] == .string(readModel), body["conversation_id"] == .string(conversation) else { throw AppFailure.invalidData }
         let rows = try ProxyGateway.rows(body, "messages")
         guard rows.count <= 100 else { throw AppFailure.invalidData }
-        let records = try fold(rows, conversation, ownDevice: ownDevice)
+        let records = try fold(rows, conversation)
         let before: MessageCursor?
         switch body["next_before"] {
         case nil, .null?: before = nil
@@ -64,7 +64,7 @@ enum MessagePage {
         return MessageWindowPage(records: records, nextBefore: before, snapshotSequence: unsigned(body["snapshot_sequence"]))
     }
 
-    static func changes(body: JSONValue, conversation: String, ownDevice: String? = nil) throws -> MessageChangeBatch {
+    static func changes(body: JSONValue, conversation: String) throws -> MessageChangeBatch {
         guard body["schema"] == .string(readModel), body["conversation_id"] == .string(conversation) else { throw AppFailure.invalidData }
         let rows = try ProxyGateway.rows(body, "changes")
         guard rows.count <= 100, let next = unsigned(body["next_after"]), let more = body["more"]?.bool else { throw AppFailure.invalidData }
@@ -76,14 +76,14 @@ enum MessagePage {
             if !seen.insert(normalizeIdentifier(id)).inserted { changes.removeAll { change in
                 switch change { case .row(let record): normalizeIdentifier(record.id) == normalizeIdentifier(id); case .hidden(let hidden): normalizeIdentifier(hidden) == normalizeIdentifier(id) }
             } }
-            if let record = try record(row, conversation, overlays: [:], ownDevice: ownDevice) { changes.append(.row(record)) } else { changes.append(.hidden(id)) }
+            if let record = try record(row, conversation, overlays: [:]) { changes.append(.row(record)) } else { changes.append(.hidden(id)) }
         }
         return MessageChangeBatch(changes: changes, nextAfter: next, more: more)
     }
 
     static func normalizeIdentifier(_ value: String) -> String { MessageIdentifier.normalized(value) }
 
-    private static func fold(_ rows: [JSONValue], _ conversation: String, ownDevice: String?) throws -> [MessageRecord] {
+    private static func fold(_ rows: [JSONValue], _ conversation: String) throws -> [MessageRecord] {
         // The unified read model folds edits into their target; legacy edit rows are still
         // applied so an older store never shows a stale body.
         var overlays: [String: (revision: Int64, text: String)] = [:]
@@ -99,7 +99,7 @@ enum MessagePage {
         for row in rows {
             guard row["conversation_id"] == .string(conversation) else { throw AppFailure.invalidData }
             guard let id = row["id"]?.string, !id.isEmpty, id.utf8.count <= 256 else { throw AppFailure.invalidData }
-            if let record = try record(row, conversation, overlays: overlays, ownDevice: ownDevice) { records.append(record) }
+            if let record = try record(row, conversation, overlays: overlays) { records.append(record) }
         }
         guard Set(records.map { normalizeIdentifier($0.id) }).count == records.count else { throw AppFailure.invalidData }
         return resolveReplies(records)
@@ -116,22 +116,13 @@ enum MessagePage {
         }
     }
 
-    /// Whether a row is this device's own message. The SDK's `is_own` is authoritative when true; a row
-    /// authored by this device counts as own as well, because the SDK at 3dafe1f8 stores a message sent
-    /// with `conversation.reply` with `is_own: false` on the sending device.
-    static func ownership(_ row: JSONValue, ownDevice: String?) -> Bool? {
-        let flag = row["is_own"]?.bool
-        if flag == true { return true }
-        if let ownDevice, !ownDevice.isEmpty, row["author"]?["device_id"]?.string == ownDevice { return true }
-        return flag
-    }
 
-    private static func record(_ row: JSONValue, _ conversation: String, overlays: [String: (revision: Int64, text: String)], ownDevice: String?) throws -> MessageRecord? {
+    private static func record(_ row: JSONValue, _ conversation: String, overlays: [String: (revision: Int64, text: String)]) throws -> MessageRecord? {
         guard let id = row["id"]?.string else { throw AppFailure.invalidData }
         let kindName = row["kind"]?.string ?? ""
         let state = row["state"]?.string
         if hiddenKinds.contains(kindName) { return nil }
-        let own = ownership(row, ownDevice: ownDevice)
+        let own = row["is_own"]?.bool
         let stamp = displayTime(ProxyGateway.integer(row["hlc_ms"]))
         let sender = row["author"]?["device_id"]?.string ?? row["author"]?["account_anchor"]?.string ?? ""
         let anchor = row["author"]?["account_anchor"]?.string

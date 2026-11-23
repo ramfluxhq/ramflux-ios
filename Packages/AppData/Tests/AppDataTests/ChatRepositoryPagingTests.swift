@@ -24,8 +24,6 @@ private func page(_ rows: [JSONValue], before: JSONValue = .null, snapshot: Doub
     @Test func olderPagesPassTheOpaqueCursorUnchangedAndReportTheStart() async {
         let cursor: JSONValue = .object(["hlc_ms": .number(5), "device_sequence": .string("00000000000000000002"), "opaque": .array([.number(1)])])
         let transport = ProxyTransport { request in
-            // The ownership fallback reads this device's id once per account.
-            if request.method == "account.status" { return .object(["device_id": .string("device-me")]) }
             #expect(request.method == "message.read"); #expect(request.body["read_model"] == .bool(true)); #expect(request.body["limit"] == .number(50))
             if let before = request.body["before_order_key"] {
                 #expect(before == cursor)

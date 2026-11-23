@@ -12,8 +12,8 @@ public enum AccountCodeIssue: String, Equatable, Sendable, CaseIterable {
     case trivial
     /// The repeated new code differs (local only).
     case mismatch
-    /// Too many wrong codes; the SDK asks for a wait (`unlock_retry_later`). The SDK computes the
-    /// wait but the C ABI error projection does not carry it to the app.
+    /// Too many wrong codes; the SDK asks for a wait (`unlock_retry_later`). With the wait it reports,
+    /// the failure becomes `AppFailure.accountCodeWait`.
     case retryLater
     /// Ten wrong codes; only the recovery phrase restores the account (`unlock_attempts_exhausted`).
     case attemptsExhausted
