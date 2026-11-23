@@ -3,6 +3,7 @@
 import Foundation
 import AppData
 public enum CallsAction: Equatable, Sendable {
-    case appeared, disappeared, refresh, filter(String), mode(CallsMode), start, answer, audioControl
+    case appeared, disappeared, refresh, loadMore, filter(String), mode(CallsMode), start, answer, control(CallMediaControl)
     case signal(CallSignal, callID: String, sequence: UInt64), reconcile(String), openSettings, settingsResult(Bool)
+    case permissionResolved(DevicePermission, granted: Bool), dismissPermission
 }

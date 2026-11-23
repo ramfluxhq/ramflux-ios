@@ -8,9 +8,10 @@ import UIKit
 @MainActor public final class CallsCoordinator {
     public let viewModel: CallsViewModel
     private var settings: Task<Void, Never>?
-    public init(repository: any CallsRepository, microphone: any MicrophoneRepository, account: String, mode: CallsMode = .history) {
+    public init(repository: any CallsRepository, microphone: any MicrophoneRepository, account: String, mode: CallsMode = .history,
+                permissions: (any CallPermissionRequesting)? = nil, peerNames: (any CallPeerNames)? = nil) {
         let relay = CallsSettingsRelay()
-        viewModel = CallsViewModel(repository: repository, microphone: microphone, account: account, state: CallsState(mode: mode)) { relay.handle($0) }
+        viewModel = CallsViewModel(repository: repository, microphone: microphone, account: account, state: CallsState(mode: mode), permissions: permissions, peerNames: peerNames) { relay.handle($0) }
         relay.callback = { [weak self] in self?.openSettings() }
     }
     public func send(_ action: CallsAction) { if action == .disappeared { settings?.cancel() }; viewModel.send(action) }

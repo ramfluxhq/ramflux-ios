@@ -30,6 +30,24 @@
 	<string>确认此通话操作</string>
 	<key>calls.connecting</key>
 	<string>正在建立信令连接</string>
+	<key>calls.connectionLost.message</key>
+	<string>正在尝试重新连接。如果连接无法恢复，通话将结束。</string>
+	<key>calls.connectionLost.title</key>
+	<string>连接已中断</string>
+	<key>calls.control.camera</key>
+	<string>摄像头</string>
+	<key>calls.control.cameraOff</key>
+	<string>关闭摄像头</string>
+	<key>calls.control.mute</key>
+	<string>静音</string>
+	<key>calls.control.speaker</key>
+	<string>扬声器</string>
+	<key>calls.control.switchCamera</key>
+	<string>翻转</string>
+	<key>calls.control.unmute</key>
+	<string>取消静音</string>
+	<key>calls.control.unsupported</key>
+	<string>此手机不支持。</string>
 	<key>calls.conversation</key>
 	<string>会话</string>
 	<key>calls.created</key>
@@ -58,6 +76,10 @@
 	<string>结束时间</string>
 	<key>calls.failed</key>
 	<string>失败</string>
+	<key>calls.failed.message</key>
+	<string>无法完成此次通话。</string>
+	<key>calls.failed.title</key>
+	<string>通话失败</string>
 	<key>calls.filter</key>
 	<string>筛选通话记录</string>
 	<key>calls.granted</key>
@@ -70,6 +92,8 @@
 	<string>通话 ID</string>
 	<key>calls.incoming</key>
 	<string>呼入</string>
+	<key>calls.incoming.cannotAnswer</key>
+	<string>此手机版本无法接听通话。你可以拒绝来电，或在其他设备上接听。</string>
 	<key>calls.incoming_ringing</key>
 	<string>来电</string>
 	<key>calls.loading</key>
@@ -86,6 +110,10 @@
 	<string>麦克风静音</string>
 	<key>calls.noAudio</key>
 	<string>此手机上的音频控制不可用。信令状态不表示麦克风或扬声器已启用。</string>
+	<key>calls.offline.message</key>
+	<string>通话需要连接到你的节点。恢复联网后请重试。</string>
+	<key>calls.offline.title</key>
+	<string>你已离线</string>
 	<key>calls.outgoing</key>
 	<string>呼出</string>
 	<key>calls.outgoing_ringing</key>
@@ -96,8 +124,18 @@
 	<string>对方报告的故障</string>
 	<key>calls.pending</key>
 	<string>信令操作的结果尚未确认</string>
+	<key>calls.permission.camera.message</key>
+	<string>请在设置中允许访问摄像头，以便在通话中共享视频。</string>
+	<key>calls.permission.camera.title</key>
+	<string>需要摄像头权限</string>
 	<key>calls.permission.message</key>
 	<string>麦克风权限由 iOS 设置管理。此页面仅查看当前权限，不会请求访问。</string>
+	<key>calls.permission.microphone.message</key>
+	<string>请在设置中允许访问麦克风，以便对方能听到你。</string>
+	<key>calls.permission.microphone.title</key>
+	<string>需要麦克风权限</string>
+	<key>calls.permission.notNow</key>
+	<string>暂不</string>
 	<key>calls.permissionUnavailable</key>
 	<string>权限状态不可用</string>
 	<key>calls.permissions</key>
@@ -112,6 +150,8 @@
 	<string>语音中继不可用</string>
 	<key>calls.review</key>
 	<string>审核信令操作</string>
+	<key>calls.row.detail</key>
+	<string>%1$@ · %2$@ · %3$@</string>
 	<key>calls.row.summary</key>
 	<string>%1$@ · %2$@</string>
 	<key>calls.sequence</key>
@@ -124,17 +164,41 @@
 	<string>信令不可用</string>
 	<key>calls.speaker</key>
 	<string>扬声器</string>
+	<key>calls.stage.connecting</key>
+	<string>正在连接…</string>
+	<key>calls.stage.connectionLost</key>
+	<string>正在重新连接…</string>
+	<key>calls.stage.ended</key>
+	<string>通话已结束</string>
+	<key>calls.stage.failed</key>
+	<string>通话失败</string>
+	<key>calls.stage.inCall</key>
+	<string>通话中</string>
+	<key>calls.stage.incoming</key>
+	<string>语音来电</string>
+	<key>calls.stage.outgoing</key>
+	<string>正在呼叫…</string>
 	<key>calls.stale</key>
 	<string>这是上次已确认的通话状态。执行操作前请刷新。</string>
 	<key>calls.start</key>
 	<string>发起语音通话</string>
+	<key>calls.start.video</key>
+	<string>视频通话</string>
+	<key>calls.start.voice</key>
+	<string>语音通话</string>
 	<key>calls.timeout</key>
 	<string>无人接听</string>
 	<key>calls.title</key>
 	<string>通话</string>
+	<key>calls.unavailable.message</key>
+	<string>此版本暂不支持语音和视频通话。你可以查看通话记录，并拒绝或结束通话。</string>
+	<key>calls.unavailable.title</key>
+	<string>暂不支持通话</string>
 	<key>calls.undetermined</key>
 	<string>尚未请求</string>
 	<key>calls.unknown</key>
 	<string>通话状态不可用</string>
+	<key>calls.video.unavailable</key>
+	<string>暂时无法发起视频通话：你的账户服务目前只支持语音通话。</string>
 </dict>
 </plist>

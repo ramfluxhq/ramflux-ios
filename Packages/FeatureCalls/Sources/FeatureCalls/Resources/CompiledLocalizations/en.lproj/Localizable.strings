@@ -30,6 +30,24 @@
 	<string>Confirm this call action</string>
 	<key>calls.connecting</key>
 	<string>Signaling is connecting</string>
+	<key>calls.connectionLost.message</key>
+	<string>Trying to reconnect. The call ends if the connection does not come back.</string>
+	<key>calls.connectionLost.title</key>
+	<string>Connection lost</string>
+	<key>calls.control.camera</key>
+	<string>Camera</string>
+	<key>calls.control.cameraOff</key>
+	<string>Camera off</string>
+	<key>calls.control.mute</key>
+	<string>Mute</string>
+	<key>calls.control.speaker</key>
+	<string>Speaker</string>
+	<key>calls.control.switchCamera</key>
+	<string>Flip</string>
+	<key>calls.control.unmute</key>
+	<string>Unmute</string>
+	<key>calls.control.unsupported</key>
+	<string>Not supported on this phone.</string>
 	<key>calls.conversation</key>
 	<string>Conversation</string>
 	<key>calls.created</key>
@@ -58,6 +76,10 @@
 	<string>Ended</string>
 	<key>calls.failed</key>
 	<string>Failed</string>
+	<key>calls.failed.message</key>
+	<string>The call could not be completed.</string>
+	<key>calls.failed.title</key>
+	<string>Call failed</string>
 	<key>calls.filter</key>
 	<string>Filter call history</string>
 	<key>calls.granted</key>
@@ -70,6 +92,8 @@
 	<string>Call ID</string>
 	<key>calls.incoming</key>
 	<string>Incoming</string>
+	<key>calls.incoming.cannotAnswer</key>
+	<string>This phone cannot answer calls in this build. You can decline the call or answer it on another device.</string>
 	<key>calls.incoming_ringing</key>
 	<string>Incoming call</string>
 	<key>calls.loading</key>
@@ -86,6 +110,10 @@
 	<string>Mute microphone</string>
 	<key>calls.noAudio</key>
 	<string>Audio controls are unavailable on this phone. No microphone or speaker state is implied by signaling status.</string>
+	<key>calls.offline.message</key>
+	<string>Calls need a connection to your node. Try again when you are back online.</string>
+	<key>calls.offline.title</key>
+	<string>You are offline</string>
 	<key>calls.outgoing</key>
 	<string>Outgoing</string>
 	<key>calls.outgoing_ringing</key>
@@ -96,8 +124,18 @@
 	<string>Peer-reported failure</string>
 	<key>calls.pending</key>
 	<string>A signaling action is unresolved</string>
+	<key>calls.permission.camera.message</key>
+	<string>Allow camera access in Settings to share your video in calls.</string>
+	<key>calls.permission.camera.title</key>
+	<string>Camera access needed</string>
 	<key>calls.permission.message</key>
 	<string>Microphone access is managed in iOS Settings. This screen reads the current permission without requesting access.</string>
+	<key>calls.permission.microphone.message</key>
+	<string>Allow microphone access in Settings so the other person can hear you.</string>
+	<key>calls.permission.microphone.title</key>
+	<string>Microphone access needed</string>
+	<key>calls.permission.notNow</key>
+	<string>Not now</string>
 	<key>calls.permissionUnavailable</key>
 	<string>Permission status unavailable</string>
 	<key>calls.permissions</key>
@@ -112,6 +150,8 @@
 	<string>Voice relay unavailable</string>
 	<key>calls.review</key>
 	<string>Review signaling action</string>
+	<key>calls.row.detail</key>
+	<string>%1$@ · %2$@ · %3$@</string>
 	<key>calls.row.summary</key>
 	<string>%1$@ · %2$@</string>
 	<key>calls.sequence</key>
@@ -124,17 +164,41 @@
 	<string>Signaling unavailable</string>
 	<key>calls.speaker</key>
 	<string>Speaker</string>
+	<key>calls.stage.connecting</key>
+	<string>Connecting…</string>
+	<key>calls.stage.connectionLost</key>
+	<string>Reconnecting…</string>
+	<key>calls.stage.ended</key>
+	<string>Call ended</string>
+	<key>calls.stage.failed</key>
+	<string>Call failed</string>
+	<key>calls.stage.inCall</key>
+	<string>In call</string>
+	<key>calls.stage.incoming</key>
+	<string>Incoming voice call</string>
+	<key>calls.stage.outgoing</key>
+	<string>Calling…</string>
 	<key>calls.stale</key>
 	<string>Last confirmed call status. Refresh before applying an action.</string>
 	<key>calls.start</key>
 	<string>Start voice call</string>
+	<key>calls.start.video</key>
+	<string>Video call</string>
+	<key>calls.start.voice</key>
+	<string>Voice call</string>
 	<key>calls.timeout</key>
 	<string>No answer</string>
 	<key>calls.title</key>
 	<string>Calls</string>
+	<key>calls.unavailable.message</key>
+	<string>Voice and video calls are not available in this build. You can see your call history and decline or end calls.</string>
+	<key>calls.unavailable.title</key>
+	<string>Calls are not available</string>
 	<key>calls.undetermined</key>
 	<string>Not requested</string>
 	<key>calls.unknown</key>
 	<string>Call status unavailable</string>
+	<key>calls.video.unavailable</key>
+	<string>Video calls cannot be started yet: your account service supports voice calls only.</string>
 </dict>
 </plist>
