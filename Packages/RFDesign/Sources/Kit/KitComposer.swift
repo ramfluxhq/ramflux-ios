@@ -130,6 +130,7 @@ public struct KitComposer: View {
                     .contentShape(Rectangle())
                     .onTapGesture { if attachEnabled { onAttach() } }
                     .allowsHitTesting(attachEnabled)
+                    .accessibilityIdentifier(tag.map { $0 + "-attach" } ?? "")
                 HStack(spacing: KitMetrics.headerGap) {
                     if capturing {
                         KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)
