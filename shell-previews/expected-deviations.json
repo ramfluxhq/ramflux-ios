@@ -2909,7 +2909,7 @@
     },
     "MOB-G01-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app lists two rows the board does not have (账户, 开源声明). The design header has an ellipsis action. The permissions icon is shield-check in the design and shield in the app; settings subtitle copy '账号' vs '账户'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
+      "reason": "The app lists three rows the board does not have (通话, 账户, 开源声明); 通话 (call history) was added in the beta integration (2026-11-23), moving the other two down one row. The design header has an ellipsis action. The permissions icon is shield-check in the design and shield in the app; settings subtitle copy '账号' vs '账户'. The design's messages-tab badge '1' has no shell state field. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the Agents tab label is drawn in the UI face (Noto Sans SC) instead of the design's Hanken Grotesk, because feature screens no longer force the Latin face on translatable text (audit 7.4 rule 8); the label is wider. Keeping a Latin face for this word needs a design or owner decision. The zh '更多' tab label sits about 1 pt higher than the design after the scalable Kit tab-label metrics; the shift is the same with or without the Latin face (checked with a capture that restored it).",
       "regions": [
         {
           "rect": [
@@ -3059,16 +3059,16 @@
           "rect": [
             70,
             563,
-            93,
+            140,
             44
           ]
         },
         {
           "rect": [
-            28,
-            572,
-            21,
-            23
+            26,
+            571,
+            25,
+            25
           ]
         },
         {
@@ -3099,6 +3099,30 @@
           "rect": [
             364,
             659,
+            9,
+            14
+          ]
+        },
+        {
+          "rect": [
+            71,
+            727,
+            152,
+            43
+          ]
+        },
+        {
+          "rect": [
+            28,
+            735,
+            21,
+            25
+          ]
+        },
+        {
+          "rect": [
+            364,
+            741,
             9,
             14
           ]
@@ -3155,7 +3179,7 @@
     },
     "MOB-G02-zh-CN-light": {
       "status": "deviates",
-      "reason": "Wave 2 pass 3, first capture (reviewed pair by pair): the settings index follows the board's three grouped cards. Deviations: the header keeps the refresh action and its title sits 14 pt lower; row subtitles are static catalog copy (the board shows the account name and live state); the second section has 'Connected services' instead of 'MCP and A2I' plus a 'Storage' row, so the app section starts 58 pt lower; rows read 'My devices' and 'About and diagnostics' as in the catalog; a fourth 'Activity' section (call history, cards) begins at the bottom until their own module places those entries. Status bar glyphs differ as on every board.",
+      "reason": "Wave 2 pass 3, first capture (reviewed pair by pair): the settings index follows the board's three grouped cards. Deviations: the header keeps the refresh action and its title sits 14 pt lower; row subtitles are static catalog copy (the board shows the account name and live state); the second section has 'Connected services' instead of 'MCP and A2I' plus a 'Storage' row, so the app section starts 58 pt lower; rows read 'My devices' and 'About and diagnostics' as in the catalog; the temporary 'Activity' section was removed in the beta integration (2026-11-23): call history moved to the More hub and cards render in the chat timeline. Status bar glyphs differ as on every board.",
       "regions": [
         {
           "rect": [
@@ -3379,14 +3403,6 @@
             744,
             9,
             12
-          ]
-        },
-        {
-          "rect": [
-            31,
-            796,
-            25,
-            14
           ]
         },
         {
