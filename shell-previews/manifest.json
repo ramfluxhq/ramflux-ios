@@ -4,7 +4,7 @@
   "exported": "2026-11-22",
   "export_scale": 2,
   "reference_scale": 1,
-  "note": "Exports of the current design (see reference/design/boards/BOARD-MAP.md in the workspace). board is the capture board key; key is the design board key (dark proofs are compared with the dark capture of their screen).",
+  "note": "Exports of the current design. board is the capture board key; key is the design board key (dark proofs are compared with the dark capture of their screen).",
   "boards": [
     {
       "key": "MOB-A01",

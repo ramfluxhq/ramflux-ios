@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Repository clean-up: remove the committed simulator evidence capture (CI regenerates it as a build artifact), list the bundled fonts in `NOTICE`, and neutralise design-token metadata and notes that referred to internal tooling and documents.
+
 ## [0.2.6] - 2026-11-23
 
 - Align release metadata with product version 0.2.6.
@@ -34,4 +38,4 @@ Changes since 0.1.0, at a high level:
 - Contact safety numbers can be verified; edit conflicts are detected rather than overwritten.
 - Settings, About now shows the app version and build number ("Version 0.2.0 (build 2)"), in English and Simplified Chinese.
 
-The version lives in `project.yml` (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`); bump it with the shared `bump-version.sh` script.
+The version lives in `project.yml` (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`).

@@ -6,3 +6,24 @@ Ramflux is a product brand of Span Brain.
 This repository contains the AGPL-3.0-or-later iOS client for Ramflux. It
 depends on the BSD-3-Clause Ramflux core workspace maintained in the
 ramfluxhq/ramflux repository.
+
+This product bundles the following fonts (in Packages/RFDesign/Resources/Fonts/),
+each licensed under the SIL Open Font License, Version 1.1. The full license
+text sits beside each font file as <font file>.OFL.txt:
+
+- Hanken Grotesk (variable font), Copyright 2021 The Hanken Grotesk Project
+  Authors (https://github.com/marcologous/hanken-grotesk). The upstream
+  license declares no Reserved Font Name.
+  License: HankenGrotesk.ttf.OFL.txt
+- JetBrains Mono (variable font), Copyright 2020 The JetBrains Mono Project
+  Authors (https://github.com/JetBrains/JetBrainsMono). The upstream license
+  declares no Reserved Font Name.
+  License: JetBrainsMono.ttf.OFL.txt
+- Noto Sans SC (variable font, reduced glyph subset), Copyright 2014-2021
+  Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
+  License: NotoSansSC.ttf.OFL.txt
+
+The Noto Sans SC file is not the upstream file: it is a subset that keeps the
+weight axis and the glyphs needed by the app's Simplified Chinese text. Its
+family name is Noto Sans SC, and no Reserved Font Name ('Source') is used in
+its names. Details are recorded in Packages/RFDesign/Resources/Fonts/PROVENANCE.json.

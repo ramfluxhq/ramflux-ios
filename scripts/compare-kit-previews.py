@@ -190,7 +190,7 @@ def main():
     lines.append("Chinese uses the bundled Noto Sans SC face.")
     lines.append("en/zh boards use the preview sample text. Height may differ by up to 4 px.")
     lines.append("A dark board with no dark export is paired with the light preview.")
-    lines.append("Icon geometry is Lucide. Pencil strokes are a reference, not the vector source.")
+    lines.append("Icon geometry is Lucide. Design-file strokes are a reference, not the vector source.")
     lines.append("Radio, origin display and charts are not in this kit.")
     checklist = output / "checklist.tsv"
     checklist.write_text("\n".join(lines) + "\n")
