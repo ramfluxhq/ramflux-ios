@@ -8,5 +8,8 @@ import FeatureSettings
         for (index, state) in SettingsPreviews.states.enumerated() { for scheme in [ColorScheme.light, .dark] {
             SnapshotCapture.record(SettingsScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "settings-\(index)-\(scheme)", scheme: scheme, test: self)
         } }
+        for (index, state) in BackupPreviews.states.enumerated() { for scheme in [ColorScheme.light, .dark] {
+            SnapshotCapture.record(BackupScreen(state: state, onAction: { _ in }).environment(\.colorScheme, scheme), name: "backup-\(index)-\(scheme)", scheme: scheme, test: self)
+        } }
     }
 }

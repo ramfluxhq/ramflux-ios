@@ -55,6 +55,25 @@ private func waitFor(_ condition: @Sendable () -> Bool) async {
     for _ in 0..<400 where !condition() { try? await Task.sleep(for: .milliseconds(5)) }
 }
 @Suite(.timeLimit(.minutes(1))) struct ObservationContractTests {
+    @Test func backupJobScopeOpensAnAttendedDaemonSubscriptionAndEndsAccountObservers() async {
+        let factory = QueueFactory(), filters = Mutex<[SubscriptionFilter]>([])
+        let transport = ProxyTransport(onSubscribe: { filter in filters.withLock { $0.append(filter) }; return factory.make() }) { _ in .object([:]) }
+        let source = NativeUpdateSource(client: RamfluxClient(transport: transport))
+        let account = await source.observe(account: "A")
+        var accountUpdates = account.stream.makeAsyncIterator(); _ = await accountUpdates.next()
+        let jobs = await source.observeBackupJobs()
+        var updates = jobs.stream.makeAsyncIterator()
+        #expect(await updates.next() == .invalidated)
+        #expect(await accountUpdates.next() == nil)
+        let opened = filters.withLock { $0.last }
+        #expect(opened?.accountID == nil)
+        #expect(opened?.body["topics"] == .array([.string("account.backup.job.changed")]))
+        #expect(opened?.body["attended_frontend"] == .bool(true))
+        factory.last?.push([.object(["kind": .string("event"), "topic": .string("account.backup.job.changed")])])
+        #expect(await updates.next() == .invalidated)
+        await jobs.stop()
+        #expect(await source.observerCount == 0)
+    }
     @Test func observersShareOneNativeSubscriptionAndTheLastStopEndsIt() async {
         let factory = QueueFactory()
         let transport = ProxyTransport(onSubscribe: { _ in factory.make() }) { _ in .object([:]) }

@@ -5,7 +5,6 @@ import AppData
 public struct SettingsState: Equatable, Sendable {
     public var route: AppRoute
     public var snapshot = SettingsSnapshot()
-    public var jobs: [BackupRecord] = []
     public var appearance: AppearanceMode = .system
     public var retentionSeconds: Int64 = 604800
     public var loading = false
@@ -15,9 +14,5 @@ public struct SettingsState: Equatable, Sendable {
     public var pendingMutation: PendingSettingsMutation?
     public var unknownMutation = false
     public var pendingRevoke: DeviceRecord?
-    public var backupIntent: BackupIntent?
-    public var restoreHeld = false
-    public var importSelecting = false
-    public var shareURL: URL?
     public init(route: AppRoute = .settings) { self.route = route }
 }

@@ -32,7 +32,8 @@ import Observation
         let waiters = permissionWaiters.removeValue(forKey: permission) ?? []
         waiters.forEach { $0(granted) }
     }
-    @ObservationIgnored lazy var onboarding = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, created: { [weak self] account in self?.permissions.send(.accountCreated(account.id)) }) { [weak self] account in
+    @ObservationIgnored lazy var onboarding = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, created: { [weak self] account in self?.permissions.send(.accountCreated(account.id)) },
+        restoreBackup: { [weak self] in self?.shell.send(.open(.backup)) }) { [weak self] account in
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }
     }
@@ -93,13 +94,14 @@ import Observation
     @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?
     func settings(account: String?, route: AppRoute) -> SettingsCoordinator {
         if let currentSettings, currentSettings.0 == account, currentSettings.1 == route { return currentSettings.2 }
-        currentSettings?.2.send(.disappeared)
+        currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared)
         let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, nodes: repositories.nodes,
             preferences: repositories.preferences, account: account, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
+            case .restored: self?.shell.path = []; self?.shell.send(.retry)
             }
         }
         currentSettings = (account, route, coordinator); return coordinator

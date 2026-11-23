@@ -28,8 +28,48 @@
 	<string>暂不支持隐藏智能体。</string>
 	<key>agents.unavailable.pause</key>
 	<string>暂不支持暂停智能体。</string>
-	<key>backup.import.tooLarge</key>
-	<string>此归档超过手机端 256 MiB 的导入上限。</string>
+	<key>backup.failure.accountLocked</key>
+	<string>请先解锁账号。</string>
+	<key>backup.failure.attachmentsUnavailable</key>
+	<string>部分附件不在本机上。</string>
+	<key>backup.failure.attendanceRequired</key>
+	<string>请保持此页面打开，连接后再试一次。</string>
+	<key>backup.failure.authorizationRejected</key>
+	<string>该账号未授权此次恢复。</string>
+	<key>backup.failure.conflict</key>
+	<string>该归档与本机已有的账号数据冲突。</string>
+	<key>backup.failure.damaged</key>
+	<string>该归档已损坏或在写入后被更改。</string>
+	<key>backup.failure.importTooLarge</key>
+	<string>此归档超过本机 256 MiB 的导入上限。</string>
+	<key>backup.failure.insufficientSpace</key>
+	<string>本机可用存储空间不足。</string>
+	<key>backup.failure.interrupted</key>
+	<string>任务在完成前中断，请重新开始。</string>
+	<key>backup.failure.networkingPending</key>
+	<string>账号仍在等待节点，请在连接后再试。</string>
+	<key>backup.failure.notWritable</key>
+	<string>无法写入该归档。</string>
+	<key>backup.failure.other</key>
+	<string>任务未能完成。</string>
+	<key>backup.failure.passphraseEmpty</key>
+	<string>请输入归档密码。</string>
+	<key>backup.failure.passphraseMismatch</key>
+	<string>两次输入的密码不一致。</string>
+	<key>backup.failure.passphraseTooCommon</key>
+	<string>此密码过于常见，请换一个更难猜到的密码。</string>
+	<key>backup.failure.passphraseTooShort</key>
+	<string>归档密码至少需要 15 个字符。</string>
+	<key>backup.failure.restoreSetupRequired</key>
+	<string>请为恢复的账号设置六位数账号码。</string>
+	<key>backup.failure.title</key>
+	<string>备份或恢复未能进行</string>
+	<key>backup.failure.unreadable</key>
+	<string>无法读取该归档。</string>
+	<key>backup.failure.unsupportedVersion</key>
+	<string>此归档需要更新版本的应用。</string>
+	<key>backup.failure.wrongPassphrase</key>
+	<string>此密码无法打开该归档。</string>
 	<key>calls.audioUnavailable</key>
 	<string>此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。</string>
 	<key>cards.unavailable</key>
@@ -222,8 +262,6 @@
 	<string>尚未安装此功能模块。</string>
 	<key>session.unavailable.nativeCore</key>
 	<string>此版本的账户服务不可用。已保存的数据未被更改。</string>
-	<key>settings.mobileBackup</key>
-	<string>备份和恢复请使用桌面客户端。此手机不会启动备份任务。</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>请在桌面端管理已连接服务的高级配置。</string>
 	<key>settings.unavailable.diagnosticExport</key>

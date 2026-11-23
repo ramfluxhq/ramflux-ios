@@ -110,6 +110,8 @@
 	<string>Existing local account ID</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>I checked this account fingerprint</string>
+	<key>onboarding.recover.newInstall</key>
+	<string>On a new install, restore the account from a backup archive first.</string>
 	<key>onboarding.recover.phrase</key>
 	<string>Recovery phrase</string>
 	<key>onboarding.recover.readFingerprint</key>
@@ -154,6 +156,8 @@
 	<string>This phone can be your primary device.</string>
 	<key>onboarding.welcome.recover</key>
 	<string>Recover an account</string>
+	<key>onboarding.welcome.restoreBackup</key>
+	<string>Restore from a backup</string>
 	<key>onboarding.welcome.title</key>
 	<string>Keep your conversations connected</string>
 	<key>onboarding.welcome.unlockSaved</key>

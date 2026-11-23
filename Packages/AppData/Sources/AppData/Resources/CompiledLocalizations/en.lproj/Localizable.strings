@@ -28,8 +28,48 @@
 	<string>Hiding an agent is not available yet.</string>
 	<key>agents.unavailable.pause</key>
 	<string>Pausing an agent is not available yet.</string>
-	<key>backup.import.tooLarge</key>
-	<string>This archive exceeds the 256 MiB mobile import limit.</string>
+	<key>backup.failure.accountLocked</key>
+	<string>Unlock the account first.</string>
+	<key>backup.failure.attachmentsUnavailable</key>
+	<string>Some attachments are not on this phone.</string>
+	<key>backup.failure.attendanceRequired</key>
+	<string>Keep this screen open and try again once it is connected.</string>
+	<key>backup.failure.authorizationRejected</key>
+	<string>The account did not authorise this restore.</string>
+	<key>backup.failure.conflict</key>
+	<string>The archive conflicts with account data on this phone.</string>
+	<key>backup.failure.damaged</key>
+	<string>The archive is damaged or was changed after it was written.</string>
+	<key>backup.failure.importTooLarge</key>
+	<string>This archive exceeds the 256 MiB import limit of this phone.</string>
+	<key>backup.failure.insufficientSpace</key>
+	<string>There is not enough free storage on this phone.</string>
+	<key>backup.failure.interrupted</key>
+	<string>The job stopped before it finished. Start it again.</string>
+	<key>backup.failure.networkingPending</key>
+	<string>The account is still waiting for its node. Try again when it is connected.</string>
+	<key>backup.failure.notWritable</key>
+	<string>The archive could not be written.</string>
+	<key>backup.failure.other</key>
+	<string>The job could not finish.</string>
+	<key>backup.failure.passphraseEmpty</key>
+	<string>Enter the archive passphrase.</string>
+	<key>backup.failure.passphraseMismatch</key>
+	<string>The two passphrases do not match.</string>
+	<key>backup.failure.passphraseTooCommon</key>
+	<string>This passphrase is too common. Choose a less predictable one.</string>
+	<key>backup.failure.passphraseTooShort</key>
+	<string>Use at least 15 characters for the archive passphrase.</string>
+	<key>backup.failure.restoreSetupRequired</key>
+	<string>Set a six-digit account code for the restored account.</string>
+	<key>backup.failure.title</key>
+	<string>Backup or restore did not go ahead</string>
+	<key>backup.failure.unreadable</key>
+	<string>The archive could not be read.</string>
+	<key>backup.failure.unsupportedVersion</key>
+	<string>This archive needs a newer version of the app.</string>
+	<key>backup.failure.wrongPassphrase</key>
+	<string>This passphrase does not open the archive.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
 	<key>cards.unavailable</key>
@@ -222,8 +262,6 @@
 	<string>This feature module is not installed yet.</string>
 	<key>session.unavailable.nativeCore</key>
 	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
-	<key>settings.mobileBackup</key>
-	<string>Backup and restore are available on the desktop client. No backup task can be started from this phone.</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>Advanced connected-service configuration is managed on your desktop.</string>
 	<key>settings.unavailable.diagnosticExport</key>

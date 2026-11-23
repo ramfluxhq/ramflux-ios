@@ -1339,6 +1339,40 @@
           }
         }
       }
+    },
+    "onboarding.welcome.restoreBackup": {
+      "comment": "Welcome screen action: recover an account on a new install from a backup archive file.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore from a backup"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从备份恢复"
+          }
+        }
+      }
+    },
+    "onboarding.recover.newInstall": {
+      "comment": "Explains that phrase recovery needs the account on this phone, and that a new install restores from a backup archive instead.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On a new install, restore the account from a backup archive first."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果是新安装，请先从备份归档恢复账号。"
+          }
+        }
+      }
     }
   }
 }

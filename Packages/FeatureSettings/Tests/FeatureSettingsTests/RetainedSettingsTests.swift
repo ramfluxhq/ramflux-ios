@@ -30,7 +30,7 @@ private actor SettingsGate {
     @Test func cancelledWaiterAndRouteReplacementKeepOriginalConfigurationKey() async {
         let gate = SettingsGate(), repository = RetainedSettingsFake(gate: gate); defer { gate.release() }
         let preferences = NativePreferencesRepository(suite: "retained-settings-" + UUID().uuidString)
-        @MainActor func model(_ route: AppRoute) -> SettingsViewModel { SettingsViewModel(repository: repository, backup: UnavailableBackupRepository(), nodes: UnavailableNodeRepository(), preferences: preferences, account: "a", state: SettingsState(route: route), emit: { _ in }) }
+        @MainActor func model(_ route: AppRoute) -> SettingsViewModel { SettingsViewModel(repository: repository, nodes: UnavailableNodeRepository(), preferences: preferences, account: "a", state: SettingsState(route: route), emit: { _ in }) }
         let first = model(.device("peer")); first.send(.refresh); await first.settle(); first.send(.requestRevoke("peer")); first.send(.confirmRevoke("peer"))
         var entered = gate.entered.stream.makeAsyncIterator(); _ = await entered.next(); first.send(.disappeared); gate.release(); await first.settle()
         let replacement = model(.account); replacement.send(.refresh); await replacement.settle()

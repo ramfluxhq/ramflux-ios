@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>backup.jobSummary</key>
-	<string>%@ · %@</string>
 	<key>calls.title</key>
 	<string>通话</string>
 	<key>cards.title</key>
@@ -40,8 +38,102 @@
 	<string>外观</string>
 	<key>settings.appearance.title</key>
 	<string>外观与语言</string>
+	<key>settings.backup.action.allowMissing</key>
+	<string>不含缺失附件进行备份</string>
+	<key>settings.backup.action.cancel</key>
+	<string>取消任务</string>
+	<key>settings.backup.action.delete</key>
+	<string>从本机删除</string>
+	<key>settings.backup.action.install</key>
+	<string>恢复</string>
+	<key>settings.backup.action.save</key>
+	<string>存储到“文件”</string>
+	<key>settings.backup.archive.created</key>
+	<string>写入于 %@</string>
+	<key>settings.backup.connecting</key>
+	<string>正在连接。连接后才能开始备份任务。</string>
+	<key>settings.backup.create.action</key>
+	<string>创建备份</string>
+	<key>settings.backup.create.body</key>
+	<string>归档使用你设置的密码加密。恢复时需要此密码，任何人都无法帮你找回。</string>
+	<key>settings.backup.create.title</key>
+	<string>备份此账号</string>
+	<key>settings.backup.install.code.body</key>
+	<string>该归档将成为本机上的账号。请设置用于解锁的六位数账号码。</string>
+	<key>settings.backup.install.code.new</key>
+	<string>新的六位数账号码</string>
+	<key>settings.backup.install.code.repeat</key>
+	<string>再次输入账号码</string>
+	<key>settings.backup.install.code.title</key>
+	<string>设置账号码</string>
+	<key>settings.backup.install.merge.fact</key>
+	<string>归档中的消息、联系人和设置将合并到此账号。本机上较新的数据会保留。</string>
+	<key>settings.backup.install.merge.summary</key>
+	<string>将归档恢复到账号 %@</string>
+	<key>settings.backup.install.merge.title</key>
+	<string>恢复到此账号？</string>
+	<key>settings.backup.job.title</key>
+	<string>%1$@：%2$@</string>
+	<key>settings.backup.jobs.empty</key>
+	<string>暂无备份或恢复任务。</string>
+	<key>settings.backup.jobs.title</key>
+	<string>任务</string>
+	<key>settings.backup.kind.backup</key>
+	<string>备份</string>
+	<key>settings.backup.kind.restore</key>
+	<string>恢复</string>
+	<key>settings.backup.passphrase.existing</key>
+	<string>归档密码</string>
+	<key>settings.backup.passphrase.new</key>
+	<string>归档密码</string>
+	<key>settings.backup.passphrase.repeat</key>
+	<string>再次输入密码</string>
+	<key>settings.backup.passphrase.rule</key>
+	<string>至少 15 个字符。一句短语更容易记住。</string>
+	<key>settings.backup.passphrase.title</key>
+	<string>设置归档密码</string>
+	<key>settings.backup.progress.bytes</key>
+	<string>%1$@ / %2$@</string>
+	<key>settings.backup.progress.partial</key>
+	<string>已处理 %@</string>
+	<key>settings.backup.restore.action</key>
+	<string>选择归档</string>
+	<key>settings.backup.restore.body</key>
+	<string>从“文件”中选择备份归档。归档会复制到本应用的私有存储，并在任何更改前先行校验。</string>
+	<key>settings.backup.restore.limit</key>
+	<string>本机可导入不超过 256 MiB 的归档。</string>
+	<key>settings.backup.restore.newInstall</key>
+	<string>从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账号。</string>
+	<key>settings.backup.restore.title</key>
+	<string>从归档恢复</string>
+	<key>settings.backup.restored.action</key>
+	<string>继续</string>
+	<key>settings.backup.restored.body</key>
+	<string>请使用刚设置的账号码解锁。</string>
+	<key>settings.backup.restored.title</key>
+	<string>账号已恢复</string>
+	<key>settings.backup.state.cancelled</key>
+	<string>已取消</string>
+	<key>settings.backup.state.done</key>
+	<string>已完成</string>
+	<key>settings.backup.state.failed</key>
+	<string>失败</string>
+	<key>settings.backup.state.installing</key>
+	<string>恢复中</string>
+	<key>settings.backup.state.preparing</key>
+	<string>准备中</string>
+	<key>settings.backup.state.verified</key>
+	<string>可以恢复</string>
+	<key>settings.backup.state.verifying</key>
+	<string>校验中</string>
+	<key>settings.backup.state.writing</key>
+	<string>写入中</string>
 	<key>settings.backup.title</key>
 	<string>备份与恢复</string>
+	<key>settings.backup.verify.body</key>
+	<string>输入写入归档时使用的密码。恢复前会先在本机校验。</string>
+	<key>settings.backup.verify.title</key>
+	<string>打开归档</string>
 	<key>settings.busy</key>
 	<string>正在执行操作</string>
 	<key>settings.connectedServices.explanation</key>

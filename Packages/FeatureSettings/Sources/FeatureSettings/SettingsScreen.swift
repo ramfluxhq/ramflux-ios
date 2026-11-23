@@ -92,7 +92,6 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.format("privacy.requestApproval", AppDataStrings.status(state.snapshot.requestPolicy, locale: locale), locale: locale))
             if state.snapshot.requestPolicy == "auto_accept" { Button(FeatureSettingsStrings.text("settings.privacy.requireApproval", locale: locale)) { onAction(.manualRequests) }.disabled(state.busy || state.unknownMutation) }
             Button(FeatureSettingsStrings.text("settings.privacy.openAccount", locale: locale)) { onAction(.unavailable(.openAccount)) }
-        case .backup: backupContent
         case .permissions:
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))
             Button(FeatureSettingsStrings.text("settings.connectedServices.manage", locale: locale)) { onAction(.unavailable(.connectedServices)) }
@@ -105,9 +104,6 @@ public struct SettingsScreen: View {
             ForEach([AppRoute.cards, .tasks, .calls(nil), .account, .devices, .nodes, .appearance, .privacy, .backup, .systemPermissions, .about], id: \.self) { route in row(id: label(route), title: label(route), subtitle: "", route: route) }
         }
     }
-    @ViewBuilder private var backupContent: some View {
-        RFUnavailableView(title: FeatureSettingsStrings.text("settings.backup.title", locale: locale), message: AppFailure.unavailableResource("settings.mobileBackup").message(locale: locale))
-    }
     @ViewBuilder private func modalContent(_ modal: SettingsModal) -> some View {
         switch modal {
         case .revoke(let device):
@@ -115,7 +111,6 @@ public struct SettingsScreen: View {
             if let origin = device.webOrigin { Text(untrusted: origin).textSelection(.enabled) }
             Text(FeatureSettingsStrings.text("settings.devices.revoke.fact", locale: locale))
             RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.devices.revoke.summary", [.identifier(device.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmRevoke(device.id)) }, cancel: { onAction(.dismissModal) }).id(device.id)
-        case .backup, .share: backupContent
         }
     }
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {

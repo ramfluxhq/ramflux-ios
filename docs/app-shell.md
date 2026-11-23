@@ -114,8 +114,26 @@ so none is shown. The message-requests row counts pending inbound `contact.reque
 Message sending uses the high-level conversation intent. An uncertain send retains
 its original operation key and text for explicit retry. Device revocation and verified
 archive installation require host-drawn single-tap confirmation bound to the selected facts. Confirmation opens with Cancel focused for keyboard and accessibility. Hardware-key events cannot activate Confirm; its accessibility label names the action and target.
-Backup imports are copied on a serial file worker with a 256 MiB bound; encrypted
-archive sharing accepts regular files within private backup storage only.
+Backup and restore run on the phone (`BackupRepository`, screen `BackupScreen`, board MOB-G09). The SDK
+admits `account.backup.create`, `account.backup.cancel`, `account.restore.verify` and
+`account.restore.install` only on an attended connection (`bus/backup_jobs/routing.rs`): the in-process
+connection is attended once a subscription opened with `attended_frontend` is live. With an account that
+is the shared account subscription; on a new install it is the daemon-scoped job stream
+(`NativeUpdateSource.observeBackupJobs()`, topic `account.backup.job.changed`, no account). The screen
+keeps that observation while it is visible and refuses a secret until it is live. A backup is sealed with
+its own archive passphrase (at least 15 Unicode scalars and not a common password, SDK
+`passphrase/archive.rs`; the six-digit code never qualifies); it is not derived from the recovery phrase.
+The app pre-checks length and the repeat, the SDK stays authoritative. The archive is written into
+private, backup-excluded storage and handed to the user with the system file mover, which moves it out,
+so no copy stays behind; "Delete from this phone" removes an archive that was not moved. A picked
+archive is copied on a serial file worker into private storage (security-scoped access, regular files
+only, refused above 256 MiB before and while copying), verified with its passphrase, and the private
+copy is removed when the restore job ends or the request is refused. Installing an archive whose
+`archive.merge` is true merges into the existing account with host-drawn confirmation and no secret
+(the SDK refuses one); otherwise the archive becomes a new account and takes a new six-digit code. The
+SDK reports job changes only on the daemon stream, so the screen re-reads `account.backup.jobs` every
+second while a job runs. Onboarding offers "Restore from a backup" (the backup screen without an
+account) as the recovery path on a new install, because phrase recovery needs the account on the phone.
 
 Contacts and contact requests read through `RowWindow` (AppData), a bounded window of
 at most 300 rows over a `RowPageReader`. `contact.list` and `contact.requests.list` are unpaged

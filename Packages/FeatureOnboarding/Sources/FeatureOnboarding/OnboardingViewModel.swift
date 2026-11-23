@@ -33,6 +33,7 @@ import AppData
         case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.stage = .localUnlock
         case .create: state.creatingAccount = true; state.unlockingSavedAccount = false; state.stage = .create
         case .recover: state.creatingAccount = false; state.stage = .recover
+        case .restoreBackup: emit(.restoreBackup)
         case .link:
             state.stage = .link
             state.failure = .unavailableResource("onboarding.failure.pairingUnavailable")

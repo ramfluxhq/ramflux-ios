@@ -110,6 +110,8 @@
 	<string>现有本地账户 ID</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>我已核对此账户指纹</string>
+	<key>onboarding.recover.newInstall</key>
+	<string>如果是新安装，请先从备份归档恢复账号。</string>
 	<key>onboarding.recover.phrase</key>
 	<string>恢复助记词</string>
 	<key>onboarding.recover.readFingerprint</key>
@@ -154,6 +156,8 @@
 	<string>此手机可作为你的主要设备。</string>
 	<key>onboarding.welcome.recover</key>
 	<string>恢复账户</string>
+	<key>onboarding.welcome.restoreBackup</key>
+	<string>从备份恢复</string>
 	<key>onboarding.welcome.title</key>
 	<string>保持会话畅通</string>
 	<key>onboarding.welcome.unlockSaved</key>

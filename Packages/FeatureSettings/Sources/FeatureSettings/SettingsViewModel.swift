@@ -7,7 +7,6 @@ import AppData
     public private(set) var state: SettingsState
     private let account: String?
     private let repository: any SettingsRepository
-    private let backup: any BackupRepository
     private let nodes: any NodeRepository
     private let preferences: any PreferencesRepository
     private let emit: (SettingsEvent) -> Void
@@ -18,9 +17,9 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
-    public init(repository: any SettingsRepository, backup: any BackupRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
+    public init(repository: any SettingsRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
                 account: String?, state: SettingsState = SettingsState(), emit: @escaping (SettingsEvent) -> Void) {
-        self.repository = repository; self.backup = backup; self.nodes = nodes; self.preferences = preferences; self.account = account; self.state = state; self.emit = emit
+        self.repository = repository; self.nodes = nodes; self.preferences = preferences; self.account = account; self.state = state; self.emit = emit
     }
     public func send(_ action: SettingsAction) {
         switch action {
@@ -51,12 +50,7 @@ import AppData
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .createBackup, .selectImport, .importSelected, .requestInstall, .requestRestore, .cancelJob, .share:
-            state.failure = repository.unavailable(.mobileBackup)
-        case .submitBackup(let credentials): credentials.erase(); state.failure = repository.unavailable(.mobileBackup)
-        case .cancelImport: state.importSelecting = false
-        case .dismissModal, .cancelBackupForm: state.pendingRevoke = nil; state.backupIntent = nil; state.restoreHeld = false
-        case .closeShare: state.shareURL = nil
+        case .dismissModal: state.pendingRevoke = nil
         case .reconcileOriginal(let id):
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
@@ -89,7 +83,7 @@ import AppData
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.busy = false
             switch result {
-            case .updated: self.state.pendingRevoke = nil; self.state.backupIntent = nil; self.state.restoreHeld = false; self.refresh()
+            case .updated: self.state.pendingRevoke = nil; self.refresh()
             case .locked: self.state.snapshot = SettingsSnapshot(); self.emit(.locked)
             case .appearance(let mode): self.state.appearance = mode; self.emit(.appearanceChanged(mode))
             case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = failure == .outcomeUnknown

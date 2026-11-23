@@ -96,6 +96,7 @@ public struct OnboardingScreen: View {
         case .welcome, .launch, .start:
             Text(FeatureOnboardingStrings.text("onboarding.welcome.primaryDevice", locale: locale))
             action(FeatureOnboardingStrings.text("onboarding.welcome.unlockSaved", locale: locale), .unlockExisting); action(FeatureOnboardingStrings.text("onboarding.create.title", locale: locale), .create); action(FeatureOnboardingStrings.text("onboarding.welcome.recover", locale: locale), .recover)
+            action(FeatureOnboardingStrings.text("onboarding.welcome.restoreBackup", locale: locale), .restoreBackup)
             action(FeatureOnboardingStrings.text("onboarding.link.title", locale: locale), .link); action(FeatureOnboardingStrings.text("onboarding.node.choose", locale: locale), .customNode)
         case .create:
             EmptyView()
@@ -169,6 +170,8 @@ public struct OnboardingScreen: View {
                 TextField(FeatureOnboardingStrings.text("onboarding.recover.accountID", locale: locale), text: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) })).textFieldStyle(.roundedBorder)
                 Text(FeatureOnboardingStrings.text("onboarding.recover.scope", locale: locale))
                 action(FeatureOnboardingStrings.text("onboarding.recover.readFingerprint", locale: locale), .beginRecovery)
+                Text(FeatureOnboardingStrings.text("onboarding.recover.newInstall", locale: locale)).foregroundStyle(theme.secondary)
+                action(FeatureOnboardingStrings.text("onboarding.welcome.restoreBackup", locale: locale), .restoreBackup)
             }
         case .complete:
             if let account = state.completedAccount { Text(untrusted: account.displayName); KitIdentifierText(account.id, color: theme.secondary); Text(account.networking == .live ? FeatureOnboardingStrings.text("onboarding.complete.connected", locale: locale) : FeatureOnboardingStrings.text("onboarding.complete.notConnected", locale: locale)) }

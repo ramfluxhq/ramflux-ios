@@ -16,11 +16,19 @@ public final class SensitiveSubmission: Sendable, Equatable, CustomStringConvert
     public enum AccountCodeRule: Sendable { case existing, new }
     /// Set when the account code fails the local rule; the submission must then be erased, not sent.
     public let accountCodeIssue: AccountCodeIssue?
+    /// How the `passphrase` field is checked when it carries a backup archive passphrase.
+    public enum ArchivePassphraseRule: Sendable { case existing, new }
+    /// Set when an archive passphrase fails the local pre-check; the submission must then be erased, not sent.
+    public let archivePassphraseIssue: BackupIssue?
     /// `accountCode` checks `passphrase` (and, for `.new`, its repeat under `passphraseRepeat`, which is
     /// compared and erased here and never sent). The check reads transient bytes that are zeroed after use.
-    public init(values: [String: String], accountCode: AccountCodeRule? = nil) {
+    /// `archivePassphrase` pre-checks `passphrase` against the SDK's archive rule (at least 15 Unicode scalars,
+    /// counted before NFC; the SDK remains authoritative and also refuses common passphrases) and, for `.new`,
+    /// compares it with `passphraseRepeat`, which is never sent.
+    public init(values: [String: String], accountCode: AccountCodeRule? = nil, archivePassphrase: ArchivePassphraseRule? = nil) {
         var fields: [String: SecretField] = [:], buffers: [SecretBytes] = []
         accountCodeIssue = accountCode.flatMap { Self.check(values["passphrase"], repeated: values["passphraseRepeat"], rule: $0) }
+        archivePassphraseIssue = archivePassphrase.flatMap { Self.checkArchive(values["passphrase"], repeated: values["passphraseRepeat"], rule: $0) }
         for key in ["passphrase", "phrase"] {
             if let value = values[key], !value.isEmpty, value.utf8.count <= 4096,
                let buffer = try? Array(value.utf8).withUnsafeBytes({ try SecretBytes(copying: $0) }) {
@@ -45,6 +53,14 @@ public final class SensitiveSubmission: Sendable, Equatable, CustomStringConvert
                 return again.withUnsafeBytes { AccountCode.equal(bytes, $0) } ? nil : .mismatch
             }
         }
+    }
+    private static func checkArchive(_ passphrase: String?, repeated: String?, rule: ArchivePassphraseRule) -> BackupIssue? {
+        guard let passphrase, !passphrase.isEmpty else { return .passphraseEmpty }
+        guard rule == .new else { return nil }
+        guard passphrase.unicodeScalars.count >= BackupIssue.minimumScalars else { return .passphraseTooShort }
+        var entered = Array(passphrase.utf8), again = Array((repeated ?? "").utf8)
+        defer { zero(&entered); zero(&again) }
+        return entered.withUnsafeBytes { bytes in again.withUnsafeBytes { AccountCode.equal(bytes, $0) } } ? nil : .passphraseMismatch
     }
     private static func zero(_ bytes: inout [UInt8]) { bytes.withUnsafeMutableBytes { if let base = $0.baseAddress { _ = memset_s(base, $0.count, 0, $0.count) } } }
     func take() -> [String: SecretField]? { used.withLock { taken in guard !taken else { return nil }; taken = true; return fields } }

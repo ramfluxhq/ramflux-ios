@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>backup.jobSummary</key>
-	<string>%@ · %@</string>
 	<key>calls.title</key>
 	<string>Calls</string>
 	<key>cards.title</key>
@@ -40,8 +38,102 @@
 	<string>Appearance</string>
 	<key>settings.appearance.title</key>
 	<string>Appearance and language</string>
+	<key>settings.backup.action.allowMissing</key>
+	<string>Back up without missing attachments</string>
+	<key>settings.backup.action.cancel</key>
+	<string>Cancel job</string>
+	<key>settings.backup.action.delete</key>
+	<string>Delete from this phone</string>
+	<key>settings.backup.action.install</key>
+	<string>Restore</string>
+	<key>settings.backup.action.save</key>
+	<string>Save to Files</string>
+	<key>settings.backup.archive.created</key>
+	<string>Written %@</string>
+	<key>settings.backup.connecting</key>
+	<string>Connecting. Backup jobs can start once this screen is connected.</string>
+	<key>settings.backup.create.action</key>
+	<string>Create backup</string>
+	<key>settings.backup.create.body</key>
+	<string>The archive is encrypted with a passphrase you choose. You need it to restore the archive, and nobody can recover it for you.</string>
+	<key>settings.backup.create.title</key>
+	<string>Back up this account</string>
+	<key>settings.backup.install.code.body</key>
+	<string>The archive becomes an account on this phone. Choose the six-digit code that unlocks it.</string>
+	<key>settings.backup.install.code.new</key>
+	<string>New six-digit code</string>
+	<key>settings.backup.install.code.repeat</key>
+	<string>Repeat the code</string>
+	<key>settings.backup.install.code.title</key>
+	<string>Set an account code</string>
+	<key>settings.backup.install.merge.fact</key>
+	<string>Messages, contacts and settings from the archive are merged into this account. Newer data on this phone is kept.</string>
+	<key>settings.backup.install.merge.summary</key>
+	<string>Restore the archive into account %@</string>
+	<key>settings.backup.install.merge.title</key>
+	<string>Restore into this account?</string>
+	<key>settings.backup.job.title</key>
+	<string>%1$@: %2$@</string>
+	<key>settings.backup.jobs.empty</key>
+	<string>No backup or restore jobs yet.</string>
+	<key>settings.backup.jobs.title</key>
+	<string>Jobs</string>
+	<key>settings.backup.kind.backup</key>
+	<string>Backup</string>
+	<key>settings.backup.kind.restore</key>
+	<string>Restore</string>
+	<key>settings.backup.passphrase.existing</key>
+	<string>Archive passphrase</string>
+	<key>settings.backup.passphrase.new</key>
+	<string>Archive passphrase</string>
+	<key>settings.backup.passphrase.repeat</key>
+	<string>Repeat passphrase</string>
+	<key>settings.backup.passphrase.rule</key>
+	<string>Use at least 15 characters. A short sentence is easy to remember.</string>
+	<key>settings.backup.passphrase.title</key>
+	<string>Set the archive passphrase</string>
+	<key>settings.backup.progress.bytes</key>
+	<string>%1$@ of %2$@</string>
+	<key>settings.backup.progress.partial</key>
+	<string>%@ so far</string>
+	<key>settings.backup.restore.action</key>
+	<string>Choose archive</string>
+	<key>settings.backup.restore.body</key>
+	<string>Choose a backup archive from Files. It is copied into this app's private storage and checked before anything changes.</string>
+	<key>settings.backup.restore.limit</key>
+	<string>Archives up to 256 MiB can be imported on this phone.</string>
+	<key>settings.backup.restore.newInstall</key>
+	<string>Choose a backup archive from Files. After it is checked with its passphrase, it becomes an account on this phone.</string>
+	<key>settings.backup.restore.title</key>
+	<string>Restore from an archive</string>
+	<key>settings.backup.restored.action</key>
+	<string>Continue</string>
+	<key>settings.backup.restored.body</key>
+	<string>Unlock it with the account code you just set.</string>
+	<key>settings.backup.restored.title</key>
+	<string>Account restored</string>
+	<key>settings.backup.state.cancelled</key>
+	<string>Cancelled</string>
+	<key>settings.backup.state.done</key>
+	<string>Done</string>
+	<key>settings.backup.state.failed</key>
+	<string>Failed</string>
+	<key>settings.backup.state.installing</key>
+	<string>Restoring</string>
+	<key>settings.backup.state.preparing</key>
+	<string>Preparing</string>
+	<key>settings.backup.state.verified</key>
+	<string>Ready to restore</string>
+	<key>settings.backup.state.verifying</key>
+	<string>Checking</string>
+	<key>settings.backup.state.writing</key>
+	<string>Writing</string>
 	<key>settings.backup.title</key>
 	<string>Backup and recovery</string>
+	<key>settings.backup.verify.body</key>
+	<string>Enter the passphrase the archive was written with. It is checked on this phone before anything is restored.</string>
+	<key>settings.backup.verify.title</key>
+	<string>Open the archive</string>
 	<key>settings.busy</key>
 	<string>Applying operation</string>
 	<key>settings.connectedServices.explanation</key>

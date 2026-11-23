@@ -51,6 +51,12 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
         #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
     }
+    @Test func restoreFromBackupHandsOverToTheBackupScreenWithoutTouchingTheRepository() async {
+        let fake = FlowFake(); var events: [OnboardingEvent] = []
+        let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { events.append($0) })
+        model.send(.restoreBackup)
+        #expect(events == [.restoreBackup]); #expect(model.state.stage == .welcome); #expect(!model.state.busy)
+    }
     @Test func originMustBeReviewedBeforeNetworkAndSavedKeyIsExact() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
         model.send(.customNode); model.send(.addressChanged("example.org/invite?token=secret")); model.send(.checkAddress)

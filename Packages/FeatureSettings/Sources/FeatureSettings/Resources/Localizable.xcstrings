@@ -2,23 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "backup.jobSummary": {
-      "comment": "Summary of a backup job. The first %@ is the job kind (Backup or Restore), the second is its state. Keep the separator style natural for the language.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · %@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ · %@"
-          }
-        }
-      }
-    },
     "calls.title": {
       "comment": "Settings row that opens the Calls section.",
       "localizations": {
@@ -982,6 +965,805 @@
           "stringUnit": {
             "state": "translated",
             "value": "撤销设备 · %@"
+          }
+        }
+      }
+    },
+    "settings.backup.connecting": {
+      "comment": "Tip shown while the backup screen connects; backup jobs can only start once it is connected.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting. Backup jobs can start once this screen is connected."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在连接。连接后才能开始备份任务。"
+          }
+        }
+      }
+    },
+    "settings.backup.create.title": {
+      "comment": "Section title on the backup screen: write a backup of this account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back up this account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份此账号"
+          }
+        }
+      }
+    },
+    "settings.backup.create.body": {
+      "comment": "Explains that the backup archive is encrypted with a passphrase the user chooses and that it cannot be recovered.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive is encrypted with a passphrase you choose. You need it to restore the archive, and nobody can recover it for you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档使用你设置的密码加密。恢复时需要此密码，任何人都无法帮你找回。"
+          }
+        }
+      }
+    },
+    "settings.backup.create.action": {
+      "comment": "Button that starts writing a backup archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create backup"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建备份"
+          }
+        }
+      }
+    },
+    "settings.backup.restore.title": {
+      "comment": "Section title on the backup screen: restore from a backup archive file.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore from an archive"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从归档恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.restore.body": {
+      "comment": "Explains restoring an archive into the open account; the file is copied into the app's private storage.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a backup archive from Files. It is copied into this app's private storage and checked before anything changes."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从“文件”中选择备份归档。归档会复制到本应用的私有存储，并在任何更改前先行校验。"
+          }
+        }
+      }
+    },
+    "settings.backup.restore.newInstall": {
+      "comment": "Explains restoring an archive on a new install: the archive becomes an account on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a backup archive from Files. After it is checked with its passphrase, it becomes an account on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账号。"
+          }
+        }
+      }
+    },
+    "settings.backup.restore.limit": {
+      "comment": "States the phone's import size limit. Keep \"256 MiB\" as written.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archives up to 256 MiB can be imported on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机可导入不超过 256 MiB 的归档。"
+          }
+        }
+      }
+    },
+    "settings.backup.restore.action": {
+      "comment": "Button that opens the file picker to choose a backup archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose archive"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择归档"
+          }
+        }
+      }
+    },
+    "settings.backup.jobs.title": {
+      "comment": "Section title for the list of backup and restore jobs.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jobs"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务"
+          }
+        }
+      }
+    },
+    "settings.backup.jobs.empty": {
+      "comment": "Shown when there are no backup or restore jobs.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No backup or restore jobs yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无备份或恢复任务。"
+          }
+        }
+      }
+    },
+    "settings.backup.job.title": {
+      "comment": "Title of a job row: %1$@ is the job kind (Backup or Restore), %2$@ its state.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@：%2$@"
+          }
+        }
+      }
+    },
+    "settings.backup.kind.backup": {
+      "comment": "Kind of a job: writing a backup archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份"
+          }
+        }
+      }
+    },
+    "settings.backup.kind.restore": {
+      "comment": "Kind of a job: restoring from a backup archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.state.preparing": {
+      "comment": "State of a backup job: getting ready.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "准备中"
+          }
+        }
+      }
+    },
+    "settings.backup.state.writing": {
+      "comment": "State of a backup job: writing the archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writing"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写入中"
+          }
+        }
+      }
+    },
+    "settings.backup.state.verifying": {
+      "comment": "State of a restore job: checking the archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "校验中"
+          }
+        }
+      }
+    },
+    "settings.backup.state.verified": {
+      "comment": "State of a restore job: the archive was checked and can be restored.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to restore"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可以恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.state.installing": {
+      "comment": "State of a restore job: restoring the archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复中"
+          }
+        }
+      }
+    },
+    "settings.backup.state.done": {
+      "comment": "State of a job: finished successfully.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已完成"
+          }
+        }
+      }
+    },
+    "settings.backup.state.failed": {
+      "comment": "State of a job: it failed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "失败"
+          }
+        }
+      }
+    },
+    "settings.backup.state.cancelled": {
+      "comment": "State of a job: it was cancelled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已取消"
+          }
+        }
+      }
+    },
+    "settings.backup.progress.bytes": {
+      "comment": "Progress of a job: %1$@ is the amount done, %2$@ the total, both formatted sizes.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ of %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "settings.backup.progress.partial": {
+      "comment": "Progress of a job while the total is unknown: %@ is the formatted size done so far.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ so far"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已处理 %@"
+          }
+        }
+      }
+    },
+    "settings.backup.action.cancel": {
+      "comment": "Button that cancels a running backup or restore job.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel job"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消任务"
+          }
+        }
+      }
+    },
+    "settings.backup.action.install": {
+      "comment": "Button that restores a checked archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.action.save": {
+      "comment": "Button that moves a finished backup archive to a place the user picks in Files.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Files"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储到“文件”"
+          }
+        }
+      }
+    },
+    "settings.backup.action.delete": {
+      "comment": "Button that deletes a finished backup archive from this phone's private storage.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete from this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从本机删除"
+          }
+        }
+      }
+    },
+    "settings.backup.action.allowMissing": {
+      "comment": "Button that writes the backup again, leaving out attachments that are not on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back up without missing attachments"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不含缺失附件进行备份"
+          }
+        }
+      }
+    },
+    "settings.backup.passphrase.title": {
+      "comment": "Title of the sheet that sets a new archive passphrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the archive passphrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置归档密码"
+          }
+        }
+      }
+    },
+    "settings.backup.passphrase.rule": {
+      "comment": "States the archive passphrase rule. Keep the number 15.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use at least 15 characters. A short sentence is easy to remember."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "至少 15 个字符。一句短语更容易记住。"
+          }
+        }
+      }
+    },
+    "settings.backup.passphrase.new": {
+      "comment": "Label of the new archive passphrase field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive passphrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档密码"
+          }
+        }
+      }
+    },
+    "settings.backup.passphrase.repeat": {
+      "comment": "Label of the field that repeats the new archive passphrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat passphrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入密码"
+          }
+        }
+      }
+    },
+    "settings.backup.passphrase.existing": {
+      "comment": "Label of the field for the passphrase of an existing archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive passphrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档密码"
+          }
+        }
+      }
+    },
+    "settings.backup.verify.title": {
+      "comment": "Title of the sheet that opens a picked archive with its passphrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the archive"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开归档"
+          }
+        }
+      }
+    },
+    "settings.backup.verify.body": {
+      "comment": "Explains that the passphrase is checked on the phone before anything is restored.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the passphrase the archive was written with. It is checked on this phone before anything is restored."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入写入归档时使用的密码。恢复前会先在本机校验。"
+          }
+        }
+      }
+    },
+    "settings.backup.install.code.title": {
+      "comment": "Title of the sheet that sets the six-digit code of a restored account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set an account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置账号码"
+          }
+        }
+      }
+    },
+    "settings.backup.install.code.body": {
+      "comment": "Explains that the archive becomes a new account unlocked with a new six-digit code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive becomes an account on this phone. Choose the six-digit code that unlocks it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该归档将成为本机上的账号。请设置用于解锁的六位数账号码。"
+          }
+        }
+      }
+    },
+    "settings.backup.install.code.new": {
+      "comment": "Label of the new six-digit account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New six-digit code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新的六位数账号码"
+          }
+        }
+      }
+    },
+    "settings.backup.install.code.repeat": {
+      "comment": "Label of the field that repeats the new six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat the code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入账号码"
+          }
+        }
+      }
+    },
+    "settings.backup.install.merge.title": {
+      "comment": "Title of the confirmation before restoring an archive into the open account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore into this account?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复到此账号？"
+          }
+        }
+      }
+    },
+    "settings.backup.install.merge.fact": {
+      "comment": "Explains what merging an archive into the account does.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages, contacts and settings from the archive are merged into this account. Newer data on this phone is kept."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档中的消息、联系人和设置将合并到此账号。本机上较新的数据会保留。"
+          }
+        }
+      }
+    },
+    "settings.backup.install.merge.summary": {
+      "comment": "Accessibility summary of the confirm button: %@ is the account identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore the archive into account %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将归档恢复到账号 %@"
+          }
+        }
+      }
+    },
+    "settings.backup.archive.created": {
+      "comment": "When the archive was written: %@ is a formatted date and time.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Written %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "写入于 %@"
+          }
+        }
+      }
+    },
+    "settings.backup.restored.title": {
+      "comment": "Title shown after an archive was restored as a new account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account restored"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账号已恢复"
+          }
+        }
+      }
+    },
+    "settings.backup.restored.body": {
+      "comment": "Explains how to open the restored account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock it with the account code you just set."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请使用刚设置的账号码解锁。"
+          }
+        }
+      }
+    },
+    "settings.backup.restored.action": {
+      "comment": "Button that leaves the restore screen after a successful restore.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
           }
         }
       }

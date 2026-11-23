@@ -52,7 +52,6 @@
       "refusal.target_not_found.title",
       "request.localFailure",
       "request.localStorage",
-      "settings.mobileBackup",
       "tasks.unavailable"
     ],
     "Packages/FeatureAgents/Sources/FeatureAgents/Resources/Localizable.xcstrings": [

@@ -13,7 +13,7 @@ public struct SettingsSnapshot: Equatable, Sendable {
         self.accountID = accountID; self.networking = networking; self.devices = devices; self.nodes = nodes; self.retentionSeconds = retentionSeconds; self.requestPolicy = requestPolicy
     }
 }
-public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport, mobileBackup }
+public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport }
 public protocol SettingsRepository: Sendable {
     func pending(account: String?) async -> PendingSettingsMutation?
     func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void>
@@ -86,7 +86,6 @@ public struct NativeSettingsRepository: SettingsRepository {
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: SettingsUnavailable) -> AppFailure {
         switch capability {
-        case .mobileBackup: .unavailableResource("settings.mobileBackup")
         case .openAccount: .unavailableResource("settings.unavailable.openAccount")
         case .pairing: .unavailableResource("settings.unavailable.pairing")
         case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")

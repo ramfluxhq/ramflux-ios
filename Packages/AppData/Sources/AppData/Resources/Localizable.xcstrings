@@ -342,23 +342,6 @@
         }
       }
     },
-    "backup.import.tooLarge": {
-      "comment": "Shown when a backup archive is larger than the phone import limit. Keep \"256 MiB\" as written.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This archive exceeds the 256 MiB mobile import limit."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此归档超过手机端 256 MiB 的导入上限。"
-          }
-        }
-      }
-    },
     "session.unavailable.nativeCore": {
       "comment": "Shown when this build has no account service; reassures that saved data is unchanged.",
       "localizations": {
@@ -1299,22 +1282,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "此 SDK 没有已注册的手机配对服务。未创建配对码。"
-          }
-        }
-      }
-    },
-    "settings.mobileBackup": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Backup and restore are available on the desktop client. No backup task can be started from this phone."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "备份和恢复请使用桌面客户端。此手机不会启动备份任务。"
           }
         }
       }
@@ -2310,6 +2277,363 @@
           "stringUnit": {
             "state": "translated",
             "value": "暂不支持目标设置。"
+          }
+        }
+      }
+    },
+    "backup.failure.title": {
+      "comment": "Title of a failure message for a backup or restore step.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup or restore did not go ahead"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份或恢复未能进行"
+          }
+        }
+      }
+    },
+    "backup.failure.passphraseEmpty": {
+      "comment": "Failure message: no backup archive passphrase was entered.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the archive passphrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入归档密码。"
+          }
+        }
+      }
+    },
+    "backup.failure.passphraseTooShort": {
+      "comment": "Failure message: the new archive passphrase is shorter than 15 characters. Keep the number 15.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use at least 15 characters for the archive passphrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "归档密码至少需要 15 个字符。"
+          }
+        }
+      }
+    },
+    "backup.failure.passphraseTooCommon": {
+      "comment": "Failure message: the new archive passphrase is on a list of commonly used passwords.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This passphrase is too common. Choose a less predictable one."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此密码过于常见，请换一个更难猜到的密码。"
+          }
+        }
+      }
+    },
+    "backup.failure.passphraseMismatch": {
+      "comment": "Failure message: the two entries of the new archive passphrase differ.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two passphrases do not match."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两次输入的密码不一致。"
+          }
+        }
+      }
+    },
+    "backup.failure.wrongPassphrase": {
+      "comment": "Failure message: the archive passphrase does not open this backup archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This passphrase does not open the archive."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此密码无法打开该归档。"
+          }
+        }
+      }
+    },
+    "backup.failure.importTooLarge": {
+      "comment": "Failure message: the picked backup archive is larger than the phone import limit. Keep \"256 MiB\" as written.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This archive exceeds the 256 MiB import limit of this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此归档超过本机 256 MiB 的导入上限。"
+          }
+        }
+      }
+    },
+    "backup.failure.attendanceRequired": {
+      "comment": "Failure message: backup jobs only start while this screen is open and connected; asks the user to keep it open and try again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep this screen open and try again once it is connected."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请保持此页面打开，连接后再试一次。"
+          }
+        }
+      }
+    },
+    "backup.failure.accountLocked": {
+      "comment": "Failure message: the account must be unlocked before a backup can be written.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock the account first."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先解锁账号。"
+          }
+        }
+      }
+    },
+    "backup.failure.restoreSetupRequired": {
+      "comment": "Failure message: restoring onto this phone as a new account needs a new six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set a six-digit account code for the restored account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请为恢复的账号设置六位数账号码。"
+          }
+        }
+      }
+    },
+    "backup.failure.insufficientSpace": {
+      "comment": "Failure message: the phone does not have enough free storage for the backup or restore.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is not enough free storage on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机可用存储空间不足。"
+          }
+        }
+      }
+    },
+    "backup.failure.damaged": {
+      "comment": "Failure message: the backup archive is damaged or was changed after it was written.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive is damaged or was changed after it was written."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该归档已损坏或在写入后被更改。"
+          }
+        }
+      }
+    },
+    "backup.failure.unsupportedVersion": {
+      "comment": "Failure message: the backup archive needs a newer version of the app.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This archive needs a newer version of the app."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此归档需要更新版本的应用。"
+          }
+        }
+      }
+    },
+    "backup.failure.unreadable": {
+      "comment": "Failure message: the backup archive file could not be read.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive could not be read."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法读取该归档。"
+          }
+        }
+      }
+    },
+    "backup.failure.notWritable": {
+      "comment": "Failure message: the backup archive could not be written to the phone's private storage.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive could not be written."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法写入该归档。"
+          }
+        }
+      }
+    },
+    "backup.failure.attachmentsUnavailable": {
+      "comment": "Failure message: some attachments are not stored on this phone, so the backup stopped.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some attachments are not on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "部分附件不在本机上。"
+          }
+        }
+      }
+    },
+    "backup.failure.interrupted": {
+      "comment": "Failure message: the backup or restore stopped before it finished; it can be started again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The job stopped before it finished. Start it again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务在完成前中断，请重新开始。"
+          }
+        }
+      }
+    },
+    "backup.failure.conflict": {
+      "comment": "Failure message: the archive conflicts with account data already on this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The archive conflicts with account data on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该归档与本机已有的账号数据冲突。"
+          }
+        }
+      }
+    },
+    "backup.failure.networkingPending": {
+      "comment": "Failure message: the account is still waiting for its node before it can be restored.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account is still waiting for its node. Try again when it is connected."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账号仍在等待节点，请在连接后再试。"
+          }
+        }
+      }
+    },
+    "backup.failure.authorizationRejected": {
+      "comment": "Failure message: the account authority refused to install this archive.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account did not authorise this restore."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该账号未授权此次恢复。"
+          }
+        }
+      }
+    },
+    "backup.failure.other": {
+      "comment": "Failure message: a backup or restore step failed for a reason without a specific message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The job could not finish."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务未能完成。"
           }
         }
       }

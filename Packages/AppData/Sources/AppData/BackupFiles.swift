@@ -33,8 +33,10 @@ final class BackupFiles: Sendable {
     func copyImport(_ source: URL) async throws -> URL { try await run { [self] token in
         guard source.isFileURL else { throw AppFailure.invalidInput }; try prepare()
         let scoped = source.startAccessingSecurityScopedResource(); defer { if scoped { source.stopAccessingSecurityScopedResource() } }
-        let values = try source.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey])
+        let values = try source.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey])
         guard values.isRegularFile == true, values.isSymbolicLink != true else { throw AppFailure.invalidInput }
+        // Refuse a known oversize file before copying; the copy loop still enforces the bound.
+        if let size = values.fileSize, size > Self.importLimitBytes { throw AppFailure.backup(.importTooLarge) }
         let target = root.appendingPathComponent(UUID().uuidString + ".rfb")
         guard FileManager.default.createFile(atPath: target.path, contents: nil, attributes: [.posixPermissions: 0o600]) else { throw AppFailure.localStorage }
         var complete = false; defer { if !complete { try? FileManager.default.removeItem(at: target) } }
@@ -45,11 +47,18 @@ final class BackupFiles: Sendable {
             guard !token.cancelled, ContinuousClock.now < deadline else { throw CancellationError() }
             guard let chunk = try input.read(upToCount: 65_536), !chunk.isEmpty else { break }
             total += chunk.count
-            guard total <= 256 * 1024 * 1024 else { throw AppFailure.unavailableResource("backup.import.tooLarge") }
+            guard total <= Self.importLimitBytes else { throw AppFailure.backup(.importTooLarge) }
             try output.write(contentsOf: chunk)
         }
         guard total > 0 else { throw AppFailure.invalidData }; complete = true; return target
     } }
+    /// The phone's import bound; larger archives are refused while copying, before the SDK sees them.
+    static let importLimitBytes = 256 * 1024 * 1024
+    /// Removes a private archive file; paths outside the private directory are ignored.
+    func remove(path: String) async {
+        guard let url = shareURL(path: path) else { return }
+        _ = try? await run { _ in try FileManager.default.removeItem(at: url) }
+    }
     func shareURL(path: String) -> URL? {
         let candidate = URL(fileURLWithPath: path).standardizedFileURL
         guard candidate.deletingLastPathComponent() == root.standardizedFileURL,
