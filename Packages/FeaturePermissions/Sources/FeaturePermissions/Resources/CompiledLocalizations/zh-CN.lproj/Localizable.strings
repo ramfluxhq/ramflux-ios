@@ -33,7 +33,7 @@
 	<key>incomingCalls</key>
 	<string>来电界面</string>
 	<key>incomingCalls.detail</key>
-	<string>CallKit 尚未接入；语音通话暂不可用，不会申请来电权限。</string>
+	<string>来电使用系统通话界面，无需权限。在此版本具备通话媒体之前，语音和视频通话暂不可用，因此暂时无法接听。</string>
 	<key>intro</key>
 	<string>权限状态仅保存在此设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。</string>
 	<key>loading</key>
@@ -87,7 +87,7 @@
 	<key>photoPicker</key>
 	<string>选择照片</string>
 	<key>photoPicker.detail</key>
-	<string>系统照片选择器仅授权所选项目，无需整个图库权限。附件传输暂不可用。</string>
+	<string>系统照片选择器仅授权你所选的项目，无需整个图库权限。</string>
 	<key>promptBoundary</key>
 	<string>轻点继续后由系统询问；轻点取消则不会询问。</string>
 	<key>status.allowed</key>

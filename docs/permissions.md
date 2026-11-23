@@ -25,9 +25,12 @@ acceptance, not which Settings page was displayed.
 Foreground refresh reads changes made there. The settings list includes unavailable
 incoming-call support, current microphone status, picker/file access that needs no
 permission, and system background refresh restrictions. Microphone requests remain
-unavailable until voice media exists. Attachment transfer and pairing are currently
-unavailable, so those features do not request camera, photo-library or file access;
-the local intent APIs are ready for their future integration. No broad photo-library,
+unavailable until voice media exists (request R28). The chat requests the camera through
+this flow only when the user takes a photo for a message, and add-only Photos access only
+when the user saves an image; the system photo and file pickers need no permission. Linking
+a device from this phone shows a code and never scans one (joining is request R32), so
+pairing requests nothing. Incoming calls use CallKit, which needs no permission; the
+integration stays inert while the call media engine refuses. No broad photo-library,
 storage, contacts, location, Bluetooth, calendar, tracking or local-network grant exists.
 
 The app declares only camera, microphone and add-only Photos usage descriptions,

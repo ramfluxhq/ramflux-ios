@@ -394,18 +394,18 @@
       }
     },
     "chat.unavailable.calls": {
-      "comment": "Shown when calling is not available in this phone build.",
+      "comment": "Shown when the call button is used in a group conversation; only one-to-one calls exist.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Calling is not available in this phone build."
+            "value": "Group calls are not available. Calls are one to one."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此手机版本暂不支持通话。"
+            "value": "暂不支持群组通话，通话仅限一对一。"
           }
         }
       }

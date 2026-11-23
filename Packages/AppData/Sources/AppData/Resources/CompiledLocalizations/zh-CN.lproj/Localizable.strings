@@ -83,7 +83,7 @@
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>附件传输需要手机文件存储集成。尚未下载任何文件。</string>
 	<key>chat.unavailable.calls</key>
-	<string>此手机版本暂不支持通话。</string>
+	<string>暂不支持群组通话，通话仅限一对一。</string>
 	<key>chat.unavailable.details</key>
 	<string>此手机版本暂不支持查看会话详情。</string>
 	<key>common.connection.failed</key>

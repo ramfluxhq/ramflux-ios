@@ -83,7 +83,7 @@
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
 	<key>chat.unavailable.calls</key>
-	<string>Calling is not available in this phone build.</string>
+	<string>Group calls are not available. Calls are one to one.</string>
 	<key>chat.unavailable.details</key>
 	<string>Conversation details are not available in this phone build.</string>
 	<key>common.connection.failed</key>

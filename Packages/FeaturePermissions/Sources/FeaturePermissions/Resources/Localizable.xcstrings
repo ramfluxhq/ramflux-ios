@@ -731,13 +731,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CallKit is not connected yet. Voice calls remain unavailable; no incoming-call permission is requested."
+            "value": "Incoming calls use the system call screen, which needs no permission. Voice and video stay unavailable until this build has call media, so the call screen cannot answer yet."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "CallKit 尚未接入；语音通话暂不可用，不会申请来电权限。"
+            "value": "来电使用系统通话界面，无需权限。在此版本具备通话媒体之前，语音和视频通话暂不可用，因此暂时无法接听。"
           }
         }
       }
@@ -764,13 +764,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The system photo picker grants access only to selected items, without library-wide permission. Attachment transfer is not available yet."
+            "value": "The system photo picker grants access only to the items you select, without library-wide permission."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "系统照片选择器仅授权所选项目，无需整个图库权限。附件传输暂不可用。"
+            "value": "系统照片选择器仅授权你所选的项目，无需整个图库权限。"
           }
         }
       }
