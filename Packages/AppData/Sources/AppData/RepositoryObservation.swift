@@ -39,7 +39,10 @@ public actor NativeUpdateSource {
         var accountID: String? { if case .account(let id) = self { id } else { nil } }
         var topics: [String] { self == .backupJobs ? [NativeUpdateSource.backupJobTopic] : NativeUpdateSource.topics }
     }
-    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
+    /// `message.received` and `group.message.received` are what the SDK journal emits for an inbound row
+    /// (`bus/journal/project.rs`); without them a new message reached an open chat only through
+    /// `conversation.changed`.
+    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.received", "group.message.received", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
     /// Live-only frames (typing indicators). They never invalidate read models.
     static let transientTopic = "message.transient"
     /// The only topic the SDK accepts on a subscription without an account.

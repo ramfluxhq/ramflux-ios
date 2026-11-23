@@ -356,18 +356,36 @@ import FeatureCards
         state.messages = next.records; state.olderAvailable = next.hasOlder; state.detached = next.detached
         syncMedia()
     }
+    /// Follows the shared event fan-out while the chat is shown. When the fan-out ends the observation
+    /// (the event stream ended or failed), the chat subscribes again with a growing pause instead of
+    /// staying without live updates until it is reopened; a lock stops it.
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let current = watchID
         observer = Task { [weak self, repository, account] in
-            let observation = await repository.observe(account: account)
-            for await event in observation.stream {
-                guard !Task.isCancelled, let self else { break }
-                switch event { case .invalidated: self.refresh(); self.loadCards(); case .failed(let error): self.state.failure = error }
+            guard let first = self?.resubscribePause else { return }
+            var pause = first
+            while !Task.isCancelled {
+                let observation = await repository.observe(account: account)
+                var locked = false, delivered = false
+                for await event in observation.stream {
+                    guard !Task.isCancelled, let self else { break }
+                    delivered = true
+                    switch event {
+                    case .invalidated: self.refresh(); self.loadCards()
+                    case .failed(let error): self.state.failure = error; locked = error == .locked || error == .sdkUnavailable
+                    }
+                }
+                await observation.stop()
+                guard !Task.isCancelled, !locked, let self, self.watchID == current else { break }
+                if delivered { pause = self.resubscribePause }
+                do { try await Task.sleep(for: pause) } catch { break }
+                pause = min(pause * 2, .seconds(30))
             }
-            await observation.stop()
             if let self, self.watchID == current { self.observer = nil }
         }
     }
+    /// First pause before the chat subscribes again after its observation ended (shorter in tests).
+    @ObservationIgnored var resubscribePause: Duration = .seconds(1)
 
     // MARK: Read position, typing, drafts
 

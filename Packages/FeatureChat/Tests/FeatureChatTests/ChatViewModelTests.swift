@@ -156,6 +156,8 @@ actor ChatFake: ChatRepository {
     }
     var observers: Int { listeners.count }
     func invalidate() { for listener in listeners { listener.yield(.invalidated) } }
+    /// Ends every observation, as the fan-out does when the native event stream ends.
+    func endObservations() { for listener in listeners { listener.finish() } }
     private func cursor(_ offset: Int) -> MessageCursor { MessageWindowPage.testCursor(offset) }
     private func cursorOffset(_ cursor: MessageCursor) -> Int { MessageWindowPage.testOffset(cursor) }
 }
@@ -191,6 +193,20 @@ extension MessageWindowPage {
         let model = ChatViewModel(repository: UnavailableChatRepository(), account: "a", conversation: "c", emit: { _ in })
         model.send(.draftChanged("Keep")); model.send(.send); await model.settle()
         #expect(model.state.messages.isEmpty); #expect(model.state.outbox.isEmpty); #expect(model.state.draft == "Keep"); #expect(model.state.failure == .sdkUnavailable)
+    }
+    @Test func anEndedObservationIsRenewedWhileTheChatIsShown() async {
+        let fake = ChatFake()
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
+        model.resubscribePause = .milliseconds(1)
+        model.send(.appeared); await model.settle()
+        var waited = 0
+        while await fake.observers < 1 && waited < 200 { try? await Task.sleep(for: .milliseconds(5)); waited += 1 }
+        #expect(await fake.observers == 1)
+        await fake.endObservations()
+        waited = 0
+        while await fake.observers < 2 && waited < 400 { try? await Task.sleep(for: .milliseconds(5)); waited += 1 }
+        #expect(await fake.observers == 2)
+        model.send(.disappeared)
     }
     @Test func partialReplySurvivesNavigationAndRetriesTheSameKey() async {
         let gate = MutationGate(), fake = ChatFake(gate: gate)
