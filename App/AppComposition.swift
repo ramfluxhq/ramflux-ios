@@ -95,8 +95,8 @@ import Observation
     @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?
     func settings(account: String?, route: AppRoute) -> SettingsCoordinator {
         if let currentSettings, currentSettings.0 == account, currentSettings.1 == route { return currentSettings.2 }
-        currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared)
-        let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, nodes: repositories.nodes,
+        currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared); currentSettings?.2.send(PairingAction.disappeared)
+        let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, pairing: repositories.pairing, nodes: repositories.nodes,
             preferences: repositories.preferences, account: account, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))

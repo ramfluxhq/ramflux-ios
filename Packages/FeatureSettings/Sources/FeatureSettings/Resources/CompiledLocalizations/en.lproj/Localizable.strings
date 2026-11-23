@@ -10,6 +10,108 @@
 	<string>Refresh</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
+	<key>pairing.approve.confirm.action</key>
+	<string>Approve device</string>
+	<key>pairing.approve.confirm.summary</key>
+	<string>Add %1$@ (%2$@) to this account?</string>
+	<key>pairing.approve.confirm.title</key>
+	<string>Confirm approval</string>
+	<key>pairing.cancel</key>
+	<string>Cancel linking</string>
+	<key>pairing.compare.body</key>
+	<string>Check that the new device shows the same seven symbols in the same order. If anything differs, someone else may be trying to join.</string>
+	<key>pairing.compare.match</key>
+	<string>They match</string>
+	<key>pairing.compare.mismatch</key>
+	<string>They don't match</string>
+	<key>pairing.compare.title</key>
+	<string>Compare the symbols</string>
+	<key>pairing.done</key>
+	<string>Done</string>
+	<key>pairing.facts.device</key>
+	<string>Device ID</string>
+	<key>pairing.facts.lease</key>
+	<string>Valid until %@</string>
+	<key>pairing.facts.name</key>
+	<string>Name on that device</string>
+	<key>pairing.facts.rights</key>
+	<string>Rights</string>
+	<key>pairing.failure.SasMismatch.body</key>
+	<string>The symbols did not match, so linking was stopped on both devices. If you did not expect this, someone else may have tried to join.</string>
+	<key>pairing.finished.cancelled</key>
+	<string>Linking cancelled</string>
+	<key>pairing.finished.cancelled.body</key>
+	<string>No device was added. The invitation can no longer be used.</string>
+	<key>pairing.finished.completed</key>
+	<string>Device linked</string>
+	<key>pairing.finished.completed.body</key>
+	<string>The new device is in your device list. You can revoke it there.</string>
+	<key>pairing.finished.expired</key>
+	<string>Invitation expired</string>
+	<key>pairing.finished.expired.body</key>
+	<string>The invitation was not used in time. Start again to create a new one.</string>
+	<key>pairing.finished.rejected</key>
+	<string>Device declined</string>
+	<key>pairing.finished.rejected.body</key>
+	<string>The device was not added to your account.</string>
+	<key>pairing.invitation.body</key>
+	<string>On the new device, choose to link to an existing account and scan this code. Keep this screen open until the devices are linked.</string>
+	<key>pairing.invitation.covered</key>
+	<string>The invitation is hidden while Ramflux is not in use.</string>
+	<key>pairing.invitation.expires</key>
+	<string>Expires in %@</string>
+	<key>pairing.invitation.qrLabel</key>
+	<string>Invitation QR code for the new device</string>
+	<key>pairing.invitation.secret</key>
+	<string>Anyone who scans this code before the new device can try to join. Show it only to your new device.</string>
+	<key>pairing.join.unavailable</key>
+	<string>Joining another account from this phone is not available yet: the app cannot yet receive the new device code that joining needs. This phone can invite other devices.</string>
+	<key>pairing.name.body</key>
+	<string>This phone is the account's primary device. Name the new device, then show the invitation to it. The new device joins with Ramflux on that device.</string>
+	<key>pairing.name.create</key>
+	<string>Create invitation</string>
+	<key>pairing.name.label</key>
+	<string>Device name</string>
+	<key>pairing.name.note</key>
+	<string>Shown in your device list. Up to 128 bytes.</string>
+	<key>pairing.name.placeholder</key>
+	<string>For example: Office laptop</string>
+	<key>pairing.restart</key>
+	<string>Start again</string>
+	<key>pairing.review.approve</key>
+	<string>Approve</string>
+	<key>pairing.review.body</key>
+	<string>The device below asks to join your account. Approving gives it the rights listed until the date shown; you can revoke it at any time in Devices.</string>
+	<key>pairing.review.decline</key>
+	<string>Decline</string>
+	<key>pairing.review.title</key>
+	<string>Approve this device?</string>
+	<key>pairing.review.warning.body</key>
+	<string>A linked device can send and read messages for this account.</string>
+	<key>pairing.review.warning.title</key>
+	<string>Approve only your own device</string>
+	<key>pairing.right.call</key>
+	<string>Calls</string>
+	<key>pairing.right.group</key>
+	<string>Groups</string>
+	<key>pairing.right.message</key>
+	<string>Messages</string>
+	<key>pairing.right.other</key>
+	<string>Other right</string>
+	<key>pairing.right.register</key>
+	<string>Register with the node</string>
+	<key>pairing.right.sync</key>
+	<string>Sync with your devices</string>
+	<key>pairing.title</key>
+	<string>Link new device</string>
+	<key>pairing.waiting.install</key>
+	<string>Adding the device to your account…</string>
+	<key>pairing.waiting.joiner</key>
+	<string>Waiting for the new device…</string>
+	<key>pairing.waiting.peerConfirm</key>
+	<string>Waiting for the other device to confirm the symbols…</string>
+	<key>pairing.waiting.proposal</key>
+	<string>Waiting for the new device's request…</string>
 	<key>privacy.requestApproval</key>
 	<string>Request approval: %@</string>
 	<key>settings.about.exportDiagnostics</key>

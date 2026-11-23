@@ -146,8 +146,12 @@ unavailable states because the SDK has no username, open-account or reach method
 shows the fifteen launch languages with their translation state from the package catalogs (English and
 Simplified Chinese today; no placeholder translations ship) and opens the app's system settings, where
 iOS offers the per-app language. Storage management is the media module's screen; its entry shows a
-typed unavailable state until then. Device pairing as the primary (`device.pair.begin/status/confirm/
-approve`) needs no credential channel on the inviting side, but is not built yet; see the bridge notes.
+typed unavailable state until then. Devices offers "Link new device" (route `pairDevice`, board MOB-G24): this phone, as the primary,
+names the new device, shows the show-once invitation as a QR code (covered while the app is not active),
+compares the seven symbols, reviews the joining device's name, id, rights and lease before a host-confirmed
+approval (MOB-P02/P02S facts) and shows the completed, cancelled, expired or declined result
+(`device.pair.begin/status/confirm/approve/cancel`; see the bridge notes). Joining another account from
+this phone stays unavailable (request R32).
 
 Unpaged snapshots (`contact.list`, `contact.requests.list`, `group.list`) decode through
 `ProxyGateway.mapRows`, which maps 1,024 rows per step off the main actor and yields between steps. There is no
@@ -190,7 +194,7 @@ anchor: `"dm:" + base64url(BLAKE3(lp(domain) || lp(lower root) || lp(higher root
 derived in AppData (`DirectConversationID`, a single-chunk BLAKE3 checked against the reference crate). The
 SDK creates that conversation only for an accepted contact; whether an owner's agents are always linked
 that way is not verified against a node.
-Local search, phone pairing, attachment transfer, replying to a stranger without accepting,
+Local search, joining another account from this phone, attachment transfer, replying to a stranger without accepting,
 stranger reporting and batch request actions are unavailable until their SDK/integration
 contracts exist. Message send, reply, edit, reaction and delete use the published
 conversation contract. Open-account reachability is not inferred from automatic contact

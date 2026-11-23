@@ -2705,6 +2705,363 @@
           }
         }
       }
+    },
+    "pairing.failure.title": {
+      "comment": "Title of an error shown while linking another device to this account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linking did not complete"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联未完成"
+          }
+        }
+      }
+    },
+    "pairing.failure.Busy": {
+      "comment": "Error while linking a device: another linking step is still running.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another linking step is still running. Try again in a moment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另一个关联步骤仍在进行，请稍后再试。"
+          }
+        }
+      }
+    },
+    "pairing.failure.InvalidInput": {
+      "comment": "Error while linking a device: the request or the other device's data was not valid.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The linking request was not valid. Start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联请求无效，请重新开始。"
+          }
+        }
+      }
+    },
+    "pairing.failure.Expired": {
+      "comment": "Error while linking a device: the invitation or ceremony timed out.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The invitation expired. Start again to create a new one."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请已过期。请重新开始以生成新邀请。"
+          }
+        }
+      }
+    },
+    "pairing.failure.Retired": {
+      "comment": "Error while linking a device: the ceremony was closed, for example because the account was locked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This linking session was closed. Start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此次关联已关闭，请重新开始。"
+          }
+        }
+      }
+    },
+    "pairing.failure.WrongRole": {
+      "comment": "Error while linking a device: this device cannot take this role in the ceremony.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device cannot do this step of linking."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备无法执行这一步关联。"
+          }
+        }
+      }
+    },
+    "pairing.failure.WrongContext": {
+      "comment": "Error while linking a device: the other device belongs to a different account or node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The other device does not belong to this account or node."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另一台设备不属于此账户或节点。"
+          }
+        }
+      }
+    },
+    "pairing.failure.Replay": {
+      "comment": "Error while linking a device: a message was repeated, so the ceremony stopped for safety.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A repeated message was detected, so linking stopped for safety. Start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检测到重复消息，为安全起见已停止关联。请重新开始。"
+          }
+        }
+      }
+    },
+    "pairing.failure.HeadChanged": {
+      "comment": "Error while linking a device: the account's device list changed during the ceremony.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account's device list changed while linking. Start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联期间账户的设备列表发生了变化。请重新开始。"
+          }
+        }
+      }
+    },
+    "pairing.failure.PrimaryRequired": {
+      "comment": "Error while linking a device: only the account's primary device can invite and approve.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the account's primary device can link new devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有账户的主设备可以关联新设备。"
+          }
+        }
+      }
+    },
+    "pairing.failure.SasMismatch": {
+      "comment": "Error while linking a device: the seven symbols did not match, so the ceremony ended.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The symbols did not match, so linking was stopped on both devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号不一致，两台设备上的关联均已停止。"
+          }
+        }
+      }
+    },
+    "pairing.failure.PublicationPending": {
+      "comment": "Error while linking a device: the account change is still being published to the node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The change is still being published to the node. Check again in a moment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "变更仍在发布到节点，请稍后再查看。"
+          }
+        }
+      }
+    },
+    "pairing.failure.UpdateRequired": {
+      "comment": "Error while linking a device: the node or the other device needs a newer version.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The node or the other device needs an update before linking."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "节点或另一台设备需要更新后才能关联。"
+          }
+        }
+      }
+    },
+    "pairing.failure.VaultUnavailable": {
+      "comment": "Error while linking a device: this phone's protected key storage could not be used.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone's protected key storage is not available right now."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机的受保护密钥存储目前不可用。"
+          }
+        }
+      }
+    },
+    "pairing.failure.NotFound": {
+      "comment": "Error while linking a device: the node does not offer linking, or the ceremony no longer exists.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linking is not available on this node, or this linking session no longer exists."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此节点未提供关联功能，或此次关联已不存在。"
+          }
+        }
+      }
+    },
+    "pairing.failure.TransferCapacity": {
+      "comment": "Error while linking a device: not enough capacity to move account data.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is not enough capacity to move the account data."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有足够的容量来迁移账户数据。"
+          }
+        }
+      }
+    },
+    "pairing.failure.TransferFloorsTooLarge": {
+      "comment": "Error while linking a device: the account data to move is too large.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account data to move is too large."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要迁移的账户数据过大。"
+          }
+        }
+      }
+    },
+    "pairing.failure.deviceName": {
+      "comment": "Error: the name given to the new device is empty, too long or contains invisible control characters.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a device name of up to 128 bytes without control characters."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入不超过 128 字节、不含控制字符的设备名称。"
+          }
+        }
+      }
+    },
+    "pairing.failure.invitationTooLarge": {
+      "comment": "Error: the invitation is too large to show as one QR code, so linking was cancelled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The invitation is too large to show as a QR code, so linking was cancelled."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请过大，无法显示为二维码，已取消关联。"
+          }
+        }
+      }
+    },
+    "pairing.failure.comparisonChanged": {
+      "comment": "Error: the symbols changed between showing and confirming them; the user must compare again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The symbols changed. Compare them again before confirming."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号已变化。请重新比对后再确认。"
+          }
+        }
+      }
+    },
+    "pairing.failure.other": {
+      "comment": "Error while linking a device for a reason the app does not know.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linking stopped for a reason this app does not recognise."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联因本应用无法识别的原因而停止。"
+          }
+        }
+      }
     }
   }
 }

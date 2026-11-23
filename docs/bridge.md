@@ -163,9 +163,37 @@ typed unavailable state. Device list and revocation use `device.list` and
 The other direction, this phone as the primary inviting another device, does not use the credential
 channel: `bus/credentials.rs` routes only `device.pair.join`, `device.transfer.join/prepare/status` and
 an unlock without a passphrase through it, and pairing is enabled by default
-(`RAMFLUX_DEVICE_PAIRING_ENABLED` unset). `device.pair.begin` returns the invitation token as secret
-output (a bearer credential that must reach the other device as a QR code or file without being logged
-or kept), `device.pair.status` carries the SAS emoji indices and transcript hash, and
-`device.pair.confirm`/`device.pair.approve` take the transcript and proposal hashes (reference caller
-`apps/rf/src/handlers/pairing.rs`). The node must advertise `device_pairing_v2`. The phone flow is not
-built yet; the Kit pairing code and QR components are the intended presentation.
+(`RAMFLUX_DEVICE_PAIRING_ENABLED` unset). The node must advertise `device_pairing_v2`.
+`NativePairingRepository` (AppData) drives it, following the reference caller
+`apps/rf/src/handlers/pairing.rs`:
+
+- `device.pair.begin` with `ramflux.pairing.Begin.v2`: the label the user gives the new device, the
+  reference caller's default rights `message`, `register`, `sync`, and a lease from now to the SDK maximum
+  (`MAX_BRANCH_LEASE_SECONDS`, 30 days). The response is secret output. `SealedPairingFrame` reads the
+  sealed frame by byte ranges, decodes only the operation id, generation and expiry, checks that the token
+  is bound to the operation, and re-encodes `invite_token` canonically (RFC 8785: sorted keys, no
+  whitespace, scalars copied verbatim, integers only; the bytes `InviteToken::to_wire_bytes` produces and
+  a joining device reads) straight into `PairingInvitation`'s erasable buffer. The token never becomes a
+  String, Data or JSONValue in AppData and is never persisted or logged.
+- `PairingViewModel` reads the token once into a QR image (`KitQrCode.render`, error correction M, or L
+  when M cannot hold it; an invitation that does not fit one code is cancelled with a typed failure) and
+  erases the buffer at once. Core Image's internal buffers and the image cannot be erased; the image is
+  dropped when the other device joins, the ceremony ends or the screen goes away. The screen covers the
+  code whenever the scene is not active and is `privacySensitive`. Leaving the screen cancels a running
+  ceremony. The SDK has no short pairing code, so the board's manual code field is not offered.
+- Progress is read with `device.pair.status` every two seconds while the screen is visible (the SDK's
+  `device.pairing.event` display topic is not in the shared event source's fixed topic list). Phases map
+  to steps: `invited`/`commitments` show the code, `sas_pending` with seven indices shows the symbols
+  (`SAS_EMOJI` order, drawn through `KitPairingCode`), `proposal_pending` shows the review, terminal
+  phases show the result with the SDK result code.
+- `device.pair.confirm`: a positive answer re-reads the status and refuses when the transcript or symbols
+  changed since they were shown (as the reference caller does); a negative answer ends the ceremony on both
+  devices. The phone keeps waiting while the SDK stays in `sas_pending` for the other side.
+- `device.pair.approve` carries the reviewed transcript and proposal hashes and is sent only after the host
+  confirmation (`RFHostConfirmationActions`) that shows the joining device's name (untrusted text) and id
+  (identifier primitive); declining sends `approved: false`. `device.pair.cancel` ends the ceremony.
+- SDK pairing codes (`Busy`, `Expired`, `SasMismatch`, `NotFound`, ...) map to `AppFailure.pairing`;
+  a code other than a transient one stops following the ceremony.
+
+Not verified against a node at this pin: whether the in-process client is admitted for `device.pair.confirm`
+and `approve` exactly like a local-bus connection. The headless tests run against the fake transport.

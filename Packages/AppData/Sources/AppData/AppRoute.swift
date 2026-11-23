@@ -14,7 +14,7 @@ public enum AppRoute: Hashable, Sendable {
     case systemPermissions
     case cards
     case calls(String?)
-    case permissions, tasks, linkDevice, recoverAccount, onboarding, notices, shellNavigation
+    case permissions, tasks, linkDevice, pairDevice, recoverAccount, onboarding, notices, shellNavigation
     public static func parse(_ url: URL) -> Self? {
         guard url.scheme == "ramflux", url.user == nil, url.password == nil,
               url.query == nil, url.fragment == nil else { return nil }

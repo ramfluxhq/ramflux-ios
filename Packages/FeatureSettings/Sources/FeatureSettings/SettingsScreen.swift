@@ -48,7 +48,7 @@ public struct SettingsScreen: View {
     @ViewBuilder private var content: some View {
         switch state.route {
         case .devices:
-            Button(FeatureSettingsStrings.text("settings.devices.link", locale: locale)) { onAction(.unavailable(.pairing)) }
+            Button(FeatureSettingsStrings.text("settings.devices.link", locale: locale)) { onAction(state.snapshot.accountID == nil ? .unavailable(.pairing) : .open(.pairDevice)) }
             if state.snapshot.accountID == nil { Text(FeatureSettingsStrings.text("settings.devices.noAccount", locale: locale)) }
             ForEach(state.snapshot.devices) { device in
                 row(id: device.id, title: device.id, subtitle: device.isLocal ? FeatureSettingsStrings.text("settings.devices.thisDevice", locale: locale) : FeatureSettingsStrings.text("settings.devices.linked", locale: locale), route: .device(device.id))

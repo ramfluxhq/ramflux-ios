@@ -9,6 +9,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
     case accountCode(AccountCodeIssue)
     case backup(BackupIssue)
+    case pairing(PairingIssue)
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
@@ -29,6 +30,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
         case .accountCode: AppDataStrings.text("accountCode.failure.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
+        case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -62,6 +64,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
         case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
+        case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         }
     }
     public var canRetry: Bool {

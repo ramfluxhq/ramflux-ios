@@ -186,6 +186,48 @@
 	<string>This app cannot access its private Keychain. Install a correctly signed build with the app’s Keychain entitlement.</string>
 	<key>onboarding.vaultUnavailable</key>
 	<string>The private Keychain provider is unavailable on this device.</string>
+	<key>pairing.failure.Busy</key>
+	<string>Another linking step is still running. Try again in a moment.</string>
+	<key>pairing.failure.Expired</key>
+	<string>The invitation expired. Start again to create a new one.</string>
+	<key>pairing.failure.HeadChanged</key>
+	<string>The account's device list changed while linking. Start again.</string>
+	<key>pairing.failure.InvalidInput</key>
+	<string>The linking request was not valid. Start again.</string>
+	<key>pairing.failure.NotFound</key>
+	<string>Linking is not available on this node, or this linking session no longer exists.</string>
+	<key>pairing.failure.PrimaryRequired</key>
+	<string>Only the account's primary device can link new devices.</string>
+	<key>pairing.failure.PublicationPending</key>
+	<string>The change is still being published to the node. Check again in a moment.</string>
+	<key>pairing.failure.Replay</key>
+	<string>A repeated message was detected, so linking stopped for safety. Start again.</string>
+	<key>pairing.failure.Retired</key>
+	<string>This linking session was closed. Start again.</string>
+	<key>pairing.failure.SasMismatch</key>
+	<string>The symbols did not match, so linking was stopped on both devices.</string>
+	<key>pairing.failure.TransferCapacity</key>
+	<string>There is not enough capacity to move the account data.</string>
+	<key>pairing.failure.TransferFloorsTooLarge</key>
+	<string>The account data to move is too large.</string>
+	<key>pairing.failure.UpdateRequired</key>
+	<string>The node or the other device needs an update before linking.</string>
+	<key>pairing.failure.VaultUnavailable</key>
+	<string>This phone's protected key storage is not available right now.</string>
+	<key>pairing.failure.WrongContext</key>
+	<string>The other device does not belong to this account or node.</string>
+	<key>pairing.failure.WrongRole</key>
+	<string>This device cannot do this step of linking.</string>
+	<key>pairing.failure.comparisonChanged</key>
+	<string>The symbols changed. Compare them again before confirming.</string>
+	<key>pairing.failure.deviceName</key>
+	<string>Enter a device name of up to 128 bytes without control characters.</string>
+	<key>pairing.failure.invitationTooLarge</key>
+	<string>The invitation is too large to show as a QR code, so linking was cancelled.</string>
+	<key>pairing.failure.other</key>
+	<string>Linking stopped for a reason this app does not recognise.</string>
+	<key>pairing.failure.title</key>
+	<string>Linking did not complete</string>
 	<key>receipt.deviceState</key>
 	<string>%1$@: %2$@</string>
 	<key>refusal.crypto_failure</key>

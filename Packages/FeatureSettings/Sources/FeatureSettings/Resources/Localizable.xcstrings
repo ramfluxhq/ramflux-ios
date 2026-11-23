@@ -2328,6 +2328,873 @@
           }
         }
       }
+    },
+    "pairing.title": {
+      "comment": "Page title: link a new device (computer or tablet) to this account from this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link new device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关联新设备"
+          }
+        }
+      }
+    },
+    "pairing.name.body": {
+      "comment": "Explains the first step of linking a device from this phone, which is the account's primary device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone is the account's primary device. Name the new device, then show the invitation to it. The new device joins with Ramflux on that device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这部手机是账户的主设备。为新设备命名，然后向它出示邀请。新设备在其上的 Ramflux 中加入。"
+          }
+        }
+      }
+    },
+    "pairing.name.label": {
+      "comment": "Label of the text field for the name the new device will have in the device list.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device name"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备名称"
+          }
+        }
+      }
+    },
+    "pairing.name.placeholder": {
+      "comment": "Placeholder example of a device name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example: Office laptop"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如：办公室笔记本"
+          }
+        }
+      }
+    },
+    "pairing.name.note": {
+      "comment": "Note under the device name field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown in your device list. Up to 128 bytes."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示在你的设备列表中，最多 128 字节。"
+          }
+        }
+      }
+    },
+    "pairing.name.create": {
+      "comment": "Button that creates the one-time invitation for the new device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create invitation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成邀请"
+          }
+        }
+      }
+    },
+    "pairing.join.unavailable": {
+      "comment": "Notice: linking THIS phone to another account (the joining side) is not available yet; only inviting other devices is.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joining another account from this phone is not available yet: the app cannot yet receive the new device code that joining needs. This phone can invite other devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持用这部手机加入其他账户：应用还无法接收加入所需的新设备代码。这部手机可以邀请其他设备。"
+          }
+        }
+      }
+    },
+    "pairing.invitation.body": {
+      "comment": "Instruction while the invitation QR code is shown.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the new device, choose to link to an existing account and scan this code. Keep this screen open until the devices are linked."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在新设备上选择关联已有账户并扫描此二维码。在设备完成关联前请保持此页面打开。"
+          }
+        }
+      }
+    },
+    "pairing.invitation.qrLabel": {
+      "comment": "Accessibility label of the invitation QR code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitation QR code for the new device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "供新设备扫描的邀请二维码"
+          }
+        }
+      }
+    },
+    "pairing.invitation.expires": {
+      "comment": "Countdown under the invitation QR code; the argument is minutes and seconds, for example 4:59.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires in %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 后过期"
+          }
+        }
+      }
+    },
+    "pairing.invitation.secret": {
+      "comment": "Warning: the invitation QR code is a one-time secret.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone who scans this code before the new device can try to join. Show it only to your new device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在新设备之前扫描此二维码的人都可以尝试加入。只向你的新设备出示。"
+          }
+        }
+      }
+    },
+    "pairing.invitation.covered": {
+      "comment": "Shown over the invitation QR code while the app is in the background or not focused.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The invitation is hidden while Ramflux is not in use."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramflux 未在使用时，邀请会被隐藏。"
+          }
+        }
+      }
+    },
+    "pairing.waiting.joiner": {
+      "comment": "Progress: waiting for the new device to scan the invitation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the new device…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待新设备…"
+          }
+        }
+      }
+    },
+    "pairing.waiting.peerConfirm": {
+      "comment": "Progress: waiting for the other device to confirm the symbols.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the other device to confirm the symbols…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待另一台设备确认符号…"
+          }
+        }
+      }
+    },
+    "pairing.waiting.proposal": {
+      "comment": "Progress: waiting for the other device to send its request to join.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the new device's request…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待新设备的请求…"
+          }
+        }
+      }
+    },
+    "pairing.waiting.install": {
+      "comment": "Progress: the approved device is being added to the account at the node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding the device to your account…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在将设备添加到你的账户…"
+          }
+        }
+      }
+    },
+    "pairing.compare.title": {
+      "comment": "Heading: compare the seven symbols shown on both devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare the symbols"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "比对符号"
+          }
+        }
+      }
+    },
+    "pairing.compare.body": {
+      "comment": "Instruction for comparing the symbols on the two devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check that the new device shows the same seven symbols in the same order. If anything differs, someone else may be trying to join."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认新设备按相同顺序显示同样的七个符号。如有任何不同，可能有其他人在尝试加入。"
+          }
+        }
+      }
+    },
+    "pairing.compare.match": {
+      "comment": "Button: the symbols on both devices are the same.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They match"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号一致"
+          }
+        }
+      }
+    },
+    "pairing.compare.mismatch": {
+      "comment": "Button: the symbols differ; this stops linking on both devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They don't match"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号不一致"
+          }
+        }
+      }
+    },
+    "pairing.review.title": {
+      "comment": "Heading of the review of the joining device before approval.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve this device?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准此设备？"
+          }
+        }
+      }
+    },
+    "pairing.review.body": {
+      "comment": "Explains what approving the joining device means.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device below asks to join your account. Approving gives it the rights listed until the date shown; you can revoke it at any time in Devices."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下面的设备请求加入你的账户。批准后，它将在显示的日期前拥有所列权限；你可以随时在设备中撤销。"
+          }
+        }
+      }
+    },
+    "pairing.review.warning.title": {
+      "comment": "Warning title before approving a new device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve only your own device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只批准你自己的设备"
+          }
+        }
+      }
+    },
+    "pairing.review.warning.body": {
+      "comment": "Warning body before approving a new device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A linked device can send and read messages for this account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关联的设备可以为此账户收发消息。"
+          }
+        }
+      }
+    },
+    "pairing.review.approve": {
+      "comment": "Button that opens the confirmation for approving the joining device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准"
+          }
+        }
+      }
+    },
+    "pairing.review.decline": {
+      "comment": "Button that declines the joining device and ends linking.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        }
+      }
+    },
+    "pairing.approve.confirm.title": {
+      "comment": "Title of the confirmation sheet before approving the joining device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm approval"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确认批准"
+          }
+        }
+      }
+    },
+    "pairing.approve.confirm.summary": {
+      "comment": "Confirmation sentence; first argument is the device name chosen on the other device, second its device id.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add %1$@ (%2$@) to this account?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 %1$@（%2$@）添加到此账户？"
+          }
+        }
+      }
+    },
+    "pairing.approve.confirm.action": {
+      "comment": "Button in the confirmation sheet that approves the device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准设备"
+          }
+        }
+      }
+    },
+    "pairing.facts.name": {
+      "comment": "Label: the name the joining device gave itself.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name on that device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该设备上的名称"
+          }
+        }
+      }
+    },
+    "pairing.facts.device": {
+      "comment": "Label: the joining device's identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device ID"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备 ID"
+          }
+        }
+      }
+    },
+    "pairing.facts.rights": {
+      "comment": "Label of the list of rights the new device receives.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rights"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "权限"
+          }
+        }
+      }
+    },
+    "pairing.facts.lease": {
+      "comment": "The date until which the new device's authorisation is valid; the argument is a date and time.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valid until %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有效期至 %@"
+          }
+        }
+      }
+    },
+    "pairing.right.message": {
+      "comment": "Right of a linked device: send and receive messages.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息"
+          }
+        }
+      }
+    },
+    "pairing.right.register": {
+      "comment": "Right of a linked device: register with the node to receive deliveries.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Register with the node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向节点注册"
+          }
+        }
+      }
+    },
+    "pairing.right.sync": {
+      "comment": "Right of a linked device: sync history with the other devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync with your devices"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与你的设备同步"
+          }
+        }
+      }
+    },
+    "pairing.right.call": {
+      "comment": "Right of a linked device: calls.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
+    "pairing.right.group": {
+      "comment": "Right of a linked device: group conversations.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组"
+          }
+        }
+      }
+    },
+    "pairing.right.other": {
+      "comment": "A right of a linked device that this app does not know.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other right"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他权限"
+          }
+        }
+      }
+    },
+    "pairing.cancel": {
+      "comment": "Button that cancels linking the new device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel linking"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消关联"
+          }
+        }
+      }
+    },
+    "pairing.restart": {
+      "comment": "Button that starts linking again after it ended.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start again"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新开始"
+          }
+        }
+      }
+    },
+    "pairing.done": {
+      "comment": "Button after a device was linked; returns to the device list.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "pairing.finished.completed": {
+      "comment": "Result title: the new device was linked.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device linked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备已关联"
+          }
+        }
+      }
+    },
+    "pairing.finished.completed.body": {
+      "comment": "Result text after linking a device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The new device is in your device list. You can revoke it there."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新设备已出现在你的设备列表中，你可以在那里撤销它。"
+          }
+        }
+      }
+    },
+    "pairing.finished.expired": {
+      "comment": "Result title: the invitation timed out.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitation expired"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请已过期"
+          }
+        }
+      }
+    },
+    "pairing.finished.expired.body": {
+      "comment": "Result text after the invitation timed out.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The invitation was not used in time. Start again to create a new one."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请未在有效时间内使用。请重新开始以生成新邀请。"
+          }
+        }
+      }
+    },
+    "pairing.finished.rejected": {
+      "comment": "Result title: the device was declined.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device declined"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已拒绝设备"
+          }
+        }
+      }
+    },
+    "pairing.finished.rejected.body": {
+      "comment": "Result text after declining a device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The device was not added to your account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该设备未被添加到你的账户。"
+          }
+        }
+      }
+    },
+    "pairing.finished.cancelled": {
+      "comment": "Result title: linking was cancelled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linking cancelled"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已取消关联"
+          }
+        }
+      }
+    },
+    "pairing.finished.cancelled.body": {
+      "comment": "Result text after linking was cancelled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No device was added. The invitation can no longer be used."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有添加任何设备，该邀请已无法使用。"
+          }
+        }
+      }
+    },
+    "pairing.failure.SasMismatch.body": {
+      "comment": "Result text after the user said the symbols did not match.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The symbols did not match, so linking was stopped on both devices. If you did not expect this, someone else may have tried to join."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "符号不一致，两台设备上的关联均已停止。如果这不在你的预期之中，可能有其他人尝试加入。"
+          }
+        }
+      }
     }
   }
 }

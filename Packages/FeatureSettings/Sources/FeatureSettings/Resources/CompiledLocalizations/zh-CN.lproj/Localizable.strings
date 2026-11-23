@@ -10,6 +10,108 @@
 	<string>刷新</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
+	<key>pairing.approve.confirm.action</key>
+	<string>批准设备</string>
+	<key>pairing.approve.confirm.summary</key>
+	<string>将 %1$@（%2$@）添加到此账户？</string>
+	<key>pairing.approve.confirm.title</key>
+	<string>确认批准</string>
+	<key>pairing.cancel</key>
+	<string>取消关联</string>
+	<key>pairing.compare.body</key>
+	<string>确认新设备按相同顺序显示同样的七个符号。如有任何不同，可能有其他人在尝试加入。</string>
+	<key>pairing.compare.match</key>
+	<string>符号一致</string>
+	<key>pairing.compare.mismatch</key>
+	<string>符号不一致</string>
+	<key>pairing.compare.title</key>
+	<string>比对符号</string>
+	<key>pairing.done</key>
+	<string>完成</string>
+	<key>pairing.facts.device</key>
+	<string>设备 ID</string>
+	<key>pairing.facts.lease</key>
+	<string>有效期至 %@</string>
+	<key>pairing.facts.name</key>
+	<string>该设备上的名称</string>
+	<key>pairing.facts.rights</key>
+	<string>权限</string>
+	<key>pairing.failure.SasMismatch.body</key>
+	<string>符号不一致，两台设备上的关联均已停止。如果这不在你的预期之中，可能有其他人尝试加入。</string>
+	<key>pairing.finished.cancelled</key>
+	<string>已取消关联</string>
+	<key>pairing.finished.cancelled.body</key>
+	<string>没有添加任何设备，该邀请已无法使用。</string>
+	<key>pairing.finished.completed</key>
+	<string>设备已关联</string>
+	<key>pairing.finished.completed.body</key>
+	<string>新设备已出现在你的设备列表中，你可以在那里撤销它。</string>
+	<key>pairing.finished.expired</key>
+	<string>邀请已过期</string>
+	<key>pairing.finished.expired.body</key>
+	<string>邀请未在有效时间内使用。请重新开始以生成新邀请。</string>
+	<key>pairing.finished.rejected</key>
+	<string>已拒绝设备</string>
+	<key>pairing.finished.rejected.body</key>
+	<string>该设备未被添加到你的账户。</string>
+	<key>pairing.invitation.body</key>
+	<string>在新设备上选择关联已有账户并扫描此二维码。在设备完成关联前请保持此页面打开。</string>
+	<key>pairing.invitation.covered</key>
+	<string>Ramflux 未在使用时，邀请会被隐藏。</string>
+	<key>pairing.invitation.expires</key>
+	<string>%@ 后过期</string>
+	<key>pairing.invitation.qrLabel</key>
+	<string>供新设备扫描的邀请二维码</string>
+	<key>pairing.invitation.secret</key>
+	<string>在新设备之前扫描此二维码的人都可以尝试加入。只向你的新设备出示。</string>
+	<key>pairing.join.unavailable</key>
+	<string>暂不支持用这部手机加入其他账户：应用还无法接收加入所需的新设备代码。这部手机可以邀请其他设备。</string>
+	<key>pairing.name.body</key>
+	<string>这部手机是账户的主设备。为新设备命名，然后向它出示邀请。新设备在其上的 Ramflux 中加入。</string>
+	<key>pairing.name.create</key>
+	<string>生成邀请</string>
+	<key>pairing.name.label</key>
+	<string>设备名称</string>
+	<key>pairing.name.note</key>
+	<string>显示在你的设备列表中，最多 128 字节。</string>
+	<key>pairing.name.placeholder</key>
+	<string>例如：办公室笔记本</string>
+	<key>pairing.restart</key>
+	<string>重新开始</string>
+	<key>pairing.review.approve</key>
+	<string>批准</string>
+	<key>pairing.review.body</key>
+	<string>下面的设备请求加入你的账户。批准后，它将在显示的日期前拥有所列权限；你可以随时在设备中撤销。</string>
+	<key>pairing.review.decline</key>
+	<string>拒绝</string>
+	<key>pairing.review.title</key>
+	<string>批准此设备？</string>
+	<key>pairing.review.warning.body</key>
+	<string>已关联的设备可以为此账户收发消息。</string>
+	<key>pairing.review.warning.title</key>
+	<string>只批准你自己的设备</string>
+	<key>pairing.right.call</key>
+	<string>通话</string>
+	<key>pairing.right.group</key>
+	<string>群组</string>
+	<key>pairing.right.message</key>
+	<string>消息</string>
+	<key>pairing.right.other</key>
+	<string>其他权限</string>
+	<key>pairing.right.register</key>
+	<string>向节点注册</string>
+	<key>pairing.right.sync</key>
+	<string>与你的设备同步</string>
+	<key>pairing.title</key>
+	<string>关联新设备</string>
+	<key>pairing.waiting.install</key>
+	<string>正在将设备添加到你的账户…</string>
+	<key>pairing.waiting.joiner</key>
+	<string>正在等待新设备…</string>
+	<key>pairing.waiting.peerConfirm</key>
+	<string>正在等待另一台设备确认符号…</string>
+	<key>pairing.waiting.proposal</key>
+	<string>正在等待新设备的请求…</string>
 	<key>privacy.requestApproval</key>
 	<string>请求批准方式：%@</string>
 	<key>settings.about.exportDiagnostics</key>
