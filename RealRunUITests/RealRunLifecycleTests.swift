@@ -112,10 +112,10 @@ final class RealRunLifecycleTests: RealRunTestCase {
 
     func ensureSession() throws {
         dismissPrompts()
-        for _ in 0..<6 where !element("tab-messages").exists { back(); Thread.sleep(forTimeInterval: 0.6) }
+        for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         try unlockIfNeeded()
         dismissPrompts()
-        for _ in 0..<6 where !element("tab-messages").exists { back(); Thread.sleep(forTimeInterval: 0.6) }
+        for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         guard element("tab-messages").waitForExistence(timeout: 20) else { throw FlowStop.blocked("no unlocked account (flow 1 did not complete)") }
     }
     func openChat(_ id: String) throws {

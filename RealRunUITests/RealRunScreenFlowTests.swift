@@ -64,7 +64,8 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             // Tasks are listed per conversation: choose the direct conversation with alice when offered.
             if text(containing: "Tasks belong to a conversation").waitForExistence(timeout: 10),
                let conversation = RunSecrets.aliceConversation {
-                let row = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ OR identifier == %@", conversation, conversation)).firstMatch
+                // Direct rows are titled with the contact's name now, no longer with the dm id.
+                let row = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ OR identifier == %@ OR label CONTAINS %@", conversation, conversation, config.alice.displayName)).firstMatch
                 if row.waitForExistence(timeout: 10) { row.tap() }
             }
             guard text(containing: "No records in this context").waitForExistence(timeout: 30) else { throw FlowStop.fail("tasks list did not show its empty state: \(visibleFailure())") }
@@ -115,10 +116,10 @@ final class RealRunScreenFlowTests: RealRunTestCase {
 
     func ensureShell() throws {
         dismissPrompts()
-        for _ in 0..<6 where !element("tab-messages").exists { back(); Thread.sleep(forTimeInterval: 0.6) }
+        for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         try unlockIfNeeded()
         dismissPrompts()
-        for _ in 0..<6 where !element("tab-messages").exists { back(); Thread.sleep(forTimeInterval: 0.6) }
+        for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         guard element("tab-messages").waitForExistence(timeout: 20) else { throw FlowStop.blocked("no unlocked account (flow 1 did not complete)") }
     }
     func openSettings() throws {

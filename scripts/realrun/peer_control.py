@@ -130,11 +130,24 @@ class Harness:
         """Moves the newest backup archive to "On My iPhone", then reinstalls the app with an empty Keychain."""
         if not self.udid or not self.app:
             raise ValueError("fresh install needs --udid and --app")
-        container = Path(self.simctl("get_app_container", self.udid, BUNDLE, "data"))
-        archives = sorted((p for p in (container / "Library" / "Application Support" / "ramflux" / "backups").rglob("*") if p.is_file()),
-                          key=lambda p: p.stat().st_mtime)
-        if not archives:
-            raise ValueError("no backup archive in the app container")
+        archive, data = None, b""
+        for _ in range(5):
+            # The archive may be replaced while it is listed (write then rename); list again on a miss.
+            container = Path(self.simctl("get_app_container", self.udid, BUNDLE, "data"))
+            listed = [p for p in (container / "Library" / "Application Support" / "ramflux" / "backups").rglob("*.rfb")]
+            self.log("fresh install: archives listed " + ", ".join(f"{p.name}:{p.stat().st_size if p.exists() else -1}" for p in listed))
+            for candidate in sorted((p for p in listed if p.exists()), key=lambda p: p.stat().st_mtime, reverse=True):
+                try:
+                    data, archive = candidate.read_bytes(), candidate
+                    break
+                except OSError:
+                    continue
+            if archive:
+                break
+            time.sleep(2)
+        if not archive:
+            raise ValueError("no readable backup archive in the app container")
+        archives = [archive]
         groups = container.parents[2] / "Shared" / "AppGroup"
         local = None
         for group in groups.iterdir():
@@ -146,12 +159,12 @@ class Harness:
             raise ValueError("the simulator has no On My iPhone storage")
         local.mkdir(parents=True, exist_ok=True)
         name = "ramflux-realrun-" + time.strftime("%H%M%S") + (archives[-1].suffix or ".backup")
-        (local / name).write_bytes(archives[-1].read_bytes())
+        (local / name).write_bytes(data)
         subprocess.run(["xcrun", "simctl", "terminate", self.udid, BUNDLE], capture_output=True, timeout=60)
         self.simctl("uninstall", self.udid, BUNDLE)
         self.simctl("keychain", self.udid, "reset")
         self.simctl("install", self.udid, self.app, timeout=300)
-        self.log(f"fresh install: archive {name} ({archives[-1].stat().st_size} bytes) placed in On My iPhone; app reinstalled; keychain reset")
+        self.log(f"fresh install: archive {name} ({len(data)} bytes) placed in On My iPhone; app reinstalled; keychain reset")
         return {"archive": name}
 
     def device_log(self, name: str, minutes: int) -> dict:
