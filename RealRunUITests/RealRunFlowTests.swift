@@ -427,7 +427,7 @@ final class RealRunFlowTests: RealRunTestCase {
             let field = try require(textField("group-name"), "group name field")
             field.tap(); field.typeText(name)
             try tap(button("Review group creation"), "Review group creation")
-            try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "group creation confirmation", timeout: 30)
+            try confirmHost("group creation confirmation")
             // After creation the app opens the new group's conversation.
             let composer = element("chat-composer-input"), refused = text(containing: "could not be accepted")
             guard eventually(90, { composer.exists || refused.exists }) else { throw FlowStop.fail("group creation was not acknowledged: \(visibleFailure())") }
@@ -444,7 +444,7 @@ final class RealRunFlowTests: RealRunTestCase {
             try tap(button("Members and permissions"), "Members and permissions")
             for peer in [config.alice, config.bob] {
                 try tap(app.buttons.matching(NSPredicate(format: "label == %@", peer.displayName)).firstMatch, "add \(peer.name) to the group", timeout: 30)
-                try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "member add confirmation for \(peer.name)", timeout: 30)
+                try confirmHost("member add confirmation for \(peer.name)")
                 guard text(containing: peer.principal.replacingOccurrences(of: "principal-", with: "")).waitForExistence(timeout: 60) || text(containing: peer.principal).exists else {
                     throw FlowStop.fail("\(peer.name) is not listed as a member after the add: \(visibleFailure())")
                 }
@@ -553,6 +553,7 @@ final class RealRunFlowTests: RealRunTestCase {
         if element("chat-actions").exists { app.buttons["Cancel"].firstMatch.tapIfExists() }
         if element("chat-select-text").exists { element("chat-select-text-header").buttons["Back"].firstMatch.tapIfExists() }
         // Leave any pushed screen first; pushed screens hide the tab bar.
+        closeLeftoverSheet()
         for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         try unlockIfNeeded()
         dismissPrompts()

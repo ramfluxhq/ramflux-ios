@@ -107,6 +107,22 @@ class RealRunTestCase: XCTestCase {
         }
         element.tap()
     }
+    /// Taps the host confirmation ("Confirm: ..."); a long review sheet keeps it below the fold, so scroll first.
+    func confirmHost(_ what: String, timeout: TimeInterval = 30) throws {
+        let confirm = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch
+        try require(confirm, what, timeout: timeout)
+        for _ in 0..<4 where !(confirm.isHittable && app.frame.contains(CGPoint(x: confirm.frame.midX, y: confirm.frame.midY))) {
+            app.swipeUp(); Thread.sleep(forTimeInterval: 0.5)
+        }
+        try tap(confirm, what, timeout: timeout)
+    }
+    /// Closes a review sheet a failed step left open (its Cancel, scrolled into view).
+    func closeLeftoverSheet() {
+        let cancel = app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch
+        guard cancel.exists else { return }
+        for _ in 0..<4 where !cancel.isHittable { app.swipeUp(); Thread.sleep(forTimeInterval: 0.3) }
+        cancel.tapIfExists()
+    }
     /// Polls until `condition` holds (UI state or a peer-side fact); false after `timeout`.
     func eventually(_ timeout: TimeInterval = 30, every: TimeInterval = 1, _ condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)

@@ -112,6 +112,7 @@ final class RealRunLifecycleTests: RealRunTestCase {
 
     func ensureSession() throws {
         dismissPrompts()
+        closeLeftoverSheet()
         for _ in 0..<6 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.6) }
         try unlockIfNeeded()
         dismissPrompts()
