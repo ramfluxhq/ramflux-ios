@@ -24,6 +24,8 @@ private func page(_ rows: [JSONValue], before: JSONValue = .null, snapshot: Doub
     @Test func olderPagesPassTheOpaqueCursorUnchangedAndReportTheStart() async {
         let cursor: JSONValue = .object(["hlc_ms": .number(5), "device_sequence": .string("00000000000000000002"), "opaque": .array([.number(1)])])
         let transport = ProxyTransport { request in
+            // The ownership fallback reads this device's id once per account.
+            if request.method == "account.status" { return .object(["device_id": .string("device-me")]) }
             #expect(request.method == "message.read"); #expect(request.body["read_model"] == .bool(true)); #expect(request.body["limit"] == .number(50))
             if let before = request.body["before_order_key"] {
                 #expect(before == cursor)
@@ -41,6 +43,7 @@ private func page(_ rows: [JSONValue], before: JSONValue = .null, snapshot: Doub
 
     @Test func changeBatchesFollowTheCursorAndKeepTheLatestStateOfEachRow() async {
         let transport = ProxyTransport { request in
+            if request.method == "account.status" { return .object(["device_id": .string("device-me")]) }
             #expect(request.body["after_sequence"] == .unsigned(9)); #expect(request.body["read_model"] == nil); #expect(request.body["before_order_key"] == nil)
             return .object(["schema": .string("ramflux.message.read_model.v1"), "conversation_id": .string("c"), "next_after": .number(14), "more": .bool(true), "changes": .array([
                 row("m1", text: "First", journal: 10),

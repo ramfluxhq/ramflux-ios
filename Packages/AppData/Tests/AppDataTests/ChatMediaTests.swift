@@ -134,6 +134,7 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
         let transport = ProxyTransport { request in
             switch request.method {
             case "attachment.revoke": #expect(request.body == .object(["message_id": .string("msg")])); return .object(["state": .string("relay_erased")])
+            case "account.status": return .object(["device_id": .string("device-me")])
             case "message.read": return .object(["schema": .string("ramflux.message.read_model.v1"), "conversation_id": .string("c"), "messages": .array([
                 .object(["id": .string("gone"), "conversation_id": .string("c"), "state": .string("tombstone"), "kind": .string("tombstone"), "erasure": .object(["scope": .string("everyone")])]),
             ]), "next_before": .null])

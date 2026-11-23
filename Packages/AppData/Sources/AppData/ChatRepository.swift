@@ -135,7 +135,7 @@ public struct NativeChatRepository: ChatRepository {
         do {
             var body: [String: JSONValue] = ["conversation_id": .string(conversation), "read_model": .bool(true), "limit": .number(Double(Self.pageSize))]
             if let before { body["before_order_key"] = before.value }
-            let page = try MessagePage.page(body: try await gateway.call(.messageRead, account: account, body: .object(body)), conversation: conversation)
+            let page = try MessagePage.page(body: try await gateway.call(.messageRead, account: account, body: .object(body)), conversation: conversation, ownDevice: await ownDevice(account))
             purgeErased(account, page.records)
             return .success(page)
         } catch { return .failure(AppFailure.map(error)) }
@@ -144,10 +144,14 @@ public struct NativeChatRepository: ChatRepository {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }
         do {
             let body: JSONValue = .object(["conversation_id": .string(conversation), "after_sequence": .unsigned(after), "limit": .number(Double(Self.pageSize))])
-            let batch = try MessagePage.changes(body: try await gateway.call(.messageRead, account: account, body: body), conversation: conversation)
+            let batch = try MessagePage.changes(body: try await gateway.call(.messageRead, account: account, body: body), conversation: conversation, ownDevice: await ownDevice(account))
             purgeErased(account, batch.changes.compactMap { if case .row(let record) = $0 { record } else { nil } })
             return .success(batch)
         } catch { return .failure(AppFailure.map(error)) }
+    }
+    /// This device's id for the ownership fallback of `MessagePage.ownership`; nil when `account.status` fails.
+    private func ownDevice(_ account: String) async -> String? {
+        try? await devices.device(account: account) { [gateway] in try ProxyGateway.text(try await gateway.call(.accountStatus, account: account), "device_id") }
     }
     public func send(account: String, conversation: String, text: String, operationID: String) async -> RepositoryResult<SendOutcome> {
         guard Self.usableText(text), Self.identity(conversation), Self.identity(operationID) else { return .failure(.invalidInput) }
