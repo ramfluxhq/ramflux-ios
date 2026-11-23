@@ -230,6 +230,10 @@
 	<string>关联因本应用无法识别的原因而停止。</string>
 	<key>pairing.failure.title</key>
 	<string>关联未完成</string>
+	<key>refusal.already_contact</key>
+	<string>此账户已是您的联系人，未应用其名片。</string>
+	<key>refusal.already_contact.title</key>
+	<string>已是联系人</string>
 	<key>refusal.crypto_failure</key>
 	<string>无法保护这条消息。</string>
 	<key>refusal.crypto_failure.title</key>

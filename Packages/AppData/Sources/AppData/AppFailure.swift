@@ -82,6 +82,8 @@ public enum AppFailure: Error, Sendable, Equatable {
         if let failure = error as? CoreFailure {
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
             if let issue = AccountCodeIssue.sdk(failure.reasonCode) { return .accountCode(issue) }
+            // A definite refusal named by its reason, whatever effect the bridge reports.
+            if let reason = failure.reasonCode, reason == "already_contact" { return .typedRefusal(reason) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission
@@ -159,6 +161,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "crypto_failure": "refusal.crypto_failure.title"
         case "not_connected": "refusal.not_connected.title"
         case "internal": "refusal.internal.title"
+        case "already_contact": "refusal.already_contact.title"
         default: "request.refusal.title"
         }
     }
@@ -180,6 +183,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "crypto_failure": "refusal.crypto_failure"
         case "not_connected": "refusal.not_connected"
         case "internal": "refusal.internal"
+        case "already_contact": "refusal.already_contact"
         default: "request.localFailure"
         }
     }

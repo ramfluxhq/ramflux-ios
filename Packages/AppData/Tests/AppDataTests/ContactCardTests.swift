@@ -34,3 +34,13 @@ import RamfluxCore
         #expect(transport.calls.withLock { $0.count } == 2)
     }
 }
+
+@Suite struct AlreadyContactRefusalTests {
+    /// A card for an existing contact is refused with already_contact; that is definite, so the add does
+    /// not stay unresolved behind "Reconcile original contact action".
+    @Test func alreadyContactIsADefiniteRefusal() {
+        let failure = AppFailure.map(CoreFailure(code: 9, effect: .unknown, operationID: "op", reasonCode: "already_contact"))
+        #expect(failure == .typedRefusal("already_contact"))
+        #expect(RetainedMutation<String, Void>.Snapshot(arguments: "x", operationID: "op", result: .failure(failure)).unresolved == false)
+    }
+}

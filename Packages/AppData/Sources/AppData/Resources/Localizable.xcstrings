@@ -3045,6 +3045,40 @@
           }
         }
       }
+    },
+    "refusal.already_contact.title": {
+      "comment": "Title when adding a contact (for example from a contact card) is refused because the account is already a contact.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already a contact"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已是联系人"
+          }
+        }
+      }
+    },
+    "refusal.already_contact": {
+      "comment": "Message when adding a contact is refused because the account is already a contact; a contact card for an existing contact is not applied by the SDK.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This account is already one of your contacts. Its card was not applied."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此账户已是您的联系人，未应用其名片。"
+          }
+        }
+      }
     }
   }
 }
