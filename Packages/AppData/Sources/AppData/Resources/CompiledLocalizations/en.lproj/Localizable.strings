@@ -320,6 +320,8 @@
 	<string>Verifying</string>
 	<key>status.writing</key>
 	<string>Writing</string>
+	<key>tasks.approval.appSignature</key>
+	<string>Approving this request needs an app signature this phone cannot make yet. You can still deny it.</string>
 	<key>tasks.unavailable</key>
 	<string>Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted.</string>
 </dict>

@@ -320,6 +320,8 @@
 	<string>正在验证</string>
 	<key>status.writing</key>
 	<string>正在写入</string>
+	<key>tasks.approval.appSignature</key>
+	<string>批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。</string>
 	<key>tasks.unavailable</key>
 	<string>智能体任务创建及移动端审批和干预决策需要额外的已验证上下文。请在受信任客户端审核；尚未授予任何权限。</string>
 </dict>

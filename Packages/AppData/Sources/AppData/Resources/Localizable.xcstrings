@@ -2671,6 +2671,23 @@
           }
         }
       }
+    },
+    "tasks.approval.appSignature": {
+      "comment": "Failure message: approving this tool request needs an app signature this phone cannot make yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approving this request needs an app signature this phone cannot make yet. You can still deny it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。"
+          }
+        }
+      }
     }
   }
 }

@@ -162,6 +162,12 @@ layer. `group.members` returns the whole roster in one response, so the members 
 growing window of projected rows (50 more per scroll step) over the roster held by the detail; the
 add-member picker pages contacts through `contactsPage`. The SDK has no `group.leave`: a non-owner's
 `group.member.remove` is staged as a change request to the owner, so leaving stays unavailable.
+Tasks, task conversations and permissions read through bounded `RowWindow`s (`task.list` by cursor,
+`grant.list` through `SnapshotPager`). A pending approval shows the Kit approval card; approving or denying
+sends `grant.approve`/`grant.deny` with its `approval_id` after host-drawn confirmation and after re-reading
+the approval unchanged. Approvals whose `confirmation_mode` is `remote_app` need an app-signed
+`mcp.approval.granted` (SDK `error.rs`), which the C ABI gives this app no way to produce, so they can only be
+denied here, as the reference CLI also refuses to approve them.
 Agents read `agent.list` page by page (cursor `next`) into the bounded window; the search filters the
 held window because `agent.list` takes no query. Account invalidations carry no agent topic, so on
 each one the directory asks `agent.watch` for records changed since its journal cursor and patches

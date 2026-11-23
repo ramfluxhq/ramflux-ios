@@ -200,7 +200,6 @@
       "tasks.reason.transport_unavailable",
       "tasks.refresh",
       "tasks.review",
-      "tasks.reviewPermission",
       "tasks.stale",
       "tasks.submitted",
       "tasks.title",

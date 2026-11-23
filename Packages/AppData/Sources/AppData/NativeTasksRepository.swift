@@ -5,6 +5,7 @@ public struct NativeTasksRepository: TasksRepository {
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
     private let journal = RetainedMutation<TaskMutationArguments, TaskMutationOutcome>()
+    private let permissionPager = SnapshotPager<PermissionRecord>()
     public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
     public func page(account: String, conversation: String, cursor: String?) async -> RepositoryResult<TaskPage> {
         do {
@@ -45,6 +46,22 @@ public struct NativeTasksRepository: TasksRepository {
             let body = try await gateway.call(.grantList, account: account)
             let rows = try ProxyGateway.rows(body, "grants").map(PermissionProjection.grant) + ProxyGateway.rows(body, "approvals").map(PermissionProjection.approval)
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
+        } catch { return .failure(AppFailure.map(error)) }
+    }
+    public func permissionsPage(account: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<PermissionRecord>> {
+        await permissionPager.page(cursor: cursor, limit: limit, read: { await permissions(account: account) })
+    }
+    public func decideApproval(account: String, approval: PermissionApproval, approve: Bool, operationID: String) async -> RepositoryResult<Void> {
+        // The CLI refuses the same case (`rf_guard_local_approval`): the SDK wants an app-signed grant.
+        if approve && approval.needsAppSignature { return .failure(.unavailableResource("tasks.approval.appSignature")) }
+        switch await permissions(account: account) {
+        case .failure(let failure): return .failure(failure)
+        case .success(let rows):
+            guard rows.contains(.approval(approval)), approval.status == "pending" else { return .failure(.busy) }
+        }
+        do {
+            _ = try await gateway.call(approve ? .grantApprove : .grantDeny, account: account, body: .object(["approval_id": .string(approval.referenceID)]), operationID: operationID)
+            return .success(())
         } catch { return .failure(AppFailure.map(error)) }
     }
     public func unavailable() -> AppFailure { .unavailableResource("tasks.unavailable") }

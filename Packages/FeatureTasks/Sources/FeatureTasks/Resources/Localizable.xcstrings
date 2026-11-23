@@ -115,23 +115,6 @@
         }
       }
     },
-    "tasks.more": {
-      "comment": "Button that loads the next page of tasks.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load next page"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加载下一页"
-          }
-        }
-      }
-    },
     "tasks.accept": {
       "localizations": {
         "en": {
@@ -718,22 +701,6 @@
         }
       }
     },
-    "tasks.reviewPermission": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Review approval availability"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "检查审批功能"
-          }
-        }
-      }
-    },
     "tasks.account": {
       "comment": "Label in front of the account identifier.",
       "localizations": {
@@ -1147,6 +1114,142 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ · %2$@ · %3$@"
+          }
+        }
+      }
+    },
+    "tasks.approval.scope": {
+      "comment": "Label of the scope line on an approval card.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scope"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "范围"
+          }
+        }
+      }
+    },
+    "tasks.approval.approve": {
+      "comment": "Button on an approval card: approve the tool request.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准"
+          }
+        }
+      }
+    },
+    "tasks.approval.deny": {
+      "comment": "Button on an approval card: deny the tool request.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        }
+      }
+    },
+    "tasks.approval.appSignature": {
+      "comment": "Explains that approving this request needs a signature this phone cannot make yet; denying still works.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approving this request needs an app signature this phone cannot make yet. You can still deny it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。"
+          }
+        }
+      }
+    },
+    "tasks.approval.approve.title": {
+      "comment": "Title of the confirmation before approving a tool request.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve this request?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准此请求？"
+          }
+        }
+      }
+    },
+    "tasks.approval.deny.title": {
+      "comment": "Title of the confirmation before denying a tool request.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny this request?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝此请求？"
+          }
+        }
+      }
+    },
+    "tasks.approval.approve.summary": {
+      "comment": "Accessibility summary of the confirm button: %1$@ is the tool, %2$@ the service.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve %1$@ from %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准来自 %2$@ 的 %1$@"
+          }
+        }
+      }
+    },
+    "tasks.approval.deny.summary": {
+      "comment": "Accessibility summary of the confirm button: %1$@ is the tool, %2$@ the service.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny %1$@ from %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝来自 %2$@ 的 %1$@"
           }
         }
       }

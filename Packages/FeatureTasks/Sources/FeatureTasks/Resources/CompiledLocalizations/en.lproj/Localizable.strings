@@ -8,6 +8,22 @@
 	<string>Account</string>
 	<key>tasks.approval</key>
 	<string>Approval request</string>
+	<key>tasks.approval.appSignature</key>
+	<string>Approving this request needs an app signature this phone cannot make yet. You can still deny it.</string>
+	<key>tasks.approval.approve</key>
+	<string>Approve</string>
+	<key>tasks.approval.approve.summary</key>
+	<string>Approve %1$@ from %2$@</string>
+	<key>tasks.approval.approve.title</key>
+	<string>Approve this request?</string>
+	<key>tasks.approval.deny</key>
+	<string>Deny</string>
+	<key>tasks.approval.deny.summary</key>
+	<string>Deny %1$@ from %2$@</string>
+	<key>tasks.approval.deny.title</key>
+	<string>Deny this request?</string>
+	<key>tasks.approval.scope</key>
+	<string>Scope</string>
 	<key>tasks.assignee</key>
 	<string>Assignee</string>
 	<key>tasks.cancel</key>
@@ -52,8 +68,6 @@
 	<string>Review intervention on a trusted client</string>
 	<key>tasks.loading</key>
 	<string>Loading</string>
-	<key>tasks.more</key>
-	<string>Load next page</string>
 	<key>tasks.needs_me</key>
 	<string>Needs your input</string>
 	<key>tasks.noAuthority</key>
@@ -106,8 +120,6 @@
 	<string>Result summary</string>
 	<key>tasks.review</key>
 	<string>Review this task action</string>
-	<key>tasks.reviewPermission</key>
-	<string>Review approval availability</string>
 	<key>tasks.revoked</key>
 	<string>Revoked</string>
 	<key>tasks.running</key>

@@ -20,7 +20,7 @@ enum PermissionProjection {
                     requester: try ProxyGateway.text(binding, "requester"), assignee: try ProxyGateway.text(binding, "assignee"), executorDeviceID: try ProxyGateway.text(binding, "executor_device_id")),
                 status: status, deliveryState: try ProxyGateway.text(row, "delivery_state"), reasonCode: row["reason_code"]?.string, expiresAt: expires))
         }
-        return .approval(PermissionApproval(referenceID: reference, server: try ProxyGateway.text(row, "server_id"), tool: try ProxyGateway.text(row, "tool_name"), capability: try ProxyGateway.text(row, "capability"), status: status, expiresAt: expires, scope: row["tool_scope"]?.string, argumentsHash: row["details"]?["arguments_hash"]?.string))
+        return .approval(PermissionApproval(referenceID: reference, server: try ProxyGateway.text(row, "server_id"), tool: try ProxyGateway.text(row, "tool_name"), capability: try ProxyGateway.text(row, "capability"), status: status, expiresAt: expires, scope: row["tool_scope"]?.string, argumentsHash: row["details"]?["arguments_hash"]?.string, confirmationMode: row["confirmation_mode"]?.string))
     }
     private static func unsigned(_ value: JSONValue?) -> UInt64? { switch value { case .unsigned(let value): value; case .number(let value): UInt64(exactly: value); default: nil } }
     private static func expiry(_ row: JSONValue) throws -> Int64 {
