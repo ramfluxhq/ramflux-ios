@@ -4,4 +4,6 @@ import AppData
 public enum SettingsEvent: Equatable, Sendable { case navigate(AppRoute), locked, appearanceChanged(AppearanceMode)
     /// A backup was restored onto this install as a new account; it is unlocked with the code just set.
     case restored(String)
+    /// Open the system settings page of this app, where iOS offers the per-app language.
+    case openSystemSettings
 }

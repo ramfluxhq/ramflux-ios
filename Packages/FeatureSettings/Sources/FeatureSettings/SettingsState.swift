@@ -14,5 +14,8 @@ public struct SettingsState: Equatable, Sendable {
     public var pendingMutation: PendingSettingsMutation?
     public var unknownMutation = false
     public var pendingRevoke: DeviceRecord?
+    /// The change-code sheet is open; `codeChanged` confirms a finished change.
+    public var changingCode = false
+    public var codeChanged = false
     public init(route: AppRoute = .settings) { self.route = route }
 }

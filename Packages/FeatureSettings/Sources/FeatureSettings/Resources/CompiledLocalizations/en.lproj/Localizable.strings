@@ -20,18 +20,36 @@
 	<string>Notifications contain a generic alert. No message preview is sent through push.</string>
 	<key>settings.about.title</key>
 	<string>About and diagnostics</string>
+	<key>settings.account.changeCode</key>
+	<string>Change account code</string>
+	<key>settings.account.changeCode.body</key>
+	<string>Enter the current code, then the new six-digit code twice. The new code unlocks this account on this phone.</string>
+	<key>settings.account.changeCode.cancel</key>
+	<string>Cancel</string>
+	<key>settings.account.changeCode.current</key>
+	<string>Current code</string>
+	<key>settings.account.changeCode.detail</key>
+	<string>The six-digit code that unlocks this account</string>
+	<key>settings.account.changeCode.done</key>
+	<string>The account code was changed.</string>
+	<key>settings.account.changeCode.new</key>
+	<string>New code</string>
+	<key>settings.account.changeCode.repeat</key>
+	<string>Repeat the new code</string>
 	<key>settings.account.lock</key>
 	<string>Lock account</string>
+	<key>settings.account.lock.detail</key>
+	<string>Close the account on this phone until the code is entered</string>
 	<key>settings.account.networkLive</key>
 	<string>Network connection is live</string>
 	<key>settings.account.networkUnconfirmed</key>
 	<string>Network connection has not been confirmed</string>
 	<key>settings.account.openOrCreate</key>
 	<string>Open or create an account</string>
+	<key>settings.account.security</key>
+	<string>Security</string>
 	<key>settings.account.title</key>
 	<string>Account and security</string>
-	<key>settings.appearance.languageNote</key>
-	<string>Language follows the per-app language in system settings.</string>
 	<key>settings.appearance.system</key>
 	<string>System</string>
 	<key>settings.appearance.theme</key>
@@ -164,6 +182,34 @@
 	<string>My devices</string>
 	<key>settings.devices.webOriginWarning</key>
 	<string>The origin's operator can read plaintext on this web device.</string>
+	<key>settings.index.about.detail</key>
+	<string>Version, licence and diagnostics</string>
+	<key>settings.index.account.detail</key>
+	<string>Lock, account code and privacy</string>
+	<key>settings.index.appearance.detail</key>
+	<string>Theme and language</string>
+	<key>settings.index.backup.detail</key>
+	<string>Encrypted archives on this phone</string>
+	<key>settings.index.connectedServices.detail</key>
+	<string>Servers, tools and read-only state</string>
+	<key>settings.index.devices.detail</key>
+	<string>Linked devices and revocation</string>
+	<key>settings.index.nodes.detail</key>
+	<string>Working node and default</string>
+	<key>settings.index.privacy.detail</key>
+	<string>Contact requests and open account</string>
+	<key>settings.index.storage.detail</key>
+	<string>Media and file storage</string>
+	<key>settings.language.change</key>
+	<string>Change in system settings</string>
+	<key>settings.language.note</key>
+	<string>Choose the app language in the system settings of Ramflux. Languages without a translation yet show English.</string>
+	<key>settings.language.pending</key>
+	<string>Not translated yet</string>
+	<key>settings.language.title</key>
+	<string>Language</string>
+	<key>settings.language.translated</key>
+	<string>Translated</string>
 	<key>settings.loading</key>
 	<string>Loading settings</string>
 	<key>settings.nodes.add</key>
@@ -182,10 +228,18 @@
 	<string>Use as default</string>
 	<key>settings.pending</key>
 	<string>An earlier Settings action is unresolved.</string>
+	<key>settings.privacy.autoAccept</key>
+	<string>Accept contact requests automatically</string>
+	<key>settings.privacy.autoAccept.off</key>
+	<string>You approve each contact request before the person can message you.</string>
+	<key>settings.privacy.autoAccept.on</key>
+	<string>Anyone who has your contact card becomes a contact without asking you.</string>
 	<key>settings.privacy.openAccount</key>
 	<string>Open account and username reachability</string>
-	<key>settings.privacy.requireApproval</key>
-	<string>Require manual approval</string>
+	<key>settings.privacy.openAccount.section</key>
+	<string>Open account</string>
+	<key>settings.privacy.requests</key>
+	<string>Contact requests</string>
 	<key>settings.privacy.retention.label</key>
 	<string>Retention for newly sent messages</string>
 	<key>settings.privacy.retention.note</key>
@@ -200,8 +254,20 @@
 	<string>7 days</string>
 	<key>settings.privacy.title</key>
 	<string>Privacy</string>
+	<key>settings.privacy.username</key>
+	<string>Find people by @username</string>
 	<key>settings.reconcile</key>
 	<string>Reconcile original action</string>
+	<key>settings.section.accountDevices</key>
+	<string>Account and devices</string>
+	<key>settings.section.activity</key>
+	<string>Activity</string>
+	<key>settings.section.app</key>
+	<string>App</string>
+	<key>settings.section.connectionData</key>
+	<string>Connection and data</string>
+	<key>settings.storage.title</key>
+	<string>Storage</string>
 	<key>settings.systemPermissions</key>
 	<string>System permissions</string>
 	<key>settings.title</key>

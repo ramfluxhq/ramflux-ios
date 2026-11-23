@@ -2637,6 +2637,40 @@
           }
         }
       }
+    },
+    "settings.unavailable.storage": {
+      "comment": "Shown when storage management is opened before the media module provides it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage management is not available in this version yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不提供存储空间管理。"
+          }
+        }
+      }
+    },
+    "settings.unavailable.username": {
+      "comment": "Shown when @username lookup is opened: the app has no method for it yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding people by @username is not available yet. Share your contact card instead."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不支持通过 @用户名查找。请改为分享你的联系人名片。"
+          }
+        }
+      }
     }
   }
 }

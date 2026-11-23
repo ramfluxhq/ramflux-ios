@@ -20,18 +20,36 @@
 	<string>通知仅包含通用提醒，不通过推送发送消息预览。</string>
 	<key>settings.about.title</key>
 	<string>关于与诊断</string>
+	<key>settings.account.changeCode</key>
+	<string>更改账号码</string>
+	<key>settings.account.changeCode.body</key>
+	<string>先输入当前账号码，再输入两次新的六位数账号码。新账号码用于在本机解锁此账号。</string>
+	<key>settings.account.changeCode.cancel</key>
+	<string>取消</string>
+	<key>settings.account.changeCode.current</key>
+	<string>当前账号码</string>
+	<key>settings.account.changeCode.detail</key>
+	<string>用于解锁此账号的六位数账号码</string>
+	<key>settings.account.changeCode.done</key>
+	<string>账号码已更改。</string>
+	<key>settings.account.changeCode.new</key>
+	<string>新账号码</string>
+	<key>settings.account.changeCode.repeat</key>
+	<string>再次输入新账号码</string>
 	<key>settings.account.lock</key>
 	<string>锁定账户</string>
+	<key>settings.account.lock.detail</key>
+	<string>在本机关闭账号，直到再次输入账号码</string>
 	<key>settings.account.networkLive</key>
 	<string>网络已连接</string>
 	<key>settings.account.networkUnconfirmed</key>
 	<string>网络连接尚未确认</string>
 	<key>settings.account.openOrCreate</key>
 	<string>打开或创建账户</string>
+	<key>settings.account.security</key>
+	<string>安全</string>
 	<key>settings.account.title</key>
 	<string>账户与安全</string>
-	<key>settings.appearance.languageNote</key>
-	<string>语言跟随系统设置中为此应用选择的语言。</string>
 	<key>settings.appearance.system</key>
 	<string>跟随系统</string>
 	<key>settings.appearance.theme</key>
@@ -164,6 +182,34 @@
 	<string>我的设备</string>
 	<key>settings.devices.webOriginWarning</key>
 	<string>此源地址的运营方能够读取该网页设备上的明文。</string>
+	<key>settings.index.about.detail</key>
+	<string>版本、许可与诊断</string>
+	<key>settings.index.account.detail</key>
+	<string>锁定、账号码与隐私</string>
+	<key>settings.index.appearance.detail</key>
+	<string>主题与语言</string>
+	<key>settings.index.backup.detail</key>
+	<string>本机上的加密归档</string>
+	<key>settings.index.connectedServices.detail</key>
+	<string>服务器、工具与只读状态</string>
+	<key>settings.index.devices.detail</key>
+	<string>已关联设备与撤销</string>
+	<key>settings.index.nodes.detail</key>
+	<string>工作节点与默认节点</string>
+	<key>settings.index.privacy.detail</key>
+	<string>联系人请求与开放账号</string>
+	<key>settings.index.storage.detail</key>
+	<string>媒体与文件存储</string>
+	<key>settings.language.change</key>
+	<string>在系统设置中更改</string>
+	<key>settings.language.note</key>
+	<string>请在系统设置中为 Ramflux 选择应用语言。尚未翻译的语言会显示英文。</string>
+	<key>settings.language.pending</key>
+	<string>尚未翻译</string>
+	<key>settings.language.title</key>
+	<string>语言</string>
+	<key>settings.language.translated</key>
+	<string>已翻译</string>
 	<key>settings.loading</key>
 	<string>正在加载设置</string>
 	<key>settings.nodes.add</key>
@@ -182,10 +228,18 @@
 	<string>设为默认</string>
 	<key>settings.pending</key>
 	<string>之前的设置操作结果尚未确定。</string>
+	<key>settings.privacy.autoAccept</key>
+	<string>自动接受联系人请求</string>
+	<key>settings.privacy.autoAccept.off</key>
+	<string>每个联系人请求都需要你批准后，对方才能给你发消息。</string>
+	<key>settings.privacy.autoAccept.on</key>
+	<string>任何拥有你联系人名片的人都会直接成为联系人，无需你同意。</string>
 	<key>settings.privacy.openAccount</key>
 	<string>公开账户与用户名查找</string>
-	<key>settings.privacy.requireApproval</key>
-	<string>要求手动批准</string>
+	<key>settings.privacy.openAccount.section</key>
+	<string>开放账号</string>
+	<key>settings.privacy.requests</key>
+	<string>联系人请求</string>
 	<key>settings.privacy.retention.label</key>
 	<string>新发送消息的保留时间</string>
 	<key>settings.privacy.retention.note</key>
@@ -200,8 +254,20 @@
 	<string>7 天</string>
 	<key>settings.privacy.title</key>
 	<string>隐私</string>
+	<key>settings.privacy.username</key>
+	<string>通过 @用户名查找</string>
 	<key>settings.reconcile</key>
 	<string>核对原始操作</string>
+	<key>settings.section.accountDevices</key>
+	<string>账户与设备</string>
+	<key>settings.section.activity</key>
+	<string>动态</string>
+	<key>settings.section.app</key>
+	<string>应用</string>
+	<key>settings.section.connectionData</key>
+	<string>连接与数据</string>
+	<key>settings.storage.title</key>
+	<string>存储空间</string>
 	<key>settings.systemPermissions</key>
 	<string>系统权限</string>
 	<key>settings.title</key>

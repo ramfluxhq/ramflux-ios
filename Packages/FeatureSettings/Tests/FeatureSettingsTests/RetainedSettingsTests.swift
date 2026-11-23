@@ -16,7 +16,8 @@ private actor RetainedSettingsFake: SettingsRepository {
     func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .revoke(device), operationID: operationID) }
     func lock(account: String) -> RepositoryResult<Void> { .failure(.unsupported) }
     func retention(account: String, seconds: Int64, operationID: String) -> RepositoryResult<Void> { .failure(.unsupported) }
-    func requireManualRequests(account: String, operationID: String) -> RepositoryResult<Void> { .failure(.unsupported) }
+    func setRequestPolicy(account: String, autoAccept: Bool, operationID: String) -> RepositoryResult<Void> { .failure(.unsupported) }
+    func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) -> RepositoryResult<Void> { credentials.erase(); return .success(()) }
     nonisolated func unavailable(_ capability: SettingsUnavailable) -> AppFailure { .unsupported }
     func observe(account: String) -> RepositoryObservation { let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated); return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() }) }
 }

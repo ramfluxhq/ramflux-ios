@@ -135,6 +135,20 @@ SDK reports job changes only on the daemon stream, so the screen re-reads `accou
 second while a job runs. Onboarding offers "Restore from a backup" (the backup screen without an
 account) as the recovery path on a new install, because phrase recovery needs the account on the phone.
 
+Settings follow board MOB-G02: grouped cards for account and devices, connection and data (nodes,
+backup and restore, connected services, storage) and app (appearance and language, diagnostics and
+about, system permissions), plus call history and cards until their own module places those entries.
+Account and security offers lock, changing the six-digit code (`account.passphrase.rotate` with the
+current code as `old_passphrase`; both codes are checked locally first and never journaled) and privacy.
+Privacy switches `contact.requests.policy.set` between `manual` and `auto_accept`, the only honest part of
+"open account" at this SDK pin; the open-account and @username boards (MOB-G27–G30) show typed
+unavailable states because the SDK has no username, open-account or reach methods. The language list
+shows the fifteen launch languages with their translation state from the package catalogs (English and
+Simplified Chinese today; no placeholder translations ship) and opens the app's system settings, where
+iOS offers the per-app language. Storage management is the media module's screen; its entry shows a
+typed unavailable state until then. Device pairing as the primary (`device.pair.begin/status/confirm/
+approve`) needs no credential channel on the inviting side, but is not built yet; see the bridge notes.
+
 Contacts and contact requests read through `RowWindow` (AppData), a bounded window of
 at most 300 rows over a `RowPageReader`. `contact.list` and `contact.requests.list` are unpaged
 in the SDK, so `SnapshotPager` reads each once per first page, keeps the matching rows in the data

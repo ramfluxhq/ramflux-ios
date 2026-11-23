@@ -13,7 +13,12 @@ public struct SettingsSnapshot: Equatable, Sendable {
         self.accountID = accountID; self.networking = networking; self.devices = devices; self.nodes = nodes; self.retentionSeconds = retentionSeconds; self.requestPolicy = requestPolicy
     }
 }
-public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport }
+public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport
+    /// Storage management is the media module's screen; until it lands the entry says so.
+    case storage
+    /// @username lookup and conversations with non-contacts (boards MOB-G27–G30): no SDK methods at the pin.
+    case username
+}
 public protocol SettingsRepository: Sendable {
     func pending(account: String?) async -> PendingSettingsMutation?
     func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void>
@@ -21,7 +26,10 @@ public protocol SettingsRepository: Sendable {
     func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void>
     func lock(account: String) async -> RepositoryResult<Void>
     func retention(account: String, seconds: Int64, operationID: String) async -> RepositoryResult<Void>
-    func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void>
+    func setRequestPolicy(account: String, autoAccept: Bool, operationID: String) async -> RepositoryResult<Void>
+    /// `account.passphrase.rotate`: the current code under `oldPassphrase`, the new one under `passphrase`
+    /// (checked with its repeat by `SensitiveSubmission(values:accountCode: .new)`). Not journaled: it carries secrets.
+    func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) async -> RepositoryResult<Void>
     func observe(account: String) async -> RepositoryObservation
     func unavailable(_ capability: SettingsUnavailable) -> AppFailure
 }
@@ -67,7 +75,7 @@ public struct NativeSettingsRepository: SettingsRepository {
                 case .retention(let seconds):
                     guard (3600...604800).contains(seconds) else { return .failure(.invalidInput) }
                     _ = try await gateway.call(.accountConfigSet, account: account, body: .object(["offline_retention_secs": .number(Double(seconds))]), operationID: operationID)
-                case .manualRequests: _ = try await gateway.call(.contactRequestsPolicySet, account: account, body: .object(["contact_requests": .string("manual")]), operationID: operationID)
+                case .requestPolicy(let autoAccept): _ = try await gateway.call(.contactRequestsPolicySet, account: account, body: .object(["contact_requests": .string(autoAccept ? "auto_accept" : "manual")]), operationID: operationID)
                 case .lock:
                     // Account-scoped stores drop decoded plaintext before the SDK closes the account.
                     await lifecycle.notify(.willLock(account: account))
@@ -80,7 +88,14 @@ public struct NativeSettingsRepository: SettingsRepository {
     }
     public func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .revoke(device), operationID: operationID) }
     public func retention(account: String, seconds: Int64, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .retention(seconds), operationID: operationID) }
-    public func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .manualRequests, operationID: operationID) }
+    public func setRequestPolicy(account: String, autoAccept: Bool, operationID: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .requestPolicy(autoAccept: autoAccept), operationID: operationID) }
+    public func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) async -> RepositoryResult<Void> {
+        defer { credentials.erase() }
+        if let issue = credentials.accountCodeIssue { return .failure(.accountCode(issue)) }
+        guard let fields = credentials.take(), let current = fields["old_passphrase"], let next = fields["passphrase"] else { return .failure(.invalidInput) }
+        do { _ = try await gateway.call(.accountPassphraseRotate, account: account, operationID: operationID, secrets: ["old_passphrase": current, "new_passphrase": next]); return .success(()) }
+        catch { return .failure(AppFailure.map(error)) }
+    }
     public func lock(account: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .lock, operationID: await pending(account: account)?.operationID ?? UUID().uuidString) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { Self.refusal(capability) }
@@ -90,6 +105,8 @@ public struct NativeSettingsRepository: SettingsRepository {
         case .pairing: .unavailableResource("settings.unavailable.pairing")
         case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")
         case .diagnosticExport: .unavailableResource("settings.unavailable.diagnosticExport")
+        case .storage: .unavailableResource("settings.unavailable.storage")
+        case .username: .unavailableResource("settings.unavailable.username")
         }
     }
 }
@@ -99,7 +116,8 @@ public struct UnavailableSettingsRepository: SettingsRepository {
     public func revoke(account: String, device: DeviceRecord, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func lock(account: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func retention(account: String, seconds: Int64, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
-    public func requireManualRequests(account: String, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
+    public func setRequestPolicy(account: String, autoAccept: Bool, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
+    public func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) async -> RepositoryResult<Void> { credentials.erase(); return .failure(.sdkUnavailable) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { NativeSettingsRepository.refusal(capability) }
 }
@@ -110,7 +128,7 @@ public extension SettingsRepository {
         guard let account else { return .failure(.invalidInput) }
         switch change { case .revoke(let device): return await revoke(account: account, device: device, operationID: operationID)
         case .retention(let seconds): return await retention(account: account, seconds: seconds, operationID: operationID)
-        case .manualRequests: return await requireManualRequests(account: account, operationID: operationID)
+        case .requestPolicy(let autoAccept): return await setRequestPolicy(account: account, autoAccept: autoAccept, operationID: operationID)
         case .lock: return await lock(account: account)
         case .setDefault: return .failure(.unsupported) }
     }

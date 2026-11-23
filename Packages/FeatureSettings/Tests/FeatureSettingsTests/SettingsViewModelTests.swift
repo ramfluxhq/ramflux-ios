@@ -13,7 +13,8 @@ private actor SettingsFake: SettingsRepository {
     func revoke(account: String, device: DeviceRecord, operationID: String) -> RepositoryResult<Void> { revoked.append(device.id); return unknown ? .failure(.outcomeUnknown) : .success(()) }
     func lock(account: String) -> RepositoryResult<Void> { .success(()) }
     func retention(account: String, seconds: Int64, operationID: String) -> RepositoryResult<Void> { .success(()) }
-    func requireManualRequests(account: String, operationID: String) -> RepositoryResult<Void> { .success(()) }
+    func setRequestPolicy(account: String, autoAccept: Bool, operationID: String) -> RepositoryResult<Void> { .success(()) }
+    func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) -> RepositoryResult<Void> { credentials.erase(); return .success(()) }
     func observe(account: String) -> RepositoryObservation { RepositoryObservation(stream: AsyncStream { $0.finish() }) }
     nonisolated func unavailable(_ capability: SettingsUnavailable) -> AppFailure { .unsupported }
 }
@@ -38,6 +39,24 @@ private actor SettingsFake: SettingsRepository {
         vm.send(.requestRevoke("peer")); vm.send(.confirmRevoke("peer")); await vm.settle()
         #expect(vm.state.unknownMutation); vm.send(.confirmRevoke("peer")); await vm.settle()
         #expect(await fake.revoked == ["peer"]); vm.send(.disappeared); #expect(vm.state.unknownMutation)
+    }
+    @Test func changeCodeChecksLocallyThenClosesTheSheet() async {
+        let vm = model(SettingsFake())
+        vm.send(.submitChangeCode(SensitiveSubmission(values: ["oldPassphrase": "274915", "passphrase": "592714", "passphraseRepeat": "592714"], accountCode: .new)))
+        #expect(!vm.state.codeChanged)
+        vm.send(.startChangeCode); #expect(vm.state.changingCode)
+        vm.send(.submitChangeCode(SensitiveSubmission(values: ["oldPassphrase": "274915", "passphrase": "592714", "passphraseRepeat": "592715"], accountCode: .new)))
+        #expect(vm.state.failure == .accountCode(.mismatch)); #expect(vm.state.changingCode)
+        vm.send(.submitChangeCode(SensitiveSubmission(values: ["oldPassphrase": "274915", "passphrase": "592714", "passphraseRepeat": "592714"], accountCode: .new))); await vm.settle()
+        #expect(!vm.state.changingCode); #expect(vm.state.codeChanged); vm.send(.disappeared)
+    }
+    @Test func systemLanguageIsOpenedThroughTheHostAndLaunchLanguagesAreListed() {
+        var events: [SettingsEvent] = []
+        let vm = SettingsViewModel(repository: SettingsFake(), nodes: UnavailableNodeRepository(), preferences: NativePreferencesRepository(suite: "settings-tests-" + UUID().uuidString), account: "account", emit: { events.append($0) })
+        vm.send(.openSystemLanguage); #expect(events == [.openSystemSettings])
+        #expect(SettingsLanguages.launch.count == 15); #expect(SettingsLanguages.translated == ["en", "zh-Hans"])
+        #expect(SettingsLanguages.isCurrent("zh-Hans", locale: Locale(identifier: "zh-CN"))); #expect(SettingsLanguages.isCurrent("zh-Hant", locale: Locale(identifier: "zh-TW")))
+        #expect(!SettingsLanguages.isCurrent("zh-Hans", locale: Locale(identifier: "zh-Hant-HK"))); #expect(SettingsLanguages.isCurrent("pt-BR", locale: Locale(identifier: "pt-BR")))
     }
     @Test func unavailableSettingsNeverInventDevices() async {
         let vm = SettingsViewModel(repository: UnavailableSettingsRepository(), nodes: UnavailableNodeRepository(), preferences: NativePreferencesRepository(suite: "settings-tests-" + UUID().uuidString), account: "account", state: SettingsState(route: .devices), emit: { _ in })

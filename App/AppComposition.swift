@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import UIKit
 import RFDesign
 import AppData
 import FeatureAppShell
@@ -102,6 +103,7 @@ import Observation
             case .locked: self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
             case .restored: self?.shell.path = []; self?.shell.send(.retry)
+            case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
         }
         currentSettings = (account, route, coordinator); return coordinator

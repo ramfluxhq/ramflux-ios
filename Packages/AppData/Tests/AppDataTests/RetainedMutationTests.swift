@@ -27,7 +27,7 @@ import RamfluxCore
         var iterator = dispatched.stream.makeAsyncIterator(); _ = await iterator.next(); waiter.cancel()
         #expect(await repository.pending(account: "a") == PendingSettingsMutation(change: .retention(3600), operationID: "settings-key"))
         release.signal(); _ = await waiter.value
-        if case .failure(.outcomeUnknown) = await repository.requireManualRequests(account: "a", operationID: "fresh") {} else { Issue.record("Fresh settings action crossed unresolved fence") }
+        if case .failure(.outcomeUnknown) = await repository.setRequestPolicy(account: "a", autoAccept: false, operationID: "fresh") {} else { Issue.record("Fresh settings action crossed unresolved fence") }
         #expect(await repository.pending(account: "a")?.operationID == "settings-key"); #expect(transport.calls.withLock { $0.count == 1 })
     }
     @Test func sendAndContactOwnersRetainExactAttemptsAfterCancelledWaiters() async {

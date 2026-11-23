@@ -34,9 +34,25 @@ import AppData
         case .saveRetention:
             guard account != nil else { return }; let seconds = state.retentionSeconds
             dispatch(PendingSettingsMutation(change: .retention(seconds), operationID: UUID().uuidString))
-        case .manualRequests:
+        case .requestPolicy(let autoAccept):
             guard account != nil else { return }
-            dispatch(PendingSettingsMutation(change: .manualRequests, operationID: UUID().uuidString))
+            dispatch(PendingSettingsMutation(change: .requestPolicy(autoAccept: autoAccept), operationID: UUID().uuidString))
+        case .startChangeCode: guard account != nil, !state.busy else { return }; state.failure = nil; state.codeChanged = false; state.changingCode = true
+        case .cancelChangeCode: if !state.busy { state.changingCode = false }
+        case .submitChangeCode(let input):
+            guard let account, state.changingCode, !state.busy else { input.erase(); return }
+            if let issue = input.accountCodeIssue { input.erase(); state.failure = .accountCode(issue); return }
+            state.busy = true; state.failure = nil; let current = epoch
+            mutation = Task { [weak self, repository] in
+                let result = await repository.changeCode(account: account, credentials: input, operationID: UUID().uuidString)
+                guard !Task.isCancelled, let self, self.epoch == current else { return }
+                self.state.busy = false
+                switch result {
+                case .success: self.state.changingCode = false; self.state.codeChanged = true
+                case .failure(let failure): self.state.failure = failure
+                }
+            }
+        case .openSystemLanguage: emit(.openSystemSettings)
         case .requestRevoke(let id):
             guard !state.busy, !state.unknownMutation, let device = state.snapshot.devices.first(where: { $0.id == id && !$0.isLocal }) else { return }; state.pendingRevoke = device
         case .confirmRevoke(let id):
@@ -50,7 +66,7 @@ import AppData
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .dismissModal: state.pendingRevoke = nil
+        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false }
         case .reconcileOriginal(let id):
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:

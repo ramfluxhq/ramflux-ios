@@ -11,6 +11,7 @@ import FeatureConversations
 import FeatureGroups
 import FeatureAgents
 import FeatureOnboarding
+import FeatureSettings
 
 /// Renders every board over the full CaptureMatrix and writes
 /// `<board>-<locale>-<width>-<textSize>-<theme>.png` into SHELL_CAPTURE_DIR.
@@ -26,7 +27,7 @@ final class ShellBoardCaptureTests: XCTestCase {
     /// search miss) has none: the search query is view-private state.
     private static let boards = [
         "MOB-B01", "MOB-B01L", "MOB-B01X", "MOB-B12", "MOB-B02", "MOB-B02E",
-        "MOB-C01", "MOB-C15", "MOB-D01", "MOB-D20", "MOB-G01", "MOB-G03",
+        "MOB-C01", "MOB-C15", "MOB-D01", "MOB-D20", "MOB-G01", "MOB-G02", "MOB-G03",
         "MOB-S01", "MOB-S02", "MOB-S18", "MOB-A01", "MOB-A02", "MOB-N01",
     ]
 
@@ -103,6 +104,8 @@ final class ShellBoardCaptureTests: XCTestCase {
                 phone(.agents, AgentsScreen(state: AgentsState(), onAction: { _ in }))
             case "MOB-G01":
                 phone(.more, MoreHubScreen { _ in })
+            case "MOB-G02":
+                SettingsScreen(state: SettingsState(route: .settings), onAction: { _ in })
             case "MOB-G03":
                 NavigationEditorScreen(order: .constant(ShellShortcuts.defaultOrder), hidden: .constant(""), onBack: {})
             case "MOB-S01": stage(.launch, language)
@@ -143,7 +146,7 @@ final class ShellBoardCaptureTests: XCTestCase {
     /// Boards without a tab bar keep 34 pt clear of the home indicator. Tab roots
     /// already fill that band with the 83 pt bar.
     private func reservesHome(_ board: String) -> Bool {
-        board.hasPrefix("MOB-G03") || board.hasPrefix("MOB-S") || board.hasPrefix("MOB-A") || board.hasPrefix("MOB-N") || board.hasPrefix("MOB-B02")
+        board.hasPrefix("MOB-G02") || board.hasPrefix("MOB-G03") || board.hasPrefix("MOB-S") || board.hasPrefix("MOB-A") || board.hasPrefix("MOB-N") || board.hasPrefix("MOB-B02")
     }
 
     private func png(_ view: some View, locale: CaptureMatrix.CaptureLocale, canvas: CaptureMatrix.Canvas, textSize: CaptureMatrix.TextSize, theme captureTheme: CaptureMatrix.Theme, reservesHome: Bool) throws -> Data {

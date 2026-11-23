@@ -270,6 +270,10 @@
 	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
 	<key>settings.unavailable.pairing</key>
 	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
+	<key>settings.unavailable.storage</key>
+	<string>此版本暂不提供存储空间管理。</string>
+	<key>settings.unavailable.username</key>
+	<string>暂不支持通过 @用户名查找。请改为分享你的联系人名片。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>

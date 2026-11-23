@@ -27,12 +27,16 @@ public final class SensitiveSubmission: Sendable, Equatable, CustomStringConvert
     /// compares it with `passphraseRepeat`, which is never sent.
     public init(values: [String: String], accountCode: AccountCodeRule? = nil, archivePassphrase: ArchivePassphraseRule? = nil) {
         var fields: [String: SecretField] = [:], buffers: [SecretBytes] = []
-        accountCodeIssue = accountCode.flatMap { Self.check(values["passphrase"], repeated: values["passphraseRepeat"], rule: $0) }
+        accountCodeIssue = accountCode.flatMap { rule in
+            if let current = values["oldPassphrase"], let issue = Self.check(current, repeated: nil, rule: .existing) { return issue }
+            return Self.check(values["passphrase"], repeated: values["passphraseRepeat"], rule: rule)
+        }
         archivePassphraseIssue = archivePassphrase.flatMap { Self.checkArchive(values["passphrase"], repeated: values["passphraseRepeat"], rule: $0) }
-        for key in ["passphrase", "phrase"] {
+        // `oldPassphrase` is the current account code when changing it; it is sent as `old_passphrase`.
+        for (key, field) in [("passphrase", "passphrase"), ("phrase", "phrase"), ("oldPassphrase", "old_passphrase")] {
             if let value = values[key], !value.isEmpty, value.utf8.count <= 4096,
                let buffer = try? Array(value.utf8).withUnsafeBytes({ try SecretBytes(copying: $0) }) {
-                fields[key] = .text(buffer); buffers.append(buffer)
+                fields[field] = .text(buffer); buffers.append(buffer)
             }
         }
         let words = ["word1", "word2", "word3"].compactMap { key -> SecretBytes? in

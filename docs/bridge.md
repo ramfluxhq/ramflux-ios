@@ -159,3 +159,13 @@ credential channel, and the SDK's `docs/device_pairing.md` states that phone pai
 companions are outside the release. The onboarding "link" entry therefore shows the
 typed unavailable state. Device list and revocation use `device.list` and
 `device.revoke` and are available.
+
+The other direction, this phone as the primary inviting another device, does not use the credential
+channel: `bus/credentials.rs` routes only `device.pair.join`, `device.transfer.join/prepare/status` and
+an unlock without a passphrase through it, and pairing is enabled by default
+(`RAMFLUX_DEVICE_PAIRING_ENABLED` unset). `device.pair.begin` returns the invitation token as secret
+output (a bearer credential that must reach the other device as a QR code or file without being logged
+or kept), `device.pair.status` carries the SAS emoji indices and transcript hash, and
+`device.pair.confirm`/`device.pair.approve` take the transcript and proposal hashes (reference caller
+`apps/rf/src/handlers/pairing.rs`). The node must advertise `device_pairing_v2`. The phone flow is not
+built yet; the Kit pairing code and QR components are the intended presentation.

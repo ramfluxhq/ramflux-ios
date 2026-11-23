@@ -427,23 +427,6 @@
         }
       }
     },
-    "settings.privacy.requireApproval": {
-      "comment": "Button that switches contact requests from automatic acceptance back to manual approval.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Require manual approval"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要求手动批准"
-          }
-        }
-      }
-    },
     "settings.devices.title": {
       "comment": "Title of the list of the user's own linked devices.",
       "localizations": {
@@ -797,23 +780,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "已连接的服务可以请求执行操作。批准界面必须在原生应用中显示确切操作和来源。"
-          }
-        }
-      }
-    },
-    "settings.appearance.languageNote": {
-      "comment": "Note that the app language is chosen in the system's per-app language setting.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Language follows the per-app language in system settings."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "语言跟随系统设置中为此应用选择的语言。"
           }
         }
       }
@@ -1764,6 +1730,601 @@
           "stringUnit": {
             "state": "translated",
             "value": "继续"
+          }
+        }
+      }
+    },
+    "settings.section.accountDevices": {
+      "comment": "Settings section label: account and devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account and devices"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户与设备"
+          }
+        }
+      }
+    },
+    "settings.section.connectionData": {
+      "comment": "Settings section label: connection and data.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection and data"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接与数据"
+          }
+        }
+      }
+    },
+    "settings.section.app": {
+      "comment": "Settings section label: app settings.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用"
+          }
+        }
+      }
+    },
+    "settings.section.activity": {
+      "comment": "Settings section label: call history and cards.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activity"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "动态"
+          }
+        }
+      }
+    },
+    "settings.index.account.detail": {
+      "comment": "Settings row detail under Account and security.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock, account code and privacy"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁定、账号码与隐私"
+          }
+        }
+      }
+    },
+    "settings.index.devices.detail": {
+      "comment": "Settings row detail under Devices.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linked devices and revocation"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已关联设备与撤销"
+          }
+        }
+      }
+    },
+    "settings.index.nodes.detail": {
+      "comment": "Settings row detail under Nodes.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Working node and default"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "工作节点与默认节点"
+          }
+        }
+      }
+    },
+    "settings.index.backup.detail": {
+      "comment": "Settings row detail under Backup and restore.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted archives on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本机上的加密归档"
+          }
+        }
+      }
+    },
+    "settings.index.connectedServices.detail": {
+      "comment": "Settings row detail under connected services (MCP and A2I).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servers, tools and read-only state"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务器、工具与只读状态"
+          }
+        }
+      }
+    },
+    "settings.index.storage.detail": {
+      "comment": "Settings row detail under Storage.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media and file storage"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体与文件存储"
+          }
+        }
+      }
+    },
+    "settings.index.appearance.detail": {
+      "comment": "Settings row detail under Appearance and language.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme and language"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题与语言"
+          }
+        }
+      }
+    },
+    "settings.index.about.detail": {
+      "comment": "Settings row detail under Diagnostics and about.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version, licence and diagnostics"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本、许可与诊断"
+          }
+        }
+      }
+    },
+    "settings.index.privacy.detail": {
+      "comment": "Settings row detail under Privacy.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact requests and open account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系人请求与开放账号"
+          }
+        }
+      }
+    },
+    "settings.storage.title": {
+      "comment": "Settings row: storage management.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储空间"
+          }
+        }
+      }
+    },
+    "settings.account.security": {
+      "comment": "Section label on the account screen: security actions.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全"
+          }
+        }
+      }
+    },
+    "settings.account.lock.detail": {
+      "comment": "Detail of the lock row: what locking does.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close the account on this phone until the code is entered"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在本机关闭账号，直到再次输入账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode": {
+      "comment": "Row and sheet title: change the six-digit account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.detail": {
+      "comment": "Detail of the change-code row.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The six-digit code that unlocks this account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于解锁此账号的六位数账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.body": {
+      "comment": "Explains the change-code sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the current code, then the new six-digit code twice. The new code unlocks this account on this phone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "先输入当前账号码，再输入两次新的六位数账号码。新账号码用于在本机解锁此账号。"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.current": {
+      "comment": "Label of the current account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.new": {
+      "comment": "Label of the new account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.repeat": {
+      "comment": "Label of the field that repeats the new account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeat the new code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再次输入新账号码"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.done": {
+      "comment": "Confirmation after the account code was changed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The account code was changed."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账号码已更改。"
+          }
+        }
+      }
+    },
+    "settings.privacy.requests": {
+      "comment": "Section label on the privacy screen: contact requests.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact requests"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "联系人请求"
+          }
+        }
+      }
+    },
+    "settings.privacy.autoAccept": {
+      "comment": "Row that switches automatic acceptance of contact requests on or off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accept contact requests automatically"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动接受联系人请求"
+          }
+        }
+      }
+    },
+    "settings.privacy.autoAccept.on": {
+      "comment": "Explains the consequence while contact requests are accepted automatically.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone who has your contact card becomes a contact without asking you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何拥有你联系人名片的人都会直接成为联系人，无需你同意。"
+          }
+        }
+      }
+    },
+    "settings.privacy.autoAccept.off": {
+      "comment": "Explains the consequence while contact requests need approval.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You approve each contact request before the person can message you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每个联系人请求都需要你批准后，对方才能给你发消息。"
+          }
+        }
+      }
+    },
+    "settings.privacy.openAccount.section": {
+      "comment": "Section label on the privacy screen: open account and username.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开放账号"
+          }
+        }
+      }
+    },
+    "settings.privacy.username": {
+      "comment": "Row: find people by @username.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find people by @username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过 @用户名查找"
+          }
+        }
+      }
+    },
+    "settings.language.title": {
+      "comment": "Heading of the language part of the appearance screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语言"
+          }
+        }
+      }
+    },
+    "settings.language.note": {
+      "comment": "Explains that the app language is chosen in the system settings of this app and which languages are translated.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the app language in the system settings of Ramflux. Languages without a translation yet show English."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在系统设置中为 Ramflux 选择应用语言。尚未翻译的语言会显示英文。"
+          }
+        }
+      }
+    },
+    "settings.language.change": {
+      "comment": "Button that opens the system settings page of this app to change its language.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change in system settings"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在系统设置中更改"
+          }
+        }
+      }
+    },
+    "settings.language.translated": {
+      "comment": "Status of a language: translated.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Translated"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已翻译"
+          }
+        }
+      }
+    },
+    "settings.language.pending": {
+      "comment": "Status of a language: not translated yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not translated yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未翻译"
+          }
+        }
+      }
+    },
+    "settings.account.changeCode.cancel": {
+      "comment": "Button that closes the change-code sheet without changing the code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
