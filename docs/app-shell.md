@@ -50,8 +50,9 @@ xcodebuild -project Ramflux.xcodeproj -scheme Ramflux \
 ```
 
 Use persistent `--scratch-path`/`-derivedDataPath` locations for local work.
-The iOS CI workflow selects installed Xcode 26.2 on hosted `macos-15`, runs the
-host checks and builds/tests the application on an available iPhone simulator.
+The iOS CI workflow selects installed Xcode 26.6 on hosted `macos-26`, runs the
+host checks and builds/tests the application on the pinned iPhone 17 Pro iOS
+26.5 simulator (`scripts/select-simulator.py`).
 `AppShellSnapshotTests` captures all six major states in both themes and at large
 Dynamic Type, plus the tab presentations, over every locale and canvas of
 `AppTests/CaptureMatrix.swift`. Feature snapshot attachments are review
