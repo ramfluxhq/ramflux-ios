@@ -56,3 +56,28 @@ The generator verifies SDK-owned method policy, expected count, Swift-name
 uniqueness, and all generated outputs. CI runs that check and the generator's
 negative tests. Fixture tests and binary artifact builds are separate
 package configurations; fixture symbols must never enter an application.
+
+## Real run against a local node
+
+`scripts/realrun.sh` runs the beta flows on a simulator with the native SDK
+against the local node and its two `rf` peers (alice and bob). It is opt-in:
+the suite lives in the `RamfluxRealRunUITests` target and the `RamfluxRealRun`
+scheme, which the `Ramflux` scheme and CI never run.
+
+```sh
+source /path/to/mobile-env.sh
+scripts/realrun.sh                       # all flows, output in build/realrun/<UTC time>/
+scripts/realrun.sh --only test04_directChatWithAlice --out /tmp/rr
+```
+
+Requirements: `build/RamfluxSDKBinary.xcframework`, XcodeGen, and the local node
+up (`ops/local-node/up.sh`, `peers.sh start`). The script checks the node,
+builds the app and the suite, resets the app's data and the simulator Keychain,
+starts a loopback peer-control server (`scripts/realrun/peer_control.py`) that
+runs allow-listed `rf` commands for the test at the right moments, runs the
+suite, and writes `flow-table.md` (PASS, FAIL, BLOCKED or NOT RUN per flow),
+screenshots and logs. The six-digit code and the recovery words are generated
+or read inside the test process only; typed text is redacted from the saved
+test log and the result bundle is deleted. Unless `--no-clock-sync` is given,
+the podman VM clock is set from the Mac's clock before and during the run,
+because branch proofs expire after 300 seconds and that VM clock drifts.

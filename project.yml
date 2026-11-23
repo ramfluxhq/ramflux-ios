@@ -144,6 +144,20 @@ targets:
       - package: RFDesign
       - package: FeatureAppShell
       - package: AppData
+  # Opt-in end-to-end suite against a real local node (scripts/realrun.sh). It has its own scheme
+  # and is never part of the Ramflux scheme, so normal CI and the default test action do not run it.
+  RamfluxRealRunUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [RealRunUITests]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: '5.0'
+        SWIFT_STRICT_CONCURRENCY: minimal
+        TEST_TARGET_NAME: Ramflux
+    dependencies:
+      - target: Ramflux
 schemes:
   Ramflux:
     build:
@@ -152,3 +166,10 @@ schemes:
         RamfluxTests: [test]
     test:
       targets: [RamfluxTests]
+  RamfluxRealRun:
+    build:
+      targets:
+        Ramflux: all
+        RamfluxRealRunUITests: [test]
+    test:
+      targets: [RamfluxRealRunUITests]
