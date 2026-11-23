@@ -155,6 +155,8 @@ struct KitHit<Content: View>: View {
                 .accessibilityLabel(label)
                 .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
                 .accessibilityIdentifier(hitTag ?? "")
+                // Reported as not enabled to assistive technology while the control is off.
+                .disabled(!enabled)
                 .kitTag(hitTag)
                 .preference(key: KitHits.self, value: hitTag.map { [$0: enabled] } ?? [:])
                 .gesture(press)

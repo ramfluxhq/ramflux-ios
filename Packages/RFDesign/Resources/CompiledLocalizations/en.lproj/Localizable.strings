@@ -8,6 +8,8 @@
 	<string>Cancel</string>
 	<key>confirmation.confirm</key>
 	<string>Confirm</string>
+	<key>kit.attach</key>
+	<string>Attach</string>
 	<key>kit.back</key>
 	<string>Back</string>
 	<key>kit.call</key>

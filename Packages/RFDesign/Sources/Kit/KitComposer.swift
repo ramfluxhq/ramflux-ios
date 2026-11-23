@@ -124,13 +124,13 @@ public struct KitComposer: View {
                 .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
             }
             HStack(spacing: KitMetrics.bubbleGap) {
-                KitIcon(name: "plus", size: KitMetrics.attachIcon, tint: theme.secondary)
-                    .frame(width: KitMetrics.iconButton, height: KitMetrics.iconButton)
-                    .opacity(attachEnabled ? 1 : KitMetrics.disabledAlpha)
-                    .contentShape(Rectangle())
-                    .onTapGesture { if attachEnabled { onAttach() } }
-                    .allowsHitTesting(attachEnabled)
-                    .accessibilityIdentifier(tag.map { $0 + "-attach" } ?? "")
+                // A real button for assistive technology and UI tests (label, button trait, enabled state);
+                // a plain image with a tap gesture was neither labelled nor hittable.
+                KitHit(enabled: attachEnabled, label: RFDesignStrings.text("kit.attach"), hitTag: tag.map { $0 + "-attach" }, action: { if attachEnabled { onAttach() } }) {
+                    KitIcon(name: "plus", size: KitMetrics.attachIcon, tint: theme.secondary)
+                        .frame(width: KitMetrics.iconButton, height: KitMetrics.iconButton)
+                        .opacity(attachEnabled ? 1 : KitMetrics.disabledAlpha)
+                }
                 HStack(spacing: KitMetrics.headerGap) {
                     if capturing {
                         KitLabel(value.isEmpty ? placeholder : value, size: theme.size_mobile_body, weight: .regular, color: value.isEmpty ? theme.secondary : theme.text, line: 1)

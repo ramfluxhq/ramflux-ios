@@ -307,6 +307,23 @@
           }
         }
       }
+    },
+    "kit.attach": {
+      "comment": "Accessibility label of the composer's plus button that opens the attach sheet (photos, camera, files).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attach"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加附件"
+          }
+        }
+      }
     }
   }
 }
