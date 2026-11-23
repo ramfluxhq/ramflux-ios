@@ -141,7 +141,7 @@ verification work: each changed reference was compared pair by pair and its
 reason extended with what moved and why; no rectangle was accepted in bulk.
 
 The expected file was recorded from Xcode 27.2 and the iOS 27.2 simulator.
-Text rendering can differ between Xcode versions; CI is pinned to Xcode 27.2,
+Text rendering can differ between Xcode versions; CI is pinned to Xcode 26.2,
 so the first CI run on that toolchain may report new regions caused only by the
 toolchain. Those are fixed by recording on the CI toolchain, not by widening
 rectangles.
