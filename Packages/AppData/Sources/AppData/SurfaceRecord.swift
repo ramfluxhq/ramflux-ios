@@ -58,15 +58,10 @@ enum CanonicalJSON {
     static func hash(_ domain: String, _ value: JSONValue) -> String {
         var digest = BLAKE3()
         digest.update(Data(domain.utf8)); digest.update(bytes(value))
-        return base64URL(hexBytes(digest.hex()))
+        return base64URL(Data(digest.digest()))
     }
     static func base64URL(_ data: Data) -> String {
         data.base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
-    }
-    private static func hexBytes(_ hex: String) -> Data {
-        var data = Data(), chars = Array(hex)
-        for index in stride(from: 0, to: chars.count - 1, by: 2) { data.append(UInt8(String(chars[index...index + 1]), radix: 16) ?? 0) }
-        return data
     }
 }
 

@@ -6,10 +6,10 @@ import AppData
 @testable import FeatureCards
 struct LocalizationTests {
     @Test func englishChineseAndExpandedCopyResolveFromPackageCatalog() {
-        let english = FeatureCardsStrings.text("cards.title", locale: Locale(identifier: "en"))
-        let chinese = FeatureCardsStrings.text("cards.title", locale: Locale(identifier: "zh-CN"))
-        let expanded = FeatureCardsStrings.text("cards.title", locale: Locale(identifier: "en-XA"))
-        #expect(english != "cards.title"); #expect(chinese != english); #expect(expanded.count > english.count)
+        let english = FeatureCardsStrings.text("cards.sending", locale: Locale(identifier: "en"))
+        let chinese = FeatureCardsStrings.text("cards.sending", locale: Locale(identifier: "zh-CN"))
+        let expanded = FeatureCardsStrings.text("cards.sending", locale: Locale(identifier: "en-XA"))
+        #expect(english != "cards.sending"); #expect(chinese != english); #expect(expanded.count > english.count)
     }
     @Test func unavailableReasonResolvesAtPresentationInChineseAndExpandedLocale() {
         let reason = AppFailure.unavailableResource("cards.unavailable")

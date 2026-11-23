@@ -12,7 +12,6 @@ actor CardsFake: CardsRepository {
     private(set) var acts: [(String, [String: SurfaceInput], String)] = []
     init(_ surfaces: [SurfaceRecord]) { self.surfaces = surfaces }
     func setResult(_ value: RepositoryResult<SurfaceActionOutcome>) { result = value }
-    func availability() async -> RepositoryResult<Void> { .success(()) }
     func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<SurfacePage> { .success(SurfacePage(surfaces: surfaces, nextCursor: nil)) }
     func act(account: String, shown: SurfaceRecord, buttonID: String, drafts: [String: SurfaceInput], messageID: String) async -> RepositoryResult<SurfaceActionOutcome> {
         acts.append((buttonID, drafts, messageID)); return result

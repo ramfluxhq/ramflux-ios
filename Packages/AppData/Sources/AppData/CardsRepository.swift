@@ -21,7 +21,6 @@ public struct SurfaceActionOutcome: Equatable, Sendable {
 /// Agent surfaces (cards) in conversations: `surface.list` and `surface.get` to read, and
 /// `surface.action` to act on a shown surface, bound to its version and hash.
 public protocol CardsRepository: Sendable {
-    func availability() async -> RepositoryResult<Void>
     func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<SurfacePage>
     func surface(account: String, surfaceRef: String) async -> RepositoryResult<SurfaceRecord?>
     /// Sends the button's event. The surface is read again first; a changed version or hash

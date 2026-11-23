@@ -32,8 +32,8 @@ struct TimelineWindow: Equatable, Sendable {
     }
 
     mutating func appendOlder(_ page: MessageWindowPage) {
-        let known = Set(records.map { MessageID.normalized($0.id) })
-        records.append(contentsOf: page.records.filter { !known.contains(MessageID.normalized($0.id)) })
+        let known = Set(records.map { MessageIdentifier.normalized($0.id) })
+        records.append(contentsOf: page.records.filter { !known.contains(MessageIdentifier.normalized($0.id)) })
         nextBefore = page.nextBefore
         if records.count > capacity {
             records.removeFirst(records.count - capacity)
@@ -47,25 +47,25 @@ struct TimelineWindow: Equatable, Sendable {
     /// the window, and ignored when they are older than the window or the window is detached.
     mutating func apply(_ batch: MessageChangeBatch) {
         var index: [String: Int] = [:]
-        for (position, record) in records.enumerated() { index[MessageID.normalized(record.id)] = position }
+        for (position, record) in records.enumerated() { index[MessageIdentifier.normalized(record.id)] = position }
         var removals = Set<String>()
         var insertions: [MessageRecord] = []
         for change in batch.changes {
             switch change {
             case .hidden(let id):
-                if index[MessageID.normalized(id)] != nil { removals.insert(MessageID.normalized(id)) }
+                if index[MessageIdentifier.normalized(id)] != nil { removals.insert(MessageIdentifier.normalized(id)) }
             case .row(let record):
-                let key = MessageID.normalized(record.id)
+                let key = MessageIdentifier.normalized(record.id)
                 if let position = index[key] {
                     if records[position].order == record.order || record.order == nil { records[position] = record }
                     else { removals.insert(key); insertions.append(record) }
                 } else if !detached, belongsInWindow(record) {
-                    insertions.removeAll { MessageID.normalized($0.id) == key }
+                    insertions.removeAll { MessageIdentifier.normalized($0.id) == key }
                     insertions.append(record)
                 }
             }
         }
-        if !removals.isEmpty { records.removeAll { removals.contains(MessageID.normalized($0.id)) } }
+        if !removals.isEmpty { records.removeAll { removals.contains(MessageIdentifier.normalized($0.id)) } }
         for record in insertions { insert(record) }
         // Live growth past the cap cannot keep a valid older cursor for the trimmed rows, so the
         // window asks to be rebuilt from the newest page instead of silently skipping history.
@@ -93,17 +93,10 @@ struct TimelineWindow: Equatable, Sendable {
 
     private static func resolve(_ records: [MessageRecord]) -> [MessageRecord] {
         var previews: [String: String] = [:]
-        for record in records { if case .text(let text) = record.kind { previews[MessageID.normalized(record.id)] = text } }
+        for record in records { if case .text(let text) = record.kind { previews[MessageIdentifier.normalized(record.id)] = text } }
         return records.map { record in
             guard let reply = record.replyTo, let preview = previews[reply], preview != record.replyPreview else { return record }
             return record.withReplyPreview(preview)
         }
-    }
-}
-
-enum MessageID {
-    /// Read-model ids are base64url; quotes may carry the standard alphabet with padding.
-    static func normalized(_ value: String) -> String {
-        value.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
     }
 }

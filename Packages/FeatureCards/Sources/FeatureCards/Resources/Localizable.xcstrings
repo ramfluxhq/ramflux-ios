@@ -2,56 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "cards.title": {
-      "comment": "Title of the interactive cards feature (rich message cards with buttons).",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interactive cards"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交互卡片"
-          }
-        }
-      }
-    },
-    "cards.checking": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Checking availability"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "正在检查可用性"
-          }
-        }
-      }
-    },
-    "cards.retry": {
-      "comment": "Button that checks again whether interactive cards are available.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check again"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "再次检查"
-          }
-        }
-      }
-    },
     "cards.contentUnavailable": {
       "comment": "Shown in an agent card when its content cannot be displayed and it has no fallback text.",
       "localizations": {
@@ -286,40 +236,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "取消"
-          }
-        }
-      }
-    },
-    "cards.available.title": {
-      "comment": "Title on the cards page when interactive cards work on this phone.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cards appear in your conversations"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "卡片会显示在你的会话中"
-          }
-        }
-      }
-    },
-    "cards.available.message": {
-      "comment": "Explains where interactive cards from agents are shown and used.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "When an agent sends an interactive card, it shows up in the chat with that agent, and you can use it there."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "智能体发送交互卡片后，卡片会出现在与该智能体的会话中，你可以直接在那里使用。"
           }
         }
       }

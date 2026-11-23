@@ -4,18 +4,7 @@ import Foundation
 import Testing
 import AppData
 @testable import FeatureCards
-@Suite(.timeLimit(.minutes(1))) @MainActor struct CardsViewModelTests {
-    @Test func deferredRuntimeRemainsTypedUnavailableWithoutPretendingToOpenACard() async {
-        let model = CardsViewModel(repository: UnavailableCardsRepository()); model.send(.appeared); await model.settle()
-        #expect(model.state.failure == .unavailableResource("cards.unavailable")); #expect(!model.state.checking)
-        let en = model.state.failure.message(locale: Locale(identifier: "en")), zh = model.state.failure.message(locale: Locale(identifier: "zh-CN")), pseudo = model.state.failure.message(locale: Locale(identifier: "en-XA"))
-        #expect(en != zh); #expect(pseudo.count > en.count)
-        model.send(.retry); model.send(.disappeared); await model.settle(); #expect(model.state == CardsState())
-    }
-    @Test func aWorkingRepositoryShowsTheAvailableStateInsteadOfInvalidData() async {
-        let model = CardsViewModel(repository: Working()); model.send(.appeared); await model.settle()
-        #expect(model.state.available); #expect(!model.state.checking)
-    }
+@Suite(.timeLimit(.minutes(1))) struct SurfaceLinkTests {
     @Test func linkButtonsCarryOnlySafeHttpsDestinations() throws {
         #expect(SurfaceLink.validate("https://example.com/a?b=1").map(SurfaceLink.host) == "example.com")
         #expect(SurfaceLink.validate("HTTPS://Docs.Example.COM./x").map(SurfaceLink.host) == "docs.example.com")
@@ -27,4 +16,3 @@ import AppData
         if case .button(_, _, .link(let target))? = surface.components["b"]?.kind { #expect(surface.linkURL(target)?.absoluteString == "https://example.org/p") } else { Issue.record("Link button not parsed") }
     }
 }
-private struct Working: CardsRepository { func availability() async -> RepositoryResult<Void> { .success(()) } }

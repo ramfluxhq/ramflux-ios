@@ -230,8 +230,6 @@
 	<string>Linking stopped for a reason this app does not recognise.</string>
 	<key>pairing.failure.title</key>
 	<string>Linking did not complete</string>
-	<key>receipt.deviceState</key>
-	<string>%1$@: %2$@</string>
 	<key>refusal.crypto_failure</key>
 	<string>This message could not be protected.</string>
 	<key>refusal.crypto_failure.title</key>

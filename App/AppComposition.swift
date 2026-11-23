@@ -10,7 +10,6 @@ import FeatureChat
 import FeatureContacts
 import FeatureSettings
 import FeaturePermissions
-import FeatureCards
 import FeatureTasks
 import FeatureAgents
 import FeatureCalls
@@ -121,7 +120,6 @@ import UserNotifications
         let coordinator = TasksCoordinator(repository: repositories.tasks, conversations: repositories.conversations, account: account, mode: permissions ? .permissions : .conversations)
         currentTasks = (account, permissions, coordinator); return coordinator
     }
-    @ObservationIgnored lazy var cards = CardsCoordinator(repository: repositories.cards)
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?
     @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?

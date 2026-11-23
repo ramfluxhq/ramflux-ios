@@ -18,7 +18,7 @@ public enum DirectConversationID {
             withUnsafeBytes(of: UInt32(bytes.count).bigEndian) { transcript.append(contentsOf: $0) }
             transcript.append(contentsOf: bytes)
         }
-        return "dm:" + base64url(BLAKE3.hash(transcript))
+        return "dm:" + CanonicalJSON.base64URL(Data(BLAKE3.hash(transcript)))
     }
     /// The direct conversation of this account with a peer or agent root anchor: reads this account's
     /// root (`account.status` `principal_commitment`) and derives the id, so no directory scan is needed.
@@ -33,9 +33,6 @@ public enum DirectConversationID {
         guard value.utf8.count == 43, value.utf8.allSatisfy({ $0 < 0x80 }) else { return false }
         var padded = value.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/"); padded += "="
         guard let bytes = Data(base64Encoded: padded), bytes.count == 32 else { return false }
-        return base64url(Array(bytes)) == value
-    }
-    static func base64url(_ bytes: [UInt8]) -> String {
-        Data(bytes).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+        return CanonicalJSON.base64URL(bytes) == value
     }
 }

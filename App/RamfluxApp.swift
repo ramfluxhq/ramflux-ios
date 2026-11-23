@@ -9,7 +9,6 @@ import FeatureChat
 import FeatureContacts
 import FeatureSettings
 import FeaturePermissions
-import FeatureCards
 import FeatureTasks
 import FeatureAgents
 import FeatureCalls
@@ -39,7 +38,6 @@ import RFDesign
             }) { route in
                 switch route {
                 case .systemPermissions: return AnyView(PermissionsHost(coordinator: composition.permissions))
-                case .cards: return AnyView(CardsHost(coordinator: composition.cards))
                 case .tasks, .permissions:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
                     else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }

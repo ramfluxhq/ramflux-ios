@@ -61,3 +61,11 @@ public struct MessageRecord: Identifiable, Sendable, Equatable, CustomStringConv
         MessageRecord(id: id, sender: sender, kind: kind, isOwn: isOwn, timestamp: timestamp, delivery: delivery, receipts: receipts, attachments: attachments, edited: edited, replyTo: replyTo, replyPreview: preview, reactions: reactions, authorAnchor: authorAnchor, order: order, journalSequence: journalSequence)
     }
 }
+
+public enum MessageIdentifier {
+    /// Read-model message ids are base64url; quotes and references may carry the standard alphabet with
+    /// padding. Compare ids only in this normalized form.
+    public static func normalized(_ value: String) -> String {
+        value.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+    }
+}

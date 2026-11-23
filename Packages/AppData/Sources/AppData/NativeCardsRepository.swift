@@ -13,7 +13,6 @@ public struct NativeCardsRepository: CardsRepository {
     init(client: RamfluxClient, updates: NativeUpdateSource, now: @escaping @Sendable () -> Date) {
         gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates; self.now = now
     }
-    public func availability() async -> RepositoryResult<Void> { .success(()) }
     public func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<SurfacePage> {
         guard !conversation.isEmpty, conversation.utf8.count <= 256 else { return .failure(.invalidInput) }
         do {

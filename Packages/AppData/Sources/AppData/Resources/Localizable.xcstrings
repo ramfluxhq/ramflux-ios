@@ -1090,23 +1090,6 @@
         }
       }
     },
-    "receipt.deviceState": {
-      "comment": "Delivery receipt for one device. %1$@ is the device name or id, %2$@ is its delivery state (for example Delivered or Read).",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@: %2$@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@：%2$@"
-          }
-        }
-      }
-    },
     "groups.unavailable.threads": {
       "localizations": {
         "en": {

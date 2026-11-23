@@ -4,8 +4,8 @@ import Foundation
 import RamfluxCore
 
 /// Delivers the bodies of `message.transient` frames (lossy Typing updates, sequence zero, no
-/// replay) for one account. The shared event source owned by the app provides it; until it is
-/// connected the chat shows no typing indicator.
+/// replay) for one account. The app connects `UpdateSourceChatTransients` over the shared event
+/// fan-out; a repository built without a source shows no typing indicator.
 public protocol ChatTransientSource: Sendable {
     func transients(account: String) async -> AsyncStream<JSONValue>
 }

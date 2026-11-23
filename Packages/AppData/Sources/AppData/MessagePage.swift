@@ -81,9 +81,7 @@ enum MessagePage {
         return MessageChangeBatch(changes: changes, nextAfter: next, more: more)
     }
 
-    static func normalizeIdentifier(_ value: String) -> String {
-        value.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
-    }
+    static func normalizeIdentifier(_ value: String) -> String { MessageIdentifier.normalized(value) }
 
     private static func fold(_ rows: [JSONValue], _ conversation: String) throws -> [MessageRecord] {
         // The unified read model folds edits into their target; legacy edit rows are still
