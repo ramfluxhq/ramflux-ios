@@ -228,6 +228,7 @@ final class RealRunFlowTests: RealRunTestCase {
             if !text(containing: incoming).waitForExistence(timeout: 60) {
                 // Delivered but not shown live? Reopen the conversation and look again.
                 back(); try openConversation(conversation)
+                control.post("device-log", json: ["name": "device-events-live-receive", "minutes": 4])
                 liveFailure = text(containing: incoming).waitForExistence(timeout: 20)
                     ? "alice's message was not shown live in the open chat within 60 s; it is there after reopening the conversation"
                     : "alice's message never appeared on the phone, even after reopening"
@@ -387,7 +388,10 @@ final class RealRunFlowTests: RealRunTestCase {
                 let result = self.control.rf("alice", ["attachment", "import", "--message", id, "--index", "0", "--output", out], timeout: 120)
                 guard result.exit == 0 else { return false }
                 imported = self.control.post("file-info", json: ["path": out]); return true
-            }) else { throw FlowStop.fail("alice never received an importable image from the phone; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))") }
+            }) else {
+                control.post("device-log", json: ["name": "device-events-media-send", "minutes": 5])
+                throw FlowStop.fail("alice never received an importable image from the phone; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))")
+            }
             let same = expected != nil && (imported["sha256"] as? String) == expected
             notes.append(same ? "alice imported identical bytes of the phone's image" : "alice imported \(imported["size"] ?? "?") bytes; sha256 differs from the photo-library file (the app or Photos re-encodes)")
             guard same else { throw FlowStop.fail(notes.joined(separator: "; ")) }
@@ -416,10 +420,18 @@ final class RealRunFlowTests: RealRunTestCase {
             field.tap(); field.typeText(name)
             try tap(button("Review group creation"), "Review group creation")
             try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "group creation confirmation", timeout: 30)
-            guard text(containing: "The account service committed the group").waitForExistence(timeout: 60) || text(containing: name).waitForExistence(timeout: 5) else {
-                throw FlowStop.fail("group creation was not acknowledged: \(visibleFailure())")
+            // After creation the app opens the new group's conversation.
+            let composer = element("chat-composer-input"), refused = text(containing: "could not be accepted")
+            guard eventually(90, { composer.exists || refused.exists }) else { throw FlowStop.fail("group creation was not acknowledged: \(visibleFailure())") }
+            if !composer.exists {
+                control.post("device-log", json: ["name": "device-events-group-create", "minutes": 4])
+                throw FlowStop.fail("the group was created but opening it failed: \(visibleFailure())")
             }
             snap("05-group-created")
+            notes.append("group created; the app opened its conversation")
+            back()
+            // Detail, from the Groups list row.
+            try tap(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch, "the new group's row", timeout: 30)
             // Members: add alice and bob from the known contacts.
             try tap(button("Members and permissions"), "Members and permissions")
             for peer in [config.alice, config.bob] {
@@ -442,6 +454,9 @@ final class RealRunFlowTests: RealRunTestCase {
             notes.append("alice lists the group (group_id \(groupID), conversation \(conversation))")
             // Phone sends; alice and bob read it.
             back()
+            if !button("Open group conversation").waitForExistence(timeout: 5) {
+                try tap(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch, "the group's row", timeout: 30)
+            }
             try tap(button("Open group conversation"), "Open group conversation", timeout: 30)
             let fromPhone = "rr-gphone-" + token()
             try send(fromPhone)

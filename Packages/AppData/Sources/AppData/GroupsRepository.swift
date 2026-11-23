@@ -31,14 +31,14 @@ public struct NativeGroupsRepository: GroupsRepository {
         do {
             let rows = try await ProxyGateway.mapRows(await gateway.call(.groupList, account: account), "groups", Self.record)
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.list", error); return .failure(AppFailure.map(error)) }
     }
     public func conversation(account: String, group: String) async -> RepositoryResult<String> {
         do {
             let body = try await gateway.call(.groupHistory, account: account, body: .object(["group_id": .string(group), "conversation_id": .string(group), "limit": .number(0)]))
             guard body["group_id"] == .string(group) else { throw AppFailure.invalidData }
             return .success(try ProxyGateway.text(body, "conversation_id"))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.history", error); return .failure(AppFailure.map(error)) }
     }
     public func detail(account: String, group: String) async -> RepositoryResult<GroupDetail> {
         do {
@@ -61,7 +61,7 @@ public struct NativeGroupsRepository: GroupsRepository {
             }
             guard Set(roster.map(\.id)).count == roster.count else { throw AppFailure.invalidData }
             return .success(GroupDetail(group: record, roster: roster, ownRoot: try ProxyGateway.text(status, "principal_commitment"), ownDevice: try ProxyGateway.text(status, "device_id"), authorized: status["local_device_authorized"] == .bool(true) && status["authority_blocked"] != .bool(true)))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.members", error); return .failure(AppFailure.map(error)) }
     }
     public func invitations(account: String) async -> RepositoryResult<[GroupInvitation]> {
         do {
@@ -70,7 +70,7 @@ public struct NativeGroupsRepository: GroupsRepository {
                 return GroupInvitation(id: try ProxyGateway.text(row, "group_id"), name: row["name"]?.string, creator: try ProxyGateway.text(row, "creator"), inviter: try ProxyGateway.text(row, "inviter"), expiresAt: expiry)
             }
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.invitations.list", error); return .failure(AppFailure.map(error)) }
     }
     public func requests(account: String, group: String) async -> RepositoryResult<[GroupRequestRecord]> {
         do {
@@ -79,7 +79,7 @@ public struct NativeGroupsRepository: GroupsRepository {
                 return GroupRequestRecord(id: try ProxyGateway.text(row, "request_id"), groupID: group, status: try ProxyGateway.text(row, "status"), waitingForOwner: waiting, expiresAt: expiry)
             }
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("group.requests.list", error); return .failure(AppFailure.map(error)) }
     }
     public func pending(account: String) async -> PendingGroupMutation? {
         guard let entry = await mutations.snapshot(scope: account), entry.unresolved else { return nil }
@@ -136,7 +136,7 @@ public struct NativeGroupsRepository: GroupsRepository {
                 }
                 // Mutation acknowledgement is not a claim that member devices received state.
                 return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: false))
-            } catch { return .failure(AppFailure.map(error)) }
+            } catch { EventDiagnostics.failed("group mutation", error); return .failure(AppFailure.map(error)) }
         }
     }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }

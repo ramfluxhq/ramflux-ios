@@ -104,6 +104,7 @@ public actor NativeUpdateSource {
             let opened = try await client.events(filter)
             epoch &+= 1; let current = epoch
             subscription = opened
+            EventDiagnostics.note("subscription open epoch=\(current) observers=\(observers.count)")
             pump = Task { [weak self] in
                 do {
                     for try await frame in opened.stream { await self?.delivered(frame, epoch: current) }
@@ -124,6 +125,7 @@ public actor NativeUpdateSource {
         guard current == epoch else { return }
         resyncs = 0
         let topic = frame["method"]?.string ?? frame["topic"]?.string
+        EventDiagnostics.note("frame topic=\(topic ?? "?") epoch=\(current) observers=\(observers.count)")
         guard topic == Self.transientTopic else { broadcast(.invalidated); return }
         guard !transients.isEmpty, let body = frame["body"], let bytes = try? JSONEncoder().encode(body), bytes.count <= 65_536 else { return }
         let value = TransientFrame(topic: Self.transientTopic, body: bytes)
@@ -135,6 +137,7 @@ public actor NativeUpdateSource {
     }
     private func recover(epoch current: UInt64, failure: (any Error)?) async {
         guard current == epoch else { return }
+        EventDiagnostics.note("subscription ended epoch=\(current) failure=\(failure.map { String(describing: type(of: $0)) } ?? "none")")
         let resync = (failure as? BridgeError) == .resyncRequired || (failure as? CoreFailure)?.code == .resyncRequired
         guard resync, resyncs < Self.resyncLimit else {
             await close(finishing: false)

@@ -323,6 +323,7 @@ import FeatureCards
                 }
                 break
             }
+            EventDiagnostics.note("chat refresh from=\(journal) to=\(cursor) failure=\(failure.map { "\($0)" } ?? "none")")
             let admitted = await repository.flushOutbox(account: account, conversation: conversation)
             let entries = await repository.outbox(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.readID == current else { return }
@@ -375,7 +376,7 @@ import FeatureCards
                     guard !Task.isCancelled, let self else { break }
                     delivered = true
                     switch event {
-                    case .invalidated: self.refresh(); self.loadCards()
+                    case .invalidated: EventDiagnostics.note("chat invalidated reading=\(self.reading) loaded=\(self.window.loaded) journal=\(self.window.journal.map { "\($0)" } ?? "nil")"); self.refresh(); self.loadCards()
                     case .failed(let error): self.state.failure = error; locked = error == .locked || error == .sdkUnavailable
                     }
                 }

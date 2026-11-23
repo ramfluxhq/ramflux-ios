@@ -207,7 +207,9 @@ actor ChatMediaEngine {
             if outcome.state == .submitted { for item in items { try? FileManager.default.removeItem(at: item.file) } }
             return .success(outcome)
         } catch {
-            return .failure(MediaRefusal.sendFailure(Self.code(error), failure: AppFailure.map(error)))
+            let failure = MediaRefusal.sendFailure(Self.code(error), failure: AppFailure.map(error))
+            EventDiagnostics.note("media send failed code=\(Self.code(error) ?? "none") mapped=\(failure) raw=\(EventDiagnostics.describe(error))")
+            return .failure(failure)
         }
     }
 

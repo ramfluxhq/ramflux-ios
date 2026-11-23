@@ -154,6 +154,16 @@ class Harness:
         self.log(f"fresh install: archive {name} ({archives[-1].stat().st_size} bytes) placed in On My iPhone; app reinstalled; keychain reset")
         return {"archive": name}
 
+    def device_log(self, name: str, minutes: int) -> dict:
+        """Saves the app's debug event trace (topics, cursors and counts only; see EventDiagnostics)."""
+        if not self.udid or not SAFE_NAME.match(name):
+            raise ValueError("device log needs --udid and a safe name")
+        done = subprocess.run(["xcrun", "simctl", "spawn", self.udid, "log", "show", "--last", f"{max(1, min(minutes, 30))}m", "--debug", "--info",
+                               "--style", "compact", "--predicate", 'subsystem == "org.ramflux.ios"'], capture_output=True, text=True, timeout=120)
+        path = self.out / (name + ".log")
+        path.write_text(done.stdout)
+        return {"path": str(path), "lines": done.stdout.count("\n")}
+
     def record(self, flow: str, status: str, detail: str):
         if status not in STATUSES:
             raise ValueError("bad status")
@@ -225,6 +235,8 @@ def handler_for(harness: Harness):
                     return self.reply(200, {"path": str(target)})
                 if self.path == "/file-info":
                     return self.reply(200, harness.file_info(body["path"]))
+                if self.path == "/device-log":
+                    return self.reply(200, harness.device_log(body.get("name", "device-events"), int(body.get("minutes", 5))))
                 if self.path == "/fresh-install":
                     return self.reply(200, harness.fresh_install())
                 if self.path == "/result":
