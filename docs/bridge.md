@@ -156,7 +156,7 @@ That channel exists only on local-bus socket connections (`bus/connection.rs`) a
 the narrow `ramflux_pairing_call` ABI, which needs a same-user local daemon socket
 (`pairing_socket`). The in-process v2 operation ABI that this app uses opens no
 credential channel, and the SDK's `docs/device_pairing.md` states that phone pairing
-companions are outside the release. The onboarding "link" entry therefore shows the
+companions are outside the release. The onboarding "device not yet authorised" row (MOB-A01) therefore shows the
 typed unavailable state. Device list and revocation use `device.list` and
 `device.revoke` and are available.
 

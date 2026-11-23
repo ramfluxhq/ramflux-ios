@@ -22,6 +22,42 @@
 	<string>运营方公钥</string>
 	<key>node.reviewFingerprint</key>
 	<string>核对指纹</string>
+	<key>onboarding.a01.changeNode.detail</key>
+	<string>不会改变账户所属节点或授权</string>
+	<key>onboarding.a01.header</key>
+	<string>继续使用已有身份</string>
+	<key>onboarding.a01.heading</key>
+	<string>连接与账户分别确认</string>
+	<key>onboarding.a01.local</key>
+	<string>已有本机账户</string>
+	<key>onboarding.a01.noAccount</key>
+	<string>没有账户？可以在这部手机上创建，或从恢复短语恢复。</string>
+	<key>onboarding.a01.unauthorized</key>
+	<string>设备尚未获授权</string>
+	<key>onboarding.a01.unauthorized.detail</key>
+	<string>查看当前可用的接入方式</string>
+	<key>onboarding.a02.info</key>
+	<string>查看设备解锁说明</string>
+	<key>onboarding.a02.localOnly</key>
+	<string>需要在本机完成解锁</string>
+	<key>onboarding.a07.code</key>
+	<string>用账户码解锁</string>
+	<key>onboarding.a07.code.detail</key>
+	<string>输入创建或恢复账户时设置的 6 位账户码</string>
+	<key>onboarding.a07.forgot</key>
+	<string>忘记账户码</string>
+	<key>onboarding.a07.forgot.detail</key>
+	<string>用恢复短语在这部手机上恢复账户</string>
+	<key>onboarding.a07.header</key>
+	<string>设备解锁说明</string>
+	<key>onboarding.a07.intro</key>
+	<string>解锁只在这部手机上进行。你的 6 位账户码不会发送到节点或你的其他设备。</string>
+	<key>onboarding.a07.local</key>
+	<string>仅在本机校验</string>
+	<key>onboarding.a07.local.detail</key>
+	<string>错误尝试次数有限。解锁不会扩大此设备的权限。</string>
+	<key>onboarding.a07.unlock</key>
+	<string>用账户码解锁</string>
 	<key>onboarding.accountCode.existing</key>
 	<string>账户码（6 位数字）</string>
 	<key>onboarding.accountCode.local</key>
@@ -38,14 +74,18 @@
 	<string>输入的地址</string>
 	<key>onboarding.address.field</key>
 	<string>节点地址</string>
+	<key>onboarding.address.instructions</key>
+	<string>输入节点运营方提供的 HTTPS 地址。只会使用其源地址。</string>
 	<key>onboarding.address.normalized</key>
 	<string>连接到</string>
 	<key>onboarding.address.originOnly</key>
 	<string>只使用 HTTPS 源地址，不发送路径或邀请信息。</string>
+	<key>onboarding.address.placeholder</key>
+	<string>https://node.example</string>
+	<key>onboarding.brand.letter</key>
+	<string>R</string>
 	<key>onboarding.busy</key>
 	<string>请稍候</string>
-	<key>onboarding.cancel</key>
-	<string>取消设置</string>
 	<key>onboarding.complete.connected</key>
 	<string>已连接</string>
 	<key>onboarding.complete.continue</key>
@@ -63,7 +103,7 @@
 	<key>onboarding.link.title</key>
 	<string>关联现有账户</string>
 	<key>onboarding.link.unavailable</key>
-	<string>关联设备需要已注册的手机配对服务。此版本不会创建二维码或配对码。</string>
+	<string>暂不支持将这部手机关联到其他设备上的账户：加入时需要新设备安全地提交新的账户码，此版本的应用还无法做到。你可以创建账户、用恢复短语恢复或从备份恢复。如果这部手机是主设备，可以在“设置 › 设备”中关联其他设备。</string>
 	<key>onboarding.localUnlock.accountID</key>
 	<string>本地账户 ID</string>
 	<key>onboarding.localUnlock.instructions</key>
@@ -108,6 +148,8 @@
 	<string>显示恢复助记词（仅一次）</string>
 	<key>onboarding.recover.accountID</key>
 	<string>现有本地账户 ID</string>
+	<key>onboarding.recover.fingerprint</key>
+	<string>核对账户指纹</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>我已核对此账户指纹</string>
 	<key>onboarding.recover.newInstall</key>
@@ -120,6 +162,22 @@
 	<string>恢复操作将继续使用此手机上已存储的账户。</string>
 	<key>onboarding.recover.warning</key>
 	<string>请通过可信渠道确认此账户指纹。恢复操作会撤销所有其他设备。仅在由你主动发起的恢复操作中输入助记词。</string>
+	<key>onboarding.s01.starting</key>
+	<string>正在启动</string>
+	<key>onboarding.s02.changeNode</key>
+	<string>更改节点</string>
+	<key>onboarding.s02.changeNode.detail</key>
+	<string>你也可以使用自己的节点</string>
+	<key>onboarding.s02.official</key>
+	<string>官方节点</string>
+	<key>onboarding.s02.official.detail</key>
+	<string>默认连接</string>
+	<key>onboarding.s02.purpose</key>
+	<string>创建账户，或继续使用已有账户。</string>
+	<key>onboarding.s18.existing</key>
+	<string>关联已有账户</string>
+	<key>onboarding.s18.recover</key>
+	<string>从恢复短语恢复</string>
 	<key>onboarding.stage.checkingAddress</key>
 	<string>检查节点地址</string>
 	<key>onboarding.stage.complete</key>
@@ -152,16 +210,20 @@
 	<string>节点验证失败</string>
 	<key>onboarding.stage.verifying</key>
 	<string>正在验证节点</string>
+	<key>onboarding.welcome.headline.first</key>
+	<string>让会话与协作</string>
+	<key>onboarding.welcome.headline.second</key>
+	<string>保持连接</string>
 	<key>onboarding.welcome.primaryDevice</key>
-	<string>此手机可作为你的主要设备。</string>
+	<string>这部手机可以作为你的主设备。</string>
 	<key>onboarding.welcome.recover</key>
 	<string>恢复账户</string>
 	<key>onboarding.welcome.restoreBackup</key>
 	<string>从备份恢复</string>
 	<key>onboarding.welcome.title</key>
-	<string>保持会话畅通</string>
+	<string>让会话与协作保持连接</string>
 	<key>onboarding.welcome.unlockSaved</key>
-	<string>解锁已保存的账户</string>
+	<string>解锁现有账户</string>
 	<key>recovery.word.position</key>
 	<string>第 %@ 个词</string>
 </dict>

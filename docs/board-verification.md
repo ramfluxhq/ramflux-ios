@@ -140,6 +140,10 @@ system-text message bubbles, per-script faces) were stacked on the board
 verification work: each changed reference was compared pair by pair and its
 reason extended with what moved and why; no rectangle was accepted in bulk.
 
+Wave 2 pass 4 redrew the onboarding and unlock screens (MOB-S01, S02, S18, N01, A01, A02) and added
+the MOB-A07 capture; each of those entries was re-recorded from its own pair and its reason rewritten
+with the remaining residuals; no other entry changed.
+
 The expected file was recorded from Xcode 27.2 and the iOS 27.2 simulator.
 Text rendering can differ between Xcode versions; CI is pinned to Xcode 27.2,
 so the first CI run on that toolchain may report new regions caused only by the

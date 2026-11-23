@@ -30,7 +30,10 @@ import AppData
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil; state.reviewedNode = nil; state.expectedNodeKey = ""
         case .recoveryAccountChanged(let value): state.recoveryAccount = String(value.prefix(256))
         case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.canCreateAccount }) { state.selectedNodeID = id }
-        case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.stage = .localUnlock
+        case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.showingUnlockInfo = false; state.stage = .localUnlock
+        case .getStarted: if state.stage == .connection { state.stage = .welcome }
+        case .existingAccount: state.creatingAccount = false; state.stage = .start
+        case .unlockInfo(let visible): state.showingUnlockInfo = visible
         case .create: state.creatingAccount = true; state.unlockingSavedAccount = false; state.stage = .create
         case .recover: state.creatingAccount = false; state.stage = .recover
         case .restoreBackup: emit(.restoreBackup)

@@ -54,8 +54,21 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     @Test func restoreFromBackupHandsOverToTheBackupScreenWithoutTouchingTheRepository() async {
         let fake = FlowFake(); var events: [OnboardingEvent] = []
         let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { events.append($0) })
+        #expect(model.state.stage == .connection)
+        model.send(.getStarted); #expect(model.state.stage == .welcome)
         model.send(.restoreBackup)
         #expect(events == [.restoreBackup]); #expect(model.state.stage == .welcome); #expect(!model.state.busy)
+    }
+    @Test func startBoardsLeadToTheExistingIdentityAndUnlockInformation() async {
+        let fake = FlowFake()
+        let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })
+        model.send(.existingAccount); #expect(model.state.stage == .start)
+        model.send(.unlockInfo(true)); #expect(model.state.showingUnlockInfo)
+        model.send(.unlockExisting)
+        #expect(model.state.stage == .localUnlock && model.state.unlockingSavedAccount && !model.state.showingUnlockInfo)
+        model.send(.getStarted); #expect(model.state.stage == .localUnlock, "get started only leaves the start board")
+        model.send(.cancel); await model.settle()
+        #expect(model.state.stage == .connection && !model.state.showingUnlockInfo)
     }
     @Test func originMustBeReviewedBeforeNetworkAndSavedKeyIsExact() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })

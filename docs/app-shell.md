@@ -135,6 +135,18 @@ SDK reports job changes only on the daemon stream, so the screen re-reads `accou
 second while a job runs. Onboarding offers "Restore from a backup" (the backup screen without an
 account) as the recovery path on a new install, because phrase recovery needs the account on the phone.
 
+Onboarding follows the boards: get started (MOB-S02, 2026-11-16 revision: the selected node, "change
+node", Continue) leads to the welcome (MOB-S18: create an account, continue with an existing account,
+recover with the recovery phrase, and "Restore from a backup" in the board's empty middle). "Continue
+with an existing account" opens MOB-A01 (the selected node and "change node", the device-not-authorised
+row that explains why joining from this phone is unavailable, and unlock); unlocking a stored account is
+MOB-A02 (local account id, the six-digit code entry in the local-only card) with the device unlock
+information MOB-A07 one tap away. The splash is MOB-S01 and account creation MOB-N01. Steps without a
+board (node address and identity, the recovery phrase, the six-digit code, recovery, completion) use the
+same page frame: Kit header whose back action cancels setup, content, and the step's action pinned
+above the home indicator. The secure entry forms, the single-attempt confirmation and the erasure are
+unchanged.
+
 Settings follow board MOB-G02: grouped cards for account and devices, connection and data (nodes,
 backup and restore, connected services, storage) and app (appearance and language, diagnostics and
 about, system permissions), plus call history and cards until their own module places those entries.

@@ -28,7 +28,7 @@ final class ShellBoardCaptureTests: XCTestCase {
     private static let boards = [
         "MOB-B01", "MOB-B01L", "MOB-B01X", "MOB-B12", "MOB-B02", "MOB-B02E",
         "MOB-C01", "MOB-C15", "MOB-D01", "MOB-D20", "MOB-G01", "MOB-G02", "MOB-G03",
-        "MOB-S01", "MOB-S02", "MOB-S18", "MOB-A01", "MOB-A02", "MOB-N01",
+        "MOB-S01", "MOB-S02", "MOB-S18", "MOB-A01", "MOB-A02", "MOB-A07", "MOB-N01",
     ]
 
     override func setUp() {
@@ -113,6 +113,7 @@ final class ShellBoardCaptureTests: XCTestCase {
             case "MOB-S18": stage(.welcome, language)
             case "MOB-A01": stage(.start, language)
             case "MOB-A02": stage(.localUnlock, language)
+            case "MOB-A07": stage(.localUnlock, language, unlockInfo: true)
             case "MOB-N01": stage(.create, language)
             default:
                 EmptyView()
@@ -125,20 +126,24 @@ final class ShellBoardCaptureTests: XCTestCase {
         return AppShellScreen(state: state, onAction: { _ in }, featureContent: AnyView(content))
     }
 
-    private func stage(_ stage: OnboardingStage, _ language: FixtureLanguage) -> some View {
+    private func stage(_ stage: OnboardingStage, _ language: FixtureLanguage, unlockInfo: Bool = false) -> some View {
         var state = OnboardingState(stage: stage)
-        if stage == .create {
+        let official = NodeRecord(id: "official", origin: "https://node.ramflux.example", isDefault: true, enabled: true, isConfirmed: true, pinSource: "builtin")
+        switch stage {
+        case .create:
             state.name = BoardFixtures.accountTitle(language)
-            let node = NodeRecord(
-                id: "official",
-                origin: "https://node.ramflux.example",
-                isDefault: true,
-                enabled: true,
-                isConfirmed: true,
-                pinSource: "builtin"
-            )
-            state.nodes = [node]
-            state.selectedNodeID = node.id
+            state.nodes = [official]; state.selectedNodeID = official.id
+        case .connection:
+            state.nodes = [official]; state.selectedNodeID = official.id
+        case .start:
+            // MOB-A01 shows a confirmed operator node.
+            let work = NodeRecord(id: "work", origin: "https://work.example", isDefault: false, enabled: true, isConfirmed: true, pinSource: "operator")
+            state.nodes = [work]; state.selectedNodeID = work.id
+        case .localUnlock:
+            state.unlockingSavedAccount = true
+            state.recoveryAccount = "acct_7Q2M9KX4"
+            state.showingUnlockInfo = unlockInfo
+        default: break
         }
         return OnboardingScreen(state: state, onAction: { _ in })
     }

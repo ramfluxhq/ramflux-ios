@@ -3,7 +3,7 @@
 import Foundation
 import AppData
 public struct OnboardingState: Equatable, Sendable {
-    public var stage: OnboardingStage = .welcome
+    public var stage: OnboardingStage = .connection
     public var name = ""
     public var address = ""
     public var recoveryAccount = ""
@@ -25,5 +25,7 @@ public struct OnboardingState: Equatable, Sendable {
     public var creatingAccount = false
     public var confirmationConsumed = false
     public var completedAccount: AccountRecord?
-    public init(stage: OnboardingStage = .welcome) { self.stage = stage }
+    /// The device unlock information (MOB-A07) is shown over the current step.
+    public var showingUnlockInfo = false
+    public init(stage: OnboardingStage = .connection) { self.stage = stage }
 }
