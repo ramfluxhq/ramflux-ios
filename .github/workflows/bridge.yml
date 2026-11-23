@@ -1,7 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Span Brain
 name: Swift bridge
-on: [pull_request, push]
+# Runs on the promotion to main and on main only; next is gated by real verification.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 permissions:
   contents: read
 jobs:

@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Span Brain
 name: iOS
+# Runs on the promotion to main and on main only; next is gated by real verification.
 on:
   pull_request:
+    branches: [main]
   push:
-    branches: [main, feat/ios-ui]
+    branches: [main]
 permissions:
   contents: read
 concurrency:
