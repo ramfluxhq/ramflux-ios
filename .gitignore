@@ -15,3 +15,5 @@ xcuserdata/
 .swiftpm/
 
 __pycache__/
+/kit-evidence/
+/kit-evidence-ci/
