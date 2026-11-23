@@ -188,6 +188,14 @@ import UserNotifications
     /// media engine refuses (see docs/app-shell.md, "Calls and the media engine boundary").
     @ObservationIgnored private(set) lazy var callService = CallSystemService(repository: repositories.calls, provider: CallKitProvider(supportsVideo: false), audio: CallAudioSession())
     private func accountLocked() { unlockedAccount = nil; callService.stop() }
+    /// The scene went to the background: the SDK closes (the C ABI has no suspend), which locks every
+    /// account. Account-scoped stores seal as on a lock, so the next unlock resumes queued sends
+    /// (including one interrupted in flight) and restarts what follows the account.
+    func enteredBackground() {
+        guard let account = unlockedAccount else { return }
+        accountLocked()
+        Task { [chat = repositories.chat] in await chat.sealForLock(account: account) }
+    }
     /// Account-scoped stores react before the SDK locks or removes the account.
     private func registerLifecycle() {
         repositories.lifecycle.register { [weak self, chat = repositories.chat] event in

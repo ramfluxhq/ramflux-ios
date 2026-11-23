@@ -46,7 +46,9 @@ actor ChatOutbox {
     private let draftPause: Duration
     private var accounts: [String: Account] = [:]
     private var loading: [String: Task<Account, Never>] = [:]
-    private var flushing: Set<String> = []
+    /// The flush running per account and conversation; a seal forgets them so a send interrupted by a
+    /// lock or by the SDK closing in the background cannot hold the queue after the next unlock.
+    private var flushing: [String: UUID] = [:]
     private var draftWrites: [String: Task<Void, Never>] = [:]
     init(vault: ChatVault? = nil, draftPause: Duration = .milliseconds(400)) { self.vault = vault; self.draftPause = draftPause }
 
@@ -121,8 +123,9 @@ actor ChatOutbox {
     func flush(_ account: String, _ conversation: String, send: @Sendable (OutboxEntry) async -> RepositoryResult<SendOutcome>) async -> [SendOutcome] {
         let scope = account + "\u{0}" + conversation
         _ = await self.account(account)
-        guard flushing.insert(scope).inserted else { return [] }
-        defer { flushing.remove(scope) }
+        guard flushing[scope] == nil else { return [] }
+        let token = UUID(); flushing[scope] = token
+        defer { if flushing[scope] == token { flushing[scope] = nil } }
         var admitted: [SendOutcome] = []
         while let index = accounts[account]?.queues[conversation]?.firstIndex(where: { $0.state == .queued }), let entry = accounts[account]?.queues[conversation]?[index] {
             accounts[account]?.queues[conversation]?[index].state = .sending
@@ -135,7 +138,9 @@ actor ChatOutbox {
             case .success:
                 accounts[account]?.queues[conversation]?[position].state = .failed(.unavailableResource("chat.send.deliveryFailed"))
                 await write(account)
-            case .failure(let error) where error == .offline || error == .outcomeUnknown || error == .busy:
+            // Not a refusal of this message: the network, an unknown outcome, or the account or SDK
+            // closing under the send (lock, background). The entry stays queued for the next flush.
+            case .failure(let error) where error == .offline || error == .outcomeUnknown || error == .busy || error == .locked || error == .sdkUnavailable:
                 accounts[account]?.queues[conversation]?[position].state = .queued
                 return admitted
             case .failure(let error):
@@ -176,6 +181,7 @@ actor ChatOutbox {
     func seal(_ account: String) async {
         if accounts[account] != nil { await write(account) }
         accounts[account] = nil
+        for scope in flushing.keys where scope.hasPrefix(account + "\u{0}") { flushing[scope] = nil }
     }
 
     /// Drops everything of the account: memory, the sealed file and its keychain key.

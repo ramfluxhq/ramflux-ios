@@ -84,7 +84,7 @@ import RFDesign
                     switch phase {
                     case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
                     case .inactive: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
-                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
+                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); composition.enteredBackground(); runtime.enterBackground(coordinator)
                     @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
