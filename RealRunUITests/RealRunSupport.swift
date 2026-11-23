@@ -120,10 +120,20 @@ enum PhraseReader {
                 cells[column * rows + row, default: []].append((minX, text))
             }
             for (index, parts) in cells where result[index] == nil {
-                result[index] = parts.sorted { $0.0 < $1.0 }.map(\.1).joined().lowercased().filter { $0.isLetter && $0.isASCII }
+                // A cell read as nothing (a glyph the recogniser dropped) stays unread for the next pass.
+                let word = parts.sorted { $0.0 < $1.0 }.map(\.1).joined().lowercased().filter { $0.isLetter && $0.isASCII }
+                if (3...8).contains(word.count) { result[index] = word }
             }
             progress("pass \(pass): \(result.compactMap { $0 }.count) of 24 cells read")
             if !result.contains(where: { $0 == nil }) { break }
+            // When every unread cell lies above what this pass saw, scroll back up to read it again.
+            let unread = result.indices.filter { result[$0] == nil }
+            if let seen = cells.keys.min(), unread.allSatisfy({ $0 < seen }) {
+                let up = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                up.press(forDuration: 0.05, thenDragTo: scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6)))
+                Thread.sleep(forTimeInterval: 0.8)
+                continue
+            }
             let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
             start.press(forDuration: 0.05, thenDragTo: scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35)))
             Thread.sleep(forTimeInterval: 0.8)
