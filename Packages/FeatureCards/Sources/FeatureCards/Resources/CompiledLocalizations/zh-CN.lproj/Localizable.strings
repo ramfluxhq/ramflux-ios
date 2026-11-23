@@ -2,11 +2,43 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>cards.approval.pending</key>
+	<string>请在任务中决定</string>
+	<key>cards.approval.request</key>
+	<string>请求</string>
+	<key>cards.available.message</key>
+	<string>智能体发送交互卡片后，卡片会出现在与该智能体的会话中，你可以直接在那里使用。</string>
+	<key>cards.available.title</key>
+	<string>卡片会显示在你的会话中</string>
 	<key>cards.checking</key>
 	<string>正在检查可用性</string>
+	<key>cards.closed</key>
+	<string>此卡片已关闭</string>
+	<key>cards.contentUnavailable</key>
+	<string>卡片内容不可用</string>
+	<key>cards.link</key>
+	<string>无法打开此链接</string>
+	<key>cards.link.cancel</key>
+	<string>取消</string>
+	<key>cards.link.confirm.message</key>
+	<string>此链接由智能体提供，将在浏览器中打开。继续前请核对网址。</string>
+	<key>cards.link.confirm.title</key>
+	<string>要打开 %@ 上的网页吗？</string>
+	<key>cards.link.open</key>
+	<string>打开</string>
+	<key>cards.outOfSync</key>
+	<string>此卡片未同步，操作已暂停</string>
 	<key>cards.retry</key>
 	<string>再次检查</string>
+	<key>cards.sending</key>
+	<string>正在发送…</string>
+	<key>cards.streaming</key>
+	<string>仍在输入</string>
 	<key>cards.title</key>
 	<string>交互卡片</string>
+	<key>cards.unsupported</key>
+	<string>此应用不支持卡片的这一部分</string>
+	<key>cards.unsupportedValue</key>
+	<string>此应用无法显示</string>
 </dict>
 </plist>

@@ -3,6 +3,8 @@
 import AppData
 public struct CardsState: Equatable, Sendable {
     public var checking = false
+    /// True once the repository confirmed that cards render in conversations.
+    public var available = false
     public var failure: AppFailure = .unavailableResource("cards.unavailable")
     public init() {}
 }

@@ -189,23 +189,6 @@
         }
       }
     },
-    "chat.send.submitted": {
-      "comment": "Status after a message was handed to the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Submitted to account service"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已提交到账户服务"
-          }
-        }
-      }
-    },
     "chat.loading": {
       "comment": "Progress label while messages load.",
       "localizations": {
@@ -219,23 +202,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加载消息"
-          }
-        }
-      }
-    },
-    "chat.send.failed": {
-      "comment": "Status when sending a message failed.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delivery failed"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发送失败"
           }
         }
       }
@@ -505,6 +471,1285 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "chat.outbox.pending": {
+      "comment": "Meta label on an own message bubble that is queued and waits for the connection before it is sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "待发送"
+          }
+        }
+      }
+    },
+    "chat.outbox.sending": {
+      "comment": "Meta label on an own message bubble while the app is handing it to the account service.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送中"
+          }
+        }
+      }
+    },
+    "chat.outbox.failed": {
+      "comment": "Red label under an own message that the account service refused; a Retry button follows it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未发送"
+          }
+        }
+      }
+    },
+    "chat.outbox.retry": {
+      "comment": "Button under an unsent message that sends the same message again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "chat.outbox.discard": {
+      "comment": "Destructive menu action that removes an unsent message from this device without sending it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete unsent message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除未发送的消息"
+          }
+        }
+      }
+    },
+    "chat.outbox.details": {
+      "comment": "Accessibility label of the info button next to an unsent message; it opens the reason and the delete action.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送详情"
+          }
+        }
+      }
+    },
+    "chat.offline.banner": {
+      "comment": "Banner at the top of a chat while the account service cannot be reached and messages are queued.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offline · messages will be sent when the connection returns"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前离线 · 消息将在恢复连接后发送"
+          }
+        }
+      }
+    },
+    "chat.message.copy": {
+      "comment": "Menu action that copies the text of a message to the clipboard.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy text"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制文字"
+          }
+        }
+      }
+    },
+    "chat.message.actions": {
+      "comment": "Accessibility action that opens the action menu of a message (reactions, reply, copy, edit, delete).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message actions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息操作"
+          }
+        }
+      }
+    },
+    "chat.timeline.loadingOlder": {
+      "comment": "Progress label at the top of the chat while earlier messages load.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading earlier messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载更早的消息"
+          }
+        }
+      }
+    },
+    "chat.timeline.jumpToLatest": {
+      "comment": "Button shown after scrolling far back in history; it returns to the newest messages.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump to latest"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回到最新"
+          }
+        }
+      }
+    },
+    "chat.attachment.typeSize": {
+      "comment": "Meta line of a file attachment: %1$@ is the file type such as PDF, %2$@ is the formatted size.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "chat.details.title": {
+      "comment": "Title of the conversation details sheet opened from the chat header's more button.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话详情"
+          }
+        }
+      }
+    },
+    "chat.details.conversationID": {
+      "comment": "Caption above the conversation identifier in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversation ID"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话 ID"
+          }
+        }
+      }
+    },
+    "chat.details.members": {
+      "comment": "Section caption for the people in the conversation, in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "chat.details.you": {
+      "comment": "Member row for the account using this phone, in the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你"
+          }
+        }
+      }
+    },
+    "chat.details.groupMembers": {
+      "comment": "Text in the details of a group conversation; members and roles are managed in the group screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the group to manage members and roles."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在群组中管理成员和角色。"
+          }
+        }
+      }
+    },
+    "chat.details.mute": {
+      "comment": "Switch label that mutes notifications for this conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute notifications"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息免打扰"
+          }
+        }
+      }
+    },
+    "chat.details.muteUnknown": {
+      "comment": "Shown when the account service has no mute state for this conversation yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute state is not available for this conversation yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此会话暂时没有免打扰状态。"
+          }
+        }
+      }
+    },
+    "chat.details.safety": {
+      "comment": "Row that opens the safety number of the other person in a direct conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safety number"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全码"
+          }
+        }
+      }
+    },
+    "chat.details.safetyUnavailable": {
+      "comment": "Shown instead of the safety number row when the other person is not a contact or has not written yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The safety number is available once this person is a contact and has written to you."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方成为联系人并给你发过消息后，才能查看安全码。"
+          }
+        }
+      }
+    },
+    "chat.details.close": {
+      "comment": "Button that closes the conversation details sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "chat.media.untrusted": {
+      "comment": "Notice on a photo from someone who is not a contact; nothing is downloaded or shown until the user asks.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From someone not in your contacts"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来自非联系人"
+          }
+        }
+      }
+    },
+    "chat.media.show": {
+      "comment": "Button on a hidden photo preview from a non-contact; it shows the small preview carried in the message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示"
+          }
+        }
+      }
+    },
+    "chat.media.download": {
+      "comment": "Button that downloads and decrypts an attachment.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载"
+          }
+        }
+      }
+    },
+    "chat.media.tapToDownload": {
+      "comment": "Line on an attachment that is not on this device yet; %@ is its formatted size.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to download, %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按下载，%@"
+          }
+        }
+      }
+    },
+    "chat.media.downloading": {
+      "comment": "State line of an attachment while it downloads; the service reports no percentage.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在下载"
+          }
+        }
+      }
+    },
+    "chat.media.failed": {
+      "comment": "State line of an attachment whose download failed; tapping it tries again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed, tap to retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载失败，点按重试"
+          }
+        }
+      }
+    },
+    "chat.media.expired": {
+      "comment": "State line of an attachment the relay no longer keeps (the sender's 24-hour window passed).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No longer available"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已不可用"
+          }
+        }
+      }
+    },
+    "chat.media.removed": {
+      "comment": "State line of an attachment the sender erased.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removed by sender"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已被发送者删除"
+          }
+        }
+      }
+    },
+    "chat.media.notAvailable": {
+      "comment": "State line of an attachment this device has no key for, for example a device paired later.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此设备上不可用"
+          }
+        }
+      }
+    },
+    "chat.media.open": {
+      "comment": "State line of an attachment that is on this device and opens when tapped.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to open"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点按打开"
+          }
+        }
+      }
+    },
+    "chat.media.photo": {
+      "comment": "Accessibility name of a photo attachment and of the full-screen photo viewer.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片"
+          }
+        }
+      }
+    },
+    "chat.media.accessibility": {
+      "comment": "Accessibility label of an attachment: %1$@ is \"Photo\" or the file name, %2$@ is its state such as \"Tap to download, 2 MB\".",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@，%2$@"
+          }
+        }
+      }
+    },
+    "chat.media.share": {
+      "comment": "Viewer action that opens the system share sheet for the photo.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享"
+          }
+        }
+      }
+    },
+    "chat.media.save": {
+      "comment": "Viewer action that saves the photo to the Photos library with add-only access.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储到照片"
+          }
+        }
+      }
+    },
+    "chat.media.saved": {
+      "comment": "Confirmation in the viewer after the photo was saved to Photos.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved to Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已存储到照片"
+          }
+        }
+      }
+    },
+    "chat.media.saveFailed": {
+      "comment": "Shown in the viewer when the photo could not be saved, for example because access was declined.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save to Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法存储到照片"
+          }
+        }
+      }
+    },
+    "chat.media.peerUpgrade": {
+      "comment": "Send failure when the other person's app is too old to receive attachments.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The other person needs to update Ramflux to receive attachments."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方需要更新 Ramflux 才能接收附件。"
+          }
+        }
+      }
+    },
+    "chat.media.recipientLimit": {
+      "comment": "Send failure when the group has more devices than attachments support today.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group is too large for attachments."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组过大，暂不支持发送附件。"
+          }
+        }
+      }
+    },
+    "chat.media.tooLarge": {
+      "comment": "Send failure when the photo or file is larger than allowed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file is too large to send."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件过大，无法发送。"
+          }
+        }
+      }
+    },
+    "chat.media.storageFull": {
+      "comment": "Send failure when this device or the account has no storage left.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough storage to send this attachment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "存储空间不足，无法发送此附件。"
+          }
+        }
+      }
+    },
+    "chat.attach.title": {
+      "comment": "Title of the sheet opened from the composer's plus button.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attach"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加附件"
+          }
+        }
+      }
+    },
+    "chat.attach.photos": {
+      "comment": "Row that opens the system photo picker; it needs no access to the whole library.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photos"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片"
+          }
+        }
+      }
+    },
+    "chat.attach.camera": {
+      "comment": "Row that opens the camera to take a photo.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机"
+          }
+        }
+      }
+    },
+    "chat.attach.file": {
+      "comment": "Row that opens the system file picker.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件"
+          }
+        }
+      }
+    },
+    "chat.media.video": {
+      "comment": "Accessibility name of a video attachment and of the video player.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "视频"
+          }
+        }
+      }
+    },
+    "chat.message.forward": {
+      "comment": "Menu action on a message that sends its text and attachments again to another conversation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转发"
+          }
+        }
+      }
+    },
+    "chat.media.preparing": {
+      "comment": "Progress line while picked photos, videos or files are prepared (compressed, metadata removed) before they are queued.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing attachments…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备附件…"
+          }
+        }
+      }
+    },
+    "chat.outbox.media": {
+      "comment": "Accessibility label of an unsent media message; the number is how many attachments it has.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unsent message with %lld attachment"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Unsent message with %lld attachments"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "未发送的消息，含 %lld 个附件"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.album.more": {
+      "comment": "Accessibility label of the last album cell that opens the whole album; the number is how many more items it holds.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Show %lld more item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Show %lld more items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "再显示 %lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.album.title": {
+      "comment": "Title of the sheet that shows every photo and video of one message; the number is the item count.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.draft.title": {
+      "comment": "Title of the send preview for picked media; the number is how many items will be sent.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Send %lld item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Send %lld items"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "发送 %lld 项"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "chat.draft.remove": {
+      "comment": "Accessibility label of the button that removes one item from the send preview.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
+      }
+    },
+    "chat.draft.caption": {
+      "comment": "Placeholder of the caption field in the media send preview.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a caption"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "添加说明"
+          }
+        }
+      }
+    },
+    "chat.draft.send": {
+      "comment": "Button in the media send preview that queues the message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送"
+          }
+        }
+      }
+    },
+    "chat.gallery.title": {
+      "comment": "Title of the sheet and the details row that list a conversation's photos, videos and files.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media and files"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体和文件"
+          }
+        }
+      }
+    },
+    "chat.gallery.media": {
+      "comment": "Gallery tab with photos and videos.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体"
+          }
+        }
+      }
+    },
+    "chat.gallery.files": {
+      "comment": "Gallery tab with files.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件"
+          }
+        }
+      }
+    },
+    "chat.gallery.newest": {
+      "comment": "Gallery button that reloads from the newest items after older ones replaced them.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to newest"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "回到最新"
+          }
+        }
+      }
+    },
+    "chat.gallery.empty": {
+      "comment": "Gallery state when the conversation has no items of the selected tab.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing here yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无内容"
+          }
+        }
+      }
+    },
+    "chat.gallery.more": {
+      "comment": "Gallery button that reads older messages for more items.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load older items"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载更早的内容"
+          }
+        }
+      }
+    },
+    "chat.storage.conversation": {
+      "comment": "Details row with the size of this conversation's downloaded media on this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本设备上的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clear": {
+      "comment": "Destructive button that removes downloaded media from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clearAll": {
+      "comment": "Storage screen button that removes all downloaded media of the account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除全部已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.clearFact": {
+      "comment": "Confirmation text before clearing downloaded media.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded photos, videos and files are removed from this device. Items older than a day may no longer be available to download again. Messages waiting to be sent are kept."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的照片、视频和文件将从本设备移除。超过一天的内容可能无法再次下载。等待发送的消息会保留。"
+          }
+        }
+      }
+    },
+    "chat.storage.title": {
+      "comment": "Title of the media storage screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media storage"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "媒体存储"
+          }
+        }
+      }
+    },
+    "chat.storage.downloaded": {
+      "comment": "Storage row with the size of downloaded media.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded media"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的媒体"
+          }
+        }
+      }
+    },
+    "chat.storage.waiting": {
+      "comment": "Storage row with the size of attachments waiting to be sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting to be sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待发送"
+          }
+        }
+      }
+    },
+    "chat.storage.policy": {
+      "comment": "Explanation of the storage policy on the media storage screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloaded media stays on this device until you or the sender delete it, or you clear it here. Nothing is removed automatically."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已下载的媒体会保留在本设备上，直到你或发送者删除，或你在此处清除。不会自动删除任何内容。"
+          }
+        }
+      }
+    },
+    "chat.typing": {
+      "comment": "Line above the composer while the other person is typing.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typing…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在输入…"
           }
         }
       }

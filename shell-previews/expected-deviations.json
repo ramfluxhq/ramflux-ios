@@ -1339,7 +1339,7 @@
     },
     "MOB-B02-zh-CN-dark": {
       "status": "deviates",
-      "reason": "Dark proof MOB-DK01. Same deviations as MOB-B02 light; the own bubble is near-black in the app and dark grey (#3A3A38-like) in the design. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the timeline now draws the '今天' date chip; bubbles use system text and hug their text, wrapping at 0.78 of the content width (282 pt on the 393 pt board) where the design shows the 300 pt maximum, so the first and third messages wrap one character earlier and the own bubble is taller; with the timeline still top-anchored, the file row moves down to y 362 and its old rectangle is gone.",
+      "reason": "Dark proof MOB-DK01. Same deviations as MOB-B02 light; the own bubble is near-black in the app and dark grey (#3A3A38-like) in the design. Re-reviewed for the wave-2 direct chat (2026-11-23): the timeline is now anchored to the bottom above the composer, so the messages sit at the design's height; the attachment is the Kit file card (icon tile, name, 'PDF 10:24'); the own message shows the delivered ticks from structured receipts. Remaining: the '以下为未读消息' unread divider is not drawn because the read model returns no read position (the rows from y 600 down sit 24 pt higher than the design); bubbles wrap at 0.78 of the content width (282 pt) where the design uses the 300 pt maximum, so the first and own messages wrap one character earlier and the own bubble is two lines; composer placeholder '消息' vs '输入消息…'; header avatar and title offsets; status bar glyphs and the home indicator differ from the design status bar.",
       "regions": [
         {
           "rect": [
@@ -1407,82 +1407,34 @@
         },
         {
           "rect": [
-            183,
-            137,
-            27,
-            16
-          ]
-        },
-        {
-          "rect": [
-            27,
-            179,
-            351,
-            169
-          ]
-        },
-        {
-          "rect": [
-            17,
-            362,
-            23,
-            28
-          ]
-        },
-        {
-          "rect": [
-            54,
-            365,
-            93,
-            21
-          ]
-        },
-        {
-          "rect": [
             182,
             462,
-            27,
-            15
+            28,
+            27
           ]
         },
         {
           "rect": [
             26,
             501,
-            278,
-            44
-          ]
-        },
-        {
-          "rect": [
-            59,
-            561,
-            320,
-            66
-          ]
-        },
-        {
-          "rect": [
-            26,
-            644,
-            279,
-            44
+            353,
+            187
           ]
         },
         {
           "rect": [
             70,
-            709,
+            710,
             93,
-            35
+            37
           ]
         },
         {
           "rect": [
             33,
-            713,
+            714,
             22,
-            26
+            28
           ]
         },
         {
@@ -1521,7 +1473,7 @@
     },
     "MOB-B02-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app timeline is anchored to the top; the design anchors messages to the bottom above the composer. The design shows a '今天' date chip and the '以下为未读消息' unread divider, which no data field drives. The attachment is a file card (icon tile, name, 'PDF 10:24') in the design and a plain icon and name in the app. Composer placeholder '消息' vs '输入消息…', composer 4 pt higher; header avatar and title offsets. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Re-reviewed after stacking the chat foundations (2026-11-23): the timeline now draws the '今天' date chip; bubbles use system text and hug their text, wrapping at 0.78 of the content width (282 pt on the 393 pt board) where the design shows the 300 pt maximum, so the first and third messages wrap one character earlier and the own bubble is taller; with the timeline still top-anchored, the file row moves down to y 362 and its old rectangle is gone.",
+      "reason": "Re-reviewed for the wave-2 direct chat (2026-11-23): the timeline is now anchored to the bottom above the composer, so the messages sit at the design's height; the attachment is the Kit file card (icon tile, name, 'PDF 10:24'); the own message shows the delivered ticks from structured receipts. Remaining: the '以下为未读消息' unread divider is not drawn because the read model returns no read position (the rows from y 600 down sit 24 pt higher than the design); bubbles wrap at 0.78 of the content width (282 pt) where the design uses the 300 pt maximum, so the first and own messages wrap one character earlier and the own bubble is two lines; composer placeholder '消息' vs '输入消息…'; header avatar and title offsets; status bar glyphs and the home indicator differ from the design status bar.",
       "regions": [
         {
           "rect": [
@@ -1589,74 +1541,26 @@
         },
         {
           "rect": [
-            183,
-            137,
-            27,
-            16
-          ]
-        },
-        {
-          "rect": [
-            27,
-            179,
-            352,
-            169
-          ]
-        },
-        {
-          "rect": [
-            17,
-            362,
-            23,
-            28
-          ]
-        },
-        {
-          "rect": [
-            54,
-            365,
-            93,
-            21
-          ]
-        },
-        {
-          "rect": [
             182,
             462,
-            27,
-            15
+            28,
+            28
           ]
         },
         {
           "rect": [
             26,
             501,
-            278,
-            44
-          ]
-        },
-        {
-          "rect": [
-            59,
-            561,
-            320,
-            66
-          ]
-        },
-        {
-          "rect": [
-            26,
-            644,
-            279,
-            44
+            353,
+            187
           ]
         },
         {
           "rect": [
             70,
-            709,
+            710,
             93,
-            35
+            37
           ]
         },
         {
@@ -1664,7 +1568,7 @@
             33,
             714,
             22,
-            24
+            28
           ]
         },
         {

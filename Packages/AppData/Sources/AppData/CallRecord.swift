@@ -16,6 +16,8 @@ public struct CallRecord: Identifiable, Equatable, Sendable {
     public let endedAt: Int64?
     public var canDecline: Bool { direction == .incoming && phase == .incomingRinging }
     public var canHangup: Bool { [.outgoingRinging, .incomingRinging, .connecting, .active].contains(phase) }
+    /// Seconds between answer and end, when the SDK reports both.
+    public var duration: Int64? { if let answeredAt, let endedAt, endedAt >= answeredAt { endedAt - answeredAt } else { nil } }
     public init(id: String, conversationID: String, peerID: String, direction: CallDirection, phase: CallPhase, endReason: String? = nil, failureReason: CallFailureReason? = nil, peerReason: CallFailureReason? = nil, sequence: UInt64, mediaGeneration: UInt64 = 0, createdAt: Int64, answeredAt: Int64? = nil, endedAt: Int64? = nil) {
         self.id = id; self.conversationID = conversationID; self.peerID = peerID; self.direction = direction; self.phase = phase; self.endReason = endReason; self.failureReason = failureReason; self.peerReason = peerReason; self.sequence = sequence; self.mediaGeneration = mediaGeneration; self.createdAt = createdAt; self.answeredAt = answeredAt; self.endedAt = endedAt
     }

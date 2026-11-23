@@ -12,7 +12,7 @@ import RamfluxCore
         for page in pages {
             let transport = ProxyTransport { _ in page }
             let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-            guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c") else { Issue.record("A page without the pinned schema must refuse"); return }
+            guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("A page without the pinned schema must refuse"); return }
         }
     }
     @Test func malformedCommittedSendProjectionKeepsOriginalAttemptUnknown() async {
@@ -35,11 +35,11 @@ import RamfluxCore
         let transport = ProxyTransport { request in
             #expect(request.method == "message.read")
             #expect(request.body["read_model"] == .bool(true))
-            #expect(request.body["limit"] == .number(100))
+            #expect(request.body["limit"] == .number(50))
             return .object(["messages": .array([.object(["message_id": .string("m"), "conversation_id": .string("c"), "body_utf8": .string("Legacy")])])])
         }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Legacy page must refuse"); return }
+        guard case .failure(.invalidData) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Legacy page must refuse"); return }
     }
     @Test func readModelFoldsEditsReactionsAndRepliesWithoutMutationBubbles() async {
         let target = "AQID"
@@ -56,7 +56,8 @@ import RamfluxCore
             ])
         ]) }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .success(let rows) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Read model must load"); return }
+        guard case .success(let page) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Read model must load"); return }
+        let rows = page.records
         #expect(rows.map(\.id) == [target, "reply", "gone"])
         #expect(rows[0].kind == .text("Updated")); #expect(rows[0].edited); #expect(rows[0].reactions == [MessageReaction(token: "👍", count: 2)])
         #expect(rows[0].timestamp == 1_700_000_000)
@@ -72,7 +73,8 @@ import RamfluxCore
             ]),
         ]) }
         let repo = NativeChatRepository(client: RamfluxClient(transport: transport), updates: NativeUpdateSource(client: RamfluxClient(transport: transport)))
-        guard case .success(let rows) = await repo.messages(account: "a", conversation: "c") else { Issue.record("Read model must load"); return }
+        guard case .success(let page) = await repo.messages(account: "a", conversation: "c", before: nil) else { Issue.record("Read model must load"); return }
+        let rows = page.records
         #expect(rows.count == 1)
         #expect(rows[0].timestamp == nil)
     }
