@@ -22,6 +22,7 @@ FLOWS = [
     ("10-settings", "10 Settings: lock, devices, language"),
     ("10b-change-code", "10 Change account code (account.passphrase.rotate)"),
     ("14-backup", "14 Backup: create and verify"),
+    ("14b-restore", "14 Restore the backup on a fresh install as a new account"),
     ("02-pairing", "2 Inviter-side pairing (invitation appears)"),
     ("08-agents", "8 Agents list (expected empty)"),
     ("09-tasks", "9 Tasks list (expected empty)"),

@@ -91,6 +91,7 @@ final class RealRunLifecycleTests: RealRunTestCase {
             }
             try tap(create, "Create backup")
             let archive = UUID().uuidString
+            RunSecrets.archivePassphrase = archive
             for field in ["passphrase", "passphraseRepeat"] {
                 let editor = try require(element("secure-entry-" + field), "archive \(field) field")
                 editor.tap(); editor.typeText(archive)

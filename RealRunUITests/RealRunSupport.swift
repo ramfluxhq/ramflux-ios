@@ -169,6 +169,8 @@ enum RunSecrets {
     /// The direct conversation id derived from both root commitments (the rf harness derivation).
     nonisolated(unsafe) static var aliceConversation: String?
     nonisolated(unsafe) static var mediaCaptions: [String] = []
+    /// The backup archive passphrase of flow 14 (memory only), for the restore on a fresh install.
+    nonisolated(unsafe) static var archivePassphrase: String?
     /// Unique per run so the peers can tell this run's phone account from earlier runs' accounts.
     static let displayName = "Realrun " + String((0..<4).map { _ in "abcdefghjkmnpqrstuvwxyz".randomElement()! })
 }

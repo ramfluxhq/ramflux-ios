@@ -9,7 +9,12 @@ command on the alice or bob daemon, derive a direct conversation id, create a te
 a flow result or store a screenshot. The server never receives the phone account's six-digit code
 or recovery words; it only handles public identifiers and test message text.
 
-Usage: peer_control.py --port N --out DIR --local-node DIR [--rf PATH]
+Usage: peer_control.py --port N --out DIR --local-node DIR [--rf PATH] [--udid UDID --app PATH]
+
+With --udid and --app it can also reinstall the app for the restore flow (/fresh-install): it copies the
+newest backup archive out of the app's container into the simulator's "On My iPhone" storage (an encrypted
+archive; its passphrase stays in the test process), uninstalls the app, resets the simulator Keychain and
+installs the app again.
 """
 import argparse
 import base64
@@ -37,9 +42,12 @@ SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,80}$")
 STATUSES = {"PASS", "FAIL", "BLOCKED", "NOT RUN"}
 
 
+BUNDLE = "org.ramflux.ios"
+
+
 class Harness:
-    def __init__(self, out: Path, local_node: Path, rf: str):
-        self.out, self.local_node, self.rf = out, local_node, rf
+    def __init__(self, out: Path, local_node: Path, rf: str, udid: str = "", app: str = ""):
+        self.out, self.local_node, self.rf, self.udid, self.app = out, local_node, rf, udid, app
         self.facts = json.loads((local_node / "node-facts.json").read_text())
         self.peers = {p["name"]: p for p in json.loads((local_node / "peers.json").read_text())["peers"]}
         self.lock = threading.Lock()
@@ -115,6 +123,37 @@ class Harness:
         return {"exists": target.exists(), "sha256": sha256(target) if target.exists() else None,
                 "size": target.stat().st_size if target.exists() else 0}
 
+    def simctl(self, *args, timeout: float = 120) -> str:
+        return subprocess.run(["xcrun", "simctl", *args], capture_output=True, text=True, timeout=timeout, check=True).stdout.strip()
+
+    def fresh_install(self) -> dict:
+        """Moves the newest backup archive to "On My iPhone", then reinstalls the app with an empty Keychain."""
+        if not self.udid or not self.app:
+            raise ValueError("fresh install needs --udid and --app")
+        container = Path(self.simctl("get_app_container", self.udid, BUNDLE, "data"))
+        archives = sorted((p for p in (container / "Library" / "Application Support" / "ramflux" / "backups").rglob("*") if p.is_file()),
+                          key=lambda p: p.stat().st_mtime)
+        if not archives:
+            raise ValueError("no backup archive in the app container")
+        groups = container.parents[2] / "Shared" / "AppGroup"
+        local = None
+        for group in groups.iterdir():
+            meta = group / ".com.apple.mobile_container_manager.metadata.plist"
+            if meta.exists() and "group.com.apple.FileProvider.LocalStorage" in subprocess.run(
+                    ["plutil", "-extract", "MCMMetadataIdentifier", "raw", str(meta)], capture_output=True, text=True).stdout:
+                local = group / "File Provider Storage"
+        if local is None:
+            raise ValueError("the simulator has no On My iPhone storage")
+        local.mkdir(parents=True, exist_ok=True)
+        name = "ramflux-realrun-" + time.strftime("%H%M%S") + (archives[-1].suffix or ".backup")
+        (local / name).write_bytes(archives[-1].read_bytes())
+        subprocess.run(["xcrun", "simctl", "terminate", self.udid, BUNDLE], capture_output=True, timeout=60)
+        self.simctl("uninstall", self.udid, BUNDLE)
+        self.simctl("keychain", self.udid, "reset")
+        self.simctl("install", self.udid, self.app, timeout=300)
+        self.log(f"fresh install: archive {name} ({archives[-1].stat().st_size} bytes) placed in On My iPhone; app reinstalled; keychain reset")
+        return {"archive": name}
+
     def record(self, flow: str, status: str, detail: str):
         if status not in STATUSES:
             raise ValueError("bad status")
@@ -186,6 +225,8 @@ def handler_for(harness: Harness):
                     return self.reply(200, {"path": str(target)})
                 if self.path == "/file-info":
                     return self.reply(200, harness.file_info(body["path"]))
+                if self.path == "/fresh-install":
+                    return self.reply(200, harness.fresh_install())
                 if self.path == "/result":
                     harness.record(body["flow"], body["status"], body.get("detail", ""))
                     return self.reply(200, {"ok": True})
@@ -193,7 +234,7 @@ def handler_for(harness: Harness):
                     harness.log("test: " + str(body.get("line", ""))[:60000])
                     return self.reply(200, {"ok": True})
                 return self.reply(404, {"error": "not found"})
-            except (KeyError, ValueError, TypeError, subprocess.SubprocessError) as error:
+            except (KeyError, ValueError, TypeError, OSError, subprocess.SubprocessError) as error:
                 harness.log(f"request {self.path} refused: {error!r}")
                 return self.reply(400, {"error": str(error)})
     return Handler
@@ -205,9 +246,11 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--local-node", type=Path, required=True)
     parser.add_argument("--rf", default="/Users/nn/worker/ramfluxhq/code/ramflux/target/release/rf")
+    parser.add_argument("--udid", default="")
+    parser.add_argument("--app", default="")
     options = parser.parse_args()
     options.out.mkdir(parents=True, exist_ok=True)
-    harness = Harness(options.out, options.local_node, options.rf)
+    harness = Harness(options.out, options.local_node, options.rf, options.udid, options.app)
     server = ThreadingHTTPServer(("127.0.0.1", options.port), handler_for(harness))
     print(f"peer control listening on 127.0.0.1:{options.port}", flush=True)
     try:

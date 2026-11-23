@@ -94,7 +94,13 @@ class RealRunTestCase: XCTestCase {
         dismissPrompts()
         try require(element, what, timeout: timeout)
         let deadline = Date().addingTimeInterval(timeout)
+        let started = Date()
         while !element.isEnabled || !element.isHittable {
+            // XCUITest sometimes reports an enabled, visible control as not hittable (seen with the keyboard
+            // up under an overlay); after a few seconds an enabled control on screen is tapped at its centre.
+            if element.isEnabled, Date().timeIntervalSince(started) > 4, app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) {
+                element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); return
+            }
             guard Date() < deadline else { throw FlowStop.fail("\(what) never became enabled and hittable") }
             dismissPrompts()
             Thread.sleep(forTimeInterval: 0.3)

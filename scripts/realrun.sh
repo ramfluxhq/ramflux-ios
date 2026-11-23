@@ -114,7 +114,8 @@ fi
 
 # 5. Peer-control server on a free loopback port (stopped on exit).
 PORT=$("$PYTHON" -I -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()')
-"$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --local-node "$LOCAL_NODE" > "$OUT/peer-control.log" 2>&1 &
+"$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --local-node "$LOCAL_NODE" \
+  --udid "$UDID" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app" > "$OUT/peer-control.log" 2>&1 &
 CONTROL_PID=$!
 RESULT_BUNDLE=$DERIVED/realrun.xcresult
 cleanup() {
@@ -146,7 +147,11 @@ for name in alice bob; do
 done
 export TEST_RUNNER_RF_PHONE_PHOTO="$(cat "$OUT/phone-photo.path")"
 FILTER=""
-[ -n "$ONLY" ] && FILTER="-only-testing:RamfluxRealRunUITests/RealRunFlowTests/$ONLY"
+case "$ONLY" in
+  "") ;;
+  */*|RealRun*) FILTER="-only-testing:RamfluxRealRunUITests/$ONLY" ;;
+  *) FILTER="-only-testing:RamfluxRealRunUITests/RealRunFlowTests/$ONLY" ;;
+esac
 # The account code and recovery words live only in the test runner's memory, so a runner restart
 # (seen under load: "Restarting after unexpected exit") loses the account for every later flow. When
 # flow 1 left no result, the suite runs once more from a clean app.

@@ -185,8 +185,9 @@ final class RealRunFlowTests: RealRunTestCase {
             }
             snap("03-conversation-row")
             // The row is titled with alice's contact name, not the raw dm id.
-            guard eventually(30, { row.label.contains(self.config.alice.displayName) }) else {
-                throw FlowStop.fail("the direct conversation row is titled \"\(row.label.prefix(80))\" instead of alice's name \(config.alice.displayName)")
+            let titled = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", config.alice.displayName)).firstMatch
+            guard titled.waitForExistence(timeout: 30) else {
+                throw FlowStop.fail("the direct conversation row is not titled with alice's name \(config.alice.displayName): \(visibleFailure())")
             }
             return "Messages lists the direct conversation with alice under the client-derived id \(derived), titled with her contact name"
         }
@@ -521,6 +522,9 @@ final class RealRunFlowTests: RealRunTestCase {
     /// Brings the app to an unlocked shell; FlowStop when flow 1 never produced an account.
     func ensureReady() throws {
         dismissPrompts()
+        // A failed chat step can leave the message actions or the text selection sheet open.
+        if element("chat-actions").exists { app.buttons["Cancel"].firstMatch.tapIfExists() }
+        if element("chat-select-text").exists { element("chat-select-text-header").buttons["Back"].firstMatch.tapIfExists() }
         // Leave any pushed screen first; pushed screens hide the tab bar.
         for _ in 0..<6 where !element("tab-messages").exists { back(); Thread.sleep(forTimeInterval: 0.6) }
         try unlockIfNeeded()

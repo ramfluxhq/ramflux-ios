@@ -81,3 +81,13 @@ or read inside the test process only; typed text is redacted from the saved
 test log and the result bundle is deleted. Unless `--no-clock-sync` is given,
 the podman VM clock is set from the Mac's clock before and during the run,
 because branch proofs expire after 300 seconds and that VM clock drifts.
+
+The flows cover onboarding with lock, cold start and the known-account unlock;
+contacts with alice and bob; the direct chat (send, live receive, reply, edit,
+erase for everyone, select text, receipts as alice sees them); media with the
+phone's contact card handed to alice; groups with alice and bob; background and
+return; the account-code change; backup and, last, restore of that backup on a
+fresh install (the peer-control server moves the encrypted archive to the
+simulator's "On My iPhone" storage and reinstalls the app; the archive
+passphrase stays in the test process). `--only` takes a test of
+`RealRunFlowTests`, a class name, or `Class/test`.
