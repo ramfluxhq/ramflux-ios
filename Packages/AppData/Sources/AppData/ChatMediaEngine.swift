@@ -90,6 +90,8 @@ struct MediaStore: Sendable {
 /// Runs attachment imports and uploads through the SDK. One instance per repository; imports
 /// are de-duplicated per attachment and limited to three at a time per process.
 actor ChatMediaEngine {
+    /// The SDK step a media send is in, for the debug trace of a failure.
+    private var stage = ""
     static let chunk = 524_288
     private let gateway: ProxyGateway
     let store: MediaStore
@@ -195,20 +197,21 @@ actor ChatMediaEngine {
     func send(_ account: String, conversation: String, groupID: String?, caption: String, items: [MediaUpload], operationID: String) async -> RepositoryResult<SendOutcome> {
         guard (1...MessagePage.maxAttachments).contains(items.count) else { return .failure(.invalidInput) }
         do {
-            try await enable(account)
+            stage = "attachment.enable"; try await enable(account)
             var prepares: [JSONValue] = []
             for (index, item) in items.enumerated() {
                 prepares.append(.object(["prepare_id": .string(try await prepare(account, conversation: conversation, groupID: groupID, item: item, operationID: operationID + ":" + String(index)))]))
             }
             var body: [String: JSONValue] = ["conversation_id": .string(conversation), "text": .string(caption), "prepares": .array(prepares)]
             if let groupID { body["group_id"] = .string(groupID) }
+            stage = "conversation.send"
             let result = try await gateway.call(.conversationSend, account: account, body: .object(body), operationID: operationID)
             let outcome = try NativeChatRepository.outcome(result, conversation: conversation)
             if outcome.state == .submitted { for item in items { try? FileManager.default.removeItem(at: item.file) } }
             return .success(outcome)
         } catch {
             let failure = MediaRefusal.sendFailure(Self.code(error), failure: AppFailure.map(error))
-            EventDiagnostics.note("media send failed code=\(Self.code(error) ?? "none") mapped=\(failure) raw=\(EventDiagnostics.describe(error))")
+            EventDiagnostics.note("media send failed stage=\(stage) code=\(Self.code(error) ?? "none") mapped=\(failure) raw=\(EventDiagnostics.describe(error))")
             return .failure(failure)
         }
     }
@@ -216,6 +219,7 @@ actor ChatMediaEngine {
     private func prepare(_ account: String, conversation: String, groupID: String?, item: MediaUpload, operationID: String) async throws -> String {
         var body: [String: JSONValue] = ["operation_id": .string(operationID), "file_name": .string(item.fileName), "mime": .string(item.mime)]
         if let groupID { body["kind"] = .string("group"); body["group_id"] = .string(groupID) } else { body["kind"] = .string("dm"); body["peer"] = .string(conversation) }
+        stage = "attachment.prepare.begin"
         let begun = try await gateway.call(.attachmentPrepareBegin, account: account, body: .object(body), operationID: operationID)
         let prepareID = try ProxyGateway.text(begun, "prepare_id")
         guard let generation = MessagePage.unsigned(begun["generation"]) else { throw AppFailure.invalidData }
@@ -235,12 +239,14 @@ actor ChatMediaEngine {
             if end > accepted {
                 let skip = Int(accepted > offset ? accepted - offset : 0)
                 let start = offset + UInt64(skip)
+                stage = "attachment.prepare.chunk"
                 _ = try await gateway.call(.attachmentPrepareChunk, account: account, body: .object([
                     "prepare_id": .string(prepareID), "generation": .unsigned(generation), "offset": .unsigned(start), "data_base64": .string(data.dropFirst(skip).base64EncodedString()),
                 ]), operationID: operationID + ":c" + String(start))
             }
             offset = end
         }
+        stage = "attachment.prepare.finish"
         _ = try await gateway.call(.attachmentPrepareFinish, account: account, body: .object([
             "prepare_id": .string(prepareID), "generation": .unsigned(generation), "plaintext_length": .unsigned(offset), "plaintext_digest": .string(digest.hex()),
         ]), operationID: operationID + ":f")

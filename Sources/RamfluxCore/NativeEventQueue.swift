@@ -4,6 +4,10 @@ import Foundation
 import Synchronization
 import CRamflux
 import Darwin
+#if DEBUG
+import os
+private let eventTrace = Logger(subsystem: "org.ramflux.ios", category: "events")
+#endif
 
 final class NativeEventQueue: EventQueue {
     let initialSnapshot: JSONValue
@@ -20,6 +24,11 @@ final class NativeEventQueue: EventQueue {
         let code = ramflux_v2_event_poll(operation.client, &events)
         if code == 0 || code == 27 {
             let frame = try JSONValue.decode(NativeBuffers.take(events))
+            #if DEBUG
+            // Method and match flags only, never the body (see EventDiagnostics in AppData).
+            let method = frame["method"]?.string ?? "?"
+            eventTrace.notice("native event method=\(method, privacy: .public) status=\(code) generation_match=\(frame["subscription_generation"] == .string(String(self.identity.generation))) account_present=\(frame["account_id"]?.string != nil) accepted=\(self.identity.accepts(frame))")
+            #endif
             guard identity.accepts(frame) else { return [] }
             if code == 27 { throw BridgeError.resyncRequired }
             return [frame]
