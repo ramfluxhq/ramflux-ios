@@ -117,7 +117,8 @@ class RealRunTestCase: XCTestCase {
 
     /// The "Unlock <name>" action the locked Messages tab offers for this run's account (known-account registry).
     func knownAccountUnlock() -> XCUIElement {
-        app.buttons.matching(NSPredicate(format: "identifier == 'shell-unlock-account' AND label CONTAINS %@", RunSecrets.displayName)).firstMatch
+        // A Kit button's hit target carries the tag with "-hit"; its label holds the isolated display name.
+        app.buttons.matching(NSPredicate(format: "identifier == 'shell-unlock-account-hit' AND label CONTAINS %@", RunSecrets.displayName)).firstMatch
     }
     /// Unlocks the run account: the locked Messages tab offers it by display name (the device's registry
     /// of known accounts); the unlock step shows the name and asks only for the six-digit code.
