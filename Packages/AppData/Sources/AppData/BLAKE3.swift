@@ -77,7 +77,19 @@ struct BLAKE3 {
         Output(chaining: iv, block: left + right, counter: 0, length: UInt32(blockLength), flags: parent)
     }
     private static func words(_ bytes: [UInt8]) -> [UInt32] {
-        (0..<16).map { index in (0..<4).reduce(UInt32(0)) { $0 | UInt32(bytes[index * 4 + $1]) << (8 * UInt32($1)) } }
+        // Sixteen little-endian words. Written as plain loops with typed locals: the
+        // nested closure form exceeds the type checker's time limit on older toolchains.
+        var result = [UInt32](repeating: 0, count: 16)
+        for index in 0..<16 {
+            var word: UInt32 = 0
+            for byte in 0..<4 {
+                let value = UInt32(bytes[index * 4 + byte])
+                let shift = UInt32(8 * byte)
+                word |= value << shift
+            }
+            result[index] = word
+        }
+        return result
     }
     private static func compress(_ chaining: [UInt32], _ block: [UInt32], _ counter: UInt64, _ length: UInt32, _ flags: UInt32) -> [UInt32] {
         var state = chaining + Array(iv.prefix(4)) + [UInt32(truncatingIfNeeded: counter), UInt32(truncatingIfNeeded: counter >> 32), length, flags]
