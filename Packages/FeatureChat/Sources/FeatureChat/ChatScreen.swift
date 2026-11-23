@@ -23,7 +23,7 @@ public struct ChatScreen: View {
                 KitTipBar(FeatureChatStrings.text("chat.offline.banner", locale: locale), icon: "wifi-off").padding(.horizontal, KitMetrics.gutter).padding(.top, theme.gap)
             }
             if state.loading && state.messages.isEmpty { ProgressView(FeatureChatStrings.text("chat.loading", locale: locale)) }
-            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)).padding(.horizontal, KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading) }
             if state.messages.isEmpty && state.outbox.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
