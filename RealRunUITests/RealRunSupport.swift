@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import XCTest
-import Vision
-import UIKit
 
 /// Settings handed in by scripts/realrun.sh as `TEST_RUNNER_*` environment (the runner strips the prefix).
 /// Without them the suite skips, so opening the RamfluxRealRun scheme by hand never fails on a missing node.
@@ -82,92 +80,10 @@ struct FlowStop: Error, CustomStringConvertible {
     static func blocked(_ text: String) -> FlowStop { FlowStop(status: "BLOCKED", description: text) }
 }
 
-/// Reads the recovery words drawn by the glyph view (it exposes no text to accessibility) with on-device
-/// text recognition. The words stay in this process's memory only; they are never logged or attached.
-enum PhraseReader {
-    /// The glyph view lays the 24 words out in `rows` rows of height (H - pointSize) / rows, in one column,
-    /// or two columns when the view is at least 20 points-sizes wide; each cell is recognised on its own.
-    /// The visible band is the scroll view minus the pinned footer (`obstruction`). Each pass recognises the
-    /// visible part of the view in one request and assigns every observation to its row (and column) by
-    /// position; rows are accepted only when fully visible. Scrolls up until all 24 cells were read.
-    static func words(in element: XCUIElement, scroll: XCUIElement, obstruction: XCUIElement, pointSize: CGFloat = 17,
-                      progress: (String) -> Void = { _ in }) throws -> [String] {
-        var result = [String?](repeating: nil, count: 24)
-        for pass in 0..<8 {
-            guard let image = XCUIScreen.main.screenshot().image.cgImage else { throw FlowStop.fail("screen has no image") }
-            let screen = XCUIApplication().frame
-            let scale = CGFloat(image.width) / max(screen.width, 1)
-            let frame = element.frame
-            let columns = frame.width >= pointSize * 20 ? 2 : 1
-            let rows = 24 / columns
-            let line = (frame.height - pointSize) / CGFloat(rows)
-            let top = max(scroll.frame.minY, frame.minY)
-            let bottom = min(scroll.frame.maxY, obstruction.exists ? obstruction.frame.minY : .greatestFiniteMagnitude, frame.maxY)
-            guard bottom - top > line else { progress("pass \(pass): no visible band"); break }
-            let band = CGRect(x: frame.minX, y: top, width: frame.width, height: bottom - top)
-            let pixels = CGRect(x: band.minX * scale, y: band.minY * scale, width: band.width * scale, height: band.height * scale).integral
-            guard let crop = image.cropping(to: pixels) else { throw FlowStop.fail("phrase band outside the screen image") }
-            var cells = [Int: [(CGFloat, String)]]()
-            for (box, text) in try recognise(crop) {
-                // Vision boxes are normalised with the origin at the bottom left.
-                let midY = band.minY + (1 - box.midY) * band.height
-                let minX = band.minX + box.minX * band.width
-                let row = Int(((midY - frame.minY) / line).rounded(.down))
-                let column = columns == 2 && minX >= frame.minX + frame.width / 2 - pointSize ? 1 : 0
-                guard (0..<rows).contains(row) else { continue }
-                let cellTop = frame.minY + CGFloat(row) * line, cellBottom = cellTop + line
-                guard cellTop >= top, cellBottom <= bottom else { continue }
-                cells[column * rows + row, default: []].append((minX, text))
-            }
-            for (index, parts) in cells where result[index] == nil {
-                // A cell read as nothing (a glyph the recogniser dropped) stays unread for the next pass.
-                let word = parts.sorted { $0.0 < $1.0 }.map(\.1).joined().lowercased().filter { $0.isLetter && $0.isASCII }
-                if (3...8).contains(word.count) { result[index] = word }
-            }
-            progress("pass \(pass): \(result.compactMap { $0 }.count) of 24 cells read")
-            if !result.contains(where: { $0 == nil }) { break }
-            // When every unread cell lies above what this pass saw, scroll back up to read it again.
-            let unread = result.indices.filter { result[$0] == nil }
-            if let seen = cells.keys.min(), unread.allSatisfy({ $0 < seen }) {
-                let up = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
-                up.press(forDuration: 0.05, thenDragTo: scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.6)))
-                Thread.sleep(forTimeInterval: 0.8)
-                continue
-            }
-            let start = scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
-            start.press(forDuration: 0.05, thenDragTo: scroll.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35)))
-            Thread.sleep(forTimeInterval: 0.8)
-        }
-        return result.map { $0 ?? "" }
-    }
-
-    private static func recognise(_ crop: CGImage) throws -> [(CGRect, String)] {
-        // Upscale on white so short words are large enough for the recogniser.
-        let factor = 2, margin = 20
-        let width = crop.width * factor, height = crop.height * factor
-        guard let context = CGContext(data: nil, width: width + 2 * margin, height: height + 2 * margin, bitsPerComponent: 8, bytesPerRow: 0,
-                                      space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) else { return [] }
-        context.setFillColor(UIColor.white.cgColor); context.fill(CGRect(x: 0, y: 0, width: width + 2 * margin, height: height + 2 * margin))
-        context.interpolationQuality = .high
-        context.draw(crop, in: CGRect(x: margin, y: margin, width: width, height: height))
-        guard let large = context.makeImage() else { return [] }
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = false
-        request.recognitionLanguages = ["en-US"]
-        try VNImageRequestHandler(cgImage: large, options: [:]).perform([request])
-        // Map boxes from the padded image back to the crop's normalised space.
-        let fullW = CGFloat(width + 2 * margin), fullH = CGFloat(height + 2 * margin)
-        return (request.results ?? []).compactMap { observation in
-            guard let text = observation.topCandidates(1).first?.string else { return nil }
-            let b = observation.boundingBox
-            let x = (b.minX * fullW - CGFloat(margin)) / CGFloat(width), y = (b.minY * fullH - CGFloat(margin)) / CGFloat(height)
-            return (CGRect(x: x, y: y, width: b.width * fullW / CGFloat(width), height: b.height * fullH / CGFloat(height)), text)
-        }
-    }
-}
-
-/// A per-run six-digit account code; generated in memory, never written anywhere.
+/// Per-run values: a six-digit account code generated in memory, public ids and the backup archive
+/// passphrase. scripts/realrun.sh may run the suite in several xcodebuild phases; between them these values
+/// are handed to the loopback control server's memory (/run-state), never to a file or a log. The recovery
+/// words are not handed over: they stay in this process.
 enum RunSecrets {
     nonisolated(unsafe) static var accountCode: String = newCode()
     static func newCode() -> String { (0..<6).map { _ in String(Int.random(in: 0...9)) }.joined() }
@@ -182,7 +98,22 @@ enum RunSecrets {
     /// The backup archive passphrase of flow 14 (memory only), for the restore on a fresh install.
     nonisolated(unsafe) static var archivePassphrase: String?
     /// Unique per run so the peers can tell this run's phone account from earlier runs' accounts.
-    static let displayName = "Realrun " + String((0..<4).map { _ in "abcdefghjkmnpqrstuvwxyz".randomElement()! })
+    nonisolated(unsafe) static var displayName = "Realrun " + String((0..<4).map { _ in "abcdefghjkmnpqrstuvwxyz".randomElement()! })
+
+    static func load(from control: PeerControl) {
+        let state = control.get("run-state")
+        guard let code = state["accountCode"] as? String, let name = state["displayName"] as? String else { return }
+        accountCode = code; displayName = name
+        accountID = state["accountID"] as? String; phonePrincipal = state["phonePrincipal"] as? String
+        phoneCommitment = state["phoneCommitment"] as? String; aliceConversation = state["aliceConversation"] as? String
+        archivePassphrase = state["archivePassphrase"] as? String; mediaCaptions = state["mediaCaptions"] as? [String] ?? []
+    }
+    static func save(to control: PeerControl) {
+        var state: [String: Any] = ["accountCode": accountCode, "displayName": displayName, "mediaCaptions": mediaCaptions]
+        for (key, value) in [("accountID", accountID), ("phonePrincipal", phonePrincipal), ("phoneCommitment", phoneCommitment),
+                             ("aliceConversation", aliceConversation), ("archivePassphrase", archivePassphrase)] { if let value { state[key] = value } }
+        control.post("run-state", json: state)
+    }
 }
 
 extension XCUIElement {

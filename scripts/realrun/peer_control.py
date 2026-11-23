@@ -7,7 +7,11 @@ The XCUITest runner on the simulator shares the Mac's loopback, so it reaches th
 plain HTTP and asks it to act as the peer side at the right moments: run an allow-listed `rf`
 command on the alice or bob daemon, derive a direct conversation id, create a test file, record
 a flow result or store a screenshot. The server never receives the phone account's six-digit code
-or recovery words; it only handles public identifiers and test message text.
+or recovery words through any file or log. It only handles public identifiers and test message text, plus
+the run state the suite hands over between its phases (/run-state: the throwaway test account's six-digit
+code, the backup archive passphrase and public ids). That state lives in this process's memory only: it is
+never written to disk or logged and is gone when the server stops (scripts/realrun.sh finish). The
+recovery words never leave the test process.
 
 Usage: peer_control.py --port N --out DIR --local-node DIR [--rf PATH] [--udid UDID --app PATH]
 
@@ -52,6 +56,8 @@ class Harness:
         self.peers = {p["name"]: p for p in json.loads((local_node / "peers.json").read_text())["peers"]}
         self.lock = threading.Lock()
         self.results = {}
+        # Run state between suite phases: memory only, never logged or written.
+        self.run_state = {}
         (out / "screenshots").mkdir(parents=True, exist_ok=True)
         (out / "files").mkdir(parents=True, exist_ok=True)
         self.log_path = out / "peer-commands.log"
@@ -219,6 +225,9 @@ def handler_for(harness: Harness):
         def do_GET(self):
             if self.path == "/config":
                 return self.reply(200, harness.config())
+            if self.path == "/run-state":
+                with harness.lock:
+                    return self.reply(200, dict(harness.run_state))
             if self.path == "/health":
                 return self.reply(200, {"ok": True})
             return self.reply(404, {"error": "not found"})
@@ -252,6 +261,13 @@ def handler_for(harness: Harness):
                     return self.reply(200, harness.device_log(body.get("name", "device-events"), int(body.get("minutes", 5))))
                 if self.path == "/fresh-install":
                     return self.reply(200, harness.fresh_install())
+                if self.path == "/run-state":
+                    if not isinstance(body, dict) or len(raw) > 65536 or not all(
+                            isinstance(k, str) and isinstance(v, (str, list)) for k, v in body.items()):
+                        raise ValueError("bad run state")
+                    with harness.lock:
+                        harness.run_state.update(body)
+                    return self.reply(200, {"ok": True})
                 if self.path == "/result":
                     harness.record(body["flow"], body["status"], body.get("detail", ""))
                     return self.reply(200, {"ok": True})

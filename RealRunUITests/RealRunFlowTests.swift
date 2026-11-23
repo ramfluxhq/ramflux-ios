@@ -34,11 +34,15 @@ final class RealRunFlowTests: RealRunTestCase {
             Self.sensitive = true
             try tap(button("Show recovery phrase once"), "Show recovery phrase once", timeout: 60)
             let phrase = try require(app.otherElements["Private recovery phrase display"], "recovery phrase display", timeout: 30)
-            Thread.sleep(forTimeInterval: 1)
-            let words = try PhraseReader.words(in: phrase, scroll: app.scrollViews.firstMatch, obstruction: button("I saved it. Hide and continue"), progress: { control.log("phrase reading " + $0) })
-            let unreadable = words.enumerated().filter { !(3...8).contains($0.element.count) }.map { $0.offset + 1 }
-            guard words.count == 24, unreadable.isEmpty else {
-                throw FlowStop.fail("text recognition could not read recovery word cells \(unreadable) (lengths only: \(words.map(\.count)))")
+            // Debug builds started with -RFRealRunPhraseAccess expose the words as the display's accessibility
+            // value (never in release builds); the words stay in this process and are never logged.
+            var words: [String] = []
+            guard eventually(10, every: 0.5, {
+                words = (phrase.value as? String ?? "").split(separator: " ").map(String.init)
+                return words.count == 24
+            }) else { throw FlowStop.fail("the recovery phrase display exposed \(words.count) words to the debug accessibility seam, not 24") }
+            guard words.allSatisfy({ (3...8).contains($0.count) && $0.allSatisfy { $0.isASCII && $0.isLetter } }) else {
+                throw FlowStop.fail("the recovery phrase display exposed malformed words (lengths only: \(words.map(\.count)))")
             }
             RunSecrets.words = words
             try tap(button("I saved it. Hide and continue"), "Hide and continue")

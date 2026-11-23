@@ -16,8 +16,9 @@ class RealRunTestCase: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = true
-        if Self.config == nil { Self.config = try RealRunConfig.load() }
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        if Self.config == nil { Self.config = try RealRunConfig.load(); RunSecrets.load(from: control) }
+        // -RFRealRunPhraseAccess: the debug-only accessibility seam of the recovery phrase display (flow 1).
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES"]
         if app.state == .notRunning || app.state == .unknown { app.launch() } else { app.activate() }
     }
 
@@ -32,8 +33,11 @@ class RealRunTestCase: XCTestCase {
             snap("\(id)-pass")
         } catch let stop as FlowStop {
             snap("\(id)-\(stop.status.lowercased())")
-            control.log("flow \(id) \(stop.status): \(stop.description)\n\(app.debugDescription.prefix(40000))")
+            // The element tree is never logged while the recovery phrase is on screen.
+            control.log("flow \(id) \(stop.status): \(stop.description)\n\(Self.sensitive ? "(element tree withheld: recovery phrase on screen)" : String(app.debugDescription.prefix(40000)))")
             control.record(id, stop.status, stop.description)
+            // The app's debug event trace (methods, topics and codes only) for every flow that did not pass.
+            control.post("device-log", json: ["name": "device-events-\(id)", "minutes": 8])
             if stop.status == "FAIL" { XCTFail("\(id): \(stop.description)") }
         } catch {
             snap("\(id)-error")
@@ -53,10 +57,11 @@ class RealRunTestCase: XCTestCase {
     override func tearDown() {
         if let id = currentFlow {
             snap("\(id)-interrupted")
-            control.log("flow \(id) interrupted: \(lastIssue)\n\(app.debugDescription.prefix(40000))")
+            control.log("flow \(id) interrupted: \(lastIssue)\n\(Self.sensitive ? "(element tree withheld: recovery phrase on screen)" : String(app.debugDescription.prefix(40000)))")
             control.record(id, "FAIL", "test interrupted: \(lastIssue.prefix(500))")
             currentFlow = nil; Self.sensitive = false
         }
+        if Self.config != nil { RunSecrets.save(to: control) }
         super.tearDown()
     }
 

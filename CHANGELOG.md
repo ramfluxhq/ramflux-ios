@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+- Real-run harness: phased runs (`prepare`, `rebuild`, `run`, `finish`) so every command stays short; run state kept in the loopback control server's memory between phases; the device event trace is saved for every flow that does not pass.
+- Real-run suite reads the recovery phrase through a debug-only accessibility seam of the phrase display (launch argument `-RFRealRunPhraseAccess`, never compiled into release builds) instead of text recognition, so the word check no longer misses a word.
+
 ## [0.2.6] - 2026-11-23
 
 - Align release metadata with product version 0.2.6.
