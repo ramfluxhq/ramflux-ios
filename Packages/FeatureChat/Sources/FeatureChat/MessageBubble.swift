@@ -41,15 +41,13 @@ public struct MessageBubble: View {
             VStack(alignment: placement.alignment, spacing: theme.gap / 2) {
                 quote
                 if message.kind != .deleted, !message.attachments.isEmpty {
-                    // Media first, the caption below it (media design 4.1).
+                    // Photos and videos first with the caption below (media design 4.1); file cards
+                    // follow the text, as on MOB-B02.
                     let visual = message.attachments.filter { $0.kind != .file }
                     if visual.count == 1 {
                         MediaAttachmentView(attachment: visual[0], state: media.states[visual[0].id] ?? .idle, revealed: media.revealed.contains(visual[0].id), isOwn: own, time: clock, onAction: onAction)
                     } else if visual.count > 1 {
                         MediaAlbumGrid(messageID: message.id, items: visual, states: media.states, revealed: media.revealed, onAction: onAction)
-                    }
-                    ForEach(message.attachments.filter { $0.kind == .file }) { attachment in
-                        MediaAttachmentView(attachment: attachment, state: media.states[attachment.id] ?? .idle, revealed: media.revealed.contains(attachment.id), isOwn: own, time: clock, onAction: onAction)
                     }
                 }
                 if let card = media.card {
@@ -58,6 +56,11 @@ public struct MessageBubble: View {
                 if showsTextBubble && media.card == nil {
                     KitBubble(text, kind: own ? .own : .incoming, time: clock, edited: message.edited ? FeatureChatStrings.text("chat.edited", locale: locale) : nil, sender: isGroup && !own ? message.sender : nil,
                               read: message.delivery == .read, sentOnly: own && (message.delivery ?? .sent) == .sent && message.kind != .deleted, tag: message.id)
+                }
+                if message.kind != .deleted {
+                    ForEach(message.attachments.filter { $0.kind == .file }) { attachment in
+                        MediaAttachmentView(attachment: attachment, state: media.states[attachment.id] ?? .idle, revealed: media.revealed.contains(attachment.id), isOwn: own, time: clock, onAction: onAction)
+                    }
                 }
                 if !message.reactions.isEmpty {
                     HStack(spacing: theme.gap / 2) {
