@@ -49,7 +49,7 @@ public struct NativeContactsRepository: ContactsRepository {
     public func change(account: String, contact: ContactRecord, change: ContactChange, operationID: String) async -> RepositoryResult<Void> {
         if change == .verify {
             guard let root = contact.rootCommitment else { return .failure(.unavailableResource("contacts.unavailable.identityCommitment")) }
-            return await mutations.run(scope: account, arguments: .change(contact.id, change), operationID: operationID) { [gateway] in
+            let result = await mutations.run(scope: account, arguments: .change(contact.id, change), operationID: operationID) { [gateway] in
                 do {
                     // Compare-and-set: the SDK records "verified" only if the safety facts still match the
                     // snapshot the user compared, which `contact.verification.status` returns as `expected`.
@@ -59,6 +59,11 @@ public struct NativeContactsRepository: ContactsRepository {
                     return .success(())
                 } catch { return .failure(AppFailure.map(error)) }
             }
+            // A verify whose reply was lost (or refused as a repeat) may still have been recorded: the SDK's
+            // current verification state decides, read again instead of reporting an unknown outcome.
+            guard case .failure(let failure) = result else { return result }
+            guard case .success(let safety) = await self.safety(account: account, contact: contact), safety.root == root, safety.verified else { return .failure(failure) }
+            return .success(())
         }
         guard let link = contact.linkID else { return .failure(.invalidInput) }
         let (operation, body): (SDKOperation, JSONValue) = switch change {
