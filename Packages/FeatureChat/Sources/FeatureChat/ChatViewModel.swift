@@ -75,6 +75,8 @@ import FeatureCards
             }
         case .openActions(let id): if visible(id) { state.actionTarget = id }
         case .closeActions: state.actionTarget = nil
+        case .selectText(let id): state.actionTarget = nil; if visible(id) { state.textSelectionTarget = id }
+        case .closeTextSelection: state.textSelectionTarget = nil
         case .beginReply(let id): state.actionTarget = nil; beginReply(id)
         case .beginEdit(let id): state.actionTarget = nil; beginEdit(id)
         case .cancelComposer: cancelComposer()

@@ -138,6 +138,8 @@
 	<string>转发</string>
 	<key>chat.message.react</key>
 	<string>表情回应</string>
+	<key>chat.message.selectText</key>
+	<string>选择文本</string>
 	<key>chat.offline.banner</key>
 	<string>当前离线 · 消息将在恢复连接后发送</string>
 	<key>chat.outbox.details</key>

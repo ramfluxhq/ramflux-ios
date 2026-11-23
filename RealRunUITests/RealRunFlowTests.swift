@@ -224,11 +224,22 @@ final class RealRunFlowTests: RealRunTestCase {
             try tap(button("Reply"), "Reply action")
             try send(reply)
             guard eventually(90, every: 3, { self.aliceMessage(conversation, containing: reply) != nil }) else { throw FlowStop.fail("alice did not receive the reply") }
+            // The own reply sits on the own (trailing) side like any own message.
+            let replyBubble = try require(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", reply)).firstMatch, "own reply bubble", timeout: 30)
+            guard replyBubble.identifier == "message-own" else { throw FlowStop.fail("own reply is drawn on the incoming side (\(replyBubble.identifier))") }
+            notes.append("own reply drawn on the own side")
             if let row = aliceMessage(conversation, containing: reply) {
                 let message = (row["content"] as? [String: Any])?["message"] as? [String: Any] ?? [:]
                 notes.append(message.keys.contains { $0.lowercased().contains("reply") } || row.keys.contains { $0.lowercased().contains("reply") }
                              ? "reply reference present on alice" : "reply arrived without a reply reference on alice (keys: \(message.keys.sorted()))")
             }
+            // A long press on an own bubble opens the app's actions; "Select text" shows the text selectable.
+            try openActions(on: text(containing: first), "own first message")
+            try tap(button("Select text"), "Select text action")
+            guard element("chat-select-text").waitForExistence(timeout: 10) else { throw FlowStop.fail("Select text did not show the message text") }
+            snap("04-select-text")
+            try tap(element("chat-select-text-header").buttons["Back"].firstMatch, "close the text selection")
+            notes.append("long press opens the message actions on own and incoming bubbles; Select text works")
             // Edit the first message.
             let edited = first + "-edited"
             try openActions(on: text(containing: first), "own first message")

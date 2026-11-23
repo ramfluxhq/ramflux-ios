@@ -247,6 +247,10 @@ extension MessageWindowPage {
         await fake.setEditResult(.success(()))
         model.send(.retrySameSend); await model.settle()
         #expect(model.state.draft == "Draft"); #expect(model.state.composer == nil)
+        // "Select text" from the actions closes them and shows the text selectable; unknown ids are ignored.
+        model.send(.openActions("m")); model.send(.selectText("m"))
+        #expect(model.state.actionTarget == nil); #expect(model.state.textSelectionTarget == "m")
+        model.send(.closeTextSelection); model.send(.selectText("unknown")); #expect(model.state.textSelectionTarget == nil)
         model.send(.openActions("m")); #expect(model.state.actionTarget == "m")
         model.send(.chooseReaction("👍")); await model.settle(); #expect(model.state.actionTarget == nil)
         model.send(.beginReact("mine")); model.send(.reactionMode(true)); model.send(.removeReaction("🎉")); await model.settle()

@@ -138,6 +138,8 @@
 	<string>Forward</string>
 	<key>chat.message.react</key>
 	<string>React</string>
+	<key>chat.message.selectText</key>
+	<string>Select text</string>
 	<key>chat.offline.banner</key>
 	<string>Offline · messages will be sent when the connection returns</string>
 	<key>chat.outbox.details</key>

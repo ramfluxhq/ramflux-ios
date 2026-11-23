@@ -81,6 +81,15 @@ public struct ChatScreen: View {
                     Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.cancelReaction) }
                 }.padding(theme.gap) } }
             }
+            .sheet(isPresented: Binding(get: { state.textSelectionTarget != nil }, set: { if !$0 { onAction(.closeTextSelection) } })) {
+                if let id = state.textSelectionTarget, let message = state.messages.first(where: { $0.id == id }), case .text(let text) = message.kind {
+                    VStack(spacing: 0) {
+                        KitPageHeader(FeatureChatStrings.text("chat.message.selectText", locale: locale), onBack: { onAction(.closeTextSelection) }, tag: "chat-select-text-header")
+                        ScrollView { KitMessageText(text).padding(KitMetrics.gutter).accessibilityIdentifier("chat-select-text") }
+                    }
+                    .background(theme.nav.ignoresSafeArea())
+                }
+            }
             .modifier(ChatMediaSheets(state: state, onAction: onAction))
             .sheet(isPresented: Binding(get: { state.details != nil }, set: { if !$0 { onAction(.closeDetails) } })) {
                 if let details = state.details { ChatDetailsSheet(state: details, title: state.displayTitle, conversationID: state.conversationID, isGroup: state.isGroup, onAction: onAction) }
@@ -139,6 +148,7 @@ struct ChatActionsOverlay: View {
                 #endif
                 onAction(.closeActions)
             }))
+            list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.selectText", locale: locale), icon: "type"), run: { onAction(.selectText(message.id)) }))
             if message.isOwn == true {
                 list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.edit", locale: locale), icon: "pencil"), run: { onAction(.beginEdit(message.id)) }))
             }

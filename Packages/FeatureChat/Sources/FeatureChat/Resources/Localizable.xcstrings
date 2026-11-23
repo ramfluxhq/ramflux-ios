@@ -1753,6 +1753,23 @@
           }
         }
       }
+    },
+    "chat.message.selectText": {
+      "comment": "Message action and title of the sheet that shows the message text with system text selection (a long press on a bubble opens the message actions instead).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select text"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择文本"
+          }
+        }
+      }
     }
   }
 }

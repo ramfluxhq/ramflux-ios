@@ -22,6 +22,7 @@ public struct KitMessageText: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.locale) private var locale
     @Environment(\.layoutDirection) private var layoutDirection
+    @Environment(\.kitMessageTextSelectable) private var selectable
 
     /// - Parameter fillsWidth: true fills the offered width (bubble body); false hugs the text
     ///   (reply excerpts). Either way the text aligns by its own direction.
@@ -45,7 +46,7 @@ public struct KitMessageText: View {
             .modifier(KitLineHeight(size: points, weight: .regular, line: KitMetrics.lineBubble, face: face))
             .lineLimit(lines)
             .multilineTextAlignment(.leading)
-            .textSelection(.enabled)
+            .modifier(KitTextSelection(enabled: selectable))
             .frame(maxWidth: fillsWidth ? .infinity : nil, alignment: .leading)
             .environment(\.layoutDirection, Self.direction(of: clean, surrounding: layoutDirection))
     }
@@ -98,5 +99,18 @@ struct KitBubbleWidth: Layout {
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         subviews.first?.place(at: bounds.origin, proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
+    }
+}
+
+public extension EnvironmentValues {
+    /// Whether `KitMessageText` offers system text selection on long press (default true). A timeline
+    /// turns it off so a long press opens the message actions; selection stays reachable from them.
+    @Entry var kitMessageTextSelectable: Bool = true
+}
+
+private struct KitTextSelection: ViewModifier {
+    let enabled: Bool
+    func body(content: Content) -> some View {
+        if enabled { content.textSelection(.enabled) } else { content.textSelection(.disabled) }
     }
 }

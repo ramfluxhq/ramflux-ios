@@ -7,6 +7,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case draftChanged(String), send, retrySameSend, cancelComposer
     case retryOutbox(String), discardOutbox(String)
     case openActions(String), closeActions
+    /// Shows a message's text with system selection (from the message actions); a long press on a bubble opens the actions.
+    case selectText(String), closeTextSelection
     case beginReply(String), beginEdit(String), beginReact(String), reactionMode(Bool), chooseReaction(String), removeReaction(String), cancelReaction
     case requestDelete(String, MessageDeleteScope), cancelDelete, confirmDelete
     case detailsRequested, closeDetails, setMuted(Bool), openSafetyNumber

@@ -79,8 +79,13 @@ public struct MessageBubble: View {
             .frame(maxWidth: .infinity, alignment: placement.frameAlignment)
             .padding(.horizontal, theme.gap)
             .contentShape(Rectangle())
+            // Bubble text is not selectable here: a long press always opens the message actions,
+            // whose "Select text" shows the text with system selection.
+            .environment(\.kitMessageTextSelectable, false)
             .onLongPressGesture { if actionable { onAction(.openActions(message.id)) } }
             .accessibilityElement(children: .combine)
+            // The side as a stable identifier, for UI tests that check own versus incoming placement.
+            .accessibilityIdentifier(placement.side == .trailing ? "message-own" : "message-incoming")
             .accessibilityAction(named: Text(FeatureChatStrings.text("chat.message.actions", locale: locale))) { if actionable { onAction(.openActions(message.id)) } }
         }
     }

@@ -83,6 +83,8 @@ public struct ChatState: Equatable, Sendable {
     public var composer: ComposerIntent?
     /// The message whose action menu (reactions, reply, copy, edit, delete) is open.
     public var actionTarget: String?
+    /// The message whose text is shown selectable (the "Select text" action).
+    public var textSelectionTarget: String?
     public var reactionTarget: String?
     public var reactionRemove = false
     public var held: HeldMutation?
