@@ -3,7 +3,7 @@
   "boards": {
     "MOB-A01-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app shows the generic start catalog form (unlock, create, restore, link, choose node buttons). The board is the 'continue with existing identity' page: pushed header with back, node card with a change-node row, existing local account section with an info button, one primary 'unlock existing account' button at the bottom. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The app shows the generic start catalog form (unlock, create, restore, link, choose node buttons). The board is the 'continue with existing identity' page: pushed header with back, node card with a change-node row, existing local account section with an info button, one primary 'unlock existing account' button at the bottom. Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Wave 2 pass 3 (reviewed pair by pair): the start form gained a 'Restore from a backup' action (new-install recovery from a backup archive), so the actions below it moved down one 57 pt button plus gap; the screen is still the generic start form until the onboarding boards are redrawn.",
       "regions": [
         {
           "rect": [
@@ -15,18 +15,18 @@
         },
         {
           "rect": [
-            298,
+            23,
             21,
-            36,
+            33,
             17
           ]
         },
         {
           "rect": [
-            22,
-            22,
-            34,
-            16
+            298,
+            21,
+            36,
+            17
           ]
         },
         {
@@ -63,8 +63,16 @@
         },
         {
           "rect": [
+            14,
+            536,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
             15,
-            542,
+            610,
             71,
             20
           ]
@@ -2918,8 +2926,250 @@
       ]
     },
     "MOB-G02-zh-CN-light": {
-      "status": "no-capture",
-      "reason": "No capture: the settings board has no fixture in wave 1."
+      "status": "deviates",
+      "reason": "Wave 2 pass 3, first capture (reviewed pair by pair): the settings index follows the board's three grouped cards. Deviations: the header keeps the refresh action and its title sits 14 pt lower; row subtitles are static catalog copy (the board shows the account name and live state); the second section has 'Connected services' instead of 'MCP and A2I' plus a 'Storage' row, so the app section starts 58 pt lower; rows read 'My devices' and 'About and diagnostics' as in the catalog; a fourth 'Activity' section (call history, cards) begins at the bottom until their own module places those entries. Status bar glyphs differ as on every board.",
+      "regions": [
+        {
+          "rect": [
+            344,
+            20,
+            26,
+            19
+          ]
+        },
+        {
+          "rect": [
+            23,
+            21,
+            33,
+            17
+          ]
+        },
+        {
+          "rect": [
+            298,
+            21,
+            36,
+            17
+          ]
+        },
+        {
+          "rect": [
+            32,
+            79,
+            93,
+            37
+          ]
+        },
+        {
+          "rect": [
+            327,
+            94,
+            23,
+            23
+          ]
+        },
+        {
+          "rect": [
+            30,
+            152,
+            69,
+            20
+          ]
+        },
+        {
+          "rect": [
+            72,
+            184,
+            121,
+            46
+          ]
+        },
+        {
+          "rect": [
+            38,
+            194,
+            18,
+            25
+          ]
+        },
+        {
+          "rect": [
+            349,
+            198,
+            9,
+            17
+          ]
+        },
+        {
+          "rect": [
+            72,
+            242,
+            134,
+            46
+          ]
+        },
+        {
+          "rect": [
+            39,
+            252,
+            17,
+            26
+          ]
+        },
+        {
+          "rect": [
+            349,
+            256,
+            9,
+            17
+          ]
+        },
+        {
+          "rect": [
+            30,
+            309,
+            189,
+            251
+          ]
+        },
+        {
+          "rect": [
+            349,
+            354,
+            9,
+            26
+          ]
+        },
+        {
+          "rect": [
+            349,
+            413,
+            9,
+            25
+          ]
+        },
+        {
+          "rect": [
+            349,
+            471,
+            9,
+            25
+          ]
+        },
+        {
+          "rect": [
+            349,
+            529,
+            9,
+            12
+          ]
+        },
+        {
+          "rect": [
+            72,
+            578,
+            133,
+            140
+          ]
+        },
+        {
+          "rect": [
+            31,
+            582,
+            27,
+            26
+          ]
+        },
+        {
+          "rect": [
+            350,
+            591,
+            8,
+            12
+          ]
+        },
+        {
+          "rect": [
+            36,
+            622,
+            22,
+            43
+          ]
+        },
+        {
+          "rect": [
+            349,
+            627,
+            9,
+            12
+          ]
+        },
+        {
+          "rect": [
+            350,
+            649,
+            8,
+            12
+          ]
+        },
+        {
+          "rect": [
+            37,
+            681,
+            21,
+            35
+          ]
+        },
+        {
+          "rect": [
+            349,
+            685,
+            9,
+            28
+          ]
+        },
+        {
+          "rect": [
+            73,
+            739,
+            70,
+            20
+          ]
+        },
+        {
+          "rect": [
+            37,
+            740,
+            20,
+            20
+          ]
+        },
+        {
+          "rect": [
+            349,
+            744,
+            9,
+            12
+          ]
+        },
+        {
+          "rect": [
+            31,
+            796,
+            25,
+            14
+          ]
+        },
+        {
+          "rect": [
+            134,
+            833,
+            124,
+            9
+          ]
+        }
+      ]
     },
     "MOB-G03-zh-CN-light": {
       "status": "deviates",
@@ -3287,7 +3537,7 @@
     },
     "MOB-S01-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app shows the generic start catalog form for the launch stage; the board is the splash (logo tile, wordmark, wave mark, starting spinner). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The app shows the generic start catalog form for the launch stage; the board is the splash (logo tile, wordmark, wave mark, starting spinner). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Wave 2 pass 3 (reviewed pair by pair): the start form gained a 'Restore from a backup' action (new-install recovery from a backup archive), so the actions below it moved down one 57 pt button plus gap; the screen is still the generic start form until the onboarding boards are redrawn.",
       "regions": [
         {
           "rect": [
@@ -3299,18 +3549,18 @@
         },
         {
           "rect": [
-            298,
+            23,
             21,
-            37,
+            33,
             17
           ]
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
+            298,
+            21,
+            37,
+            17
           ]
         },
         {
@@ -3355,8 +3605,16 @@
         },
         {
           "rect": [
+            14,
+            536,
+            365,
+            57
+          ]
+        },
+        {
+          "rect": [
             15,
-            542,
+            610,
             71,
             20
           ]
@@ -3601,7 +3859,7 @@
     },
     "MOB-S18-zh-CN-light": {
       "status": "deviates",
-      "reason": "The app shows the generic start catalog form for the welcome stage; the board is the welcome page (wordmark, wave mark, headline, create, link and restore actions at the bottom). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar.",
+      "reason": "The app shows the generic start catalog form for the welcome stage; the board is the welcome page (wordmark, wave mark, headline, create, link and restore actions at the bottom). Status bar glyphs (time weight, signal, wi-fi, battery) and the home indicator differ from the design status bar. Wave 2 pass 3 (reviewed pair by pair): the start form gained a 'Restore from a backup' action (new-install recovery from a backup archive), so the actions below it moved down one 57 pt button plus gap; the screen is still the generic start form until the onboarding boards are redrawn.",
       "regions": [
         {
           "rect": [
@@ -3613,18 +3871,18 @@
         },
         {
           "rect": [
-            298,
+            23,
             21,
-            37,
+            33,
             17
           ]
         },
         {
           "rect": [
-            23,
-            22,
-            33,
-            16
+            298,
+            21,
+            37,
+            17
           ]
         },
         {
@@ -3669,18 +3927,18 @@
         },
         {
           "rect": [
-            15,
-            542,
-            71,
-            20
+            14,
+            536,
+            365,
+            57
           ]
         },
         {
           "rect": [
             13,
-            636,
+            610,
             367,
-            117
+            143
           ]
         },
         {
