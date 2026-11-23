@@ -212,6 +212,13 @@ final class RealRunFlowTests: RealRunTestCase {
                 throw FlowStop.fail("alice did not receive the phone's message in \(conversation): \(visibleFailure())")
             }
             snap("04-sent")
+            // Accessibility: the attach control is a labelled button and the own bubble states its receipt.
+            let attach = app.buttons["chat-composer-attach"].firstMatch
+            guard attach.exists, attach.label == "Attach" else { throw FlowStop.fail("the attach control is not a button labelled Attach (\(attach.debugDescription.prefix(200)))") }
+            let ownBubble = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == 'message-own' AND label CONTAINS %@", first)).firstMatch
+            let receipt = (ownBubble.value as? String ?? "") + " " + ownBubble.label
+            guard ["Sent", "Delivered", "Read"].contains(where: { receipt.contains($0) }) else { throw FlowStop.fail("the own bubble does not state its receipt (\(receipt.prefix(160)))") }
+            notes.append("attach is a labelled button; own bubble receipt reads \(["Read", "Delivered", "Sent"].first { receipt.contains($0) } ?? "?")")
             // Receive live from alice, without a manual refresh.
             let incoming = "rr-alice-" + token()
             let sent = control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", incoming])

@@ -1770,6 +1770,23 @@
           }
         }
       }
+    },
+    "chat.media.cancelDownload": {
+      "comment": "Accessibility action on a photo or video that is downloading: stops the download (sighted users tap the spinner).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel download"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消下载"
+          }
+        }
+      }
     }
   }
 }

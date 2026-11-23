@@ -67,6 +67,10 @@ struct MediaTile: View {
             .accessibilityLabel(Text(ChatMediaText.accessibility(attachment, state: state, locale: locale)))
             .accessibilityAddTraits(.isButton)
             .accessibilityAction { onAction(.mediaTapped(attachment.id)) }
+            // The spinner's tap cancels a download; assistive technology reaches it as a named action.
+            .accessibilityActions {
+                if state == .downloading { Button(FeatureChatStrings.text("chat.media.cancelDownload", locale: locale)) { onAction(.cancelMedia(attachment.id)) } }
+            }
     }
     @ViewBuilder private var content: some View {
         if case .ready(let url) = state {

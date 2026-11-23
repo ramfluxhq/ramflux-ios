@@ -30,6 +30,14 @@
 	<string>Try again</string>
 	<key>kit.more</key>
 	<string>More</string>
+	<key>kit.receipt.delivered</key>
+	<string>Delivered</string>
+	<key>kit.receipt.pending</key>
+	<string>Sending</string>
+	<key>kit.receipt.read</key>
+	<string>Read</string>
+	<key>kit.receipt.sent</key>
+	<string>Sent</string>
 	<key>kit.search</key>
 	<string>Search</string>
 	<key>kit.secret.confirmOnce</key>

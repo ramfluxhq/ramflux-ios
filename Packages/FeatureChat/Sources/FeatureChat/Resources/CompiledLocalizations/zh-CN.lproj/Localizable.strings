@@ -80,6 +80,8 @@
 	<string>正在加载消息</string>
 	<key>chat.media.accessibility</key>
 	<string>%1$@，%2$@</string>
+	<key>chat.media.cancelDownload</key>
+	<string>取消下载</string>
 	<key>chat.media.download</key>
 	<string>下载</string>
 	<key>chat.media.downloading</key>

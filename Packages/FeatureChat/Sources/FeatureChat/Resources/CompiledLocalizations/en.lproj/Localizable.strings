@@ -80,6 +80,8 @@
 	<string>Loading messages</string>
 	<key>chat.media.accessibility</key>
 	<string>%1$@, %2$@</string>
+	<key>chat.media.cancelDownload</key>
+	<string>Cancel download</string>
 	<key>chat.media.download</key>
 	<string>Download</string>
 	<key>chat.media.downloading</key>

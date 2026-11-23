@@ -126,6 +126,17 @@ public struct KitBubble: View {
             }
         }
         .fixedSize()
+        // The ticks and the clock are drawn as hidden icons; their meaning is the cluster's value.
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(Text(receiptStatus(own: own)))
+    }
+
+    /// What the ticks or the clock say, for assistive technology (empty when nothing is drawn).
+    private func receiptStatus(own: Bool) -> String {
+        if pending { return RFDesignStrings.text("kit.receipt.pending") }
+        guard own, read || !(time ?? "").isEmpty else { return "" }
+        if read { return RFDesignStrings.text("kit.receipt.read") }
+        return RFDesignStrings.text(sentOnly ? "kit.receipt.sent" : "kit.receipt.delivered")
     }
 
     private var bubbleShape: UnevenRoundedRectangle {
