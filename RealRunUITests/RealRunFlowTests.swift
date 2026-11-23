@@ -352,17 +352,21 @@ final class RealRunFlowTests: RealRunTestCase {
             for caption in RunSecrets.mediaCaptions {
                 guard text(containing: caption).waitForExistence(timeout: 90) else { throw FlowStop.fail("message \(caption) from alice did not appear") }
             }
-            let file = app.buttons.matching(NSPredicate(format: "label CONTAINS 'rr-file.txt'")).firstMatch
-            let photo = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Photo'")).firstMatch
-            guard file.waitForExistence(timeout: 30) else { throw FlowStop.fail("the file card for rr-file.txt is not shown") }
-            guard photo.waitForExistence(timeout: 30) else { throw FlowStop.fail("the photo attachment is not shown") }
-            notes.append("phone shows the photo (\(photo.label)) and the file card (\(file.label))")
+            // rf dm send --attach declares application/octet-stream for every file, so both arrive as file cards.
+            for name in ["rr-image.png", "rr-file.txt"] {
+                let card = app.buttons.matching(NSPredicate(format: "label CONTAINS %@ AND NOT (identifier BEGINSWITH 'message-')", name)).firstMatch
+                guard card.waitForExistence(timeout: 30) else { throw FlowStop.fail("the attachment \(name) is not shown") }
+                try tap(card, "download \(name)")
+                guard eventually(90, every: 2, { !card.exists || !card.label.contains("Tap to download") && !card.label.contains("Downloading") }) else {
+                    throw FlowStop.fail("\(name) did not finish downloading: \(card.label)")
+                }
+                notes.append("phone received and downloaded \(name) (\(card.exists ? card.label : "opened"))")
+                Thread.sleep(forTimeInterval: 2)
+                if app.buttons["Done"].firstMatch.exists { app.buttons["Done"].firstMatch.tap() }
+                else if app.buttons["Close"].firstMatch.exists { app.buttons["Close"].firstMatch.tap() }
+                if !element("chat-composer-input").exists { back() }
+            }
             snap("07-received")
-            photo.tap()
-            Thread.sleep(forTimeInterval: 5)
-            snap("07-photo-tapped")
-            notes.append("after tapping the photo: \(photo.exists ? photo.label : "preview opened")")
-            if app.buttons["Close"].firstMatch.exists { app.buttons["Close"].firstMatch.tap() } else { back() }
             }
             // Send the test image from the photo library.
             if !element("chat-composer-input").exists { try openConversation(conversation) }
