@@ -22,6 +22,11 @@ import RamfluxCore
                 if expiredRequest { return .object(["group_id": .string("g"), "accepted": .bool(false), "pending": .bool(false), "status": .string("expired"), "request_id": .string("expired-request")]) }
                 #expect(request.body["name"] == .string("New name")); #expect(request.operationID?.rawValue == "rename")
                 return .object(["group_id": .string("g"), "accepted": .bool(true), "pending": .bool(true), "request_id": .string("owner-request")])
+            case "group.member.add":
+                // A contact is selected by principal id alone; an explicit root would make member_id a device id.
+                #expect(request.body["member_id"] == .string("principal-new")); #expect(request.body["member_principal_commitment"] == nil)
+                #expect(request.body["role"] == .string("member"))
+                return .object(["group_id": .string("g"), "accepted": .bool(true)])
             case "group.role.set":
                 #expect(request.body["member_id"] == .string("peer-phone")); #expect(request.body["member_principal_commitment"] == .string("root-peer")); #expect(request.body["role"] == .string("admin"))
                 return .object(["group_id": .string("g"), "accepted": .bool(true)])
@@ -51,6 +56,8 @@ import RamfluxCore
         #expect(rename == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: true, requestID: "owner-request")))
         guard let peer = detail.roster.first(where: { $0.root == "root-peer" }) else { Issue.record("Peer absent"); return }
         #expect(await repository.mutate(account: "a", mutation: .role(group: "g", epoch: UInt64.max, member: peer, role: "admin"), operationID: "role") == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: false)))
+        #expect(await repository.mutate(account: "a", mutation: .add(group: "g", epoch: UInt64.max, principal: "principal-new", root: "root-new"), operationID: "add") == .success(GroupMutationOutcome(groupID: "g", waitingForOwner: false)))
+        #expect(fixture.calls.withLock { $0.contains { $0.method == "group.member.add" } })
         let replaced = GroupMemberRecord(principal: "peer", root: "replaced-root", device: peer.device, role: "member")
         #expect(await repository.mutate(account: "a", mutation: .remove(group: "g", epoch: UInt64.max, member: replaced), operationID: "replaced") == .failure(.invalidInput))
     }

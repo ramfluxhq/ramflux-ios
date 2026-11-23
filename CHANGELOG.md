@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Groups: a contact is added to a group by its principal id alone; the explicit root made the SDK read the principal id as a device id and refuse the add (code 16).
 - Backup: once an archive chosen for restore is verified, the install step (new account code, or the merge confirmation) opens by itself.
 - Contacts: a verification whose reply was lost is reconciled by reading the verification state again instead of reporting an unknown outcome.
 - Real-run harness: phased runs (`prepare`, `rebuild`, `run`, `finish`) so every command stays short; run state kept in the loopback control server's memory between phases; the device event trace is saved for every flow that does not pass.

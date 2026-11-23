@@ -124,7 +124,11 @@ public struct NativeGroupsRepository: GroupsRepository {
                         fields["member_id"] = .string(member.device); fields["member_principal_commitment"] = member.root.map(JSONValue.string); operation = .groupMemberRemove
                     case .add(_, let epoch, let principal, let root):
                         guard epoch == detail.group.epoch, !principal.isEmpty, principal.utf8.count <= 2048, !root.isEmpty, root.utf8.count <= 1024 else { return .failure(.invalidInput) }
-                        fields["member_id"] = .string(principal); fields["member_principal_commitment"] = .string(root); fields["role"] = .string("member"); operation = .groupMemberAdd
+                        // A contact is added by its principal id alone: the SDK selects the contact's one active device
+                        // from its verified identity record and checks the manifest root. With an explicit
+                        // member_principal_commitment the SDK reads member_id as a literal device id, so a principal id
+                        // there fails ("member is absent from its verified manifest", code 16).
+                        fields["member_id"] = .string(principal); fields["role"] = .string("member"); operation = .groupMemberAdd
                     default: return .failure(.invalidInput)
                     }
                 }
