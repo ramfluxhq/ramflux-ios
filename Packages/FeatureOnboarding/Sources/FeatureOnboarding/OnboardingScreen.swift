@@ -38,6 +38,16 @@ public struct OnboardingScreen: View {
         .privacySensitive()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(state.stage.board)
+        #if os(iOS)
+        // Steps with a Kit header carry their own back control; the system one would be a second.
+        .navigationBarBackButtonHidden(Self.drawsOwnBack(state))
+        #endif
+    }
+
+    /// Whether the current step draws a Kit page header with a back control (every step but the
+    /// splash, get started and welcome boards, which keep the system back control).
+    static func drawsOwnBack(_ state: OnboardingState) -> Bool {
+        state.showingUnlockInfo || ![.launch, .connection, .welcome].contains(state.stage)
     }
 
     // MARK: Board pages

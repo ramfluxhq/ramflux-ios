@@ -52,6 +52,13 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
         #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
     }
+    @Test func onlyStepsWithAKitHeaderHideTheSystemBackControl() {
+        #expect(!OnboardingScreen.drawsOwnBack(OnboardingState(stage: .connection)))
+        #expect(!OnboardingScreen.drawsOwnBack(OnboardingState(stage: .welcome)))
+        #expect(OnboardingScreen.drawsOwnBack(OnboardingState(stage: .start)))
+        #expect(OnboardingScreen.drawsOwnBack(OnboardingState(stage: .address)))
+        #expect(OnboardingScreen.drawsOwnBack(.unlockKnown(account: "a", name: "A")))
+    }
     @Test func knownAccountUnlockAsksOnlyForTheCodeAndCanForgetARefusedAccount() async {
         let fake = FlowFake(); var events: [OnboardingEvent] = []
         let model = OnboardingViewModel(repository: fake, nodes: fake, state: .unlockKnown(account: "account-a", name: "Ada"), emit: { events.append($0) })
