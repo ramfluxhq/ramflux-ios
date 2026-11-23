@@ -393,7 +393,8 @@ final class RealRunFlowTests: RealRunTestCase {
             // Send the test image from the photo library.
             if !element("chat-composer-input").exists { try openConversation(conversation) }
             guard try sendLibraryPhoto() else { throw FlowStop.blocked("the system photo picker exposed no images to the UI test; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))") }
-            let expected = ProcessInfo.processInfo.environment["RF_PHONE_PHOTO"].map { control.post("file-info", json: ["path": $0])["sha256"] as? String } ?? nil
+            // The photo-library image the phone sends, as the harness decodes it (format and pixel size).
+            let source = ProcessInfo.processInfo.environment["RF_PHONE_PHOTO"].map { control.post("file-info", json: ["path": $0])["image"] as? [String: Any] } ?? nil
             var imported: [String: Any] = [:]
             guard eventually(120, every: 4, {
                 guard let row = self.aliceMessages(conversation).last(where: { ($0["is_own"] as? Bool) == false && !((($0["content"] as? [String: Any])?["message"] as? [String: Any])?["media"] as? [Any] ?? []).isEmpty }),
@@ -413,9 +414,19 @@ final class RealRunFlowTests: RealRunTestCase {
                 }
                 throw FlowStop.fail("alice never received an importable image from the phone; \(detail)")
             }
-            let same = expected != nil && (imported["sha256"] as? String) == expected
-            notes.append(same ? "alice imported identical bytes of the phone's image" : "alice imported \(imported["size"] ?? "?") bytes; sha256 differs from the photo-library file (the app or Photos re-encodes)")
-            guard same else { throw FlowStop.fail(notes.joined(separator: "; ")) }
+            // A photo is sent in compressed mode (media design): re-encoded as JPEG, or PNG when it has alpha,
+            // with the long edge capped at 2,560 px. Alice must receive a decodable image of that kind and size.
+            guard let source, let width = source["width"] as? Int, let height = source["height"] as? Int else {
+                throw FlowStop.fail("the harness could not decode the photo-library image; \(notes.joined(separator: "; "))")
+            }
+            let scale = min(1.0, 2560.0 / Double(max(width, height)))
+            let expectedSize = (Int((Double(width) * scale).rounded()), Int((Double(height) * scale).rounded()))
+            let received = imported["image"] as? [String: Any]
+            let format = received?["format"] as? String ?? "none"
+            let size = (received?["width"] as? Int ?? 0, received?["height"] as? Int ?? 0)
+            let matches = ["jpeg", "png"].contains(format) && size == expectedSize
+            notes.append("alice imported a decodable \(format) image of \(size.0)x\(size.1) px (\(imported["size"] ?? "?") bytes) for the phone's \(width)x\(height) px photo; expected JPEG or PNG at \(expectedSize.0)x\(expectedSize.1) px")
+            guard matches else { throw FlowStop.fail(notes.joined(separator: "; ")) }
             if let receiveBlocked { throw FlowStop.blocked("receive: " + receiveBlocked + "; send: " + notes.joined(separator: "; ")) }
             return notes.joined(separator: "; ")
         }

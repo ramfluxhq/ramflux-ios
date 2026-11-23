@@ -44,7 +44,9 @@ RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework swift build
 
 The script builds device, simulator and host static libraries serially, with
 `c-abi` only, and copies the matching cbindgen header. It never updates the
-product checkout. `docs/sdk-contract.json` records the source commit and header
+product checkout. Card sessions (`card.session.*`) need the SDK's `card-runtime`
+feature as well, so the card renderer work must build the XCFramework with
+`--features c-abi,card-runtime`; without it those methods are listed but have no runtime. `docs/sdk-contract.json` records the source commit and header
 hash. Regenerate only from a clean checkout at the recorded full commit:
 
 ```sh
