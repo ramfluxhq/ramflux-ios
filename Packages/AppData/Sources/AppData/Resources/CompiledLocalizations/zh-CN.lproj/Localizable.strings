@@ -160,6 +160,8 @@
 	<string>此手机版本暂不支持群组线程和论坛帖子。</string>
 	<key>groups.unavailable.transfer</key>
 	<string>转让群主身份需要新群主的已认证接受操作和证书。此手机集成暂不支持该流程。</string>
+	<key>notification.message.title</key>
+	<string>新消息</string>
 	<key>onboarding.failure.pairingUnavailable</key>
 	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
 	<key>onboarding.failure.setupExpired</key>

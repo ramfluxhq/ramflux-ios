@@ -16,6 +16,7 @@ import FeatureAgents
 import FeatureCalls
 import FeatureGroups
 import Observation
+import UserNotifications
 @Observable @MainActor final class AppComposition {
     let repositories: AppRepositories
     let shell: AppShellCoordinator
@@ -108,6 +109,18 @@ import Observation
         }
         currentSettings = (account, route, coordinator); return coordinator
     }
+    /// Local message notifications while the app is not active (see docs/permissions.md).
+    @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
+    @ObservationIgnored private var notificationDelegate: MessageNotificationDelegate?
+    /// Follows the active unlocked account; a locked session stops notifications, a concealed one keeps them.
+    func sessionChanged(_ session: SessionSnapshot) {
+        guard session.phase == .ready else { return }
+        notifier.follow(account: session.activeAccountID)
+    }
+    private func openNotification(_ token: String) {
+        guard let target = notifier.route(for: token) else { return }
+        shell.send(.openWhenReady(target.route, account: target.account))
+    }
     func startPreferences() {
         preferenceTask?.cancel()
         preferenceTask = Task { [weak self, preferences = repositories.preferences] in
@@ -115,5 +128,8 @@ import Observation
         }
     }
     deinit { preferenceTask?.cancel() }
-    init() { _ = DesignFonts.registered; let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session) }
+    init() { _ = DesignFonts.registered; let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session)
+        let delegate = MessageNotificationDelegate { [weak self] token in self?.openNotification(token) }
+        notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
+    }
 }

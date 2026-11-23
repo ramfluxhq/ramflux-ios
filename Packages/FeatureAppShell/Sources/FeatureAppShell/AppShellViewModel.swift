@@ -11,6 +11,7 @@ import AppData
     @ObservationIgnored private var work: Task<Void, Never>?
     @ObservationIgnored private var updates: Task<Void, Never>?
     @ObservationIgnored private var generation: UInt64 = 0
+    @ObservationIgnored private var pendingRoute: (route: AppRoute, account: String)?
     public init(repository: any SessionRepository, state: AppShellState = AppShellState(), emit: @escaping @MainActor (AppShellEvent) -> Void) {
         self.repository = repository; self.state = state; self.emit = emit
     }
@@ -35,7 +36,13 @@ import AppData
             guard !state.privacyShield, state.session.phase == .ready, state.session.activeAccountID != nil,
                   let route = AppRoute.parse(url) else { return }
             emit(.navigate(route))
+        case .openWhenReady(let route, let account): pendingRoute = (route, account); openPending()
         }
+    }
+    private func openPending() {
+        guard let pending = pendingRoute, !state.privacyShield, state.session.phase == .ready, let active = state.session.activeAccountID else { return }
+        pendingRoute = nil
+        if active == pending.account { emit(.navigate(pending.route)) }
     }
     private func observe() {
         guard updates == nil else { return }
@@ -43,7 +50,7 @@ import AppData
             let stream = await repository.snapshots()
             for await value in stream {
                 guard !Task.isCancelled, let self else { return }
-                if !self.state.privacyShield { self.state.session = value }
+                if !self.state.privacyShield { self.state.session = value; self.openPending() }
             }
         }
     }
@@ -55,7 +62,7 @@ import AppData
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
             self.state.busy = false; self.state.privacyShield = false
             switch result {
-            case .success(let snapshot): self.state.session = snapshot
+            case .success(let snapshot): self.state.session = snapshot; self.openPending()
             case .failure(let failure): self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure))
             }
         }

@@ -73,12 +73,13 @@ import RFDesign
                 .onAppear { composition.permissions.send(phase == .active ? .foreground : .sceneInactive); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
+                .onChange(of: coordinator.viewModel.state.session) { _, session in composition.sessionChanged(session) }
                 .onChange(of: phase) { _, phase in
                     switch phase {
-                    case .active: composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
-                    case .inactive: composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
-                    case .background: composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
-                    @unknown default: composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
+                    case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
+                    case .inactive: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
+                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
+                    @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
         }

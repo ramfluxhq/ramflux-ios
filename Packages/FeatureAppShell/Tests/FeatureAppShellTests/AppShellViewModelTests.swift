@@ -70,6 +70,20 @@ private actor SessionFake: SessionRepository {
         #expect(events.last == .dismissPrivateNavigation)
         model.send(.disappeared); await model.settle()
     }
+    @Test func notificationRouteWaitsForTheUnlockedAccountAndIsOneShot() async {
+        var events: [AppShellEvent] = []
+        let model = AppShellViewModel(repository: SessionFake(), emit: { events.append($0) })
+        model.send(.sceneInactive)
+        model.send(.openWhenReady(.conversation("c1"), account: "a"))
+        #expect(!events.contains(.navigate(.conversation("c1"))), "opened behind the privacy shield")
+        model.send(.sceneActive); await model.settle()
+        #expect(events.filter { $0 == .navigate(.conversation("c1")) }.count == 1)
+        model.send(.sceneActive); await model.settle()
+        #expect(events.filter { $0 == .navigate(.conversation("c1")) }.count == 1)
+        model.send(.openWhenReady(.conversation("c2"), account: "other"))
+        #expect(!events.contains(.navigate(.conversation("c2"))), "opened in another account")
+        model.send(.disappeared); await model.settle()
+    }
     @Test func unknownAccountCannotReachRepository() async {
         let repository = SessionFake()
         let model = AppShellViewModel(repository: repository, emit: { _ in })

@@ -3062,6 +3062,23 @@
           }
         }
       }
+    },
+    "notification.message.title": {
+      "comment": "Title of the system notification shown when a message arrives while the app is not in use. It deliberately names no sender and shows no message text; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新消息"
+          }
+        }
+      }
     }
   }
 }
