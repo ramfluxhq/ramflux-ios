@@ -40,7 +40,7 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             let qr = app.descendants(matching: .any).matching(NSPredicate(format: "identifier CONTAINS[c] 'qr' OR label CONTAINS[c] 'QR'")).firstMatch
             let shown = visibleFailure()
             if qr.exists { return "pairing invitation shown (\(qr.identifier.isEmpty ? qr.label : qr.identifier))" }
-            throw FlowStop.blocked("no invitation after Create invitation; screen says: \(shown). Node note: device_pairing_v2 needs an HTTPS public origin (ops/local-node RUNBOOK section 5)")
+            throw FlowStop.blocked("no invitation after Create invitation; screen says: \(shown). Node note: device_pairing_v2 needs an HTTPS public discovery origin; a plain-HTTP test node does not offer it")
         }
     }
 

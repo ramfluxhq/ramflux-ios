@@ -68,9 +68,24 @@ class RealRunTestCase: XCTestCase {
     func snap(_ name: String) {
         guard !Self.sensitive else { return }
         Self.shots += 1
-        let safe = String(format: "%03d-", Self.shots) + name.map { $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "-" }
+        // Phased runs start a new test process per phase; the time prefix keeps their shots apart and in order.
+        let safe = Self.stamp() + String(format: "-%03d-", Self.shots) + name.map { $0.isLetter || $0.isNumber || $0 == "-" ? $0 : "-" }
         let shot = XCUIScreen.main.screenshot()
         control.screenshot(String(safe.prefix(80)), png: shot.pngRepresentation)
+    }
+
+    static func stamp() -> String {
+        let formatter = DateFormatter(); formatter.dateFormat = "HHmmss"; formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.string(from: Date())
+    }
+    /// Scrolls the page until `element` is hittable and clear of the tab bar (at most `swipes` swipes).
+    func scrollIntoView(_ element: XCUIElement, swipes: Int = 6) {
+        let bar = app.descendants(matching: .any).matching(identifier: "shell-tabs").firstMatch
+        for _ in 0..<swipes {
+            let covered = bar.exists && element.frame.maxY > bar.frame.minY
+            if element.exists && element.isHittable && !covered { return }
+            app.swipeUp(); Thread.sleep(forTimeInterval: 0.5)
+        }
     }
 
     // MARK: Element helpers
@@ -123,6 +138,9 @@ class RealRunTestCase: XCTestCase {
     }
     /// Closes a review sheet a failed step left open (its Cancel, scrolled into view).
     func closeLeftoverSheet() {
+        // A system photo picker a failed media step left open closes with its Cancel or Close button.
+        let pickerClose = app.buttons.matching(NSPredicate(format: "label == 'Close'")).firstMatch
+        if pickerClose.exists && pickerClose.isHittable { pickerClose.tap(); Thread.sleep(forTimeInterval: 1) }
         let cancel = app.buttons.matching(NSPredicate(format: "label == 'Cancel'")).firstMatch
         guard cancel.exists else { return }
         for _ in 0..<4 where !cancel.isHittable { app.swipeUp(); Thread.sleep(forTimeInterval: 0.3) }

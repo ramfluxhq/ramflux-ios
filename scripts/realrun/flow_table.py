@@ -19,6 +19,7 @@ FLOWS = [
     ("04c-background", "4 Background and return keeps the session and queued sends"),
     ("07-media", "7 Media M1: receive image and file, view, send image with identical bytes"),
     ("05-groups", "5 Groups: create with alice and bob, send and receive, members"),
+    ("05b-group-image", "5 Groups: the phone sends an image to the group"),
     ("10-settings", "10 Settings: lock, devices, language"),
     ("10b-change-code", "10 Change account code (account.passphrase.rotate)"),
     ("14-backup", "14 Backup: create and verify"),

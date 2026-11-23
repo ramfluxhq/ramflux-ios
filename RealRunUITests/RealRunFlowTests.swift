@@ -61,6 +61,11 @@ final class RealRunFlowTests: RealRunTestCase {
                 wordField.tap(); wordField.typeText(words[position - 1])
             }
             let code = try require(element("secure-entry-passphrase"), "new account code")
+            // Secret fields present as secure text fields to accessibility and automation, without their text.
+            guard app.secureTextFields.matching(identifier: "secure-entry-passphrase").firstMatch.exists,
+                  app.secureTextFields.matching(identifier: "secure-entry-word1").firstMatch.exists else {
+                throw FlowStop.fail("the account code or recovery word fields are not exposed as secure text fields")
+            }
             code.tap(); code.typeText(RunSecrets.accountCode)
             let repeatCode = try require(element("secure-entry-passphraseRepeat"), "repeat account code")
             repeatCode.tap(); repeatCode.typeText(RunSecrets.accountCode)
@@ -83,6 +88,10 @@ final class RealRunFlowTests: RealRunTestCase {
             try lockAccount()
             guard knownAccountUnlock().waitForExistence(timeout: 20) else { throw FlowStop.fail("after lock the account is not offered by name: \(visibleFailure())") }
             snap("01-locked")
+            // Accounts sheet: tapping the locked account's row opens its unlock step.
+            try tap(element("shell-accounts"), "Accounts on the locked Messages tab")
+            try tap(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'account-account-'")).firstMatch, "the locked account's row in Accounts")
+            try require(element("a02-known-account"), "unlock step after tapping the locked account's row", timeout: 15)
             try unlockIfNeeded()
             try require(element("tab-messages"), "Messages tab after unlock", timeout: 30)
             guard !element("secure-entry-passphrase").waitForExistence(timeout: 3) else { throw FlowStop.fail("unlock form still visible after submit: \(visibleFailure())") }
@@ -99,7 +108,7 @@ final class RealRunFlowTests: RealRunTestCase {
             snap("01-cold-start")
             try unlockIfNeeded()
             try require(element("tab-messages"), "Messages tab after the cold-start unlock", timeout: 30)
-            return "node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking); after lock and after a cold start the locked tab offers \(RunSecrets.displayName) by name and the unlock step asks only for the code; Messages shows the display name"
+            return "node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking); secret fields are secure text fields; the locked account's row in Accounts opens its unlock step; after lock and after a cold start the locked tab offers \(RunSecrets.displayName) by name and the unlock step asks only for the code; Messages shows the display name"
         }
     }
 
@@ -375,14 +384,7 @@ final class RealRunFlowTests: RealRunTestCase {
             }
             // Send the test image from the photo library.
             if !element("chat-composer-input").exists { try openConversation(conversation) }
-            try tap(element("chat-composer-attach"), "attach control")
-            try tap(app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Photos'")).firstMatch, "Photos in the attach sheet")
-            let firstPhoto = app.images.firstMatch
-            guard firstPhoto.waitForExistence(timeout: 20) else { throw FlowStop.blocked("the system photo picker exposed no images to the UI test; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))") }
-            firstPhoto.tap()
-            let add = app.buttons.matching(NSPredicate(format: "label == 'Add' OR label == 'Done'")).firstMatch
-            if add.waitForExistence(timeout: 5) { add.tap() }
-            try tap(element("media-draft-send").exists ? element("media-draft-send") : button("Send"), "send the media draft", timeout: 30)
+            guard try sendLibraryPhoto() else { throw FlowStop.blocked("the system photo picker exposed no images to the UI test; \(([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; "))") }
             let expected = ProcessInfo.processInfo.environment["RF_PHONE_PHOTO"].map { control.post("file-info", json: ["path": $0])["sha256"] as? String } ?? nil
             var imported: [String: Any] = [:]
             guard eventually(120, every: 4, {
@@ -394,13 +396,13 @@ final class RealRunFlowTests: RealRunTestCase {
                 imported = self.control.post("file-info", json: ["path": out]); return true
             }) else {
                 control.post("device-log", json: ["name": "device-events-media-send", "minutes": 5])
-                let queued = text(containing: "messages will be sent when the connection returns").exists
                 let detail = ([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; ")
-                if queued {
+                let offline = text(containing: "messages will be sent when the connection returns").exists
+                if retryShown() && !offline {
                     // The prepare and its chunks are accepted; conversation.send of the prepared attachment is refused
-                    // by the SDK (device-events-media-send.log). The phone knows alice from a principal lookup only, and
-                    // contact.add with her card is refused for an existing contact (already_contact).
-                    throw FlowStop.blocked("receive works (\(detail)); phone-to-alice image send stays queued: conversation.send with the prepared attachment fails in the SDK with INTERNAL (code 16), see device-events-media-send.log; the phone's record of alice has no pinned home node and contact.add with her card returns already_contact")
+                    // by the SDK (device-events-media-send.log, request R44).
+                    snap("07-not-sent-retry")
+                    throw FlowStop.blocked("receive works (\(detail)); phone-to-alice image send: conversation.send with the prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-media-send.log; the entry reads not sent with a Retry and no offline banner")
                 }
                 throw FlowStop.fail("alice never received an importable image from the phone; \(detail)")
             }
@@ -447,7 +449,10 @@ final class RealRunFlowTests: RealRunTestCase {
             // Members: add alice and bob from the known contacts.
             try tap(button("Members and permissions"), "Members and permissions")
             for peer in [config.alice, config.bob] {
-                try tap(app.buttons.matching(NSPredicate(format: "label == %@", peer.displayName)).firstMatch, "add \(peer.name) to the group", timeout: 30)
+                let add = app.buttons.matching(NSPredicate(format: "label == %@", peer.displayName)).firstMatch
+                try require(add, "add \(peer.name) to the group", timeout: 30)
+                scrollIntoView(add)
+                try tap(add, "add \(peer.name) to the group", timeout: 30)
                 try confirmHost("member add confirmation for \(peer.name)")
                 guard text(containing: peer.principal.replacingOccurrences(of: "principal-", with: "")).waitForExistence(timeout: 60) || text(containing: peer.principal).exists else {
                     throw FlowStop.fail("\(peer.name) is not listed as a member after the add: \(visibleFailure())")
@@ -464,6 +469,7 @@ final class RealRunFlowTests: RealRunTestCase {
             let groupID = group?["group_id"] as? String ?? ""
             let conversation = group?["conversation_id"] as? String ?? groupID
             notes.append("alice lists the group (group_id \(groupID), conversation \(conversation))")
+            RunSecrets.groupName = name; RunSecrets.groupID = groupID; RunSecrets.groupConversation = conversation
             // Phone sends; alice and bob read it.
             back()
             if !button("Open group conversation").waitForExistence(timeout: 5) {
@@ -489,6 +495,60 @@ final class RealRunFlowTests: RealRunTestCase {
             notes.append("bob's group message appeared on the phone")
             return notes.joined(separator: "; ")
         }
+    }
+
+    // MARK: Flow 5b: an image in the group
+
+    func test05b_groupImage() {
+        flow("05b-group-image") {
+            try ensureReady()
+            guard let name = RunSecrets.groupName, let groupID = RunSecrets.groupID, let conversation = RunSecrets.groupConversation else {
+                throw FlowStop.blocked("needs flow 5 (a group with alice and bob)")
+            }
+            try openTab("groups")
+            try tap(app.buttons.matching(NSPredicate(format: "label CONTAINS %@", name)).firstMatch, "the group's row", timeout: 30)
+            try tap(button("Open group conversation"), "Open group conversation", timeout: 30)
+            try require(element("chat-composer-input"), "group chat composer", timeout: 20)
+            guard try sendLibraryPhoto() else { throw FlowStop.blocked("the system photo picker exposed no images to the UI test") }
+            snap("05b-image-sent")
+            // Alice's group read lists a message with media from the phone.
+            var found = false
+            _ = eventually(120, every: 4, {
+                let rows = self.control.rf("alice", ["group", "read", "--group", groupID, "--conversation", conversation]).json?["messages"] as? [[String: Any]] ?? []
+                found = rows.contains { !((($0["content"] as? [String: Any])?["message"] as? [String: Any])?["media"] as? [Any] ?? []).isEmpty }
+                return found
+            })
+            if found { return "the phone's image reached alice in the group (a message with media in \(conversation))" }
+            control.post("device-log", json: ["name": "device-events-group-image", "minutes": 4])
+            let offline = text(containing: "messages will be sent when the connection returns").exists
+            if retryShown() && !offline {
+                throw FlowStop.blocked("conversation.send of the group image with its prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-group-image.log; the entry reads not sent with a Retry and no offline banner")
+            }
+            throw FlowStop.fail("alice did not receive the phone's group image within 120 s; \(offline ? "the chat shows the offline banner although the node is reachable" : "no not-sent entry with a Retry is shown") (device-events-group-image.log)")
+        }
+    }
+
+    /// The not-sent media entry offers its retry (the media outbox's Retry button).
+    func retryShown() -> Bool { app.buttons.matching(NSPredicate(format: "label == 'Retry'")).firstMatch.waitForExistence(timeout: 30) }
+
+    /// Picks the first photo-library image and sends it from the open chat; false when the picker shows no images.
+    func sendLibraryPhoto() throws -> Bool {
+        try tap(element("chat-composer-attach"), "attach control")
+        try tap(app.descendants(matching: .any).matching(NSPredicate(format: "label == 'Photos'")).firstMatch, "Photos in the attach sheet")
+        // The picker may open with its "Private Access to Photos" note, whose icon is also an image: take the
+        // first large, hittable thumbnail.
+        guard app.images.firstMatch.waitForExistence(timeout: 20) else { return false }
+        var thumbnail: XCUIElement?
+        _ = eventually(10, every: 0.5, {
+            thumbnail = self.app.images.allElementsBoundByIndex.first { $0.frame.width >= 80 && $0.frame.height >= 80 && $0.isHittable }
+            return thumbnail != nil
+        })
+        guard let thumbnail else { return false }
+        thumbnail.tap()
+        let add = app.buttons.matching(NSPredicate(format: "label == 'Add' OR label == 'Done'")).firstMatch
+        if add.waitForExistence(timeout: 5) { add.tap() }
+        try tap(element("media-draft-send").exists ? element("media-draft-send") : button("Send"), "send the media draft", timeout: 30)
+        return true
     }
 
     /// Adds `peer` as a contact by principal id and lets the peer accept with rf.

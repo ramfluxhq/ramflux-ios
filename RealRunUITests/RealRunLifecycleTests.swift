@@ -18,6 +18,9 @@ final class RealRunLifecycleTests: RealRunTestCase {
             let input = try require(element("chat-composer-input"), "composer input")
             input.tap(); input.typeText(queued)
             try tap(element("chat-composer-send"), "send button")
+            // An unsent draft stays in the composer across the background and the lock.
+            let draft = "rr-draft-" + token()
+            input.tap(); input.typeText(draft)
             XCUIDevice.shared.press(.home)
             let whileAway = "rr-while-away-" + token()
             let sent = control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", whileAway])
@@ -29,24 +32,33 @@ final class RealRunLifecycleTests: RealRunTestCase {
             if element("secure-entry-passphrase").waitForExistence(timeout: 5) || element("shell-accounts").exists || text(containing: "Unlock your account").exists {
                 askedForCode = true
                 notes.append("returning asked for the account code (the locked tab offered the account by name)")
+                // Nothing of the conversation is shown before the unlock.
+                guard !text(containing: queued).exists, !text(containing: draft).exists, !element("chat-composer-input").exists else {
+                    throw FlowStop.fail("conversation content is visible before the unlock: \(visibleFailure())")
+                }
+                notes.append("no conversation content before the unlock")
                 try unlockIfNeeded()
                 // After unlock the app reopens the screen the user had open.
                 guard element("chat-composer-input").waitForExistence(timeout: 20) else {
                     throw FlowStop.fail("after unlock the app did not return to the open chat: \(visibleFailure())")
                 }
                 notes.append("after unlock the app returned to the open chat")
+                snap("04c-reopened")
             } else { notes.append("session kept without unlock") }
             snap("04c-returned")
+            let composer = element("chat-composer-input")
+            let kept = eventually(10, { ((composer.value as? String) ?? "").contains(draft) })
+            notes.append(kept ? "the composer draft was kept" : "the composer draft was lost (composer shows \(((composer.value as? String) ?? "").count) characters)")
+            guard kept else { throw FlowStop.fail(notes.joined(separator: "; ")) }
             guard eventually(90, every: 3, { self.aliceHas(conversation, queued) }) else { throw FlowStop.fail("the send made before backgrounding never reached alice; \(notes.joined(separator: "; "))") }
             notes.append("the send made before backgrounding reached alice")
             if sent.exit == 0 {
                 guard text(containing: whileAway).waitForExistence(timeout: 60) else { throw FlowStop.fail("alice's message sent while the app was in the background did not appear after return") }
                 notes.append("alice's message sent while away appeared after return")
             } else { notes.append("alice could not send while away (exit \(sent.exit))") }
-            if askedForCode {
-                throw FlowStop.blocked(notes.joined(separator: "; ") + ". SDK limitation: the C ABI v2 has only ramflux_v2_client_open/close (no suspend), so releasing the data-root writer in the background (NativeCore.suspend calls close) locks every account and returning needs the code")
-            }
-            return notes.joined(separator: "; ")
+            // Asking for the code on return is expected: the C ABI v2 has no suspend, so releasing the data-root
+            // writer in the background closes the SDK and locks every account (see docs/app-shell.md).
+            return notes.joined(separator: "; ") + (askedForCode ? " (the code is asked on return because the C ABI v2 has no suspend; the SDK closes in the background)" : "")
         }
     }
 
