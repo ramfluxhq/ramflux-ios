@@ -336,6 +336,8 @@ final class RealRunFlowTests: RealRunTestCase {
             let added = control.rf("alice", ["contact", "add", "--card", String(shownCard[range])])
             notes.append(added.exit == 0 ? "alice added the phone's contact card" : "alice: rf contact add --card exit \(added.exit): \(added.stderr.suffix(200))")
             try ensureReady()
+            notes.append(try addPeerCard(config.alice))
+            try ensureReady()
             // The phone's device id, from Settings, My devices; alice's attachment send addresses it directly.
             try openMore()
             try tap(element("more-settings"), "Settings in More")
@@ -399,10 +401,9 @@ final class RealRunFlowTests: RealRunTestCase {
                 let detail = ([receiveBlocked].compactMap { $0 } + notes).joined(separator: "; ")
                 let offline = text(containing: "messages will be sent when the connection returns").exists
                 if retryShown() && !offline {
-                    // The prepare and its chunks are accepted; conversation.send of the prepared attachment is refused
-                    // by the SDK (device-events-media-send.log, request R44).
+                    // The SDK refused the send; its typed cause is in device-events-media-send.log.
                     snap("07-not-sent-retry")
-                    throw FlowStop.blocked("receive works (\(detail)); phone-to-alice image send: conversation.send with the prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-media-send.log; the entry reads not sent with a Retry and no offline banner")
+                    throw FlowStop.fail("receive works (\(detail)); phone-to-alice image send was refused by the SDK, see device-events-media-send.log for the typed cause; the entry reads not sent with a Retry and no offline banner")
                 }
                 throw FlowStop.fail("alice never received an importable image from the phone; \(detail)")
             }
@@ -522,7 +523,7 @@ final class RealRunFlowTests: RealRunTestCase {
             control.post("device-log", json: ["name": "device-events-group-image", "minutes": 4])
             let offline = text(containing: "messages will be sent when the connection returns").exists
             if retryShown() && !offline {
-                throw FlowStop.blocked("conversation.send of the group image with its prepared attachment fails in the SDK with INTERNAL (code 16, request R44), see device-events-group-image.log; the entry reads not sent with a Retry and no offline banner")
+                throw FlowStop.fail("the SDK refused the group image send, see device-events-group-image.log for the typed cause; the entry reads not sent with a Retry and no offline banner")
             }
             throw FlowStop.fail("alice did not receive the phone's group image within 120 s; \(offline ? "the chat shows the offline banner although the node is reachable" : "no not-sent entry with a Retry is shown") (device-events-group-image.log)")
         }
@@ -575,6 +576,29 @@ final class RealRunFlowTests: RealRunTestCase {
             if self.element(peer.principal).exists { return true }
             self.element("contacts-header").buttons["Refresh"].firstMatch.tapIfExists(); return false
         }) else { throw FlowStop.fail("\(peer.name) did not appear in the phone's contacts after accepting") }
+        _ = try addPeerCard(peer)
+    }
+    /// Adds `peer`'s contact card on the phone for the accepted contact. Attachments need the contact's home
+    /// node, which only its card pins; a contact known by principal id alone has none (requests R42, R44).
+    func addPeerCard(_ peer: RealRunConfig.Peer) throws -> String {
+        guard let card = control.rf(peer.name, ["contact", "card"]).json?["card"] as? String, card.hasPrefix("ramflux-card:") else {
+            throw FlowStop.blocked("\(peer.name): rf contact card returned no card")
+        }
+        try openMore()
+        try tap(element("more-contacts"), "Contacts in More")
+        try tap(element("contacts-add"), "Add contact")
+        let address = try require(element("contacts-add-address"), "account address field")
+        address.tap(); address.typeText(card)
+        try tap(element("contacts-add-send"), "Add \(peer.name)'s contact card")
+        Thread.sleep(forTimeInterval: 2)
+        // The add is finished when the screen leaves the add form or its button is enabled again.
+        let send = element("contacts-add-send")
+        guard eventually(60, { !send.exists || send.isEnabled }) else { throw FlowStop.fail("adding \(peer.name)'s card did not finish: \(visibleFailure())") }
+        let failure = app.staticTexts.allElementsBoundByIndex.prefix(40).map(\.label).first { $0.contains("already") || $0.contains("could not") || $0.contains("refused") }
+        snap("card-\(peer.name)")
+        back()
+        if let failure { throw FlowStop.fail("the phone refused \(peer.name)'s contact card: \(failure)") }
+        return "the phone added \(peer.name)'s contact card (home node pinned for attachments)"
     }
     func groupTexts(_ peer: String, group: String, conversation: String) -> [String] {
         let value = control.rf(peer, ["group", "read", "--group", group, "--conversation", conversation])

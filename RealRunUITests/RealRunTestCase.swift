@@ -160,13 +160,13 @@ class RealRunTestCase: XCTestCase {
 
     // MARK: Session helpers
 
-    /// The "Unlock <name>" action the locked Messages tab offers for this run's account (known-account registry).
+    /// The "Unlock <name>" action the locked Messages tab offers for this run's account (from `account.list`).
     func knownAccountUnlock() -> XCUIElement {
         // A Kit button's hit target carries the tag with "-hit"; its label holds the isolated display name.
         app.buttons.matching(NSPredicate(format: "identifier == 'shell-unlock-account-hit' AND label CONTAINS %@", RunSecrets.displayName)).firstMatch
     }
-    /// Unlocks the run account: the locked Messages tab offers it by display name (the device's registry
-    /// of known accounts); the unlock step shows the name and asks only for the six-digit code.
+    /// Unlocks the run account: the locked Messages tab offers it by display name (`account.list` lists
+    /// locked accounts); the unlock step shows the name and asks only for the six-digit code.
     func unlockIfNeeded() throws {
         let code = element("secure-entry-passphrase")
         if !code.waitForExistence(timeout: 3) {
