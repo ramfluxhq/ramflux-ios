@@ -42,6 +42,11 @@ public struct NativeGroupsRepository: GroupsRepository {
                let conversation = row["conversation_id"]?.string, !conversation.isEmpty, conversation.utf8.count <= 256 {
                 return .success(conversation)
             }
+            // The group's metadata (group.members) names the conversation of a shared group; history is the last resort.
+            let members = try await gateway.call(.groupMembers, account: account, body: .object(["group_id": .string(group)]))
+            if members["group_id"] == .string(group), let conversation = members["conversation_id"]?.string, !conversation.isEmpty, conversation.utf8.count <= 256 {
+                return .success(conversation)
+            }
             let body = try await gateway.call(.groupHistory, account: account, body: .object(["group_id": .string(group), "conversation_id": .string(group), "limit": .number(0)]))
             guard body["group_id"] == .string(group) else { throw AppFailure.invalidData }
             return .success(try ProxyGateway.text(body, "conversation_id"))
@@ -146,7 +151,9 @@ public struct NativeGroupsRepository: GroupsRepository {
                     return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: true, requestID: request))
                 }
                 // Mutation acknowledgement is not a claim that member devices received state.
-                return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: false))
+                // A creation's reply is the group's metadata, which names the conversation the SDK bound to it.
+                let conversation = body["conversation_id"]?.string.flatMap { !$0.isEmpty && $0.utf8.count <= 256 ? $0 : nil }
+                return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: false, conversationID: conversation))
             } catch { EventDiagnostics.failed("group mutation", error); return .failure(AppFailure.map(error)) }
         }
     }

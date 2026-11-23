@@ -5,5 +5,9 @@ public struct GroupMutationOutcome: Equatable, Sendable {
     public let waitingForOwner: Bool
     public let expired: Bool
     public let requestID: String?
-    public init(groupID: String, waitingForOwner: Bool, requestID: String? = nil, expired: Bool = false) { self.groupID = groupID; self.waitingForOwner = waitingForOwner; self.requestID = requestID; self.expired = expired }
+    /// The conversation the SDK bound to the group, when the mutation's reply names it (a creation does).
+    public let conversationID: String?
+    public init(groupID: String, waitingForOwner: Bool, requestID: String? = nil, expired: Bool = false, conversationID: String? = nil) {
+        self.groupID = groupID; self.waitingForOwner = waitingForOwner; self.requestID = requestID; self.expired = expired; self.conversationID = conversationID
+    }
 }

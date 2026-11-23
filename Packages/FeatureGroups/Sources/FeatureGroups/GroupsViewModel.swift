@@ -74,7 +74,7 @@ import AppData
             dispatch(pending)
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .disappeared:
-            epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); navigation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
+            EventDiagnostics.note("groups disappeared busy=\(state.busy)"); epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); navigation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             groupWindow = RowWindow(); memberWindow = RowWindow(); contactWindow = RowWindow()
             state = GroupsState()
         }
@@ -90,17 +90,26 @@ import AppData
         mutation = Task { [weak self, repository, account] in
             let result = await repository.mutate(account: account, mutation: attempt.mutation, operationID: attempt.operationID)
             let pending = await repository.pending(account: account)
+            EventDiagnostics.note("group mutation result=\(Self.trace(result)) cancelled=\(Task.isCancelled)")
             guard !Task.isCancelled, let self, self.epoch == current else { return }
             self.state.busy = false; self.state.pending = pending; self.state.confirmation = nil
             switch result {
             case .success(let outcome):
                 self.state.outcome = outcome; self.emit(.mutationAcknowledged(outcome.groupID))
-                if case .create = attempt.mutation, !outcome.waitingForOwner, !outcome.expired {
+                if case .create(_, let name) = attempt.mutation, !outcome.waitingForOwner, !outcome.expired {
+                    // The creation reply names the group's conversation: open it without further reads, which
+                    // could run before the group list caught up with the new group.
+                    if let conversation = outcome.conversationID {
+                        EventDiagnostics.note("group create opens the conversation named by the reply")
+                        self.emit(.navigate(.groupConversation(conversation, group: outcome.groupID, title: name))); return
+                    }
                     let detail = await repository.detail(account: account, group: outcome.groupID)
+                    EventDiagnostics.note("group create detail=\(Self.trace(detail)) epoch_kept=\(self.epoch == current)")
                     guard !Task.isCancelled, self.epoch == current else { return }
                     switch detail {
                     case .success(let value):
                         let destination = await repository.conversation(account: account, group: value.group.id)
+                        EventDiagnostics.note("group create conversation=\(Self.trace(destination)) epoch_kept=\(self.epoch == current)")
                         guard !Task.isCancelled, self.epoch == current else { return }
                         switch destination {
                         case .success(let conversation): self.emit(.navigate(.groupConversation(conversation, group: value.group.id, title: value.group.name))); return
@@ -212,6 +221,9 @@ import AppData
             }
             await observation.stop(); if let self, self.watchID == id { self.observer = nil; self.state.authorityFresh = false }
         }
+    }
+    nonisolated static func trace<Value>(_ result: RepositoryResult<Value>) -> String {
+        switch result { case .success: "success"; case .failure(let failure): "failure(\(failure))" }
     }
     public func settle() async { await mutation?.value; await navigation?.value; while true { let id = readID; await read?.value; if id == readID { return } } }
     deinit { read?.cancel(); mutation?.cancel(); navigation?.cancel(); observer?.cancel() }

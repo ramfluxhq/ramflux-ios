@@ -12,6 +12,8 @@ private actor GroupsFake: GroupsRepository {
     private(set) var attempts: [PendingGroupMutation] = []
     var admin = true
     var createPending = false
+    var createConversation: String?
+    func setCreateConversation(_ value: String) { createConversation = value }
     var readFailure: AppFailure?
     func setReadFailure(_ value: AppFailure?) { readFailure = value }
     func setCreatePending() { createPending = true }
@@ -37,7 +39,7 @@ private actor GroupsFake: GroupsRepository {
     func perform(_ mutation: GroupMutation, _ operationID: String) async -> RepositoryResult<GroupMutationOutcome> {
         attempts.append(PendingGroupMutation(mutation: mutation, operationID: operationID))
         if let gate { await gate.wait(); return .failure(.outcomeUnknown) }
-        if case .create = mutation { return .success(GroupMutationOutcome(groupID: "g", waitingForOwner: createPending)) }
+        if case .create = mutation { return .success(GroupMutationOutcome(groupID: "g", waitingForOwner: createPending, conversationID: createConversation)) }
         return .success(GroupMutationOutcome(groupID: mutation.groupID, waitingForOwner: true, requestID: "request"))
     }
     func observe(account: String) -> RepositoryObservation { let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); updates = pair.continuation; pair.continuation.yield(.invalidated); return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() }) }
@@ -59,6 +61,18 @@ private actor GroupsFake: GroupsRepository {
             if kind == 2 { #expect(vm.state.outcome?.waitingForOwner == true) }
             vm.send(.disappeared)
         }
+    }
+    @Test func creationOpensTheConversationTheReplyNamesWithoutFurtherReads() async {
+        let fake = GroupsFake(); var events: [GroupsEvent] = []
+        await fake.setCreateConversation("reply-thread"); await fake.setReadFailure(.invalidInput)
+        let vm = GroupsViewModel(repository: fake, contacts: UnavailableContactsRepository(), account: "a", state: GroupsState(mode: .create), emit: { events.append($0) })
+        vm.send(.name("Research")); vm.send(.prepareCreate)
+        guard let confirmation = vm.state.confirmation else { Issue.record("No creation selected"); return }
+        vm.send(.confirm(confirmation.id)); await vm.settle()
+        // A detail read that would fail (the list not caught up yet) is never needed.
+        #expect(events.contains(.navigate(.groupConversation("reply-thread", group: "g", title: "Research"))))
+        #expect(vm.state.failure == nil)
+        vm.send(.disappeared)
     }
     @Test func aFailedInvitationListDoesNotHideTheGroups() async {
         let fake = GroupsFake(); await fake.setInvitationFailure(.sdkRefusal(8))

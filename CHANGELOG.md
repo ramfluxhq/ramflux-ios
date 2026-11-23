@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Groups: a new group opens the conversation named by the creation reply, without reads that could run before the group list caught up; opening a listed group asks the group's metadata for its conversation before history.
 - Groups: a contact is added to a group by its principal id alone; the explicit root made the SDK read the principal id as a device id and refuse the add (code 16).
 - Backup: once an archive chosen for restore is verified, the install step (new account code, or the merge confirmation) opens by itself.
 - Contacts: a verification whose reply was lost is reconciled by reading the verification state again instead of reporting an unknown outcome.
