@@ -23,7 +23,9 @@ private actor GroupsFake: GroupsRepository {
         if let readFailure { return .failure(readFailure) }
         return .success(GroupDetail(group: GroupRecord(id: "g", name: "Research", epoch: 9, members: ["phone","peer-phone"]), roster: [GroupMemberRecord(principal: "owner", root: "root-own", device: "phone", role: admin ? "owner" : "member"), GroupMemberRecord(principal: "peer", root: "root-peer", device: "peer-phone", role: "member")], ownRoot: "root-own", ownDevice: "phone", authorized: true))
     }
-    func invitations(account: String) -> RepositoryResult<[GroupInvitation]> { .success([]) }
+    var invitationFailure: AppFailure?
+    func setInvitationFailure(_ value: AppFailure?) { invitationFailure = value }
+    func invitations(account: String) -> RepositoryResult<[GroupInvitation]> { invitationFailure.map { .failure($0) } ?? .success([]) }
     func requests(account: String, group: String) -> RepositoryResult<[GroupRequestRecord]> { .success([]) }
     func pending(account: String) async -> PendingGroupMutation? {
         guard let entry = await journal.snapshot(scope: account), entry.unresolved else { return nil }
@@ -57,6 +59,14 @@ private actor GroupsFake: GroupsRepository {
             if kind == 2 { #expect(vm.state.outcome?.waitingForOwner == true) }
             vm.send(.disappeared)
         }
+    }
+    @Test func aFailedInvitationListDoesNotHideTheGroups() async {
+        let fake = GroupsFake(); await fake.setInvitationFailure(.sdkRefusal(8))
+        let vm = GroupsViewModel(repository: fake, contacts: UnavailableContactsRepository(), account: "a", emit: { _ in })
+        vm.send(.refresh); await vm.settle()
+        #expect(vm.state.failure == nil); #expect(vm.state.invitationsFailure == .sdkRefusal(8))
+        #expect(vm.state.visibleGroups.map(\.id) == ["g"])
+        vm.send(.disappeared)
     }
     @Test func groupNavigationUsesRepositoryCanonicalConversationAndKnownGroupOnly() async {
         var events: [GroupsEvent] = []

@@ -130,7 +130,11 @@ import AppData
             guard !Task.isCancelled, let self, self.readID == id else { return }
             self.state.loading = false; self.state.pending = pending
             switch groups { case .success(let window): self.groupWindow = window; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.groupWindow = RowWindow() } }
-            switch invitations { case .success(let rows): self.state.invitations = rows; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.invitations = [] } }
+            switch invitations {
+            case .success(let rows): self.state.invitations = rows; self.state.invitationsFailure = nil
+            case .failure(let failure):
+                if failure == .locked { self.state.failure = failure; self.state.invitations = [] } else { self.state.invitationsFailure = failure }
+            }
             if let detail { switch detail { case .success(let value): self.state.detail = value; self.state.authorityFresh = true
                 case .failure(let failure): self.state.detail = nil; self.state.failure = failure; if failure == .locked { self.state.mode = .accessChanged } } }
             if let requests { switch requests { case .success(let rows): self.state.requests = rows; case .failure(let failure): self.state.failure = failure; self.state.requests = [] } }

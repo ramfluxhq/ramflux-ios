@@ -7,6 +7,8 @@ public struct GroupsState: Equatable, Sendable {
     public var groups: [GroupRecord] = []
     public var visibleGroups: [GroupRecord] = []
     public var invitations: [GroupInvitation] = []
+    /// Why the invitation list could not be read; shown in its own section so the group list still shows.
+    public var invitationsFailure: AppFailure?
     public var memberRows: [GroupMemberRow] = []
     public var eligibleContacts: [ContactRecord] = []
     public var detail: GroupDetail?

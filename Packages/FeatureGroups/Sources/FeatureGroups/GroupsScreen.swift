@@ -40,7 +40,9 @@ public struct GroupsScreen: View {
     }
 
     private var listHeader: some View {
-        KitPageHeader(title, large: true, actionLabel: FeatureGroupsStrings.text("groups.create", locale: locale), onAction: { onAction(.mode(.create)) }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
+        // A large header draws no text action, so creating a group is an icon action next to refresh.
+        KitPageHeader(title, large: true, actions: [KitHeaderAction(icon: "plus", label: FeatureGroupsStrings.text("groups.create", locale: locale), action: { onAction(.mode(.create)) }),
+                                                    KitHeaderAction(icon: "refresh-cw", label: FeatureGroupsStrings.text("groups.refresh", locale: locale), action: { onAction(.refresh) })], tag: "groups-header")
     }
 
     private var pushedHeader: some View {
@@ -87,6 +89,10 @@ public struct GroupsScreen: View {
             }
             ForEach(state.visibleGroups) { group in
                 groupRow(group).onAppear { if group.id == state.visibleGroups.last?.id && state.canLoadMore { onAction(.loadMore) } }
+            }
+            if let failure = state.invitationsFailure {
+                Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
+                RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale))
             }
             if !state.invitations.isEmpty {
                 Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
