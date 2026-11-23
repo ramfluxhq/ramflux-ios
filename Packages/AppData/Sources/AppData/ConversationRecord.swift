@@ -15,6 +15,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
     public let sender: String
     /// The SDK `group_id` of a group conversation (the two ids can differ for groups created elsewhere).
     public let groupID: String?
+    /// True when no name is known and `title` is a short identifier (left-to-right isolated) instead.
+    public let titleIsIdentifier: Bool
     public init(
         id: String,
         title: String,
@@ -28,8 +30,10 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         pinned: Bool = false,
         readReceipt: Bool = false,
         sender: String = "",
-        groupID: String? = nil
+        groupID: String? = nil,
+        titleIsIdentifier: Bool = false
     ) {
+        self.titleIsIdentifier = titleIsIdentifier
         self.id = id
         self.title = title
         self.preview = preview

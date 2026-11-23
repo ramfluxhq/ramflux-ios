@@ -73,7 +73,9 @@ import UserNotifications
     func chat(account: String, conversation: String, group: String? = nil, title: String? = nil) -> ChatCoordinator {
         if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == group { return currentChat.3 }
         currentChat?.3.send(.disappeared)
-        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: title) { [weak self] event in
+        // A direct conversation takes the name its directory row resolved (contact name or short identifier).
+        let resolved = title ?? inbox.flatMap { $0.0 == account ? $0.1.viewModel.state.rows.first { $0.id == conversation }?.title : nil }
+        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved) { [weak self] event in
             self?.chatEvent(event, account: account, conversation: conversation)
         }
         currentChat = (account, conversation, group, coordinator); return coordinator

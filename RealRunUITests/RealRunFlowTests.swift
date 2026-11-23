@@ -180,7 +180,11 @@ final class RealRunFlowTests: RealRunTestCase {
                 throw FlowStop.fail("no conversation row with the derived id \(derived); dm rows shown: \(ids)")
             }
             snap("03-conversation-row")
-            return "Messages lists the direct conversation with alice under the client-derived id \(derived)"
+            // The row is titled with alice's contact name, not the raw dm id.
+            guard eventually(30, { row.label.contains(self.config.alice.displayName) }) else {
+                throw FlowStop.fail("the direct conversation row is titled \"\(row.label.prefix(80))\" instead of alice's name \(config.alice.displayName)")
+            }
+            return "Messages lists the direct conversation with alice under the client-derived id \(derived), titled with her contact name"
         }
     }
 
@@ -192,6 +196,10 @@ final class RealRunFlowTests: RealRunTestCase {
             guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flow 3 (conversation id)") }
             try openConversation(conversation)
             var notes: [String] = []
+            // The chat header names alice, not the dm id.
+            guard element(conversation).label.contains(config.alice.displayName) || text(containing: config.alice.displayName).exists else {
+                throw FlowStop.fail("the chat header does not show alice's name: \(visibleFailure())")
+            }
             // Send from the phone; alice reads it in the same conversation id.
             let first = "rr-phone-" + token()
             try send(first)
