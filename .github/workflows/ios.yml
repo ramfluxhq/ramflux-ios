@@ -12,17 +12,19 @@ concurrency:
   cancel-in-progress: true
 jobs:
   compile-and-test:
-    runs-on: macos-15
-    timeout-minutes: 30
+    runs-on: macos-26
+    timeout-minutes: 45
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      CAPTURE_DEVICE: iPhone 17 Pro
+      CAPTURE_IOS: '26.5'
     steps:
       - uses: actions/checkout@v4
       - name: Verify pinned Xcode
         run: |
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
-          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+          test "$(xcodebuild -version | head -1)" = 'Xcode 26.6'
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Check complete localized UI copy
@@ -61,7 +63,7 @@ jobs:
           swift test --package-path Packages/RFDesign --skip captureKitBoards
       - name: Render every screen preview on iOS Simulator
         run: |
-          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          device_id=$(python3 scripts/select-simulator.py --device "$CAPTURE_DEVICE" --ios "$CAPTURE_IOS")
           xcrun simctl bootstatus "$device_id" -b
           TEST_RUNNER_SHELL_CAPTURE_DIR=/tmp/shell-ios-captures xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -resultBundlePath build/ScreenSnapshots.xcresult test CODE_SIGNING_ALLOWED=NO
       - uses: actions/upload-artifact@v4
@@ -71,44 +73,66 @@ jobs:
           path: build/ScreenSnapshots.xcresult
           if-no-files-found: warn
   kit-evidence:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      CAPTURE_DEVICE: iPhone 17 Pro
+      CAPTURE_IOS: '26.5'
     steps:
       - uses: actions/checkout@v4
       - name: Verify pinned Xcode
+        id: xcode
         run: |
           sudo xcode-select --switch "$DEVELOPER_DIR"
           xcodebuild -version
-          test "$(xcodebuild -version | head -1)" = 'Xcode 26.2'
+          test "$(xcodebuild -version | head -1)" = 'Xcode 26.6'
       - name: Check design tokens against the spec
         run: python3 scripts/check-mobile-tokens.py design-tokens/mobile-kit-tokens.json
       - name: Capture kit boards on the iOS simulator
+        id: kit-capture
         timeout-minutes: 20
         run: |
-          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          device_id=$(python3 scripts/select-simulator.py --device "$CAPTURE_DEVICE" --ios "$CAPTURE_IOS")
           xcrun simctl bootstatus "$device_id" -b
           cd Packages/RFDesign
           xcodebuild -scheme RFDesign -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/kit-dd" -resultBundlePath "$GITHUB_WORKSPACE/build/KitCapture.xcresult" test -only-testing:RFDesignTests/KitCaptureTests -only-testing:RFDesignTests/KitCoverageTests CODE_SIGNING_ALLOWED=NO
           test -n "$(find /tmp/kit-ios-captures -name '*.png' -print -quit)"
+      # Each comparison runs whenever its own capture succeeded, and the board steps run even when
+      # the Kit steps failed, so every run leaves the evidence it can produce. The job still fails.
       - name: Compare captures with the design previews
+        id: kit-compare
+        if: ${{ !cancelled() && steps.kit-capture.outcome == 'success' }}
         run: python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures "$GITHUB_WORKSPACE/kit-evidence-ci"
       - name: Install XcodeGen
+        id: xcodegen-install
+        if: ${{ !cancelled() && steps.xcode.outcome == 'success' }}
         run: brew install xcodegen
       - name: Generate project
+        id: xcodegen
+        if: ${{ !cancelled() && steps.xcodegen-install.outcome == 'success' }}
         run: xcodegen generate
+      - name: Check design references against the manifest
+        if: ${{ !cancelled() }}
+        run: python3 scripts/design-references.py --check
       - name: Capture shell boards on the iOS simulator
+        id: shell-capture
+        if: ${{ !cancelled() && steps.xcodegen.outcome == 'success' }}
         timeout-minutes: 20
         run: |
-          device_id=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(v["udid"] for k,vs in d.items() if "iOS" in k for v in vs if v["isAvailable"] and "iPhone" in v["name"]))')
+          device_id=$(python3 scripts/select-simulator.py --device "$CAPTURE_DEVICE" --ios "$CAPTURE_IOS")
           xcrun simctl bootstatus "$device_id" -b
           TEST_RUNNER_SHELL_CAPTURE_DIR=/tmp/shell-ios-captures xcodebuild -project Ramflux.xcodeproj -scheme Ramflux -destination "platform=iOS Simulator,id=$device_id" -derivedDataPath "$RUNNER_TEMP/shell-dd" test -only-testing:RamfluxTests/ShellBoardCaptureTests CODE_SIGNING_ALLOWED=NO
           test -n "$(find /tmp/shell-ios-captures -name '*.png' -print -quit)"
+      # The draft expected-deviation file is recorded from these captures on every run, for
+      # re-reviewing the baselines on the CI toolchain (docs/board-verification.md). It is evidence
+      # only; the comparison and its exit status always use the committed file.
       - name: Compare board captures with the design references
+        id: board-compare
+        if: ${{ !cancelled() && steps.shell-capture.outcome == 'success' }}
         run: |
-          python3 scripts/design-references.py --check
-          python3 scripts/compare-boards.py /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci" --review
+          python3 scripts/compare-boards.py /tmp/shell-ios-captures "$GITHUB_WORKSPACE/shell-evidence-ci" --review \
+            --write-expected "$GITHUB_WORKSPACE/shell-evidence-ci/expected-deviations.ci-draft.json"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -116,13 +140,13 @@ jobs:
           path: build/KitCapture.xcresult
           if-no-files-found: warn
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.kit-compare.outcome != 'skipped' }}
         with:
           name: kit-evidence
           path: kit-evidence-ci
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && steps.board-compare.outcome != 'skipped' }}
         with:
           name: shell-evidence
           path: shell-evidence-ci
