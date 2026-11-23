@@ -102,7 +102,7 @@ public struct NativeContactsRepository: ContactsRepository {
         let body: JSONValue = .object(card ? ["card": .string(value)] : ["principal_id": .string(value)])
         return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
         do { _ = try await gateway.call(.contactAdd, account: account, body: body, operationID: operationID); return .success(()) }
-        catch { return .failure(AppFailure.map(error)) }
+        catch { EventDiagnostics.failed("contact.add", error); return .failure(AppFailure.map(error)) }
         }
     }
     /// Whether the add-contact input is a contact card (`ramflux-card:` text or a `ramflux://contact/` link).

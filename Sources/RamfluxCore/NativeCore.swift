@@ -257,7 +257,12 @@ public final class NativeCore: CoreTransport {
         }
         var transferred = false
         defer { if !transferred { try? finishSubscription(client: handle) } }
-        let request = try CoreRequest(method: "subscription.open", sdkAPI: "subscription", accountID: filter.accountID,
+        // An account's read-model changes (message.received, conversation.changed, ...) come from its journal,
+        // which only `bus.subscribe` tails (bus/subscription.rs); `subscription.open` registers topics for
+        // daemon pushes and never delivers journal events. Both honour attended_frontend. Without an account
+        // the SDK opens the daemon-scoped backup job stream, which keeps `subscription.open`.
+        let journal = filter.accountID != nil
+        let request = try CoreRequest(method: journal ? "bus.subscribe" : "subscription.open", sdkAPI: journal ? "bus" : "subscription", accountID: filter.accountID,
             body: filter.body, deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 5_000)
         let body = try request.envelope().encodedRequest()
         let result = try body.withUnsafeBytes {

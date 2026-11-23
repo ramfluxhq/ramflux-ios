@@ -140,7 +140,7 @@ final class RecordingAssertion: MediaBackgroundAssertion {
             case "attachment.enable": return .object([:])
             case "attachment.prepare.begin": return .object(["prepare_id": .string("p"), "generation": .number(1), "state": .string("accepting"), "accepted_through": .number(600_000)])
             case "attachment.prepare.chunk":
-                guard case .unsigned(let offset)? = request.body["offset"], let data = request.body["data_base64"]?.string.flatMap({ Data(base64Encoded: $0) }) else { return .null }
+                guard case .unsigned(let offset)? = request.body["offset"], let data = request.body["data_base64"]?.string.flatMap({ ChatMediaEngine.base64URL($0) }) else { return .null }
                 offsets.withLock { $0.append(offset) }
                 #expect(data == bytes[Int(offset)..<Int(offset) + data.count])
                 return .object([:])

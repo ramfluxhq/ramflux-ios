@@ -241,7 +241,7 @@ actor ChatMediaEngine {
                 let start = offset + UInt64(skip)
                 stage = "attachment.prepare.chunk"
                 _ = try await gateway.call(.attachmentPrepareChunk, account: account, body: .object([
-                    "prepare_id": .string(prepareID), "generation": .unsigned(generation), "offset": .unsigned(start), "data_base64": .string(data.dropFirst(skip).base64EncodedString()),
+                    "prepare_id": .string(prepareID), "generation": .unsigned(generation), "offset": .unsigned(start), "data_base64": .string(Self.base64URLEncoded(data.dropFirst(skip))),
                 ]), operationID: operationID + ":c" + String(start))
             }
             offset = end
@@ -291,6 +291,11 @@ actor ChatMediaEngine {
         return nil
     }
 
+    /// The SDK reads chunk bytes as base64url without padding (`decode_base64url`, URL_SAFE_NO_PAD); standard
+    /// base64 with `+`, `/` or `=` is refused.
+    static func base64URLEncoded(_ data: Data) -> String {
+        data.base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
+    }
     static func base64URL(_ text: String) -> Data? {
         var standard = text.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
         while standard.count % 4 != 0 { standard += "=" }

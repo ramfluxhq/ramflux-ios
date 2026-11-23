@@ -86,7 +86,7 @@ private func base64URL(_ data: Data) -> String { data.base64EncodedString().repl
                 #expect(request.body["mime"] == .string("image/jpeg")); #expect(request.body["operation_id"] == .string("send-op:0")); #expect(request.operationID?.rawValue == "send-op:0")
                 return .object(["prepare_id": .string("p1"), "generation": .number(1), "max_chunk": .number(524_288), "state": .string("accepting")])
             case "attachment.prepare.chunk":
-                guard let text = request.body["data_base64"]?.string, let data = Data(base64Encoded: text) else { Issue.record("chunk must be base64"); return .null }
+                guard let text = request.body["data_base64"]?.string, !text.contains(where: { "+/=".contains($0) }), let data = ChatMediaEngine.base64URL(text) else { Issue.record("chunk must be unpadded base64url"); return .null }
                 #expect(request.body["offset"] == .unsigned(UInt64(received.withLock { $0.count })))
                 received.withLock { $0.append(data) }
                 return .object(["accepted_through": .number(0)])
