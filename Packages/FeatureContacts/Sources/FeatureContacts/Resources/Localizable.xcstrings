@@ -615,18 +615,18 @@
       }
     },
     "contacts.add.address": {
-      "comment": "Field label for the other person's account address.",
+      "comment": "Field label on the add-contact screen: the person's principal id, or their contact card (text or link) which also names their home node.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account address"
+            "value": "Account address or contact card"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户地址"
+            "value": "账户地址或联系人名片"
           }
         }
       }

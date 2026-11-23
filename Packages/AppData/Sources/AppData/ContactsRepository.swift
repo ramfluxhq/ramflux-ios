@@ -95,12 +95,18 @@ public struct NativeContactsRepository: ContactsRepository {
     }
     public func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> {
         let value = principal.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty, value.utf8.count <= 2048 else { return .failure(.invalidInput) }
+        // A contact card (text or link form) names the peer's devices and home node; a principal id alone
+        // leaves the contact without a pinned home node, so attachments to it fail with authority_unavailable.
+        let card = Self.isCard(value)
+        guard !value.isEmpty, value.utf8.count <= (card ? 64 * 1024 : 2048) else { return .failure(.invalidInput) }
+        let body: JSONValue = .object(card ? ["card": .string(value)] : ["principal_id": .string(value)])
         return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
-        do { _ = try await gateway.call(.contactAdd, account: account, body: .object(["principal_id": .string(value)]), operationID: operationID); return .success(()) }
+        do { _ = try await gateway.call(.contactAdd, account: account, body: body, operationID: operationID); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
         }
     }
+    /// Whether the add-contact input is a contact card (`ramflux-card:` text or a `ramflux://contact/` link).
+    static func isCard(_ value: String) -> Bool { value.hasPrefix("ramflux-card:") || value.hasPrefix("ramflux://contact/") }
     public func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> {
         let operation: SDKOperation = switch decision { case .accept: .contactAccept; case .decline: .contactDecline; case .block: .contactBlock }
         return await mutations.run(scope: account, arguments: .decide(request, decision), operationID: operationID) { [gateway] in

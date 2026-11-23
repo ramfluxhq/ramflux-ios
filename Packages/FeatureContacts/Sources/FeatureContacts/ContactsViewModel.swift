@@ -31,7 +31,7 @@ import AppData
         case .filter(let value):
             let query = String(value.prefix(256)); guard query != state.query else { return }
             state.query = query; if state.mode == .contacts { refresh() }
-        case .principal(let value): state.principal = String(value.prefix(2048))
+        case .principal(let value): state.principal = String(value.prefix(64 * 1024))
         case .mode(let mode):
             switch mode {
             case .profile(let id): emit(.navigate(.contact(id)))

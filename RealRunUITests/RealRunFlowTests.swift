@@ -369,6 +369,23 @@ final class RealRunFlowTests: RealRunTestCase {
             }
             snap("07-received")
             }
+            // The phone's record of alice came from a principal lookup and has no home node; adding her
+            // contact card pins it, which attachment sends to her need.
+            let aliceCard = control.rf("alice", ["contact", "card"])
+            let cardBody = (aliceCard.json?["body"] as? [String: Any]) ?? aliceCard.json ?? [:]
+            if let card = cardBody["card"] as? String {
+                try ensureReady()
+                try openMore()
+                try tap(element("more-contacts"), "Contacts in More")
+                try tap(element("contacts-add"), "Add contact")
+                let address = try require(element("contacts-add-address"), "account address field")
+                address.tap(); address.typeText(card)
+                try tap(element("contacts-add-send"), "add alice's contact card")
+                Thread.sleep(forTimeInterval: 3)
+                notes.append(text(containing: "could not").exists ? "adding alice's card on the phone was refused: \(visibleFailure().prefix(200))" : "the phone added alice's contact card")
+                try ensureReady()
+                try openConversation(conversation)
+            } else { notes.append("alice's card could not be read (exit \(aliceCard.exit))") }
             // Send the test image from the photo library.
             if !element("chat-composer-input").exists { try openConversation(conversation) }
             try tap(element("chat-composer-attach"), "attach control")

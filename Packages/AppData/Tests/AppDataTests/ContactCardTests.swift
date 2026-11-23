@@ -18,3 +18,19 @@ import RamfluxCore
         guard case .failure = await other.ownCard(account: "account") else { Issue.record("A reply without a link must fail"); return }
     }
 }
+
+@Suite(.timeLimit(.minutes(1))) struct ContactAddByCardTests {
+    @Test func aCardIsAddedAsACardAndAnIdAsAPrincipal() async {
+        let transport = ProxyTransport { request in
+            #expect(request.method == "contact.add")
+            let card = request.body["card"]?.string, principal = request.body["principal_id"]?.string
+            #expect((card?.hasPrefix("ramflux-card:") ?? false) != (principal != nil))
+            return .object(["ok": .bool(true)])
+        }
+        let client = RamfluxClient(transport: transport)
+        let repository = NativeContactsRepository(client: client, updates: NativeUpdateSource(client: client))
+        _ = await repository.add(account: "a", principal: "ramflux-card:v3:" + String(repeating: "x", count: 4000), operationID: "op1")
+        _ = await repository.add(account: "a", principal: "principal-abc", operationID: "op2")
+        #expect(transport.calls.withLock { $0.count } == 2)
+    }
+}

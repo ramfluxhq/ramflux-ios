@@ -11,7 +11,7 @@
 	<key>contacts.add.action</key>
 	<string>添加</string>
 	<key>contacts.add.address</key>
-	<string>账户地址</string>
+	<string>账户地址或联系人名片</string>
 	<key>contacts.add.notVerifiedNote</key>
 	<string>发送请求并不表示对方账户已通过验证。</string>
 	<key>contacts.add.send</key>
