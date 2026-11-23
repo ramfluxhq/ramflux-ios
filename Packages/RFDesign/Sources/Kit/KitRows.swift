@@ -72,12 +72,35 @@ public struct KitRow: View {
 
     public var body: some View {
         let pressed = enabled && (holding || previewPressed)
+        // A row whose copy fits on one line per text keeps the 58 pt master and its 8 pt inset.
+        // When the label or the value wraps, the design gives the row 16 pt above and below
+        // the text: the M/Row instances with a two-line value are 92 pt with the text centred.
+        ViewThatFits(in: .horizontal) {
+            content(lines: 1).padding(.vertical, KitMetrics.rowPadV)
+            content(lines: nil).padding(.vertical, KitMetrics.rowPadVWrapped)
+        }
+        .padding(.horizontal, KitMetrics.gutter)
+        .frame(maxWidth: .infinity, minHeight: KitMetrics.row)
+        .background(pressed ? theme.selected : .clear)
+        .kitHairline(theme.line)
+        .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
+        .contentShape(Rectangle())
+        .gesture(rowPress)
+        .allowsHitTesting(enabled)
+        .kitTag(tag)
+        .preference(key: KitHits.self, value: tag.map { [$0: enabled] } ?? [:])
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(label)
+    }
+
+    private func content(lines: Int?) -> some View {
         HStack(spacing: KitMetrics.rowGap) {
             if let icon { KitIconTile(icon: icon) }
             VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: nil)
+                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: lines)
                 if let value, !value.isEmpty {
-                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: nil)
+                    KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: lines)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -93,20 +116,6 @@ public struct KitRow: View {
             case .none: EmptyView()
             }
         }
-        .padding(.horizontal, KitMetrics.gutter)
-        .padding(.vertical, KitMetrics.rowPadV)
-        .frame(maxWidth: .infinity, minHeight: KitMetrics.row)
-        .background(pressed ? theme.selected : .clear)
-        .kitHairline(theme.line)
-        .opacity(enabled ? 1 : KitMetrics.disabledAlpha)
-        .contentShape(Rectangle())
-        .gesture(rowPress)
-        .allowsHitTesting(enabled)
-        .kitTag(tag)
-        .preference(key: KitHits.self, value: tag.map { [$0: enabled] } ?? [:])
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(.isButton)
-        .accessibilityLabel(label)
     }
 
     private var rowPress: some Gesture {

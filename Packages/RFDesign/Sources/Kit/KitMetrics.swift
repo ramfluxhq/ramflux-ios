@@ -33,6 +33,7 @@ public enum KitMetrics {
     public static let searchPad: CGFloat = 8
     public static let row: CGFloat = 58
     public static let rowPadV: CGFloat = 8
+    public static let rowPadVWrapped: CGFloat = 16
     public static let conversation: CGFloat = 72
     public static let tabBar: CGFloat = 83
     public static let tab: CGFloat = 44

@@ -113,11 +113,23 @@ python3 scripts/compare-kit-previews.py kit-previews /tmp/kit-ios-captures kit-e
 
 `Packages/RFDesign/kit-masters.json` records the master frame where a preview
 export is a board instance rather than the component frame. A capture edge more
-than 2 pt from the master is OVER. One OVER is open: `row--tag` captures at
-361x76 against a 58 pt master. The export shows the value wrapping to two lines,
-so the single-line 58 pt master does not describe this content, but the
-transparent 92 pt export does not show the row frame; the master is corrected
-once design states the two-line row height.
+than 2 pt from the master is OVER.
+
+`row--tag` has no master entry: its 361x92 export canvas is the row frame. In
+the design file the M/Row master is 58 pt with an 8 pt vertical inset and
+centred content, and every M/Row instance with this two-line value
+("Chrome · macOS row") overrides the height to 92 pt. The export agrees: the
+icon tile and the chevron are centred on y = 46 pt and the text spans 22.5 pt
+to 73 pt of the 92 pt canvas. `KitRow` therefore keeps the 8 pt inset while its
+label and value each fit on one line and uses a 16 pt inset when either wraps,
+which puts the two-line row at 92 pt. A row with three or more lines follows
+the same rule; the design has no instance of one. What remains is inside the
+frame and does not change it: the design's M/Row label and value line heights
+are 1.4 and 1.3 of the font size, the Kit's are 1.3 and 1.4, and the design
+sets the title in the Latin face. In the iOS 26.5 capture the title ink spans
+19-33 pt against 22.5-34.5 pt in the export and the value lines start 1 pt
+further apart. Changing the row's line heights is a design-alignment decision
+for wave 2, not part of the frame check.
 
 ## Expected deviations
 
