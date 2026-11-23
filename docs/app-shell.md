@@ -216,7 +216,9 @@ plan bytes with Rust code the C ABI does not expose. Changing access is unavaila
 Pausing, hiding and goal settings have no SDK methods. Opening an agent's chat navigates to the
 SDK's direct conversation id for this account's root (`account.status` `principal_commitment`) and the agent
 anchor: `"dm:" + base64url(BLAKE3(lp(domain) || lp(lower root) || lp(higher root)))` (`message/dm_scope.rs`),
-derived in AppData (`DirectConversationID` over the app's one `BLAKE3`, checked against the reference crate). The
+derived in AppData (`DirectConversationID.resolve`, the one place that addresses a peer or agent conversation by
+anchor, over the app's one `BLAKE3`, checked against the reference crate; no directory scan). The inbox and
+message notifications open directory rows through `ConversationRecord.route` (direct, or group with its `group_id`). The
 SDK creates that conversation only for an accepted contact; whether an owner's agents are always linked
 that way is not verified against a node.
 

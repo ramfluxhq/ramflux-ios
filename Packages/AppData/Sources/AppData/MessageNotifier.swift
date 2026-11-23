@@ -83,9 +83,10 @@ public struct MessageNotificationPlan: Equatable, Sendable {
         previous = Dictionary(page.rows.map { ($0.id, $0.unreadCount ?? 0) }, uniquingKeysWith: { first, _ in first })
         await center.setBadge(plan.badge)
         for id in plan.notify {
+            guard let row = page.rows.first(where: { $0.id == id }) else { continue }
             // The same route the inbox uses for a row, direct or group.
             let token = makeToken()
-            routes.append((token, account, .conversation(id)))
+            routes.append((token, account, row.route))
             if routes.count > Self.maxRoutes { routes.removeFirst(routes.count - Self.maxRoutes) }
             await center.post(token: token)
         }

@@ -20,6 +20,15 @@ public enum DirectConversationID {
         }
         return "dm:" + base64url(BLAKE3.hash(transcript))
     }
+    /// The direct conversation of this account with a peer or agent root anchor: reads this account's
+    /// root (`account.status` `principal_commitment`) and derives the id, so no directory scan is needed.
+    /// Every place that addresses a conversation with a peer or agent by anchor goes through here.
+    /// Nil inside `.success` when `peer` is not a canonical anchor or is this account's own root.
+    static func resolve(_ gateway: ProxyGateway, account: String, peer: String) async throws -> String? {
+        let status = try await gateway.call(.accountStatus, account: account)
+        guard let own = status["principal_commitment"]?.string else { throw AppFailure.invalidData }
+        return derive(own, peer)
+    }
     static func canonicalAnchor(_ value: String) -> Bool {
         guard value.utf8.count == 43, value.utf8.allSatisfy({ $0 < 0x80 }) else { return false }
         var padded = value.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/"); padded += "="

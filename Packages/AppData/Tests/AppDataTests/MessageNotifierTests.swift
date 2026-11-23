@@ -74,9 +74,9 @@ private func row(_ id: String, unread: UInt?, muted: Bool = false) -> Conversati
         notifier.follow(account: "acc")
         await until { directory.observed.withLock { $0 } == 1 }
         directory.invalidate(); await until { await directory.reads == 1 }
-        await directory.set([ConversationRecord(id: "grp", title: "Team", preview: "", unreadCount: 1, kind: "group")])
+        await directory.set([ConversationRecord(id: "grp", title: "Team", preview: "", unreadCount: 1, kind: "group", groupID: "team")])
         directory.invalidate(); await until { await center.posted.count == 1 }
-        #expect(notifier.route(for: "g")?.route == .conversation("grp"))
+        #expect(notifier.route(for: "g")?.route == .groupConversation("grp", group: "team", title: "Team"))
         notifier.follow(account: nil)
     }
     @Test func switchingAccountsDropsRoutesAndRebaselines() async {

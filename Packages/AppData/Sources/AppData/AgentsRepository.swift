@@ -53,9 +53,7 @@ public struct NativeAgentsRepository: AgentsRepository {
     }
     public func chatConversation(account: String, agent: String) async -> RepositoryResult<String> {
         do {
-            let status = try await gateway.call(.accountStatus, account: account)
-            guard let own = status["principal_commitment"]?.string else { throw AppFailure.invalidData }
-            guard let id = DirectConversationID.derive(own, agent) else { return .failure(unavailable(.chat)) }
+            guard let id = try await DirectConversationID.resolve(gateway, account: account, peer: agent) else { return .failure(unavailable(.chat)) }
             return .success(id)
         } catch { return .failure(AppFailure.map(error)) }
     }

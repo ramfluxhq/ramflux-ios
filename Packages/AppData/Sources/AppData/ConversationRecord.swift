@@ -45,3 +45,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         self.groupID = groupID
     }
 }
+public extension ConversationRecord {
+    /// The route that opens this directory row: a group conversation with its `group_id`, otherwise a
+    /// direct one. The inbox and message notifications both open rows through it.
+    var route: AppRoute { groupID.map { .groupConversation(id, group: $0, title: title) } ?? .conversation(id) }
+}

@@ -48,7 +48,7 @@ import AppData
         case .search: reload(search: true)
         case .open(let id):
             guard let row = state.rows.first(where: { $0.id == id }) else { return }
-            emit(.navigate(row.groupID.map { .groupConversation(id, group: $0, title: row.title) } ?? .conversation(id)))
+            emit(.navigate(row.route))
         case .contacts, .newConversation, .addContact: emit(.navigate(.contacts))
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
