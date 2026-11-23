@@ -23,7 +23,8 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> { confirmations += 1; if let gate { await gate.wait() }; submission.erase(); return confirmSucceeds ? .success(AccountRecord(id: "new-account", displayName: "New account", isLocked: false)) : .failure(.outcomeUnknown) }
     func beginRecovery(accountID: String) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "recovery", expiresInMilliseconds: 60_000, anchor: "fingerprint")) }
     func confirmRecovery(anchor: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { confirmations += 1; submission.erase(); return .success(AccountRecord(id: "account", displayName: "Account", isLocked: false)) }
-    func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { submission.erase(); return .failure(.locked) }
+    private(set) var unlocked: [String] = []
+    func unlock(accountID: String, submission: SensitiveSubmission) -> RepositoryResult<AccountRecord> { unlocked.append(accountID); submission.erase(); return .failure(.locked) }
     func cancel() -> RepositoryResult<Void> { cancellations += 1; return .success(()) }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct OnboardingViewModelTests {
@@ -50,6 +51,20 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         #expect(model.state.failure == .accountCode(.mismatch)); #expect(await fake.confirmations == 0)
         model.send(.submit(SensitiveSubmission(values: words.merging(["passphrase": "135790", "passphraseRepeat": "135790"]) { $1 }, accountCode: .new))); await model.settle()
         #expect(await fake.confirmations == 1); #expect(model.state.stage == .complete)
+    }
+    @Test func knownAccountUnlockAsksOnlyForTheCodeAndCanForgetARefusedAccount() async {
+        let fake = FlowFake(); var events: [OnboardingEvent] = []
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: .unlockKnown(account: "account-a", name: "Ada"), emit: { events.append($0) })
+        #expect(model.state.stage == .localUnlock && model.state.unlockingSavedAccount && model.state.knownAccountName == "Ada")
+        // The account id is fixed by the registry entry, not typed.
+        model.send(.recoveryAccountChanged("account-other")); #expect(model.state.recoveryAccount == "account-a")
+        model.send(.submit(SensitiveSubmission(values: ["passphrase": "135790"], accountCode: .existing))); await model.settle()
+        #expect(await fake.unlocked == ["account-a"]); #expect(model.state.failure == .locked)
+        model.send(.forgetKnownAccount)
+        #expect(events.contains(.forgetAccount("account-a")))
+        // A conceal returns to the same unlock step, not to the start of onboarding.
+        model.send(.conceal); await model.settle()
+        #expect(model.state.stage == .localUnlock && model.state.recoveryAccount == "account-a" && model.state.knownAccountName == "Ada")
     }
     @Test func restoreFromBackupHandsOverToTheBackupScreenWithoutTouchingTheRepository() async {
         let fake = FlowFake(); var events: [OnboardingEvent] = []

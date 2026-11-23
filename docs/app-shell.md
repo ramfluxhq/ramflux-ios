@@ -250,6 +250,18 @@ so a background URL session cannot carry them. Each active transfer holds a
 suspended, the queued send stays sealed and resumes with the same operation id on the next
 activation, and an import restarts because the SDK keeps import handles in memory only.
 
+## Known accounts on this device
+
+`account.list` reports only the accounts the SDK has open, so after a lock or a cold start it is empty.
+AppData keeps a small registry of the accounts created, restored or unlocked on this device
+(`KnownAccounts.swift`: account id, display name, node origin, creation time; nothing secret) in
+`Application Support/known-accounts.json`, excluded from backup. `NativeSessionRepository` merges it into
+the session snapshot: open accounts take their display name from it, the other entries appear as locked.
+A locked tab shows each known account with "Unlock <name>" (`LockedAccountsBlock`); the route
+`unlockAccount(id)` opens the unlock step with the name shown and only the six-digit code asked. The SDK
+stays the authority: when it refuses an entry for a reason other than the code, the unlock step shows the
+typed reason and offers to remove the entry from the list.
+
 ## Calls and the media engine boundary
 
 Calls use the SDK's one-to-one voice contract: `call.invite {conversation_id}` (voice only),

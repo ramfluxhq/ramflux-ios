@@ -36,8 +36,12 @@
 	<string>Device not yet authorised</string>
 	<key>onboarding.a01.unauthorized.detail</key>
 	<string>See the ways to join that are available now</string>
+	<key>onboarding.a02.forget</key>
+	<string>Remove from this phone's list</string>
 	<key>onboarding.a02.info</key>
 	<string>View device unlock info</string>
+	<key>onboarding.a02.knownAccount</key>
+	<string>Account on this phone</string>
 	<key>onboarding.a02.localOnly</key>
 	<string>Unlock on this phone</string>
 	<key>onboarding.a07.code</key>

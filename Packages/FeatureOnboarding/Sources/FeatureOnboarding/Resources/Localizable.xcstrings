@@ -1900,6 +1900,40 @@
           }
         }
       }
+    },
+    "onboarding.a02.knownAccount": {
+      "comment": "Label above the display name of the account being unlocked (an account created or restored on this phone).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account on this phone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此手机上的账户"
+          }
+        }
+      }
+    },
+    "onboarding.a02.forget": {
+      "comment": "Button on the unlock screen: removes an account the SDK refused to unlock from this phone's list of known accounts. Nothing is deleted from the account itself.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from this phone's list"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从此手机的列表中移除"
+          }
+        }
+      }
     }
   }
 }

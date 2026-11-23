@@ -19,7 +19,15 @@ public struct AccountPickerScreen: View {
                     RFUnavailableView(title: FeatureAppShellStrings.text("shell.accounts.empty.title", locale: locale), message: FeatureAppShellStrings.text("shell.accounts.empty.message", locale: locale))
                 } else {
                     List(state.session.accounts) { account in
-                        Button(account.displayName) { onAction(.selectAccount(account.id)) }.disabled(state.busy)
+                        Button { onAction(account.isLocked ? .unlockAccount(account.id) : .selectAccount(account.id)) } label: {
+                            HStack {
+                                Text(untrusted: account.displayName)
+                                Spacer(minLength: theme.gap)
+                                if account.isLocked { Text(FeatureAppShellStrings.text("shell.accounts.locked", locale: locale)).foregroundStyle(theme.secondary) }
+                            }
+                        }
+                        .disabled(state.busy)
+                        .accessibilityIdentifier("account-" + account.id)
                     }.scrollContentBackground(.hidden)
                 }
             }.padding(theme.gap)

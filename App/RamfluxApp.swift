@@ -59,6 +59,7 @@ import RFDesign
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
                     } else { return AnyView(RFUnavailableView(title: RamfluxAppStrings.text("app.locked.title"), message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
+                case .unlockAccount(let account): return AnyView(OnboardingHost(coordinator: composition.unlock(account: account)))
                 case .notices: return AnyView(NoticesScreen())
                 case .shellNavigation:
                     return AnyView(NavigationEditorScreen(

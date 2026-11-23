@@ -71,13 +71,27 @@ final class RealRunFlowTests: RealRunTestCase {
             snap("01-complete")
             try tap(button("Continue"), "Continue after completion")
             try require(element("app-shell"), "app shell", timeout: 30)
-            // Lock through Settings, then unlock with the code.
+            // Lock through Settings: the locked Messages tab offers the account by name; unlock asks only for the code.
             try lockAccount()
+            guard knownAccountUnlock().waitForExistence(timeout: 20) else { throw FlowStop.fail("after lock the account is not offered by name: \(visibleFailure())") }
             snap("01-locked")
             try unlockIfNeeded()
             try require(element("tab-messages"), "Messages tab after unlock", timeout: 30)
             guard !element("secure-entry-passphrase").waitForExistence(timeout: 3) else { throw FlowStop.fail("unlock form still visible after submit: \(visibleFailure())") }
-            throw FlowStop.fail("all steps worked (node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking), lock, unlock), but after lock the account is not offered anywhere: account.list returns only open accounts and the app keeps no known-account list, so unlocking needs the account id typed by hand")
+            // The Messages header names the account by its display name, not its id.
+            try openTab("messages")
+            guard text(containing: RunSecrets.displayName).waitForExistence(timeout: 20) else { throw FlowStop.fail("Messages header does not show the display name: \(visibleFailure())") }
+            if let id = RunSecrets.accountID, !id.isEmpty, text(containing: id).exists { throw FlowStop.fail("the raw account id is still shown on Messages") }
+            snap("01-header-name")
+            // Cold start: the account is offered again by name.
+            app.terminate(); app.launch()
+            guard knownAccountUnlock().waitForExistence(timeout: 30) || { try? openTab("messages"); return knownAccountUnlock().waitForExistence(timeout: 20) }() else {
+                throw FlowStop.fail("after a cold start the account is not offered by name: \(visibleFailure())")
+            }
+            snap("01-cold-start")
+            try unlockIfNeeded()
+            try require(element("tab-messages"), "Messages tab after the cold-start unlock", timeout: 30)
+            return "node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking); after lock and after a cold start the locked tab offers \(RunSecrets.displayName) by name and the unlock step asks only for the code; Messages shows the display name"
         }
     }
 

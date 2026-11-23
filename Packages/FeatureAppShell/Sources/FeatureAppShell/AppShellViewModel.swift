@@ -32,6 +32,9 @@ import AppData
         case .openAccounts:
             guard !state.privacyShield else { return }; emit(.showAccounts)
         case .selectAccount(let id): select(id)
+        case .unlockAccount(let id):
+            guard !state.privacyShield, state.session.accounts.contains(where: { $0.id == id && $0.isLocked }) else { return }
+            emit(.navigate(.unlockAccount(id)))
         case .deepLink(let url):
             guard !state.privacyShield, state.session.phase == .ready, state.session.activeAccountID != nil,
                   let route = AppRoute.parse(url) else { return }

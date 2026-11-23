@@ -48,7 +48,9 @@ public struct AppShellScreen: View {
                 VStack(alignment: .leading, spacing: KitMetrics.rowGap) {
                     sessionStatus
                     if state.session.activeAccountID == nil, state.session.phase == .ready {
-                        KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: { onAction(.openAccounts) }, tag: "shell-accounts")
+                        LockedAccountsBlock(accounts: state.session.accounts.filter(\.isLocked), onUnlock: { onAction(.unlockAccount($0)) })
+                        KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: { onAction(.openAccounts) },
+                                  kind: state.session.accounts.contains(where: \.isLocked) ? .secondary : .primary, tag: "shell-accounts")
                     }
                     if let failure = state.failure { failureView(failure) }
                 }
@@ -81,7 +83,11 @@ public struct AppShellScreen: View {
             ProgressView(FeatureAppShellStrings.text("shell.loading.accountServices", locale: locale))
         case .ready:
             if let account = state.session.activeAccountID {
-                LabeledContent(FeatureAppShellStrings.text("shell.session.account", locale: locale), value: account)
+                LabeledContent(FeatureAppShellStrings.text("shell.session.account", locale: locale)) {
+                    Text(untrusted: state.session.accounts.first { $0.id == account }?.displayName ?? account)
+                }
+            } else if state.session.accounts.contains(where: \.isLocked) {
+                EmptyView()
             } else {
                 emptyBlock(
                     title: FeatureAppShellStrings.text("shell.noAccount.title", locale: locale),

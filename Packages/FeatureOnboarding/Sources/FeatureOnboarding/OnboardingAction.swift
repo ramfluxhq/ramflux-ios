@@ -12,6 +12,8 @@ public enum OnboardingAction: Equatable, Sendable, CustomStringConvertible, Cust
     case existingAccount
     /// Shows or hides the device unlock information (MOB-A07).
     case unlockInfo(Bool)
+    /// Removes the known account being unlocked from this device's list.
+    case forgetKnownAccount
     public var description: String { switch self { case .submit: "submit"; default: "OnboardingAction" } }
     public var debugDescription: String { description }
 }

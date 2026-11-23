@@ -17,6 +17,8 @@ public enum AppRoute: Hashable, Sendable {
     /// Media storage of the active account on this device.
     case mediaStorage
     case permissions, tasks, linkDevice, pairDevice, recoverAccount, onboarding, notices, shellNavigation
+    /// Unlock of an account this device knows (created or restored here) that the SDK has not opened.
+    case unlockAccount(String)
     public static func parse(_ url: URL) -> Self? {
         guard url.scheme == "ramflux", url.user == nil, url.password == nil,
               url.query == nil, url.fragment == nil else { return nil }

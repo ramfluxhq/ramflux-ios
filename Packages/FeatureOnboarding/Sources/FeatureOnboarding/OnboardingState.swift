@@ -27,5 +27,14 @@ public struct OnboardingState: Equatable, Sendable {
     public var completedAccount: AccountRecord?
     /// The device unlock information (MOB-A07) is shown over the current step.
     public var showingUnlockInfo = false
+    /// The display name of a known account being unlocked (from the device's registry); the unlock step then
+    /// shows this name instead of the account id field.
+    public var knownAccountName: String?
     public init(stage: OnboardingStage = .connection) { self.stage = stage }
+    /// The unlock step for an account this device knows: it asks only for the account code.
+    public static func unlockKnown(account: String, name: String) -> OnboardingState {
+        var state = OnboardingState(stage: .localUnlock)
+        state.unlockingSavedAccount = true; state.recoveryAccount = account; state.knownAccountName = name
+        return state
+    }
 }

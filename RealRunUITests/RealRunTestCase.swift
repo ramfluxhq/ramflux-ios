@@ -115,24 +115,21 @@ class RealRunTestCase: XCTestCase {
 
     // MARK: Session helpers
 
-    /// Unlocks the run account. The SDK lists only open accounts and the app keeps no list of known
-    /// accounts, so after a lock or a cold start the way back is Add account, the existing-account path
-    /// and the account id typed into the unlock form (reported as a client defect), then the code.
+    /// The "Unlock <name>" action the locked Messages tab offers for this run's account (known-account registry).
+    func knownAccountUnlock() -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "identifier == 'shell-unlock-account' AND label CONTAINS %@", RunSecrets.displayName)).firstMatch
+    }
+    /// Unlocks the run account: the locked Messages tab offers it by display name (the device's registry
+    /// of known accounts); the unlock step shows the name and asks only for the six-digit code.
     func unlockIfNeeded() throws {
         let code = element("secure-entry-passphrase")
         if !code.waitForExistence(timeout: 3) {
-            if element("tab-messages").exists && !element("shell-accounts").exists { element("tab-messages").tap() }
+            if element("tab-messages").exists && !knownAccountUnlock().exists { element("tab-messages").tap() }
             guard element("shell-accounts").waitForExistence(timeout: 3) else { return }
-            guard let account = RunSecrets.accountID else { throw FlowStop.fail("account is locked and its id was not captured") }
-            element("shell-accounts").tap()
-            let listed = app.buttons[RunSecrets.displayName].firstMatch
-            if listed.waitForExistence(timeout: 3) { listed.tap() } else {
-                try tap(button("Add account"), "Add account")
-                try tap(element("s02-continue"), "Continue on the node screen", timeout: 30)
-                try tap(element("s18-existing"), "existing account")
-                try tap(element("a01-unlock"), "Unlock existing account")
-                let field = try require(textField("a02-account"), "account id field")
-                field.tap(); field.typeText(account)
+            try tap(knownAccountUnlock(), "Unlock \(RunSecrets.displayName) on the locked Messages tab", timeout: 10)
+            let shown = try require(element("a02-known-account"), "known account name on the unlock step", timeout: 15)
+            guard shown.label.contains(RunSecrets.displayName), !textField("a02-account").exists else {
+                throw FlowStop.fail("unlock step does not show the account by name only (label: \(shown.label))")
             }
             guard code.waitForExistence(timeout: 15) else { throw FlowStop.fail("no unlock form: \(visibleFailure())") }
         }

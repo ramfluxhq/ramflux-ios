@@ -67,6 +67,11 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         }
     }
+    /// A refusal of the typed account code itself (wrong, malformed, retry later), not of the account.
+    public var isAccountCodeEntry: Bool {
+        if case .accountCode = self { return true }
+        return self == .invalidInput || self == .busy
+    }
     public var canRetry: Bool {
         if case .typedRefusal = self { return false }
         if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }

@@ -12,8 +12,10 @@ import AppData
     @ObservationIgnored private var expiry: Task<Void, Never>?
     @ObservationIgnored private var unresolvedConfirmation = false
     @ObservationIgnored private var generation: UInt64 = 0
+    /// The state a cleanup returns to: the plain start, or the unlock step of a known account.
+    @ObservationIgnored private let base: OnboardingState
     public init(repository: any OnboardingRepository, nodes: any NodeRepository, state: OnboardingState = OnboardingState(), emit: @escaping @MainActor (OnboardingEvent) -> Void) {
-        self.repository = repository; self.nodes = nodes; self.state = state; self.emit = emit
+        self.repository = repository; self.nodes = nodes; self.state = state; self.base = state; self.emit = emit
     }
     public func send(_ action: OnboardingAction) {
         switch action {
@@ -28,7 +30,8 @@ import AppData
         case .nameChanged(let value): state.name = String(value.prefix(256))
         case .expectedNodeKeyChanged(let value): state.expectedNodeKey = value.trimmingCharacters(in: .whitespacesAndNewlines); state.reviewedNode = nil
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil; state.reviewedNode = nil; state.expectedNodeKey = ""
-        case .recoveryAccountChanged(let value): state.recoveryAccount = String(value.prefix(256))
+        case .recoveryAccountChanged(let value): if state.knownAccountName == nil { state.recoveryAccount = String(value.prefix(256)) }
+        case .forgetKnownAccount: if state.knownAccountName != nil, !state.recoveryAccount.isEmpty { emit(.forgetAccount(state.recoveryAccount)) }
         case .nodeSelected(let id): if state.nodes.contains(where: { $0.id == id && $0.canCreateAccount }) { state.selectedNodeID = id }
         case .unlockExisting: state.creatingAccount = false; state.unlockingSavedAccount = true; state.showingUnlockInfo = false; state.stage = .localUnlock
         case .getStarted: if state.stage == .connection { state.stage = .welcome }
@@ -153,7 +156,7 @@ import AppData
         generation &+= 1; let epoch = generation
         emit(.revokeRecovery); expiry?.cancel(); expiry = nil
         let previous = work; previous?.cancel()
-        state = OnboardingState(); state.busy = true
+        state = base; state.busy = true
         work = Task { [weak self, repository] in
             await previous?.value
             let result = await repository.cancel()

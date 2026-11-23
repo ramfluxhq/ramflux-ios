@@ -112,7 +112,17 @@ public struct OnboardingScreen: View {
     /// MOB-A02: unlock an account stored on this phone with its six-digit code, on this phone only.
     private var unlockExisting: some View {
         page(title: copy("onboarding.welcome.unlockSaved"), heading: nil) {
-            KitTextField(value: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) }), label: copy("onboarding.localUnlock.accountID"), enabled: !state.busy, tag: "a02-account")
+            if let name = state.knownAccountName {
+                VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
+                    Text(copy("onboarding.a02.knownAccount")).rfFont(.size(theme.size_meta)).foregroundStyle(theme.secondary)
+                    Text(untrusted: name).rfFont(.size(theme.size_mobile_body), weight: .semibold).foregroundStyle(theme.text).lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier("a02-known-account")
+            } else {
+                KitTextField(value: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) }), label: copy("onboarding.localUnlock.accountID"), enabled: !state.busy, tag: "a02-account")
+            }
             infoLine(copy("onboarding.a02.localOnly"), info: { onAction(.unlockInfo(true)) }, tag: "a02-info")
             VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
                 #if os(iOS)
@@ -127,6 +137,10 @@ public struct OnboardingScreen: View {
             .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_card))
             if state.failure == .accountCode(.attemptsExhausted) || state.failure == .accountCode(.deviceUnlockUnavailable) {
                 KitButton(copy("onboarding.stage.recover"), action: { onAction(.recover) }, kind: .secondary, enabled: !state.busy, tag: "a02-recover")
+            }
+            // The SDK refused this known account for a reason other than the code: offer to drop it from the list.
+            if state.knownAccountName != nil, let failure = state.failure, !failure.isAccountCodeEntry {
+                KitButton(copy("onboarding.a02.forget"), action: { onAction(.forgetKnownAccount) }, kind: .secondary, enabled: !state.busy, tag: "a02-forget")
             }
         } footer: {
             KitButton(copy("onboarding.a02.info"), action: { onAction(.unlockInfo(true)) }, kind: .secondary, enabled: !state.busy, tag: "a02-unlock-info")

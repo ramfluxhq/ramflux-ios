@@ -94,6 +94,15 @@ private actor SessionFake: SessionRepository {
         #expect(await repository.selected == ["a"])
         model.send(.disappeared); await model.settle()
     }
+    @Test func lockedKnownAccountOpensItsUnlockAndOpenAccountsDoNot() async {
+        let locked = SessionSnapshot(phase: .ready, accounts: [AccountRecord(id: "a", displayName: "Account", isLocked: false), AccountRecord(id: "b", displayName: "Bo", isLocked: true)], activeAccountID: nil)
+        var events: [AppShellEvent] = []
+        let model = AppShellViewModel(repository: SessionFake(), state: AppShellState(session: locked, privacyShield: false), emit: { events.append($0) })
+        model.send(.unlockAccount("a")); model.send(.unlockAccount("unknown"))
+        #expect(events.isEmpty)
+        model.send(.unlockAccount("b"))
+        #expect(events == [.navigate(.unlockAccount("b"))])
+    }
     @Test func coordinatorOwnsNavigationAndClearsItOnBackground() async {
         let coordinator = AppShellCoordinator(repository: SessionFake())
         coordinator.send(.appeared); await coordinator.viewModel.settle()

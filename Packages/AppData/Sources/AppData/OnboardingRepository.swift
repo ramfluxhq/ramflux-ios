@@ -28,11 +28,22 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     private var confirmation: Task<RepositoryResult<AccountRecord>, Never>?
     public func confirmationUnresolved() async -> Bool { unresolvedConfirmation }
     private var display: RecoveryDisplay?
-    public init(client: RamfluxClient) { proxy = SDKProxy(client: client); gateway = ProxyGateway(proxy: SDKProxy(client: client)) }
+    private let known: any KnownAccountRegistry
+    private let nodes: (any NodeRepository)?
+    private var nodeID: String?
+    public init(client: RamfluxClient, known: any KnownAccountRegistry = MemoryKnownAccountRegistry(), nodes: (any NodeRepository)? = nil) {
+        proxy = SDKProxy(client: client); gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.known = known; self.nodes = nodes
+    }
+    /// Records a created, restored or unlocked account in the device's known-account registry.
+    private func remember(_ account: AccountRecord, node: String?) async {
+        var origin: String?
+        if let node, let nodes, case .success(let list) = await nodes.list() { origin = list.first { $0.id == node }?.origin }
+        await known.record(KnownAccount(id: account.id, displayName: account.displayName, nodeOrigin: origin))
+    }
     public func begin(name: String, nodeID: String?) async -> RepositoryResult<CeremonyMetadata> {
         guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         guard ceremony == nil else { return .failure(.busy) }
-        let ceremony = AccountCeremony(proxy: proxy, kind: .creation); self.ceremony = ceremony; recovery = false
+        let ceremony = AccountCeremony(proxy: proxy, kind: .creation); self.ceremony = ceremony; recovery = false; self.nodeID = nodeID
         do {
             var body: [String: JSONValue] = ["display_name": .string(name), "principal_kind": .string("human")]
             if let nodeID { body["node_id"] = .string(nodeID) }
@@ -69,7 +80,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     public func beginRecovery(accountID: String) async -> RepositoryResult<CeremonyMetadata> {
         guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         guard ceremony == nil else { return .failure(.busy) }
-        let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true
+        let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true; nodeID = nil
         do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin), body: .object(["account_id": .string(accountID)]))))) }
         catch { return .failure(Self.failure(error)) }
     }
@@ -90,15 +101,18 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         }
         confirmation = task
         let result = await task.value
-        if case .success = result { unresolvedConfirmation = false; self.ceremony = nil }
+        if case .success(let account) = result { unresolvedConfirmation = false; self.ceremony = nil; await remember(account, node: nodeID) }
         return result
     }
 
     public func unlock(accountID: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let fields = submission.take(), fields["passphrase"] != nil else { return .failure(.invalidInput) }
-        do { return .success(try Self.account(await gateway.call(.accountUnlock, account: accountID, secrets: fields))) }
-        catch { return .failure(Self.failure(error)) }
+        do {
+            let account = try Self.account(await gateway.call(.accountUnlock, account: accountID, secrets: fields))
+            await remember(account, node: nil)
+            return .success(account)
+        } catch { return .failure(Self.failure(error)) }
     }
     public func cancel() async -> RepositoryResult<Void> {
         display?.erase(); display = nil

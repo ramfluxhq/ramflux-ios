@@ -36,8 +36,12 @@
 	<string>设备尚未获授权</string>
 	<key>onboarding.a01.unauthorized.detail</key>
 	<string>查看当前可用的接入方式</string>
+	<key>onboarding.a02.forget</key>
+	<string>从此手机的列表中移除</string>
 	<key>onboarding.a02.info</key>
 	<string>查看设备解锁说明</string>
+	<key>onboarding.a02.knownAccount</key>
+	<string>此手机上的账户</string>
 	<key>onboarding.a02.localOnly</key>
 	<string>需要在本机完成解锁</string>
 	<key>onboarding.a07.code</key>

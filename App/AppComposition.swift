@@ -39,6 +39,27 @@ import UserNotifications
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }
     }
+    @ObservationIgnored private var currentUnlock: (String, OnboardingCoordinator)?
+    /// The code-only unlock of a known account (from the device's registry); see docs/app-shell.md.
+    func unlock(account: String) -> OnboardingCoordinator {
+        if let currentUnlock, currentUnlock.0 == account { return currentUnlock.1 }
+        let name = shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? account
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .unlockKnown(account: account, name: name),
+            forget: { [weak self] id in self?.forgetKnownAccount(id) }) { [weak self] unlocked in
+            self?.currentUnlock = nil
+            self?.shell.path = []
+            if unlocked != nil { self?.shell.send(.retry) }
+        }
+        currentUnlock = (account, coordinator); return coordinator
+    }
+    /// Drops an account the SDK refused to unlock from the device's list; the SDK keeps whatever it holds.
+    private func forgetKnownAccount(_ id: String) {
+        currentUnlock = nil
+        Task { [weak self, known = repositories.knownAccounts] in
+            await known.remove(id)
+            self?.shell.path = []; self?.shell.send(.retry)
+        }
+    }
     @ObservationIgnored private var inbox: (String, ConversationsCoordinator)?
     func conversations(account: String) -> ConversationsCoordinator {
         if let inbox, inbox.0 == account { return inbox.1 }
