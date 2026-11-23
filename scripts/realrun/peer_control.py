@@ -13,7 +13,12 @@ code, the backup archive passphrase and public ids). That state lives in this pr
 never written to disk or logged and is gone when the server stops (scripts/realrun.sh finish). The
 recovery words never leave the test process.
 
-Usage: peer_control.py --port N --out DIR --local-node DIR [--rf PATH] [--udid UDID --app PATH]
+Usage: peer_control.py --port N --out DIR --facts FILE --peers FILE --rf PATH --dm-helper COMMAND [--udid UDID --app PATH]
+
+--facts is the node facts JSON (discovery_origin, node_id, node_public_key, node_key_fingerprint), --peers the
+peers JSON (a "peers" list with name, account_id, display_name, principal_id, principal_commitment, device_id and
+daemon_socket of each peer daemon), --rf the rf CLI, and --dm-helper a command that prints the direct conversation
+id of two root commitments when called as `COMMAND dm-conversation ROOT_A ROOT_B`.
 
 With --udid and --app it can also reinstall the app for the restore flow (/fresh-install): it copies the
 newest backup archive out of the app's container into the simulator's "On My iPhone" storage (an encrypted
@@ -26,8 +31,8 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
-import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -50,10 +55,10 @@ BUNDLE = "org.ramflux.ios"
 
 
 class Harness:
-    def __init__(self, out: Path, local_node: Path, rf: str, udid: str = "", app: str = ""):
-        self.out, self.local_node, self.rf, self.udid, self.app = out, local_node, rf, udid, app
-        self.facts = json.loads((local_node / "node-facts.json").read_text())
-        self.peers = {p["name"]: p for p in json.loads((local_node / "peers.json").read_text())["peers"]}
+    def __init__(self, out: Path, facts: Path, peers: Path, rf: str, dm_helper: str, udid: str = "", app: str = ""):
+        self.out, self.rf, self.dm_helper, self.udid, self.app = out, rf, dm_helper, udid, app
+        self.facts = json.loads(facts.read_text())
+        self.peers = {p["name"]: p for p in json.loads(peers.read_text())["peers"]}
         self.lock = threading.Lock()
         self.results = {}
         # Run state between suite phases: memory only, never logged or written.
@@ -102,8 +107,7 @@ class Harness:
         return {"exit": code, "json": value, "stdout": stdout[-20000:], "stderr": stderr[-4000:]}
 
     def dm_conversation(self, first: str, second: str) -> str:
-        helper = self.local_node / "lib" / "rfbeta_util.py"
-        done = subprocess.run([sys.executable, "-I", str(helper), "dm-conversation", first, second],
+        done = subprocess.run([*shlex.split(self.dm_helper), "dm-conversation", first, second],
                               capture_output=True, text=True, timeout=30, check=True)
         return done.stdout.strip()
 
@@ -285,13 +289,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--local-node", type=Path, required=True)
-    parser.add_argument("--rf", default="/Users/nn/worker/ramfluxhq/code/ramflux/target/release/rf")
+    parser.add_argument("--facts", type=Path, required=True)
+    parser.add_argument("--peers", type=Path, required=True)
+    parser.add_argument("--rf", required=True)
+    parser.add_argument("--dm-helper", required=True)
     parser.add_argument("--udid", default="")
     parser.add_argument("--app", default="")
     options = parser.parse_args()
     options.out.mkdir(parents=True, exist_ok=True)
-    harness = Harness(options.out, options.local_node, options.rf, options.udid, options.app)
+    harness = Harness(options.out, options.facts, options.peers, options.rf, options.dm_helper, options.udid, options.app)
     server = ThreadingHTTPServer(("127.0.0.1", options.port), handler_for(harness))
     print(f"peer control listening on 127.0.0.1:{options.port}", flush=True)
     try:

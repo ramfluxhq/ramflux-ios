@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Span Brain
 #
-# Opt-in real run of the beta flows: the native app with the real SDK against the local node in
-# ops/local-node, with the alice and bob peers driven through the rf CLI.
+# Opt-in real run of the beta flows: the native app with the real SDK against a test node, with two
+# peer accounts (alice and bob) driven through the rf CLI.
 #
 #   scripts/realrun.sh [--out DIR] [--simulator NAME] [--only TEST[,TEST...]] [--keep-app] [--no-clock-sync]
 #   scripts/realrun.sh prepare [--out DIR] [--simulator NAME] [--keep-app]
@@ -11,23 +11,54 @@
 #   scripts/realrun.sh run --only TEST[,TEST...]
 #   scripts/realrun.sh finish
 #
+# Inputs (environment, or scripts/realrun.local.env, which is not tracked; see realrun.local.env.example):
+#   RAMFLUX_REALRUN_NODE_FACTS   required: node facts JSON (discovery_origin, node_id, node_public_key,
+#                                node_key_fingerprint)
+#   RAMFLUX_REALRUN_PEERS        required: peers JSON ("peers": name, account_id, display_name, principal_id,
+#                                principal_commitment, device_id, daemon_socket for alice and bob)
+#   RAMFLUX_REALRUN_RF           required: the rf CLI that talks to the peer daemons
+#   RAMFLUX_REALRUN_DM_HELPER    required: command printing a direct conversation id for
+#                                `COMMAND dm-conversation ROOT_A ROOT_B`
+#   RAMFLUX_REALRUN_NODE_CHECK   optional: command that exits non-zero when the node is not healthy
+#   RAMFLUX_REALRUN_PEERS_CTL    optional: command with `status` (lines "NAME: running" and "networking=live")
+#                                and `start` for the peer daemons
+#   RAMFLUX_REALRUN_CLOCK_CONTAINER optional: a node container whose clock is compared with this machine's
+#   RAMFLUX_MOBILE_ENV           optional: a shell file sourced before building (toolchain paths)
+#   RAMFLUX_CORE_XCFRAMEWORK     optional: the native SDK artifact (default build/RamfluxSDKBinary.xcframework)
+#
 # Steps: check the node and peers, build the native app and the RamfluxRealRun UI tests, reset the
 # app's data and Keychain on the simulator, start the loopback peer-control server, run the suite,
 # and write DIR/flow-table.md (PASS / FAIL / BLOCKED / NOT RUN per flow) with screenshots.
 # Without a phase everything runs in one command. With phases the run is split into commands that each
 # stay short: `prepare` does the steps up to the control server and leaves the server running,
 # `run` runs some flows on the prepared app (repeat it with further flows; tests are named as for
-# --only), `rebuild` builds the app and suite again for the next `run` (the app keeps its data), and `finish` writes the flow table and stops the server. The node origin, operator key and
-# fingerprint come from ops/local-node/node-facts.json, the peers from peers.json.
+# --only), `rebuild` builds the app and suite again for the next `run` (the app keeps its data), and
+# `finish` writes the flow table and stops the server.
 # The account code and recovery words are generated or read inside the test process only; typed
 # text is redacted from the saved xcodebuild log and the result bundle is deleted.
 set -eu
 
 ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
-LOCAL_NODE=${RAMFLUX_LOCAL_NODE:-/Users/nn/worker/ramfluxhq/ops/local-node}
-MOBILE_ENV=${RAMFLUX_MOBILE_ENV:-/Users/nn/worker/ramfluxhq/ops/mobile-env.sh}
+# Machine-specific inputs live in an untracked file next to this script, so local use stays one command.
+LOCAL_ENV=${RAMFLUX_REALRUN_LOCAL_ENV:-$ROOT/scripts/realrun.local.env}
+# shellcheck disable=SC1090
+[ -f "$LOCAL_ENV" ] && . "$LOCAL_ENV"
+need() {
+  eval "value=\${$1:-}"
+  [ -n "$value" ] || { printf 'realrun: error: %s is not set (%s); set it in the environment or in %s (see scripts/realrun.local.env.example)\n' "$1" "$2" "$LOCAL_ENV" >&2; exit 2; }
+}
+need RAMFLUX_REALRUN_NODE_FACTS "the node facts JSON"
+need RAMFLUX_REALRUN_PEERS "the peers JSON"
+need RAMFLUX_REALRUN_RF "the rf CLI"
+need RAMFLUX_REALRUN_DM_HELPER "the direct conversation id helper"
+NODE_FACTS=$RAMFLUX_REALRUN_NODE_FACTS
+PEERS=$RAMFLUX_REALRUN_PEERS
+NODE_CHECK=${RAMFLUX_REALRUN_NODE_CHECK:-}
+PEERS_CTL=${RAMFLUX_REALRUN_PEERS_CTL:-}
+CLOCK_CONTAINER=${RAMFLUX_REALRUN_CLOCK_CONTAINER:-}
+MOBILE_ENV=${RAMFLUX_MOBILE_ENV:-}
 XCFRAMEWORK=${RAMFLUX_CORE_XCFRAMEWORK:-build/RamfluxSDKBinary.xcframework}
-SIM_NAME=rf-realrun
+SIM_NAME=${RAMFLUX_REALRUN_SIMULATOR:-rf-realrun}
 OUT=$ROOT/build/realrun/$(date -u '+%Y%m%dT%H%M%SZ')
 ONLY=""
 KEEP_APP=0
@@ -55,7 +86,10 @@ done
 say() { printf 'realrun: %s\n' "$*"; }
 die() { printf 'realrun: error: %s\n' "$*" >&2; exit 1; }
 
-[ -f "$MOBILE_ENV" ] && . "$MOBILE_ENV"
+# shellcheck disable=SC1090
+[ -n "$MOBILE_ENV" ] && [ -f "$MOBILE_ENV" ] && . "$MOBILE_ENV"
+for input in "$NODE_FACTS" "$PEERS"; do [ -f "$input" ] || die "$input does not exist"; done
+[ -x "$RAMFLUX_REALRUN_RF" ] || die "the rf CLI $RAMFLUX_REALRUN_RF is not executable"
 PYTHON=/opt/homebrew/bin/python3; [ -x "$PYTHON" ] || PYTHON=python3
 cd "$ROOT"
 [ -d "$XCFRAMEWORK" ] || die "native SDK artifact $XCFRAMEWORK is missing (scripts/build-xcframework.sh)"
@@ -63,22 +97,22 @@ mkdir -p "$OUT"
 OUT=$(CDPATH='' cd -- "$OUT" && pwd)
 DERIVED=$ROOT/build/realrun-derived
 RESULT_BUNDLE=$DERIVED/realrun.xcresult
-facts() { "$PYTHON" -I -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$LOCAL_NODE/node-facts.json" "$1"; }
-peer() { "$PYTHON" -I -c 'import json,sys; print(next(p for p in json.load(open(sys.argv[1]))["peers"] if p["name"]==sys.argv[2])[sys.argv[3]])' "$LOCAL_NODE/peers.json" "$1" "$2"; }
+facts() { "$PYTHON" -I -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$NODE_FACTS" "$1"; }
+peer() { "$PYTHON" -I -c 'import json,sys; print(next(p for p in json.load(open(sys.argv[1]))["peers"] if p["name"]==sys.argv[2])[sys.argv[3]])' "$PEERS" "$1" "$2"; }
 
-# Branch proofs live at most 300 s. On this Mac the podman VM clock has lost minutes per quarter hour
-# (chrony sees the offset but does not step), and then every session fails with "branch proof or
-# challenge expired". Unless --no-clock-sync is given, a one-command run sets the VM clock from the Mac's
-# clock now and every 30 s while the suite runs; the keeper stops on exit. Phased runs never change the
-# clock: they check the skew before each phase and stop when it is over 120 s.
+# Branch proofs live at most 300 s, so a node whose clock drifts from this machine's fails every session
+# with "branch proof or challenge expired". With RAMFLUX_REALRUN_CLOCK_CONTAINER set, the skew to that
+# container (podman) is checked before each phase and a run stops when it is over 120 s; a one-command run
+# without --no-clock-sync also sets the podman VM clock from this machine's clock now and every 30 s.
 node_skew() {
-  now=$(podman exec rfbeta_ramflux-gateway_1 date -u +%s 2>/dev/null || echo 0)
+  [ -n "$CLOCK_CONTAINER" ] || { echo 0; return; }
+  now=$(podman exec "$CLOCK_CONTAINER" date -u +%s 2>/dev/null || echo 0)
   skew=$(( $(date -u +%s) - now )); [ "$skew" -lt 0 ] && skew=$(( -skew )); echo "$skew"
 }
 sync_node_clock() { podman machine ssh "sudo date -u -s @$(date -u +%s) > /dev/null" > /dev/null 2>&1; }
 check_skew() {
   SKEW=$(node_skew)
-  [ "$SKEW" -le 120 ] || die "node clock differs from the Mac by ${SKEW} s; set it with: podman machine ssh \"sudo date -u -s @\$(date -u +%s)\""
+  [ "$SKEW" -le 120 ] || die "node clock differs from this machine by ${SKEW} s"
 }
 CLOCK_PID=""
 
@@ -96,22 +130,26 @@ prepare() {
   START=$(date +%s)
   # 1. Node and peers.
   say "checking the local node"
-  "$LOCAL_NODE/status.sh" > "$OUT/node-status.log" 2>&1 || die "local node is not healthy (see $OUT/node-status.log; run $LOCAL_NODE/up.sh)"
-  if [ "$CLOCK_SYNC" = 1 ] && [ "$PHASE" = all ]; then
+  if [ -n "$NODE_CHECK" ]; then
+    sh -c "$NODE_CHECK" > "$OUT/node-status.log" 2>&1 || die "the node is not healthy (see $OUT/node-status.log)"
+  fi
+  if [ "$CLOCK_SYNC" = 1 ] && [ "$PHASE" = all ] && [ -n "$CLOCK_CONTAINER" ]; then
     [ "$(node_skew)" -le 5 ] || { say "setting the node VM clock from the Mac (skew $(node_skew) s)"; sync_node_clock; }
     ( while :; do sleep 30; sync_node_clock; done ) > /dev/null 2>&1 &
     CLOCK_PID=$!
   fi
   check_skew
-  "$LOCAL_NODE/peers.sh" status > "$OUT/peers-status.log" 2>&1
-  grep -q 'alice: running' "$OUT/peers-status.log" && grep -q 'bob: running' "$OUT/peers-status.log" \
-    || "$LOCAL_NODE/peers.sh" start >> "$OUT/peers-status.log" 2>&1 || die "peer daemons are not running"
-  # After a clock correction the peer daemons reconnect within seconds; give them a minute.
-  i=0; until [ "$("$LOCAL_NODE/peers.sh" status | grep -c 'networking=live')" = 2 ] || [ $i -ge 12 ]; do i=$((i + 1)); sleep 5; done
-  for name in alice bob; do
-    "$LOCAL_NODE/peers.sh" status | grep -A1 "^$name:" | grep -q 'networking=live' \
-      || say "warning: $name is not networking live now (flows that need $name report it; see $OUT/peers-status.log)"
-  done
+  if [ -n "$PEERS_CTL" ]; then
+    sh -c "$PEERS_CTL status" > "$OUT/peers-status.log" 2>&1
+    grep -q 'alice: running' "$OUT/peers-status.log" && grep -q 'bob: running' "$OUT/peers-status.log" \
+      || sh -c "$PEERS_CTL start" >> "$OUT/peers-status.log" 2>&1 || die "peer daemons are not running"
+    # After a clock correction the peer daemons reconnect within seconds; give them a minute.
+    i=0; until [ "$(sh -c "$PEERS_CTL status" | grep -c 'networking=live')" = 2 ] || [ $i -ge 12 ]; do i=$((i + 1)); sleep 5; done
+    for name in alice bob; do
+      sh -c "$PEERS_CTL status" | grep -A1 "^$name:" | grep -q 'networking=live' \
+        || say "warning: $name is not networking live now (flows that need $name report it; see $OUT/peers-status.log)"
+    done
+  fi
 
   # 2. Simulator.
   UDID=$(xcrun simctl list devices -j | "$PYTHON" -I -c 'import json,sys
@@ -150,10 +188,10 @@ print(sorted(r, key=lambda x: [int(p) for p in x["version"].split(".")])[-1]["id
     CONTROL_PID=$("$PYTHON" -I -c 'import subprocess,sys
 log=open(sys.argv[1],"ab")
 p=subprocess.Popen(sys.argv[2:], stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
-print(p.pid)' "$OUT/peer-control.log" "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --local-node "$LOCAL_NODE" \
+print(p.pid)' "$OUT/peer-control.log" "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --facts "$NODE_FACTS" --peers "$PEERS" --rf "$RAMFLUX_REALRUN_RF" --dm-helper "$RAMFLUX_REALRUN_DM_HELPER" \
       --udid "$UDID" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app")
   else
-    "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --local-node "$LOCAL_NODE" \
+    "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --facts "$NODE_FACTS" --peers "$PEERS" --rf "$RAMFLUX_REALRUN_RF" --dm-helper "$RAMFLUX_REALRUN_DM_HELPER" \
       --udid "$UDID" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app" > "$OUT/peer-control.log" 2>&1 &
     CONTROL_PID=$!
   fi

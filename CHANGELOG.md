@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Real-run harness: every machine-specific input (node facts, peers, rf CLI, conversation id helper, optional node check, peer control, clock container, toolchain file) is an environment variable, read from an untracked `scripts/realrun.local.env` (see the committed example); a missing input stops the script with a message naming it.
 - Shell: after the code unlock that follows a return from the background, the screens that were open (for example the chat) come back in the same navigation change that closes the unlock step; before, the stack finished popping the unlock step after the chat was pushed and dropped it.
 - Chat: a media send that the SDK refuses at `conversation.send` with an internal failure (code 16) reads "not sent" with a retry under the same operation id instead of waiting behind an offline banner; the debug trace records the request shape for the SDK team.
 - Groups: a new group opens the conversation named by the creation reply, without reads that could run before the group list caught up; opening a listed group asks the group's metadata for its conversation before history.
