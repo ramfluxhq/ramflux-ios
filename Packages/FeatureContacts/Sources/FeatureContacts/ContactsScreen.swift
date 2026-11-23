@@ -59,12 +59,13 @@ public struct ContactsScreen: View {
         }
     }
     private var title: String {
-        switch state.mode { case .contacts: FeatureContactsStrings.text("common.tab.contacts", locale: locale); case .strangers: FeatureContactsStrings.text("contacts.strangers.title", locale: locale); case .sent: FeatureContactsStrings.text("contacts.sent.title", locale: locale); case .add: FeatureContactsStrings.text("contacts.add.title", locale: locale); case .profile: FeatureContactsStrings.text("contacts.profile.title", locale: locale); case .safety: FeatureContactsStrings.text("contacts.safety.title", locale: locale); case .request: FeatureContactsStrings.text("contacts.request.title", locale: locale) }
+        switch state.mode { case .contacts: FeatureContactsStrings.text("common.tab.contacts", locale: locale); case .strangers: FeatureContactsStrings.text("contacts.strangers.title", locale: locale); case .sent: FeatureContactsStrings.text("contacts.sent.title", locale: locale); case .add: FeatureContactsStrings.text("contacts.add.title", locale: locale); case .profile: FeatureContactsStrings.text("contacts.profile.title", locale: locale); case .safety: FeatureContactsStrings.text("contacts.safety.title", locale: locale); case .request: FeatureContactsStrings.text("contacts.request.title", locale: locale); case .myCard: FeatureContactsStrings.text("contacts.myCard.title", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.mode {
         case .contacts:
             HStack { Button(FeatureContactsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.mode(.strangers)) }.accessibilityIdentifier("contacts-strangers"); Button(FeatureContactsStrings.text("contacts.sent.title", locale: locale)) { onAction(.mode(.sent)) }.accessibilityIdentifier("contacts-sent"); Spacer(); Button(FeatureContactsStrings.text("contacts.add.action", locale: locale), systemImage: "person.badge.plus") { onAction(.mode(.add)) }.accessibilityIdentifier("contacts-add") }
+            Button(FeatureContactsStrings.text("contacts.myCard.title", locale: locale), systemImage: "qrcode") { onAction(.mode(.myCard)) }.accessibilityIdentifier("contacts-my-card")
             KitSearchField(value: Binding(get: { state.query }, set: { onAction(.filter($0)) }), placeholder: FeatureContactsStrings.text("contacts.filter.placeholder", locale: locale), tag: "contact-filter")
             let rows = state.contacts
             if rows.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.empty.message", locale: locale)) }
@@ -75,6 +76,8 @@ public struct ContactsScreen: View {
                 .background { pageTriggers(id: contact.id, first: rows.first?.id, last: rows.last?.id) }
             }
             pagingFooter
+        case .myCard:
+            if let card = state.ownCard { MyContactCardView(card: card) }
         case .add:
             TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput().accessibilityIdentifier("contacts-add-address")
             Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))

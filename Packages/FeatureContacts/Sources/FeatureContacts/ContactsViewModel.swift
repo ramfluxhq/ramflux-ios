@@ -117,7 +117,7 @@ import AppData
             let pendingMutation = await repository.pendingMutation(account: account)
             var failure: AppFailure?
             var contacts: RowWindow<ContactRecord>?, requests: RowWindow<ContactRequestRecord>?
-            var selected: ContactRecord?, request: ContactRequestRecord?, safety: ContactSafety?
+            var selected: ContactRecord?, request: ContactRequestRecord?, safety: ContactSafety?, card: ContactCardExport?
             switch mode {
             case .contacts:
                 switch await RowWindow.first({ cursor, limit in await repository.contactsPage(account: account, query: query, cursor: cursor, limit: limit) }) {
@@ -140,6 +140,8 @@ import AppData
                     }
                 }
             case .add: break
+            case .myCard:
+                switch await repository.ownCard(account: account) { case .success(let value): card = value; case .failure(let error): failure = error }
             }
             guard !Task.isCancelled, let self, self.readID == current else { return }
             self.state.loading = false
@@ -158,6 +160,7 @@ import AppData
                 self.state.selected = failure == nil ? selected : nil
                 self.state.safety = safety; self.state.safetyPrincipal = safety == nil ? nil : id
             case .add: break
+            case .myCard: self.state.ownCard = card
             }
             if self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
         }

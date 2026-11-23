@@ -919,6 +919,91 @@
           }
         }
       }
+    },
+    "contacts.myCard.title": {
+      "comment": "Title of the screen (and the button opening it) that shows this account's own contact card to hand to someone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My contact card"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我的联系人名片"
+          }
+        }
+      }
+    },
+    "contacts.myCard.explain": {
+      "comment": "Explanation on the My contact card screen. The card is signed by the account and names its home node; it expires after seven days.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Someone who adds this card can reach you through your home node. It expires after seven days; open this screen again for a new one."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方添加此名片后，即可通过您的主节点联系您。名片七天后失效，届时请重新打开此页面获取新名片。"
+          }
+        }
+      }
+    },
+    "contacts.myCard.qr": {
+      "comment": "Accessibility label of the QR code image of this account's contact card.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code of your contact card"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您的联系人名片二维码"
+          }
+        }
+      }
+    },
+    "contacts.myCard.share": {
+      "comment": "Button that opens the system share sheet with this account's contact card link.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share contact card"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享联系人名片"
+          }
+        }
+      }
+    },
+    "contacts.myCard.text": {
+      "comment": "Label above the contact card shown as text (selectable), for pasting into another app.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card as text"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名片文本"
+          }
+        }
+      }
     }
   }
 }

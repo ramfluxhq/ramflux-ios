@@ -17,6 +17,15 @@ public protocol ContactsRepository: Sendable {
     func requestsPage(account: String, direction: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<ContactRequestRecord>>
     func observe(account: String) async -> RepositoryObservation
     func unavailable(_ capability: ContactUnavailable) -> AppFailure
+    /// This account's signed contact card (`contact.card.export`): the text form and the link form.
+    func ownCard(account: String) async -> RepositoryResult<ContactCardExport>
+}
+/// A contact card of this account as the SDK exports it. Public: it names the account, its devices and its
+/// home node so a peer can add it and reach it; it carries no secret.
+public struct ContactCardExport: Equatable, Sendable {
+    public let card: String
+    public let link: String
+    public init(card: String, link: String) { self.card = card; self.link = link }
 }
 public struct NativeContactsRepository: ContactsRepository {
     private let mutations = RetainedMutation<ContactMutationArguments, Void>()
@@ -116,6 +125,14 @@ public struct NativeContactsRepository: ContactsRepository {
         guard parts.count == groups.count, parts.allSatisfy({ !$0.isEmpty && $0.utf8.count <= 64 }) else { return nil }; return parts.joined(separator: " ")
     }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
+    public func ownCard(account: String) async -> RepositoryResult<ContactCardExport> {
+        do {
+            let body = try await gateway.call(.contactCardExport, account: account)
+            let card = try ProxyGateway.text(body, "card"), link = try ProxyGateway.text(body, "link")
+            guard card.utf8.count <= 64 * 1024, link.utf8.count <= 64 * 1024 else { throw AppFailure.invalidData }
+            return .success(ContactCardExport(card: card, link: link))
+        } catch { return .failure(AppFailure.map(error)) }
+    }
     public func unavailable(_ capability: ContactUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: ContactUnavailable) -> AppFailure {
         switch capability {
@@ -138,6 +155,7 @@ public struct UnavailableContactsRepository: ContactsRepository {
 
 public extension ContactsRepository {
     func pendingMutation(account: String) async -> PendingContactMutation? { nil }
+    func ownCard(account: String) async -> RepositoryResult<ContactCardExport> { .failure(.unsupported) }
     func change(account: String, contact: ContactRecord, change: ContactChange, operationID: String) async -> RepositoryResult<Void> { .failure(.unsupported) }
     /// Stateless fallback for repositories without a pager: re-reads the list and pages it by offset.
     func contactsPage(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<ContactRecord>> {

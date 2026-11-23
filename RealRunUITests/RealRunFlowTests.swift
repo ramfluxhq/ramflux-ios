@@ -287,6 +287,21 @@ final class RealRunFlowTests: RealRunTestCase {
             guard let conversation = RunSecrets.aliceConversation, let phoneCommitment = RunSecrets.phoneCommitment else {
                 throw FlowStop.blocked("needs flows 3 and 6 (conversation with alice)")
             }
+            // Hand the phone's own contact card to alice, so her record of the phone names its home node
+            // (a principal lookup alone left her with "no home node is pinned for this contact").
+            var notes: [String] = []
+            try openMore()
+            try tap(element("more-contacts"), "Contacts in More")
+            try tap(element("contacts-my-card"), "My contact card")
+            let cardText = try require(element("contacts-my-card-text"), "contact card text", timeout: 30)
+            snap("07-my-card")
+            let shownCard = cardText.label + " " + (cardText.value as? String ?? "")
+            guard let range = shownCard.range(of: "ramflux-card:v3:[A-Za-z0-9_=.-]+", options: .regularExpression) else {
+                throw FlowStop.fail("My contact card shows no card text: \(visibleFailure())")
+            }
+            let added = control.rf("alice", ["contact", "add", "--card", String(shownCard[range])])
+            notes.append(added.exit == 0 ? "alice added the phone's contact card" : "alice: rf contact add --card exit \(added.exit): \(added.stderr.suffix(200))")
+            try ensureReady()
             // The phone's device id, from Settings, My devices; alice's attachment send addresses it directly.
             try openMore()
             try tap(element("more-settings"), "Settings in More")
@@ -298,7 +313,6 @@ final class RealRunFlowTests: RealRunTestCase {
             let target = "root~" + targetJSON.base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
             let peers = control.get("config")["peers"] as? [String: [String: Any]] ?? [:]
             guard let aliceDevice = peers["alice"]?["device_id"] as? String else { throw FlowStop.fail("peer config lacks alice's device id") }
-            var notes: [String] = []
             var receiveBlocked: String?
             for (name, kind, size) in [("rr-image.png", "png", 60000), ("rr-file.txt", "text", 3000)] {
                 let made = control.post("make-file", json: ["name": name, "kind": kind, "size": size])

@@ -23,6 +23,8 @@ public struct ContactsState: Equatable, Sendable {
     public var busy = false
     public var failure: AppFailure?
     public var safety: ContactSafety?
+    /// This account's contact card (my-card mode).
+    public var ownCard: ContactCardExport?
     public var pending: PendingContactDecision?
     public var pendingChange: PendingContactChange?
     public var unknownMutation = false

@@ -46,6 +46,16 @@
 	<string>正在加载联系人</string>
 	<key>contacts.loadingMore</key>
 	<string>正在加载更多</string>
+	<key>contacts.myCard.explain</key>
+	<string>对方添加此名片后，即可通过您的主节点联系您。名片七天后失效，届时请重新打开此页面获取新名片。</string>
+	<key>contacts.myCard.qr</key>
+	<string>您的联系人名片二维码</string>
+	<key>contacts.myCard.share</key>
+	<string>分享联系人名片</string>
+	<key>contacts.myCard.text</key>
+	<string>名片文本</string>
+	<key>contacts.myCard.title</key>
+	<string>我的联系人名片</string>
 	<key>contacts.profile.block</key>
 	<string>屏蔽联系人</string>
 	<key>contacts.profile.blocked</key>

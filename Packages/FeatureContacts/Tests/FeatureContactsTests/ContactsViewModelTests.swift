@@ -8,6 +8,7 @@ private actor ContactsFake: ContactsRepository {
     let gate: MutationGate?
     private(set) var attempts: [(String, String)] = []
     init(gate: MutationGate? = nil) { self.gate = gate }
+    func ownCard(account: String) async -> RepositoryResult<ContactCardExport> { .success(ContactCardExport(card: "ramflux-card:v3:" + account, link: "ramflux://contact/v3/" + account)) }
     func pendingMutation(account: String) async -> PendingContactMutation? {
         guard let row = await journal.snapshot(scope: account), row.unresolved else { return nil }
         return PendingContactMutation(arguments: row.arguments, operationID: row.operationID)
@@ -33,6 +34,13 @@ private actor ContactsFake: ContactsRepository {
     nonisolated func unavailable(_ capability: ContactUnavailable) -> AppFailure { .unsupported }
 }
 @Suite(.timeLimit(.minutes(1))) @MainActor struct ContactsViewModelTests {
+    @Test func myCardModeReadsThisAccountsCard() async {
+        let coordinator = ContactsCoordinator(repository: ContactsFake(), account: "a", mode: .contacts, navigate: { _ in })
+        coordinator.send(.mode(.myCard)); await coordinator.viewModel.settle()
+        #expect(coordinator.viewModel.state.ownCard == ContactCardExport(card: "ramflux-card:v3:a", link: "ramflux://contact/v3/a"))
+        #expect(coordinator.viewModel.state.failure == nil)
+        coordinator.send(.disappeared)
+    }
     @Test func accountFenceAndOriginalArgumentsSurviveCancelledWaiterAndCoordinatorReplacement() async {
         let gate = MutationGate(), fake = ContactsFake(gate: gate)
         defer { gate.release() }
