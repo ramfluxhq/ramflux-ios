@@ -149,6 +149,12 @@ iOS offers the per-app language. Storage management is the media module's screen
 typed unavailable state until then. Device pairing as the primary (`device.pair.begin/status/confirm/
 approve`) needs no credential channel on the inviting side, but is not built yet; see the bridge notes.
 
+Unpaged snapshots (`contact.list`, `contact.requests.list`, `group.list`) decode through
+`ProxyGateway.mapRows`, which maps 1,024 rows per step off the main actor and yields between steps. There is no
+row-count ceiling; the size guard is the 1 MiB per-response byte ceiling (`CoreLimits.frameBytes`), the same
+as the SDK's own local-bus frame limit (`MAX_LOCAL_BUS_FRAME_BYTES`). A roster larger than 1 MiB of JSON
+(several thousand contacts) is therefore refused by the SDK and the bridge alike until `contact.list` pages.
+
 Contacts and contact requests read through `RowWindow` (AppData), a bounded window of
 at most 300 rows over a `RowPageReader`. `contact.list` and `contact.requests.list` are unpaged
 in the SDK, so `SnapshotPager` reads each once per first page, keeps the matching rows in the data

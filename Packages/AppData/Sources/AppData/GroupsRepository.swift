@@ -29,7 +29,7 @@ public struct NativeGroupsRepository: GroupsRepository {
     }
     public func list(account: String) async -> RepositoryResult<[GroupRecord]> {
         do {
-            let rows = try ProxyGateway.rows(await gateway.call(.groupList, account: account), "groups").map(Self.record)
+            let rows = try await ProxyGateway.mapRows(await gateway.call(.groupList, account: account), "groups", Self.record)
             guard Set(rows.map(\.id)).count == rows.count else { throw AppFailure.invalidData }; return .success(rows)
         } catch { return .failure(AppFailure.map(error)) }
     }

@@ -65,7 +65,7 @@ public struct NativeContactsRepository: ContactsRepository {
     public func contacts(account: String) async -> RepositoryResult<[ContactRecord]> {
         do {
             let body = try await gateway.call(.contactList, account: account)
-            let records = try ProxyGateway.rows(body, "contacts").map { row in
+            let records = try await ProxyGateway.mapRows(body, "contacts") { row in
                 let id = try ProxyGateway.text(row, "principal_id")
                 return ContactRecord(id: id, displayName: row["display_name"]?.string ?? id, subtitle: id, verified: row["verified"]?.bool, rootCommitment: row["root_commitment"]?.string,
                                      linkID: row["link_id"]?.string, blocked: row["blocked"]?.bool ?? false)
@@ -76,7 +76,7 @@ public struct NativeContactsRepository: ContactsRepository {
     public func requests(account: String) async -> RepositoryResult<[ContactRequestRecord]> {
         do {
             let body = try await gateway.call(.contactRequestsList, account: account)
-            let records = try ProxyGateway.rows(body, "requests").map { row in
+            let records = try await ProxyGateway.mapRows(body, "requests") { row in
                 let principal = try ProxyGateway.text(row, "principal_id")
                 return ContactRequestRecord(id: try ProxyGateway.text(row, "request_id"), principal: principal, name: row["display_name"]?.string ?? principal,
                     direction: try ProxyGateway.text(row, "direction"), state: try ProxyGateway.text(row, "state"), preview: row["preview"]?.string, safetyNumber: Self.number(row["safety_number"]))
