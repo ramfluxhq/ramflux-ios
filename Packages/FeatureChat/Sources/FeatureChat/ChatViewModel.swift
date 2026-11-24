@@ -358,6 +358,8 @@ import FeatureCards
     }
     private func publish(_ next: TimelineWindow) {
         window = next
+        // Debug builds: the delivery tally of the own rows now shown, to tell a receipt the window never took from one the table did not draw.
+        EventDiagnostics.note("chat publish rows=\(next.records.count) own=\(next.records.filter { $0.isOwn == true }.count) delivered=\(next.records.filter { $0.delivery == .delivered }.count) read=\(next.records.filter { $0.delivery == .read }.count) journal=\(next.journal.map { "\($0)" } ?? "nil")")
         state.messages = next.records; state.olderAvailable = next.hasOlder; state.detached = next.detached
         syncMedia()
     }

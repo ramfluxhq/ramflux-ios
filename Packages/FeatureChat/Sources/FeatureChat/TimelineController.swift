@@ -80,6 +80,7 @@ import RFDesign
         snapshot.appendSections([0]); snapshot.appendItems(items.map(\.id), toSection: 0)
         let changed = items.filter { old[$0.id] != nil && (presentationChanged || old[$0.id] != $0) }.map(\.id)
         for id in changed { heights[id] = nil }
+        EventDiagnostics.note("timeline update items=\(items.count) reconfigured=\(changed.count)")
         snapshot.reconfigureItems(changed)
         revision &+= 1; let current = revision
         source.apply(snapshot, animatingDifferences: false) { [weak self] in
