@@ -13,6 +13,11 @@ RF_UNAVAILABLE int32_t ramflux_v2_client_open(const uint8_t *json, size_t len, u
 }
 RF_UNAVAILABLE int32_t ramflux_v2_client_close(uint64_t h) { (void)h; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_client_release(uint64_t h) { (void)h; return 3; }
+RF_UNAVAILABLE int32_t ramflux_v2_client_suspend(uint64_t h) { (void)h; return 3; }
+RF_UNAVAILABLE int32_t ramflux_v2_client_resume(uint64_t h) { (void)h; return 3; }
+RF_UNAVAILABLE int32_t ramflux_v2_username_authorize(uint64_t h, const uint8_t *request, size_t request_len, const uint8_t *phrase, size_t phrase_len, struct RamfluxBuffer **out_signed, struct RamfluxBuffer **out_error) {
+    (void)h; (void)request; (void)request_len; (void)phrase; (void)phrase_len; if(out_signed)*out_signed=NULL; if(out_error)*out_error=NULL; return 3;
+}
 RF_UNAVAILABLE int32_t ramflux_v2_execute(uint64_t h, const uint8_t *json, size_t len, uint64_t *out) {
     (void)h; (void)json; (void)len; if(out)*out=0; return 3;
 }

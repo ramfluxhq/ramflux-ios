@@ -9,6 +9,10 @@ public enum CoreErrorCode: Int32, Codable, Sendable {
     case rateLimited, internalFailure, panicAborted, accountBusy, objectErased
     case objectIdentityConflict, objectOwnershipUnverified, custodyForkFenced, schemaResetRequired
     case pending, cancelled, closed, resyncRequired
+    /// 28 and 29 belong to pairing. The client released its files for the background.
+    case suspended = 30
+    /// Host custody is locked (before the first device unlock); no client was opened.
+    case vaultLocked = 31
 }
 
 /// A lost waiter is not proof of no effect. Reconcile using the original operation ID.

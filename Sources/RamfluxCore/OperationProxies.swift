@@ -120,6 +120,15 @@ public extension AgentProxy {
     func agentAccessSet(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentAccessSet, context: context, body: body)
     }
+    func agentApprovalDecide(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentApprovalDecide, context: context, body: body)
+    }
+    func agentApprovalList(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentApprovalList, context: context, body: body)
+    }
+    func agentApprovalPublish(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentApprovalPublish, context: context, body: body)
+    }
     func agentCreate(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentCreate, context: context, body: body)
     }
@@ -132,6 +141,27 @@ public extension AgentProxy {
     func agentGet(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentGet, context: context, body: body)
     }
+    func agentHostManage(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentHostManage, context: context, body: body)
+    }
+    func agentJobList(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobList, context: context, body: body)
+    }
+    func agentJobPause(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobPause, context: context, body: body)
+    }
+    func agentJobRemove(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobRemove, context: context, body: body)
+    }
+    func agentJobResume(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobResume, context: context, body: body)
+    }
+    func agentJobSession(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobSession, context: context, body: body)
+    }
+    func agentJobSessions(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentJobSessions, context: context, body: body)
+    }
     func agentList(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentList, context: context, body: body)
     }
@@ -140,6 +170,9 @@ public extension AgentProxy {
     }
     func agentPersonaEdit(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentPersonaEdit, context: context, body: body)
+    }
+    func agentProgress(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentProgress, context: context, body: body)
     }
     func agentRetire(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentRetire, context: context, body: body)
@@ -296,6 +329,9 @@ public extension ContactProxy {
     }
     func contactRequest(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.contactRequest, context: context, body: body, secrets: secrets)
+    }
+    func contactRequestsDecline(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.contactRequestsDecline, context: context, body: body, secrets: secrets)
     }
     func contactRequestsList(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.contactRequestsList, context: context, body: body)
@@ -467,6 +503,9 @@ public extension GroupProxy {
     }
     func groupInvitationsList(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.groupInvitationsList, context: context, body: body)
+    }
+    func groupLeave(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.groupLeave, context: context, body: body, secrets: secrets)
     }
     func groupList(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.groupList, context: context, body: body)
@@ -658,6 +697,12 @@ public extension ObjectProxy {
         try await performSecretResponse(.objectTransferStatus, context: context, body: body)
     }
 }
+public protocol ProfileProxy: SDKProxyProtocol {}
+public extension ProfileProxy {
+    func profileUpdate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.profileUpdate, context: context, body: body, secrets: secrets)
+    }
+}
 public protocol StreamProxy: SDKProxyProtocol {}
 public extension StreamProxy {
     func streamRead(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
@@ -731,5 +776,20 @@ public extension TaskProxy {
     }
     func taskUpdate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.taskUpdate, context: context, body: body, secrets: secrets)
+    }
+}
+public protocol UsernameProxy: SDKProxyProtocol {}
+public extension UsernameProxy {
+    func usernameContactAdd(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.usernameContactAdd, context: context, body: body, secrets: secrets)
+    }
+    func usernameMutate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.usernameMutate, context: context, body: body, secrets: secrets)
+    }
+    func usernameResolve(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await performSecretResponse(.usernameResolve, context: context, body: body)
+    }
+    func usernameStatus(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await performSecretResponse(.usernameStatus, context: context, body: body)
     }
 }
