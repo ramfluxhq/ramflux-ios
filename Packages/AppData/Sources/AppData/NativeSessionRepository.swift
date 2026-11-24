@@ -42,6 +42,7 @@ public actor NativeSessionRepository: SessionRepository {
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             publish(snapshot.value); return .success(snapshot.value)
         } catch {
+            EventDiagnostics.failed("session activate", error)
             let failure = AppFailure.map(error)
             if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }
             return .failure(failure)
@@ -80,13 +81,16 @@ public actor NativeSessionRepository: SessionRepository {
                   let body = completion["response"]?["body"], case .array(let values) = body["accounts"], values.count <= 4096 else { throw AppFailure.invalidData }
             // Every account held on this phone, open or locked, with its display name (`account.list` rows
             // `{id, display_name, locked}`); the active account is always an open one.
+            // `active_account_id` names an open account. Right after a cold start the SDK's silent reopen can
+            // finish between the two halves of one `account.list` answer, so the picker row may still say
+            // locked; the active account is open either way.
+            let active = body["active_account_id"]?.string
             let accounts = try values.map { value in
                 guard let id = value["id"]?.string, !id.isEmpty, id.utf8.count <= 256, let locked = value["locked"]?.bool else { throw AppFailure.invalidData }
                 let name = value["display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? id
-                return AccountRecord(id: id, displayName: name, isLocked: locked)
+                return AccountRecord(id: id, displayName: name, isLocked: locked && id != active)
             }
             guard Set(accounts.map(\.id)).count == accounts.count else { throw AppFailure.invalidData }
-            let active = body["active_account_id"]?.string
             guard active == nil || accounts.contains(where: { $0.id == active && !$0.isLocked }) else { throw AppFailure.invalidData }
             var pending = false
             if case .array(let details) = body["account_details"] { pending = details.contains { $0["state"]?.string == "restore_pending" } }

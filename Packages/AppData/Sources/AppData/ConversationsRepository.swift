@@ -31,7 +31,7 @@ public struct NativeConversationsRepository: ConversationsRepository {
             let rows = try ProxyGateway.rows(body, "conversations")
             var seen = Set<String>()
             for row in rows {
-                guard seen.insert(try ProxyGateway.text(row, "id")).inserted else { throw AppFailure.invalidData }
+                guard seen.insert(try ProxyGateway.text(row, "id")).inserted else { EventDiagnostics.note("conversation.directory duplicate row id"); throw AppFailure.invalidData }
             }
             let visible = rows.filter { $0["archived"] != .bool(true) && $0["hidden"] != .bool(true) }
             // Direct rows carry the peer and its name from the SDK (`peer_principal_id`, `peer_display_name`);
@@ -56,16 +56,16 @@ public struct NativeConversationsRepository: ConversationsRepository {
             switch body["next_cursor"] {
             case .string(let value) where !value.isEmpty: next = value
             case .null, nil: next = nil
-            default: throw AppFailure.invalidData
+            default: EventDiagnostics.note("conversation.directory next_cursor is not a string"); throw AppFailure.invalidData
             }
             return .success(ConversationPage(rows: records, nextCursor: next))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("conversation.directory", error); return .failure(AppFailure.map(error)) }
     }
     public func pendingRequests(account: String) async -> RepositoryResult<UInt> {
         do {
             let rows = try ProxyGateway.rows(try await gateway.call(.contactRequestsList, account: account), "requests")
             return .success(UInt(rows.filter { $0["direction"]?.string == "inbound" && $0["state"]?.string == "pending" }.count))
-        } catch { return .failure(AppFailure.map(error)) }
+        } catch { EventDiagnostics.failed("contact.requests.list", error); return .failure(AppFailure.map(error)) }
     }
     /// The peer of a direct row as the SDK names it (`peer_principal_id`). A conversation that began with
     /// an inbound message has no direct route yet and the SDK omits the peer fields; its participants
