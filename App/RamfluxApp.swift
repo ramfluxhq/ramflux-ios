@@ -19,6 +19,7 @@ import RFDesign
     @Environment(\.scenePhase) private var phase
     @State private var runtime = AppLifecycleCoordinator()
     @State private var composition = AppComposition()
+    @State private var captured = false
     private var coordinator: AppShellCoordinator { composition.shell }
     private var appearance: AppearanceMode { composition.appearance }
     var body: some Scene {
@@ -70,7 +71,10 @@ import RFDesign
                 default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
                 }
             }
+                .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
+                                              onOpen: { composition.openBanner($0) }, onDismiss: { composition.dismissBanner($0) }) }
             }
+                .background(CaptureStateProbe(captured: $captured).frame(width: 0, height: 0).allowsHitTesting(false))
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))
                 .sheet(item: Binding(get: { composition.forwarding }, set: { if $0 == nil { composition.forwardChosen(nil) } })) { request in
                     ForwardTargetsScreen(repository: composition.repositories.conversations, account: request.account, excluding: request.conversation,

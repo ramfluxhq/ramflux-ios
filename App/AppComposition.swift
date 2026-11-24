@@ -172,10 +172,34 @@ import UserNotifications
     /// Local message notifications while the app is not active (see docs/permissions.md).
     @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
     @ObservationIgnored private var notificationDelegate: MessageNotificationDelegate?
+    /// The in-app banner on screen, if any. It lives in memory only: never logged, restored or donated.
+    var banner: InAppBanner?
+    /// New incoming messages while the app is in the foreground, from the same directory stream as the
+    /// notifier; the conversation on screen, muted conversations and own messages raise nothing.
+    @ObservationIgnored lazy var bannerFeed = InAppBannerFeed(conversations: repositories.conversations, chat: repositories.chat,
+        isOpen: { [weak self] id in self?.isConversationOpen(id) ?? false }, deliver: { [weak self] banner in self?.banner = banner })
+    private func isConversationOpen(_ id: String) -> Bool {
+        switch shell.path.last {
+        case .conversation(let open)?: open == id
+        case .groupConversation(let open, _, _)?: open == id
+        default: false
+        }
+    }
+    /// A tap on the banner opens its conversation through the shell's route policy; while the app is locked
+    /// the shell holds the route until the unlock completes.
+    func openBanner(_ banner: InAppBanner) {
+        self.banner = nil
+        shell.send(.openWhenReady(banner.route, account: banner.account))
+    }
+    func dismissBanner(_ id: UUID) { if banner?.id == id { banner = nil } }
+    /// The scene is about to become inactive: no banner may be on screen for the snapshot.
+    private func sceneResigning() { banner = nil; bannerFeed.setForeground(false) }
     /// Follows the active unlocked account; a locked session stops notifications, a concealed one keeps them.
     func sessionChanged(_ session: SessionSnapshot) {
         guard session.phase == .ready else { return }
         notifier.follow(account: session.activeAccountID)
+        bannerFeed.follow(account: session.activeAccountID)
+        if banner?.account != session.activeAccountID { banner = nil }
         guard session.activeAccountID != unlockedAccount else { return }
         unlockedAccount = session.activeAccountID
         callService.stop()
@@ -189,7 +213,7 @@ import UserNotifications
     /// One system call integration per process (one CallKit provider). It reports nothing while the
     /// media engine refuses (see docs/app-shell.md, "Calls and the media engine boundary").
     @ObservationIgnored private(set) lazy var callService = CallSystemService(repository: repositories.calls, provider: CallKitProvider(supportsVideo: false), audio: CallAudioSession())
-    private func accountLocked() { unlockedAccount = nil; callService.stop() }
+    private func accountLocked() { unlockedAccount = nil; banner = nil; callService.stop() }
     /// The scene is active again: the SDK resumed without asking for anything and the account stayed
     /// unlocked, so a send the suspension interrupted (it completes as suspended and stays queued) is
     /// flushed again with its operation id once the session is back.
@@ -230,6 +254,8 @@ import UserNotifications
         let delegate = MessageNotificationDelegate { [weak self] token in self?.openNotification(token) }
         notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
         registerLifecycle()
+        PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },
+                             activated: { [weak self] in self?.bannerFeed.setForeground(true) })
     }
 }
 /// Calls ask for the microphone and camera through the shared explanation flow.

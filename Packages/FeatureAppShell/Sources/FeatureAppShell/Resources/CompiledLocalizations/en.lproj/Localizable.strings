@@ -4,6 +4,16 @@
 <dict>
 	<key>account.add</key>
 	<string>Add account</string>
+	<key>banner.accessibility.dismiss</key>
+	<string>Dismiss</string>
+	<key>banner.accessibility.from</key>
+	<string>New message from %@</string>
+	<key>banner.call</key>
+	<string>Call</string>
+	<key>banner.generic</key>
+	<string>New message</string>
+	<key>banner.other</key>
+	<string>New message</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
 	<key>common.nav.contacts</key>

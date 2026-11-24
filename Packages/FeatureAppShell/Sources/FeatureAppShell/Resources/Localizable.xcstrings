@@ -730,6 +730,91 @@
           }
         }
       }
+    },
+    "banner.generic": {
+      "comment": "Title of the in-app message banner when it must not show who wrote or what was written (screen recording, mirroring, locked app). Also the spoken label in that case.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新消息"
+          }
+        }
+      }
+    },
+    "banner.call": {
+      "comment": "Second line of the in-app message banner for a call record.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
+    "banner.other": {
+      "comment": "Second line of the in-app message banner for a message that is not plain text (media, removed or unsupported content, system events).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新消息"
+          }
+        }
+      }
+    },
+    "banner.accessibility.from": {
+      "comment": "Short spoken label of the in-app message banner. %@ is the sender or group name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message from %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来自 %@ 的新消息"
+          }
+        }
+      }
+    },
+    "banner.accessibility.dismiss": {
+      "comment": "VoiceOver action name that dismisses the in-app message banner.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
     }
   }
 }
