@@ -71,12 +71,22 @@ public struct InAppBanner: Identifiable, Sendable, Equatable, CustomStringConver
                 await self.read(account: account, generation: current)
             }
             await observation.stop()
-            if let self, self.generation == current { self.task = nil }
+            // The stream ended (a failure, or the source closed): follow again after a short pause, unless
+            // the account changed or following was stopped meanwhile.
+            guard let self, self.generation == current else { return }
+            self.task = nil
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled, self.generation == current, self.task == nil else { return }
+            self.follow(account: account)
         }
     }
     /// Banners are raised only while the app is in the foreground and active. Unread counts keep being tracked
     /// otherwise, so a message that arrived meanwhile never produces a banner on return.
-    public func setForeground(_ value: Bool) { foreground = value }
+    public func setForeground(_ value: Bool) {
+        foreground = value
+        // A return to the foreground also restarts a feed whose stream ended while the app was away.
+        if value, let account, task == nil { follow(account: account) }
+    }
 
     private func read(account: String, generation current: UInt64) async {
         guard case .success(let page) = await conversations.page(account: account, cursor: nil, limit: window), self.generation == current else { return }
@@ -118,6 +128,6 @@ public struct InAppBanner: Identifiable, Sendable, Equatable, CustomStringConver
         }
         let collapsed = String(scalars).split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
         guard !collapsed.isEmpty else { return nil }
-        return String(collapsed.prefix(previewLimit))
+        return String(collapsed.prefix(previewLimit)).trimmingCharacters(in: .whitespaces)
     }
 }
