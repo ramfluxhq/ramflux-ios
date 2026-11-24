@@ -150,6 +150,53 @@ final class RealRunLifecycleTests: RealRunTestCase {
         }
     }
 
+    // MARK: In-app banner: a message from alice on the conversation list raises it, a tap opens the thread
+
+    func test17_inAppBannerTap() {
+        flow("17-in-app-banner") {
+            try ensureSession()
+            guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flows 3 and 4 (conversation with alice)") }
+            try openTab("messages")
+            try require(element(conversation), "conversation row", timeout: 30)
+            let phrase = "rr-banner-" + token()
+            guard control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", phrase]).exit == 0 else { throw FlowStop.blocked("alice could not send") }
+            let banner = element("in-app-banner")
+            guard banner.waitForExistence(timeout: 30) else { throw FlowStop.fail("no in-app banner on the conversation list: \(visibleFailure())") }
+            snap("17-banner")
+            let label = banner.label
+            try tap(banner, "banner")
+            guard element("chat-composer-input").waitForExistence(timeout: 15) else { throw FlowStop.fail("tapping the banner did not open the conversation: \(visibleFailure())") }
+            guard text(containing: phrase).waitForExistence(timeout: 30) else { throw FlowStop.fail("the opened conversation does not show the message") }
+            snap("17-opened")
+            // With the thread open a new message raises no banner.
+            let second = "rr-banner-open-" + token()
+            _ = control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", second])
+            guard text(containing: second).waitForExistence(timeout: 30) else { throw FlowStop.fail("the second message did not arrive in the open thread") }
+            Thread.sleep(forTimeInterval: 2)
+            guard !banner.exists else { throw FlowStop.fail("a banner appeared with the thread open") }
+            back()
+            return "banner found by id in-app-banner (label \"\(label)\"); tap opened the conversation; no banner with the thread open"
+        }
+    }
+
+    // MARK: Snapshot privacy: leave for the Home screen with a chat open and the keyboard up
+
+    func test18_snapshotWithKeyboard() {
+        flow("18-snapshot-keyboard") {
+            // A fresh process: the list is read again from the SDK.
+            app.terminate(); app.launch()
+            try ensureSession()
+            guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flows 3 and 4 (conversation with alice)") }
+            try openChat(conversation)
+            let input = try require(element("chat-composer-input"), "composer input")
+            input.tap(); input.typeText("snapshot probe hello wor")
+            snap("18-keyboard-up")
+            XCUIDevice.shared.press(.home)
+            Thread.sleep(forTimeInterval: 4)
+            return "the chat was open with the keyboard up and typed text when Home was pressed; the app's snapshots are inspected from its data container"
+        }
+    }
+
     func ensureSession() throws {
         dismissPrompts()
         closeLeftoverSheet()
