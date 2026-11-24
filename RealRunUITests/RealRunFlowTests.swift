@@ -100,15 +100,7 @@ final class RealRunFlowTests: RealRunTestCase {
             guard text(containing: RunSecrets.displayName).waitForExistence(timeout: 20) else { throw FlowStop.fail("Messages header does not show the display name: \(visibleFailure())") }
             if let id = RunSecrets.accountID, !id.isEmpty, text(containing: id).exists { throw FlowStop.fail("the raw account id is still shown on Messages") }
             snap("01-header-name")
-            // Cold start: the account is offered again by name.
-            app.terminate(); app.launch()
-            guard knownAccountUnlock().waitForExistence(timeout: 30) || { try? openTab("messages"); return knownAccountUnlock().waitForExistence(timeout: 20) }() else {
-                throw FlowStop.fail("after a cold start the account is not offered by name: \(visibleFailure())")
-            }
-            snap("01-cold-start")
-            try unlockIfNeeded()
-            try require(element("tab-messages"), "Messages tab after the cold-start unlock", timeout: 30)
-            return "node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking); secret fields are secure text fields; the locked account's row in Accounts opens its unlock step; after lock and after a cold start the locked tab offers \(RunSecrets.displayName) by name and the unlock step asks only for the code; Messages shows the display name"
+            return "node \(config.origin) accepted as typed, fingerprint matched, 24 words confirmed, code set, \(networking); secret fields are secure text fields; after an explicit lock the locked tab offers \(RunSecrets.displayName) by name, the locked account's row in Accounts opens its unlock step and it asks only for the code; Messages shows the display name (relaunch without a prompt: flow 04d)"
         }
     }
 
@@ -432,6 +424,53 @@ final class RealRunFlowTests: RealRunTestCase {
         }
     }
 
+    // MARK: Flow 4r: read receipts both ways (the SDK routes message.receipt.read itself)
+
+    func test04r_readReceipts() {
+        flow("04r-read-receipts") {
+            try ensureReady()
+            guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flow 3 (conversation id)") }
+            try openConversation(conversation)
+            var notes: [String] = []
+            // Alice writes; the phone shows it in the open chat and marks it read; alice sees read.
+            let incoming = "rr-read-alice-" + token()
+            let sent = control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", incoming])
+            guard sent.exit == 0 else { throw FlowStop.blocked("alice: rf conversation send failed (exit \(sent.exit)): \(sent.stderr.suffix(300))") }
+            try require(text(containing: incoming), "alice's message on the phone", timeout: 60)
+            var seen = "none"
+            let aliceSeesRead = eventually(90, every: 4, {
+                let states = (self.aliceMessage(conversation, containing: incoming)?["receipts"] as? [[String: Any]] ?? []).map { "\($0["state"] ?? "?")" }
+                seen = states.isEmpty ? "none" : states.joined(separator: ",")
+                return states.contains("read")
+            })
+            guard aliceSeesRead else { throw FlowStop.fail("alice never saw the phone's read receipt on her message (receipts: \(seen))") }
+            notes.append("alice sees read on her message after the phone displayed it (receipts: \(seen))")
+            // The phone writes; alice marks it read; the phone's own bubble turns to Read.
+            let outgoing = "rr-read-phone-" + token()
+            try send(outgoing)
+            var row: [String: Any]?
+            guard eventually(90, every: 3, { row = self.aliceMessage(conversation, containing: outgoing); return row != nil }) else {
+                throw FlowStop.fail("alice did not receive the phone's message; \(notes.joined(separator: "; "))")
+            }
+            let peers = control.get("config")["peers"] as? [String: [String: Any]] ?? [:]
+            guard let message = (row?["message_id"] as? String) ?? (row?["id"] as? String), let reader = peers["alice"]?["device_id"] as? String else {
+                throw FlowStop.blocked("alice's message row has no id (keys \(row?.keys.sorted() ?? []))")
+            }
+            let read = control.rf("alice", ["dm", "receipt", "read", "--conversation", conversation, "--message", message, "--reader", reader])
+            guard read.exit == 0 else { throw FlowStop.fail("alice: rf dm receipt read failed (exit \(read.exit)): \(read.stderr.suffix(300)); \(notes.joined(separator: "; "))") }
+            let bubble = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == 'message-own' AND label CONTAINS %@", outgoing)).firstMatch
+            var shown = ""
+            guard eventually(90, every: 2, {
+                shown = (bubble.value as? String ?? "") + " " + bubble.label
+                return shown.contains("Read")
+            }) else { throw FlowStop.fail("the phone's own bubble never showed Read after alice read it (shows: \(shown.suffix(120))); \(notes.joined(separator: "; "))") }
+            snap("04r-read")
+            notes.append("the phone's own bubble shows Read after alice read it")
+            back()
+            return notes.joined(separator: "; ")
+        }
+    }
+
     // MARK: Flow 5: groups with alice and bob
 
     func test05_groupsWithAliceAndBob() {
@@ -544,6 +583,91 @@ final class RealRunFlowTests: RealRunTestCase {
             }
             throw FlowStop.fail("alice did not receive the phone's group image within 120 s; \(offline ? "the chat shows the offline banner although the node is reachable" : "no not-sent entry with a Retry is shown") (device-events-group-image.log)")
         }
+    }
+
+    // MARK: Flow 5c: a group invitation from someone who is no longer a contact, accepted on the phone
+
+    func test05c_groupInvitationAccepted() {
+        flow("05c-group-invitation") {
+            try ensureReady()
+            guard let phone = RunSecrets.phonePrincipal else { throw FlowStop.blocked("needs flow 6 (the phone's principal)") }
+            var notes: [String] = []
+            // A group from an accepted contact joins at once (implicit consent); from anyone else it waits as an
+            // invitation. The phone removes bob as a contact first, so bob's group arrives as an invitation.
+            try removeContact(config.bob)
+            notes.append("the phone removed bob as a contact")
+            let name = "rr-invite-" + token()
+            let group = UUID().uuidString.lowercased()
+            let created = control.rf("bob", ["group", "create", "--group", group, "--creator", config.bob.principal, "--member", phone], timeout: 120)
+            guard created.exit == 0 else { throw FlowStop.blocked("bob: rf group create with the phone as member failed (exit \(created.exit)): \(created.stderr.suffix(400))") }
+            let renamed = control.rf("bob", ["group", "rename", "--group", group, "--name", name], timeout: 60)
+            notes.append(renamed.exit == 0 ? "bob created group \(group) named \(name) with the phone as member" : "bob created group \(group) with the phone as member (rename exit \(renamed.exit))")
+            RunSecrets.invitedGroupID = group
+            try ensureReady()
+            try openTab("groups")
+            let invitation = element("group-invitation-" + group)
+            guard eventually(120, every: 3, {
+                if invitation.exists { return true }
+                self.app.buttons["Refresh"].firstMatch.tapIfExists(); return false
+            }) else { throw FlowStop.fail("the invitation to bob's group never appeared on the phone's Groups tab: \(visibleFailure())") }
+            snap("05c-invitation-listed")
+            notes.append("the invitation is listed on the Groups tab")
+            scrollIntoView(invitation)
+            try tap(invitation, "bob's invitation")
+            try tap(element("group-invitation-accept"), "Review acceptance")
+            try confirmHost("invitation acceptance confirmation")
+            let row = element(group)
+            guard eventually(120, every: 3, {
+                if row.exists { return true }
+                self.app.buttons["Refresh"].firstMatch.tapIfExists(); return false
+            }) else { throw FlowStop.fail("after accepting, bob's group is not in the phone's group list: \(visibleFailure())") }
+            snap("05c-invitation-accepted")
+            notes.append("accepted; the group is in the phone's list")
+            if invitation.exists { throw FlowStop.fail("the invitation is still listed after accepting; \(notes.joined(separator: "; "))") }
+            return notes.joined(separator: "; ")
+        }
+    }
+
+    // MARK: Flow 5d: leave the accepted group (group.leave)
+
+    func test05d_leaveGroup() {
+        flow("05d-leave-group") {
+            try ensureReady()
+            guard let group = RunSecrets.invitedGroupID else { throw FlowStop.blocked("needs flow 5c (a group the phone joined as a member)") }
+            guard let phone = RunSecrets.phonePrincipal else { throw FlowStop.blocked("needs flow 6 (the phone's principal)") }
+            try openTab("groups")
+            try tap(element(group), "the joined group's row", timeout: 30)
+            let leave = try require(element("group-leave"), "Leave group", timeout: 30)
+            scrollIntoView(leave)
+            try tap(leave, "Leave group")
+            try confirmHost("leave confirmation")
+            let row = element(group)
+            guard eventually(60, every: 2, { !row.exists || !row.isHittable }) || { self.back(); return eventually(30, { !row.exists }) }() else {
+                throw FlowStop.fail("the group is still listed on the phone after leaving: \(visibleFailure())")
+            }
+            snap("05d-left")
+            var members = ""
+            let gone = eventually(120, every: 4, {
+                let value = self.control.rf("bob", ["group", "members", "--group", group])
+                members = value.stdout
+                return value.exit == 0 && !value.stdout.contains(phone)
+            })
+            guard gone else { throw FlowStop.fail("bob still lists the phone as a member after it left (members: \(members.prefix(300)))") }
+            return "group.leave accepted; the group left the phone's list; bob no longer lists the phone as a member"
+        }
+    }
+
+    /// Removes `peer` as a contact on the phone (contact.remove, scope me) through the contact's profile.
+    func removeContact(_ peer: RealRunConfig.Peer) throws {
+        try openMore()
+        try tap(element("more-contacts"), "Contacts in More")
+        let row = element(peer.principal)
+        guard row.waitForExistence(timeout: 20) else { back(); return }
+        try tap(row, "\(peer.name) contact row")
+        try tap(element("contact-remove"), "Remove contact")
+        try confirmHost("contact removal confirmation")
+        _ = eventually(30, { !self.element("contact-remove").exists })
+        back(); back()
     }
 
     /// The not-sent media entry offers its retry (the media outbox's Retry button).

@@ -16,10 +16,14 @@ FLOWS = [
     ("06-contacts", "6 Add alice, request handled by the peer, safety number, verified"),
     ("04-direct-chat", "4 Direct chat with alice both ways (send, receive, reply, edit, erase, receipts)"),
     ("04b-offline-queue", "4 Offline send queued and delivered after reconnect (needs a network cut; not scripted)"),
-    ("04c-background", "4 Background and return keeps the session and queued sends"),
+    ("04r-read-receipts", "4 Read receipts both ways: alice sees read, the phone shows Read"),
+    ("04c-background", "4 Background and return asks for nothing, keeps the chat, the draft and queued sends"),
+    ("04d-relaunch", "1 Terminate and relaunch asks for nothing (device-bound key)"),
     ("07-media", "7 Media M1: receive image and file, view, send an image the peer decodes at the expected kind and size"),
     ("05-groups", "5 Groups: create with alice and bob, send and receive, members"),
     ("05b-group-image", "5 Groups: the phone sends an image to the group"),
+    ("05c-group-invitation", "5 Groups: an invitation from a non-contact, listed and accepted"),
+    ("05d-leave-group", "5 Groups: leave a group (group.leave)"),
     ("10-settings", "10 Settings: lock, devices, language"),
     ("10b-change-code", "10 Change account code (account.passphrase.rotate)"),
     ("14-backup", "14 Backup: create and verify"),
@@ -29,6 +33,7 @@ FLOWS = [
     ("09-tasks", "9 Tasks list (expected empty)"),
     ("12-calls", "12 Calls screen honest unavailable state"),
     ("15-privacy", "15 Privacy: request policy and open-account unavailable state"),
+    ("15b-usernames", "15 Usernames: status in Settings, add a contact by @name"),
 ]
 
 

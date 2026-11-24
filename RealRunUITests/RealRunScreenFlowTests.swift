@@ -114,6 +114,47 @@ final class RealRunScreenFlowTests: RealRunTestCase {
         }
     }
 
+    // MARK: Flow 15b: usernames on the phone (username.status in Settings, add a contact by @name)
+
+    func test16_usernames() {
+        flow("15b-usernames") {
+            try ensureShell()
+            try openSettings()
+            try tap(element("settings-account"), "Account and security")
+            try tap(element("settings-privacy"), "Privacy")
+            let row = try require(element("settings-username"), "username row", timeout: 30)
+            scrollIntoView(row)
+            try tap(row, "Username row")
+            let unavailable = text(containing: "Usernames are not available on this phone yet")
+            let claim = text(containing: "Claiming a username needs your recovery phrase")
+            let named = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == 'settings-username' AND label CONTAINS '@'")).firstMatch
+            guard eventually(30, { unavailable.exists || claim.exists || named.exists }) else { throw FlowStop.fail("the username row shows neither a username nor an unavailable state: \(visibleFailure())") }
+            snap("15b-username-status")
+            let status = unavailable.exists ? "username.status refused: the app shows Usernames are not available on this phone yet (directory_unavailable)"
+                : named.exists ? "username.status answered with a claimed name" : "username.status answered; claiming needs the recovery phrase ceremony, shown as unavailable"
+            for _ in 0..<4 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.5) }
+            // Add a contact by @name: the directory resolves it, or its refusal is shown.
+            try openMore()
+            try tap(element("more-contacts"), "Contacts in More")
+            try tap(element("contacts-add"), "Add contact")
+            let address = try require(element("contacts-add-address"), "account address field")
+            address.tap(); address.typeText("@rr" + String(UUID().uuidString.prefix(6)).lowercased())
+            try tap(element("contacts-add-send"), "Add by @name")
+            let notFound = text(containing: "No one has this username")
+            guard eventually(60, { unavailable.exists || notFound.exists || self.text(containing: "could not").exists }) else {
+                throw FlowStop.fail("adding by @name showed no outcome: \(visibleFailure())")
+            }
+            snap("15b-username-add")
+            let add = unavailable.exists ? "username.contact.add refused (directory_unavailable); the add screen shows the same honest state"
+                : notFound.exists ? "username.contact.add reached the directory: an unknown name is reported as not found" : "username.contact.add refused: \(visibleFailure())"
+            back()
+            if unavailable.exists || status.contains("refused") {
+                throw FlowStop.blocked("\(status); \(add). The SDK reads the username centre only from process environment variables, so a phone has no directory (SDK gap)")
+            }
+            return "\(status); \(add)"
+        }
+    }
+
     func ensureShell() throws {
         dismissPrompts()
         closeLeftoverSheet()

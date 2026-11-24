@@ -99,6 +99,8 @@ enum RunSecrets {
     nonisolated(unsafe) static var groupName: String?
     nonisolated(unsafe) static var groupID: String?
     nonisolated(unsafe) static var groupConversation: String?
+    /// The group of flow 5c (bob's group the phone joined through an invitation).
+    nonisolated(unsafe) static var invitedGroupID: String?
     /// The backup archive passphrase of flow 14 (memory only), for the restore on a fresh install.
     nonisolated(unsafe) static var archivePassphrase: String?
     /// Unique per run so the peers can tell this run's phone account from earlier runs' accounts.
@@ -112,12 +114,13 @@ enum RunSecrets {
         phoneCommitment = state["phoneCommitment"] as? String; aliceConversation = state["aliceConversation"] as? String
         archivePassphrase = state["archivePassphrase"] as? String; mediaCaptions = state["mediaCaptions"] as? [String] ?? []
         groupName = state["groupName"] as? String; groupID = state["groupID"] as? String; groupConversation = state["groupConversation"] as? String
+        invitedGroupID = state["invitedGroupID"] as? String
     }
     static func save(to control: PeerControl) {
         var state: [String: Any] = ["accountCode": accountCode, "displayName": displayName, "mediaCaptions": mediaCaptions]
         for (key, value) in [("accountID", accountID), ("phonePrincipal", phonePrincipal), ("phoneCommitment", phoneCommitment),
                              ("aliceConversation", aliceConversation), ("archivePassphrase", archivePassphrase),
-                             ("groupName", groupName), ("groupID", groupID), ("groupConversation", groupConversation)] { if let value { state[key] = value } }
+                             ("groupName", groupName), ("groupID", groupID), ("groupConversation", groupConversation), ("invitedGroupID", invitedGroupID)] { if let value { state[key] = value } }
         control.post("run-state", json: state)
     }
 }

@@ -6,7 +6,7 @@ import XCTest
 /// RealRunFlowTests (this class sorts after it and before RealRunScreenFlowTests).
 final class RealRunLifecycleTests: RealRunTestCase {
 
-    // MARK: Background and return: session and an in-flight send survive
+    // MARK: Background and return: no prompt, the open chat, its draft and an in-flight send survive
 
     func test05_backgroundAndReturn() {
         flow("04c-background") {
@@ -18,7 +18,7 @@ final class RealRunLifecycleTests: RealRunTestCase {
             let input = try require(element("chat-composer-input"), "composer input")
             input.tap(); input.typeText(queued)
             try tap(element("chat-composer-send"), "send button")
-            // An unsent draft stays in the composer across the background and the lock.
+            // An unsent draft stays in the composer across the background.
             let draft = "rr-draft-" + token()
             input.tap(); input.typeText(draft)
             XCUIDevice.shared.press(.home)
@@ -27,24 +27,17 @@ final class RealRunLifecycleTests: RealRunTestCase {
             Thread.sleep(forTimeInterval: 20)
             let arrivedInBackground = eventually(5, { self.aliceHas(conversation, queued) })
             app.activate()
-            var notes = [arrivedInBackground ? "the in-flight send reached alice while the app was in the background" : "the in-flight send had not reached alice while in the background"]
-            var askedForCode = false
-            if element("secure-entry-passphrase").waitForExistence(timeout: 5) || element("shell-accounts").exists || text(containing: "Unlock your account").exists {
-                askedForCode = true
-                notes.append("returning asked for the account code (the locked tab offered the account by name)")
-                // Nothing of the conversation is shown before the unlock.
-                guard !text(containing: queued).exists, !text(containing: draft).exists, !element("chat-composer-input").exists else {
-                    throw FlowStop.fail("conversation content is visible before the unlock: \(visibleFailure())")
-                }
-                notes.append("no conversation content before the unlock")
-                try unlockIfNeeded()
-                // After unlock the app reopens the screen the user had open.
-                guard element("chat-composer-input").waitForExistence(timeout: 20) else {
-                    throw FlowStop.fail("after unlock the app did not return to the open chat: \(visibleFailure())")
-                }
-                notes.append("after unlock the app returned to the open chat")
-                snap("04c-reopened")
-            } else { notes.append("session kept without unlock") }
+            var notes = [arrivedInBackground ? "the in-flight send reached alice while the app was in the background" : "the in-flight send was held while the app was suspended"]
+            // The SDK suspends in the background and resumes on return: nothing is asked.
+            if element("secure-entry-passphrase").waitForExistence(timeout: 5) || element("shell-accounts").exists || element("a02-known-account").exists {
+                snap("04c-asked")
+                throw FlowStop.fail("returning from the background asked for the account code: \(visibleFailure())")
+            }
+            notes.append("returning asked for nothing")
+            guard element("chat-composer-input").waitForExistence(timeout: 10) else {
+                throw FlowStop.fail("the open chat did not stay open across the background: \(visibleFailure())")
+            }
+            notes.append("the open chat stayed open")
             snap("04c-returned")
             let composer = element("chat-composer-input")
             let kept = eventually(10, { ((composer.value as? String) ?? "").contains(draft) })
@@ -53,12 +46,47 @@ final class RealRunLifecycleTests: RealRunTestCase {
             guard eventually(90, every: 3, { self.aliceHas(conversation, queued) }) else { throw FlowStop.fail("the send made before backgrounding never reached alice; \(notes.joined(separator: "; "))") }
             notes.append("the send made before backgrounding reached alice")
             if sent.exit == 0 {
-                guard text(containing: whileAway).waitForExistence(timeout: 60) else { throw FlowStop.fail("alice's message sent while the app was in the background did not appear after return") }
+                guard text(containing: whileAway).waitForExistence(timeout: 60) else { throw FlowStop.fail("alice's message sent while the app was in the background did not appear after return; \(notes.joined(separator: "; "))") }
                 notes.append("alice's message sent while away appeared after return")
             } else { notes.append("alice could not send while away (exit \(sent.exit))") }
-            // Asking for the code on return is expected: the C ABI v2 has no suspend, so releasing the data-root
-            // writer in the background closes the SDK and locks every account (see docs/app-shell.md).
-            return notes.joined(separator: "; ") + (askedForCode ? " (the code is asked on return because the C ABI v2 has no suspend; the SDK closes in the background)" : "")
+            // Leave the composer empty for the flows that follow.
+            composer.replaceText("")
+            return notes.joined(separator: "; ")
+        }
+    }
+
+    // MARK: Terminate and relaunch: the account opens without the code (device-bound key)
+
+    func test05r_terminateAndRelaunch() {
+        flow("04d-relaunch") {
+            try ensureSession()
+            guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flows 3 and 4 (conversation with alice)") }
+            app.terminate()
+            let whileClosed = "rr-while-closed-" + token()
+            let sent = control.rf("alice", ["conversation", "send", "--conversation", conversation, "--text", whileClosed])
+            app.launch()
+            var notes: [String] = []
+            // A cold start opens the account with its device-bound key; the code is not asked.
+            if element("secure-entry-passphrase").waitForExistence(timeout: 8) || knownAccountUnlock().exists || element("a02-known-account").exists {
+                snap("04d-asked")
+                throw FlowStop.fail("relaunching asked for the account code: \(visibleFailure())")
+            }
+            guard element("tab-messages").waitForExistence(timeout: 30), !element("shell-accounts").exists else {
+                throw FlowStop.fail("after the relaunch no account is open: \(visibleFailure())")
+            }
+            notes.append("relaunching asked for nothing; the account opened by itself")
+            try openTab("messages")
+            guard text(containing: RunSecrets.displayName).waitForExistence(timeout: 20) else { throw FlowStop.fail("Messages does not show the account after the relaunch: \(visibleFailure())") }
+            guard element(conversation).waitForExistence(timeout: 30) else { throw FlowStop.fail("the conversation with alice is not listed after the relaunch: \(visibleFailure())") }
+            snap("04d-relaunched")
+            notes.append("Messages lists the conversation with alice")
+            try openChat(conversation)
+            if sent.exit == 0 {
+                guard text(containing: whileClosed).waitForExistence(timeout: 60) else { throw FlowStop.fail("alice's message sent while the app was closed did not appear; \(notes.joined(separator: "; "))") }
+                notes.append("alice's message sent while the app was closed arrived")
+            } else { notes.append("alice could not send while the app was closed (exit \(sent.exit))") }
+            back()
+            return notes.joined(separator: "; ")
         }
     }
 
