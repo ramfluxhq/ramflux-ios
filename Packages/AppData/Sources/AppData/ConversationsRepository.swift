@@ -45,7 +45,7 @@ public struct NativeConversationsRepository: ConversationsRepository {
                 var identifier = false
                 let peer = group == nil ? Self.peer(row) : nil
                 if title == nil, group == nil {
-                    title = row["peer_display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 }
+                    title = row["peer_display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? peer.flatMap { known[$0]?.name }
                     if title == nil { title = peer.map(Self.shortIdentifier) ?? id; identifier = true }
                 }
                 return ConversationRecord(id: id, title: title ?? id, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]),
@@ -67,10 +67,15 @@ public struct NativeConversationsRepository: ConversationsRepository {
             return .success(UInt(rows.filter { $0["direction"]?.string == "inbound" && $0["state"]?.string == "pending" }.count))
         } catch { return .failure(AppFailure.map(error)) }
     }
-    /// The peer of a direct row as the SDK names it.
+    /// The peer of a direct row as the SDK names it (`peer_principal_id`). A conversation that began with
+    /// an inbound message has no direct route yet and the SDK omits the peer fields; its participants
+    /// other than this account name the peer then, and its contact name titles the row.
     static func peer(_ row: JSONValue) -> String? {
         guard row["group_id"]?.string?.isEmpty ?? true else { return nil }
-        return row["peer_principal_id"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 2048 ? nil : $0 }
+        if let peer = row["peer_principal_id"]?.string, !peer.isEmpty, peer.utf8.count <= 2048 { return peer }
+        let me = row["self_principal_id"]?.string
+        guard case .array(let participants)? = row["participants"] else { return nil }
+        return participants.prefix(8).compactMap(\.string).first { !$0.isEmpty && $0 != me && $0.utf8.count <= 2048 }
     }
     /// A short form of an identifier for a row with no known name: the first characters after any
     /// `principal-` style prefix, left-to-right isolated like every identifier.

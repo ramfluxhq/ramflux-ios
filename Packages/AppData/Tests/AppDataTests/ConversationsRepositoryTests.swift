@@ -10,7 +10,7 @@ import RamfluxCore
             case "contact.list": return .object(["contacts": .array([.object(["principal_id": .string("principal-alice"), "display_name": .string("Alice"), "root_commitment": .string("root-alice"), "verified_classification": .string("ai_agent")])])])
             default: return .object(["conversations": .array([
                 .object(["id": .string("dm:a"), "peer_principal_id": .string("principal-alice"), "peer_display_name": .string("Alice")]),
-                .object(["id": .string("dm:b"), "peer_principal_id": .string("principal-stranger-with-a-long-id")]),
+                .object(["id": .string("dm:b"), "self_principal_id": .string("principal-me"), "participants": .array([.string("principal-me"), .string("principal-stranger-with-a-long-id")])]),
                 .object(["id": .string("dm:c"), "title": .string("Named by the SDK"), "peer_principal_id": .string("principal-alice")]),
                 .object(["id": .string("group-1"), "group_id": .string("g1")]),
             ])])
