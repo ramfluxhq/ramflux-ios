@@ -102,8 +102,15 @@ class RealRunTestCase: XCTestCase {
         guard element.waitForExistence(timeout: timeout) else { throw FlowStop.fail("\(what) did not appear within \(Int(timeout)) s") }
         return element
     }
+    /// An in-app banner (a message from a peer arrived on another screen) covers the top bar for about four
+    /// seconds; a swipe up dismisses it, so it never hides a control the flow is about to use.
+    func dismissBanner() {
+        let banner = app.descendants(matching: .any).matching(identifier: "in-app-banner").firstMatch
+        if banner.exists { banner.swipeUp(); _ = banner.waitForNonExistence(timeout: 5) }
+    }
     /// Declines the app's notification explanation sheet (Cancel never asks the system) when it covers the screen.
     func dismissPrompts() {
+        dismissBanner()
         let prompt = app.staticTexts["Turn on notifications?"]
         if prompt.exists {
             let cancel = app.buttons["Cancel"].firstMatch
@@ -192,6 +199,7 @@ class RealRunTestCase: XCTestCase {
     func openTab(_ name: String) throws { try tap(element("tab-" + name), "\(name) tab") }
     /// Kit page headers and the system bar both label their back control "Back".
     func back() {
+        dismissBanner()
         let backButton = app.buttons.matching(NSPredicate(format: "label == 'Back'")).allElementsBoundByIndex.first { $0.isHittable }
         backButton?.tap()
     }

@@ -19,6 +19,8 @@ FLOWS = [
     ("04r-read-receipts", "4 Read receipts both ways: alice sees read, the phone shows Read"),
     ("04c-background", "4 Background and return asks for nothing, keeps the chat, the draft and queued sends"),
     ("04d-relaunch", "1 Terminate and relaunch asks for nothing (device-bound key)"),
+    ("17-in-app-banner", "17 In-app banner: found by its id, a tap opens the conversation, none while the thread is open"),
+    ("18-snapshot-keyboard", "18 Snapshot privacy: Home with a chat open and the keyboard up (snapshots inspected from the data container)"),
     ("07-media", "7 Media M1: receive image and file, view, send an image the peer decodes at the expected kind and size"),
     ("05-groups", "5 Groups: create with alice and bob, send and receive, members"),
     ("05b-group-image", "5 Groups: the phone sends an image to the group"),
