@@ -85,11 +85,13 @@ public enum AppFailure: Error, Sendable, Equatable {
     /// A username directory call: the directory's typed refusals (`username_directory` codes) become an
     /// honest unavailable state; anything else maps as usual.
     public static func mapUsername(_ error: any Error) -> Self {
-        guard let failure = error as? CoreFailure, let reason = failure.reasonCode ?? failure.response?["error"]?["code"]?.string else { return map(error) }
-        switch reason {
+        guard let failure = error as? CoreFailure else { return map(error) }
+        switch failure.reasonCode ?? failure.response?["error"]?["code"]?.string {
         case "directory_unavailable": return .unavailableResource("username.unavailable.directory")
         case "name_not_found", "not_found": return .unavailableResource("username.unavailable.notFound")
-        default: return map(error)
+        // A directory refusal without a typed reason (the pinned SDK answers internal, code 16) is still a
+        // refusal of the directory, not an unknown outcome: nothing was claimed or added.
+        default: return failure.code == .internalFailure ? .unavailableResource("username.unavailable.refused") : map(error)
         }
     }
     public static func map(_ error: any Error) -> Self {

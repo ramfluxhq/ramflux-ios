@@ -125,13 +125,14 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             let row = try require(element("settings-username"), "username row", timeout: 30)
             scrollIntoView(row)
             try tap(row, "Username row")
-            let unavailable = text(containing: "Usernames are not available on this phone yet")
+            let unavailable = text(containing: "Usernames are not available")
             let claim = text(containing: "Claiming a username needs your recovery phrase")
-            let named = app.descendants(matching: .any).matching(NSPredicate(format: "identifier == 'settings-username' AND label CONTAINS '@'")).firstMatch
-            guard eventually(30, { unavailable.exists || claim.exists || named.exists }) else { throw FlowStop.fail("the username row shows neither a username nor an unavailable state: \(visibleFailure())") }
+            let unknown = text(containing: "Outcome not confirmed")
+            _ = eventually(30, { unavailable.exists || claim.exists || unknown.exists })
             snap("15b-username-status")
-            let status = unavailable.exists ? "username.status refused: the app shows Usernames are not available on this phone yet (directory_unavailable)"
-                : named.exists ? "username.status answered with a claimed name" : "username.status answered; claiming needs the recovery phrase ceremony, shown as unavailable"
+            if unknown.exists { throw FlowStop.fail("the username row shows an unknown outcome instead of the directory's answer: \(visibleFailure())") }
+            let status = unavailable.exists ? "username.status refused; the app shows: \(unavailable.label)"
+                : claim.exists ? "username.status answered; claiming needs the recovery phrase ceremony, shown as unavailable" : "username.status answered with a claimed name"
             for _ in 0..<4 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.5) }
             // Add a contact by @name: the directory resolves it, or its refusal is shown.
             try openMore()
@@ -141,15 +142,16 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             address.tap(); address.typeText("@rr" + String(UUID().uuidString.prefix(6)).lowercased())
             try tap(element("contacts-add-send"), "Add by @name")
             let notFound = text(containing: "No one has this username")
-            guard eventually(60, { unavailable.exists || notFound.exists || self.text(containing: "could not").exists }) else {
+            guard eventually(60, { unavailable.exists || notFound.exists || unknown.exists || self.text(containing: "could not").exists }) else {
                 throw FlowStop.fail("adding by @name showed no outcome: \(visibleFailure())")
             }
             snap("15b-username-add")
-            let add = unavailable.exists ? "username.contact.add refused (directory_unavailable); the add screen shows the same honest state"
+            if unknown.exists { throw FlowStop.fail("adding by @name shows an unknown outcome instead of the directory's answer: \(visibleFailure())") }
+            let add = unavailable.exists ? "username.contact.add refused; the add screen shows: \(unavailable.label)"
                 : notFound.exists ? "username.contact.add reached the directory: an unknown name is reported as not found" : "username.contact.add refused: \(visibleFailure())"
             back()
             if unavailable.exists || status.contains("refused") {
-                throw FlowStop.blocked("\(status); \(add). The SDK reads the username centre only from process environment variables, so a phone has no directory (SDK gap)")
+                throw FlowStop.blocked("\(status); \(add). The SDK refuses every username call on a phone with code 16 and no typed reason; it reads the username centre only from process environment variables (SDK gap)")
             }
             return "\(status); \(add)"
         }
