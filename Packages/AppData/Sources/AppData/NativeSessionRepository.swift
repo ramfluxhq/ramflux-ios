@@ -11,8 +11,9 @@ public actor NativeSessionRepository: SessionRepository {
     private var observer: AsyncStream<SessionSnapshot>.Continuation?
     private var current = SessionSnapshot(phase: .stopped)
     private var revision: UInt64 = 0
-    public init(client: RamfluxClient, dataRoot: URL) {
-        self.client = client; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
+    private let updates: NativeUpdateSource?
+    public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil) {
+        self.client = client; self.updates = updates; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
         observer?.finish()
@@ -21,24 +22,39 @@ public actor NativeSessionRepository: SessionRepository {
         return pair.stream
     }
     private func publish(_ value: SessionSnapshot) { current = value; observer?.yield(value) }
+    /// Opens the SDK on the first foreground and resumes it after the background; neither asks for
+    /// the account code. A return from the background keeps the published snapshot, so the screens stay
+    /// as they were. On a cold start the SDK reopens accounts that were not explicitly locked through
+    /// their device-bound key (`account.list` reports them `restore_pending` until that finishes).
     public func activate() async -> RepositoryResult<SessionSnapshot> {
         revision &+= 1; let epoch = revision
-        publish(SessionSnapshot(phase: .opening))
+        if current.phase != .ready { publish(SessionSnapshot(phase: .opening)) }
         do {
             try await lifecycle.foreground()
-            let sealed = try await proxy.accountList(context: context())
-            let snapshot = try Self.decodeAccounts(sealed)
+            await updates?.resumeAfterBackground()
+            var snapshot = try await accounts()
+            // The silent reopen runs inside the SDK after open; wait for it boundedly before showing a
+            // locked account that is about to open by itself.
+            for _ in 0..<50 where snapshot.restorePending {
+                try await Task.sleep(for: .milliseconds(200))
+                snapshot = try await accounts()
+            }
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
-            publish(snapshot); return .success(snapshot)
+            publish(snapshot.value); return .success(snapshot.value)
         } catch {
             let failure = AppFailure.map(error)
             if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }
             return .failure(failure)
         }
     }
+    private func accounts() async throws -> (value: SessionSnapshot, restorePending: Bool) {
+        try Self.decodeAccountList(try await proxy.accountList(context: context()))
+    }
+    /// The app went to the background: live updates pause (observers stay registered) and the SDK
+    /// suspends. The session snapshot is kept, so nothing is torn down or asked for on return.
     public func suspend() async -> RepositoryResult<Void> {
         revision &+= 1; let epoch = revision
-        publish(SessionSnapshot(phase: .suspended))
+        await updates?.suspendForBackground()
         do { try await lifecycle.background(); return .success(()) }
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
     }
@@ -56,7 +72,8 @@ public actor NativeSessionRepository: SessionRepository {
     private func context(account: String? = nil, operation: OperationID? = nil) -> RequestContext {
         RequestContext(accountID: account, operationID: operation, deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + 10_000)
     }
-    static func decodeAccounts(_ sealed: SecretBytes) throws -> SessionSnapshot {
+    static func decodeAccounts(_ sealed: SecretBytes) throws -> SessionSnapshot { try decodeAccountList(sealed).value }
+    static func decodeAccountList(_ sealed: SecretBytes) throws -> (value: SessionSnapshot, restorePending: Bool) {
         try sealed.consume { bytes in
             let completion = try JSONDecoder().decode(JSONValue.self, from: Data(bytes))
             guard completion["code"] == .number(0), completion["response"]?["ok"] == .bool(true),
@@ -71,7 +88,9 @@ public actor NativeSessionRepository: SessionRepository {
             guard Set(accounts.map(\.id)).count == accounts.count else { throw AppFailure.invalidData }
             let active = body["active_account_id"]?.string
             guard active == nil || accounts.contains(where: { $0.id == active && !$0.isLocked }) else { throw AppFailure.invalidData }
-            return SessionSnapshot(phase: .ready, accounts: accounts, activeAccountID: active)
+            var pending = false
+            if case .array(let details) = body["account_details"] { pending = details.contains { $0["state"]?.string == "restore_pending" } }
+            return (SessionSnapshot(phase: .ready, accounts: accounts, activeAccountID: active), pending)
         }
     }
     private static func validateMutation(_ sealed: SecretBytes) throws {

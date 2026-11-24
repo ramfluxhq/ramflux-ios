@@ -42,7 +42,7 @@ public actor NativeUpdateSource {
     /// `message.received` and `group.message.received` are what the SDK journal emits for an inbound row
     /// (`bus/journal/project.rs`); without them a new message reached an open chat only through
     /// `conversation.changed`.
-    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.received", "group.message.received", "message.changed", "message.updated", "group.changed", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
+    static let topics = ["conversation.changed", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.received", "group.message.received", "message.changed", "message.updated", "group.changed", "group.invitation", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
     /// Live-only frames (typing indicators). They never invalidate read models.
     static let transientTopic = "message.transient"
     /// The only topic the SDK accepts on a subscription without an account.
@@ -58,7 +58,24 @@ public actor NativeUpdateSource {
     private var epoch: UInt64 = 0
     private var resyncs = 0
     private var tail: Task<Void, Never>?
+    /// The SDK is suspended for the background: observers stay registered and the subscription reopens
+    /// on resume, which invalidates every observer once so each screen re-reads what changed meanwhile.
+    private var suspended = false
     public init(client: RamfluxClient) { self.client = client }
+    /// Closes the native subscription before the SDK suspends; observers are kept.
+    public func suspendForBackground() async {
+        await serialized { hub in await hub.pause() }
+    }
+    /// Reopens the subscription after the SDK resumed.
+    public func resumeAfterBackground() async {
+        await serialized { hub in await hub.unpause() }
+    }
+    private func pause() async { suspended = true; resyncs = 0; await close(finishing: false) }
+    private func unpause() async {
+        guard suspended else { return }
+        suspended = false
+        if subscription == nil { await open() }
+    }
     /// Number of live observers; for tests and diagnostics.
     public var observerCount: Int { observers.count }
     /// Registers an observer. With `transientFrames`, the observation also carries the live
@@ -97,7 +114,7 @@ public actor NativeUpdateSource {
         if observers.isEmpty { await close(finishing: false); scope = nil }
     }
     private func open() async {
-        guard let scope, !observers.isEmpty else { return }
+        guard !suspended, let scope, !observers.isEmpty else { return }
         do {
             try await client.resetEvents()
             let filter = try SubscriptionFilter(accountID: scope.accountID, topics: scope.topics, attendedFrontend: true)

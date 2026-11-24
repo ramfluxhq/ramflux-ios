@@ -82,9 +82,9 @@ import RFDesign
                 .onChange(of: coordinator.viewModel.state.session) { _, session in composition.sessionChanged(session) }
                 .onChange(of: phase) { _, phase in
                     switch phase {
-                    case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive)
+                    case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive); composition.returnedToForeground()
                     case .inactive: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
-                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); composition.enteredBackground(); runtime.enterBackground(coordinator)
+                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
                     @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }

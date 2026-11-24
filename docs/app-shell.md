@@ -9,9 +9,9 @@ an explicit unavailable presentation.
   They have no SDK imports, async calls, repositories or mutable application data.
 - `AppShellState` is an Equatable, Sendable value. `AppShellAction` is the only
   ViewModel input. `AppShellEvent` is a separate, one-shot coordinator callback.
-- `AppShellViewModel` owns its operation and observation tasks. Inactive scenes
-  immediately conceal account records and cancel pending UI work. Generations
-  reject late completions. Background/disappearance asks the Repository to suspend.
+- `AppShellViewModel` owns its operation and observation tasks. Generations reject
+  late completions. Background/disappearance asks the Repository to suspend; a return
+  activates it again without tearing down the screens (see "Background and relaunch").
 - `AppShellCoordinator` owns navigation and sheets. Deep links can only navigate
   to the allowlisted read destinations; query-bearing links cannot approve actions.
 - `AppData.SessionRepository` owns the session domain and returns typed
@@ -81,9 +81,29 @@ it pixel by pixel with the design reference; see
 [board verification](board-verification.md). Source compilation alone does not
 prove those captures executed.
 
-The app immediately shields UI on inactivity; proving actual writer release
-before OS suspension still requires a linked SDK/device test. No recovery words,
-keys, message bodies or operation payloads are logged or exported by the shell.
+## Background and relaunch
+
+By default the app asks for nothing when it returns from the background or is relaunched
+(owner decision: app lock is optional and off by default).
+
+- Background: `NativeSessionRepository.suspend` pauses the shared event fan-out (observers stay
+  registered) and `PhoneLifecycle` calls `ramflux_v2_client_suspend` inside a background task
+  assertion: networking stops, databases flush, file descriptors and the data-root lease are released,
+  and the unlocked accounts stay in memory. Operations still running complete as suspended (30); a
+  chat send interrupted that way stays queued in the outbox.
+- Return: `ramflux_v2_client_resume` reopens files and reconnects without the account code; the
+  fan-out reopens its subscription and invalidates every observer once, so each screen re-reads what
+  changed meanwhile. The session snapshot, the navigation path, the open chat and its composer draft
+  stay as they were; the composition flushes queued sends again with their operation ids.
+- Relaunch (the process was killed): the SDK reopens every account that was not explicitly locked
+  through its device-bound key while the client opens (`account.list` reports it `restore_pending`
+  until then; activation waits for that, at most ten seconds). The code is asked only where the SDK
+  requires it: first set-up, restore, after an explicit lock or sign-out, and when changing the code.
+- App lock seam: `AppShellViewModel` consults `AppLockGate` on return; the default `AppLockOff`
+  never requires anything. The optional lock (arm with a timeout, lock now, presence or code unlock)
+  plugs in there once its SDK part lands.
+
+No recovery words, keys, message bodies or operation payloads are logged or exported by the shell.
 
 ## Feature modules
 

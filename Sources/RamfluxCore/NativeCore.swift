@@ -208,10 +208,31 @@ public final class NativeCore: CoreTransport {
         }
         guard code == 0, handle != 0 else { throw CoreFailure(code: code == 0 ? 16 : code, effect: .none) }
     }
-    public func resume() throws { try start() }
+    /// Reopens files and reconnects a suspended client without asking for the account code
+    /// (`ramflux_v2_client_resume`). A client that was never opened starts instead.
+    public func resume() throws {
+        guard let handle = try lifecycleHandle() else { try start(); return }
+        let code = ramflux_v2_client_resume(handle)
+        state.withLock { $0.lifecycleBusy = false }
+        guard code == 0 else { throw CoreFailure(code: code, effect: .none) }
+    }
+    /// Stops networking, flushes databases and closes file descriptors while the unlocked accounts stay
+    /// in memory (`ramflux_v2_client_suspend`). Pending operations complete as suspended (30).
     public func suspend() throws -> JSONValue {
-        try close()
+        guard let handle = try lifecycleHandle() else { return .object(["data_root_lock_released": .bool(true)]) }
+        let code = ramflux_v2_client_suspend(handle)
+        state.withLock { $0.lifecycleBusy = false; if code == 0 { $0.streamOpened = false } }
+        guard code == 0 else { throw CoreFailure(code: code, effect: .unknown) }
         return .object(["data_root_lock_released": .bool(true)])
+    }
+    /// The open handle, marked busy for one suspend or resume; nil when no client is open.
+    private func lifecycleHandle() throws -> UInt64? {
+        try state.withLock { state in
+            guard !state.closing, !state.opening, !state.lifecycleBusy else { throw BridgeError.lockStillHeld }
+            guard state.handle != 0 else { return nil }
+            state.lifecycleBusy = true
+            return state.handle
+        }
     }
     public func close() throws {
         let handle = try state.withLock { state in
