@@ -316,16 +316,7 @@ final class RealRunFlowTests: RealRunTestCase {
             // Hand the phone's own contact card to alice, so her record of the phone names its home node
             // (a principal lookup alone left her with "no home node is pinned for this contact").
             var notes: [String] = []
-            try openMore()
-            try tap(element("more-contacts"), "Contacts in More")
-            try tap(element("contacts-my-card"), "My contact card")
-            let cardText = try require(element("contacts-my-card-text"), "contact card text", timeout: 30)
-            snap("07-my-card")
-            let shownCard = cardText.label + " " + (cardText.value as? String ?? "")
-            guard let range = shownCard.range(of: "ramflux-card:v3:[A-Za-z0-9_=.-]+", options: .regularExpression) else {
-                throw FlowStop.fail("My contact card shows no card text: \(visibleFailure())")
-            }
-            let added = control.rf("alice", ["contact", "add", "--card", String(shownCard[range])])
+            let added = control.rf("alice", ["contact", "add", "--card", try phoneCard(snapshot: "07-my-card")])
             notes.append(added.exit == 0 ? "alice added the phone's contact card" : "alice: rf contact add --card exit \(added.exit): \(added.stderr.suffix(200))")
             try ensureReady()
             notes.append(try addPeerCard(config.alice))
@@ -585,6 +576,20 @@ final class RealRunFlowTests: RealRunTestCase {
         }
     }
 
+    /// The phone's own contact card text, read from Contacts, My contact card.
+    private func phoneCard(snapshot name: String) throws -> String {
+        try openMore()
+        try tap(element("more-contacts"), "Contacts in More")
+        try tap(element("contacts-my-card"), "My contact card")
+        let cardText = try require(element("contacts-my-card-text"), "contact card text", timeout: 30)
+        snap(name)
+        let shownCard = cardText.label + " " + (cardText.value as? String ?? "")
+        guard let range = shownCard.range(of: "ramflux-card:v3:[A-Za-z0-9_=.-]+", options: .regularExpression) else {
+            throw FlowStop.fail("My contact card shows no card text: \(visibleFailure())")
+        }
+        return String(shownCard[range])
+    }
+
     // MARK: Flow 5c: a group invitation from someone who was never a contact, accepted on the phone
 
     func test05c_groupInvitationAccepted() {
@@ -595,7 +600,12 @@ final class RealRunFlowTests: RealRunTestCase {
             var notes: [String] = []
             // A group from an accepted contact joins at once (implicit consent); from anyone else it waits as an
             // invitation. The core drops an invitation from a contact that was removed, so the inviter is carol,
-            // who the phone never added and who never added the phone.
+            // who the phone never added or accepted. A peer can only add a member it knows, so the step is one way:
+            // carol takes the phone's contact card first; the phone never takes carol's.
+            let carded = control.rf("carol", ["contact", "add", "--card", try phoneCard(snapshot: "05c-my-card")])
+            guard carded.exit == 0 else { throw FlowStop.blocked("carol: rf contact add --card failed (exit \(carded.exit)): \(carded.stderr.suffix(300))") }
+            notes.append("carol took the phone's contact card (the phone has not accepted carol)")
+            try ensureReady()
             let name = "rr-invite-" + token()
             let group = UUID().uuidString.lowercased()
             let created = control.rf("carol", ["group", "create", "--group", group, "--creator", carol.principal, "--member", phone], timeout: 120)
