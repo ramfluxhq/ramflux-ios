@@ -287,12 +287,18 @@ public struct NativeChatRepository: ChatRepository {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }
         let operation = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
         do {
-            if active, !isGroup { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .string(conversation)])) }
+            if active, !isGroup { try await focus(account: account, conversation: .string(conversation)) }
             let send: JSONValue = .object(["conversationId": .string(conversation), "operationId": .string(Data(operation.utf8).base64EncodedString()), "content": .object(["typing": .object(["active": .bool(active)])])])
             _ = try await gateway.call(.messageSubmit, account: account, body: .object(["requestId": .string(operation), "accountId": .string(account), "send": send]), operationID: operation)
-            if !active, !isGroup { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .null])) }
+            if !active, !isGroup { try await focus(account: account, conversation: .null) }
             return .success(())
         } catch { return .failure(AppFailure.map(error)) }
+    }
+    /// `message.focus`, which the core refuses for a group with the typed reason `unsupported_for_group`. That refusal
+    /// only means the conversation has no typing focus, so it is dropped silently; any other failure is thrown.
+    private func focus(account: String, conversation: JSONValue) async throws {
+        do { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": conversation])) }
+        catch let failure as CoreFailure where failure.reason == "unsupported_for_group" || failure.reasonCode == "unsupported_for_group" { return }
     }
     public func details(account: String, conversation: String, peerAnchor: String?) async -> RepositoryResult<ChatDetails> {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }

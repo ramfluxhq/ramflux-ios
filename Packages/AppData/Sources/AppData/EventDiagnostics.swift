@@ -18,7 +18,7 @@ public enum EventDiagnostics {
     }
     public static func describe(_ error: any Error) -> String {
         guard let failure = error as? CoreFailure else { return String(describing: error).prefix(120).description }
-        return "code=\(failure.rawCode) name=\(failure.typedName ?? "-") reason=\(failure.reasonCode ?? "-") effect=\(failure.effect.rawValue) operation=\(failure.operationID == nil ? "none" : "set")"
+        return "code=\(failure.rawCode) name=\(failure.typedName ?? failure.statusName ?? "-") reason=\(failure.reasonCode ?? failure.reason ?? "-") effect=\(failure.effect.rawValue) operation=\(failure.operationID == nil ? "none" : "set")"
     }
     public static func note(_ message: @autoclosure () -> String) {
         #if DEBUG

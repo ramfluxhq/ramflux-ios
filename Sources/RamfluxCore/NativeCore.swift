@@ -14,7 +14,8 @@ public final class NativeCore: CoreTransport {
     private let custody: HostCustodyProvider?
     public let methods: Set<String>
     public let descriptorFingerprint: String
-    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil, custody: HostCustodyProvider? = nil) throws {
+    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil, custody: HostCustodyProvider? = nil,
+                usernameDirectory: UsernameDirectoryPin? = nil, diagnostics: DiagnosticSettings? = nil) throws {
         guard dataRoot.isFileURL, builtinNodes.count <= 64 else { throw BridgeError.invalidInput }
         #if os(iOS)
         guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
@@ -25,11 +26,16 @@ public final class NativeCore: CoreTransport {
         self.dataRoot = dataRoot; self.custody = custody
         // Show-once is a key-export method. The C ABI admits it only when the host opts in.
         // Raw message submit stays disabled.
-        configuration = try JSONValue.object([
+        var open: [String: JSONValue] = [
             "data_root": .string(dataRoot.path),
             "builtin_nodes": .array(builtinNodes),
             "allow_secret_exports": .bool(true),
-        ]).encoded()
+        ]
+        // Both are optional open-config fields: an omitted directory pin makes username calls refuse with a typed
+        // `directory_unavailable`, and an omitted `diag` object keeps the SDK's defaults.
+        if let usernameDirectory { open["username_directory"] = usernameDirectory.json }
+        if let diagnostics { open["diag"] = diagnostics.json }
+        configuration = try JSONValue.object(open).encoded()
         var pointer: UnsafeMutablePointer<RamfluxBuffer>?
         let code = ramflux_v2_negotiate(2, 0, &pointer)
         guard code == 0 else { if let pointer { rf_buffer_wipe_free(pointer) }; throw CoreFailure(code: code, effect: .none) }
@@ -131,7 +137,8 @@ public final class NativeCore: CoreTransport {
         if status != 0 {
             let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
             throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
-                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer), response: terminal["response"])
+                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer),
+                statusName: CoreFailure.token(terminal["name"]), reason: CoreFailure.token(terminal["reason"]), response: terminal["response"])
         }
         guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }
         return frame

@@ -7,6 +7,8 @@ public enum AppFailure: Error, Sendable, Equatable {
     case sdkRefusal(Int32), onboardingProtocol, localStorage, localFailure
     case sdkUnavailable, unsupported, offline, locked, busy, upgradeRequired, invalidData, invalidInput, resyncRequired
     case unavailableResource(String), notAvailable(String), outcomeUnknown, failed, typedRefusal(String)
+    /// A refusal the SDK named with a typed reason that has no screen of its own (a token of letters, digits and underscores).
+    case sdkReason(String)
     case accountCode(AccountCodeIssue)
     /// Too many wrong account codes; the SDK names the wait (`retry_after_ms`), in whole seconds here.
     case accountCodeWait(seconds: Int)
@@ -28,7 +30,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .invalidData: AppDataStrings.text("failure.invalidData.title", locale: locale)
         case .invalidInput: AppDataStrings.text("failure.invalidInput.title", locale: locale)
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.title", locale: locale)
-        case .failed: AppDataStrings.text("request.refusal.title", locale: locale)
+        case .failed, .sdkReason: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
         case .accountCode, .accountCodeWait: AppDataStrings.text("accountCode.failure.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
@@ -63,6 +65,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .notAvailable(let message): message
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.message", locale: locale)
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
+        case .sdkReason(let reason): AppDataStrings.format("refusal.sdkReason", reason.replacingOccurrences(of: "_", with: " "), locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
         case .accountCodeWait(let seconds):
@@ -79,6 +82,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     }
     public var canRetry: Bool {
         if case .typedRefusal = self { return false }
+        if case .sdkReason = self { return false }
         if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }
         return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
     }
@@ -86,12 +90,11 @@ public enum AppFailure: Error, Sendable, Equatable {
     /// honest unavailable state; anything else maps as usual.
     public static func mapUsername(_ error: any Error) -> Self {
         guard let failure = error as? CoreFailure else { return map(error) }
-        switch failure.reasonCode ?? failure.response?["error"]?["code"]?.string {
+        switch failure.reasonCode ?? failure.reason ?? failure.response?["error"]?["code"]?.string {
         case "directory_unavailable": return .unavailableResource("username.unavailable.directory")
         case "name_not_found", "not_found": return .unavailableResource("username.unavailable.notFound")
-        // A directory refusal without a typed reason (the pinned SDK answers internal, code 16) is still a
-        // refusal of the directory, not an unknown outcome: nothing was claimed or added.
-        default: return failure.code == .internalFailure ? .unavailableResource("username.unavailable.refused") : map(error)
+        // Any other typed reason is shown as the SDK named it (`map` does that for codes 1, 16 and 25).
+        default: return map(error)
         }
     }
     public static func map(_ error: any Error) -> Self {
@@ -104,6 +107,9 @@ public enum AppFailure: Error, Sendable, Equatable {
             }
             // A definite refusal named by its reason, whatever effect the bridge reports.
             if let reason = failure.reasonCode, reason == "already_contact" { return .typedRefusal(reason) }
+            // Codes 1, 16 and 25 now carry the SDK's typed reason. A named reason is a definite refusal, whatever
+            // effect the bridge reports; without one the code keeps its usual mapping below.
+            if let reason = failure.specificReason, !reason.hasPrefix("vault_"), [.invalidArgument, .internalFailure, .cancelled].contains(failure.code) { return .sdkReason(reason) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission

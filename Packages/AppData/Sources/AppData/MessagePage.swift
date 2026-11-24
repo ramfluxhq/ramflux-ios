@@ -76,12 +76,26 @@ enum MessagePage {
             if !seen.insert(normalizeIdentifier(id)).inserted { changes.removeAll { change in
                 switch change { case .row(let record): normalizeIdentifier(record.id) == normalizeIdentifier(id); case .hidden(let hidden): normalizeIdentifier(hidden) == normalizeIdentifier(id) }
             } }
+            traceChange(row, id: id)
             if let record = try record(row, conversation, overlays: [:]) { changes.append(.row(record)) } else { changes.append(.hidden(id)) }
         }
         return MessageChangeBatch(changes: changes, nextAfter: next, more: more)
     }
 
     static func normalizeIdentifier(_ value: String) -> String { MessageIdentifier.normalized(value) }
+
+    /// Debug builds only: the shape of one change row as the SDK delivered it, so a read receipt that is not
+    /// applied can be told apart from one that is applied but not shown. Ids, kinds, states and the receipt
+    /// states only; never content, names or device ids.
+    private static func traceChange(_ row: JSONValue, id: String) {
+        EventDiagnostics.note({
+            let receipts: String
+            if case .array(let entries)? = row["receipts"] { receipts = entries.map { $0["state"]?.string ?? "?" }.joined(separator: ",") } else { receipts = "-" }
+            let keys: String
+            if case .object(let fields) = row { keys = fields.keys.sorted().joined(separator: ",") } else { keys = "-" }
+            return "change row id=\(id) kind=\(row["kind"]?.string ?? "-") state=\(row["state"]?.string ?? "-") own=\(row["is_own"]?.bool.map { "\($0)" } ?? "-") journal=\(unsigned(row["journal_sequence"]).map { "\($0)" } ?? "-") revision=\(ProxyGateway.integer(row["revision"]).map { "\($0)" } ?? "-") receipts=[\(receipts)] keys=[\(keys)]"
+        }())
+    }
 
     private static func fold(_ rows: [JSONValue], _ conversation: String) throws -> [MessageRecord] {
         // The unified read model folds edits into their target; legacy edit rows are still

@@ -286,6 +286,8 @@
 	<string>This conversation needs a reset before it can continue.</string>
 	<key>refusal.schema_reset_required.title</key>
 	<string>Reset required</string>
+	<key>refusal.sdkReason</key>
+	<string>The request was refused: %@. Nothing was changed; review the screen before retrying.</string>
 	<key>refusal.storage_capacity</key>
 	<string>There is not enough room to save this.</string>
 	<key>refusal.storage_capacity.title</key>
@@ -374,7 +376,5 @@
 	<string>Usernames are not available on this phone yet: the app has no username directory to ask. Share your contact card instead.</string>
 	<key>username.unavailable.notFound</key>
 	<string>No one has this username.</string>
-	<key>username.unavailable.refused</key>
-	<string>Usernames are not available right now: the username directory refused the request. Nothing was claimed or added.</string>
 </dict>
 </plist>
