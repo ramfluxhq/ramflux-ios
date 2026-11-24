@@ -14,7 +14,8 @@ public struct SettingsSnapshot: Equatable, Sendable {
     }
 }
 public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport
-    /// @username lookup and conversations with non-contacts (boards MOB-G27–G30): no SDK methods at the pin.
+    /// Claiming a username needs the recovery-phrase ceremony (`ramflux_v2_username_authorize`), which this
+    /// build does not offer yet; the screen shows the directory's own status or refusal.
     case username
 }
 public protocol SettingsRepository: Sendable {
@@ -30,6 +31,11 @@ public protocol SettingsRepository: Sendable {
     func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) async -> RepositoryResult<Void>
     func observe(account: String) async -> RepositoryObservation
     func unavailable(_ capability: SettingsUnavailable) -> AppFailure
+    /// This account's username from the username directory (`username.status`); nil when none is claimed.
+    func username(account: String) async -> RepositoryResult<String?>
+}
+public extension SettingsRepository {
+    func username(account: String) async -> RepositoryResult<String?> { .failure(unavailable(.username)) }
 }
 public struct NativeSettingsRepository: SettingsRepository {
     private let gateway: ProxyGateway
@@ -102,6 +108,13 @@ public struct NativeSettingsRepository: SettingsRepository {
         do { _ = try await gateway.call(.accountPassphraseRotate, account: account, operationID: operationID, secrets: ["old_passphrase": current, "new_passphrase": next]); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
     }
+    public func username(account: String) async -> RepositoryResult<String?> {
+        do {
+            let body = try await gateway.call(.usernameStatus, account: account, body: .object([:]))
+            let name = (body["username"] ?? body["name"])?.string.flatMap { $0.isEmpty || $0.utf8.count > 256 ? nil : $0 }
+            return .success(name)
+        } catch { EventDiagnostics.failed("username.status", error); return .failure(AppFailure.mapUsername(error)) }
+    }
     public func lock(account: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .lock, operationID: await pending(account: account)?.operationID ?? UUID().uuidString) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func unavailable(_ capability: SettingsUnavailable) -> AppFailure { Self.refusal(capability) }
@@ -111,7 +124,7 @@ public struct NativeSettingsRepository: SettingsRepository {
         case .pairing: .unavailableResource("settings.unavailable.pairing")
         case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")
         case .diagnosticExport: .unavailableResource("settings.unavailable.diagnosticExport")
-        case .username: .unavailableResource("settings.unavailable.username")
+        case .username: .unavailableResource("username.unavailable.claim")
         }
     }
 }

@@ -49,21 +49,6 @@ private actor SessionFake: SessionRepository {
         #expect(!model.state.privacyShield)
         model.send(.disappeared); await model.settle()
     }
-    @Test func inactiveImmediatelyConcealsRecordsAndFencesLateCompletion() async {
-        let repository = SessionFake(delay: true)
-        var events: [AppShellEvent] = []
-        let model = AppShellViewModel(repository: repository, emit: { events.append($0) })
-        model.send(.appeared)
-        await repository.waitForActivation()
-        model.send(.sceneInactive)
-        await repository.releaseActivation(); await model.settle()
-        #expect(model.state.privacyShield)
-        #expect(model.state.session.accounts.isEmpty)
-        #expect(events == [.dismissPrivateNavigation])
-        model.send(.sceneBackground); await model.settle()
-        #expect(await repository.suspensions == 1)
-        model.send(.disappeared); await model.settle()
-    }
     @Test func navigationEventsAreOneShotAndLinksCannotApprove() async throws {
         var events: [AppShellEvent] = []
         let model = AppShellViewModel(repository: SessionFake(), emit: { events.append($0) })
@@ -72,9 +57,6 @@ private actor SessionFake: SessionRepository {
         model.send(.deepLink(try #require(URL(string: "ramflux://settings?approve=true"))))
         #expect(events == [.navigate(.conversation("thread"))])
         #expect(model.state.session.activeAccountID == "a")
-        model.send(.sceneInactive)
-        model.send(.deepLink(try #require(URL(string: "ramflux://conversation/other"))))
-        #expect(events.last == .dismissPrivateNavigation)
         model.send(.disappeared); await model.settle()
     }
     @Test func notificationRouteWaitsForTheUnlockedAccountAndIsOneShot() async {
@@ -109,51 +91,6 @@ private actor SessionFake: SessionRepository {
         #expect(events.isEmpty)
         model.send(.unlockAccount("b"))
         #expect(events == [.navigate(.unlockAccount("b"))])
-    }
-    @Test func screensOpenWhenTheShieldWentUpReopenForTheSameAccount() async {
-        let coordinator = AppShellCoordinator(repository: SessionFake())
-        coordinator.send(.appeared); await coordinator.viewModel.settle()
-        coordinator.send(.open(.contacts)); coordinator.send(.open(.conversation("c1")))
-        coordinator.send(.sceneInactive)
-        #expect(coordinator.path.isEmpty)
-        coordinator.send(.sceneActive); await coordinator.viewModel.settle()
-        #expect(coordinator.path == [.contacts, .conversation("c1")])
-        // Only once: a later return does not push them again.
-        coordinator.path = []
-        coordinator.send(.sceneInactive); coordinator.send(.sceneActive); await coordinator.viewModel.settle()
-        #expect(coordinator.path.isEmpty)
-        coordinator.send(.disappeared); await coordinator.viewModel.settle()
-    }
-    @Test func screensOpenWhenTheAccountWasLockedInTheBackgroundReopenAfterUnlock() async {
-        let fake = SessionFake()
-        let coordinator = AppShellCoordinator(repository: fake)
-        coordinator.send(.appeared); await coordinator.viewModel.settle()
-        coordinator.send(.open(.conversation("c1")))
-        coordinator.send(.sceneInactive); coordinator.send(.sceneBackground); await coordinator.viewModel.settle()
-        await fake.lockOnNextActivation()
-        coordinator.send(.sceneInactive); coordinator.send(.sceneActive); await coordinator.viewModel.settle()
-        // Locked: nothing of the conversation is open before the unlock.
-        #expect(coordinator.path.isEmpty)
-        coordinator.send(.unlockAccount("a")); #expect(coordinator.path == [.unlockAccount("a")])
-        // The unlock step closes: the conversation replaces it in one path change.
-        await fake.unlockFromElsewhere()
-        coordinator.closeUnlock(reopening: "a")
-        #expect(coordinator.path == [.conversation("c1")])
-        // The retry after the unlock does not open it a second time.
-        coordinator.send(.retry); await coordinator.viewModel.settle()
-        #expect(coordinator.path == [.conversation("c1")])
-        // Another account's unlock reopens nothing.
-        coordinator.closeUnlock(reopening: "b"); #expect(coordinator.path.isEmpty)
-        coordinator.send(.disappeared); await coordinator.viewModel.settle()
-    }
-    @Test func coordinatorOwnsNavigationAndClearsItOnBackground() async {
-        let coordinator = AppShellCoordinator(repository: SessionFake())
-        coordinator.send(.appeared); await coordinator.viewModel.settle()
-        coordinator.send(.open(.settings)); coordinator.send(.openAccounts)
-        #expect(coordinator.path == [.settings]); #expect(coordinator.sheet == .accounts)
-        coordinator.send(.sceneInactive)
-        #expect(coordinator.path.isEmpty); #expect(coordinator.sheet == nil)
-        coordinator.send(.disappeared); await coordinator.viewModel.settle()
     }
     @Test func addAccountDismissesPickerBeforeOpeningOnboarding() async {
         let coordinator = AppShellCoordinator(repository: SessionFake())

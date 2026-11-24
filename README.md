@@ -111,12 +111,14 @@ archive passphrase and public ids are kept in the control server's memory only.
 Typed text is redacted from the saved test log and the result bundle is
 deleted.
 
-The flows cover onboarding with lock, cold start and the known-account unlock;
+The flows cover onboarding with lock and the known-account unlock;
 contacts with alice and bob; the direct chat (send, live receive, reply, edit,
-erase for everyone, select text, receipts as alice sees them); media with the
+erase for everyone, select text); read receipts both ways; media with the
 phone's contact card handed to alice; groups with alice and bob and a group
-image; background and return (the open chat and its draft come back after the
-unlock); the account-code change; backup and, last, restore of that backup on a
+image; a group invitation from a non-contact, accepted, and leaving that group;
+background and return and terminate and relaunch, both without any prompt (the
+open chat and its draft stay); usernames (status and add by @name, or their
+honest unavailable state); the account-code change; backup and, last, restore of that backup on a
 fresh install (the peer-control server moves the encrypted archive to the
 simulator's "On My iPhone" storage and reinstalls the app; the archive
 passphrase stays in the test process and the control server's memory). `--only` takes a test of

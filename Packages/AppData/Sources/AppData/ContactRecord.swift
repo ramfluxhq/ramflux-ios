@@ -9,7 +9,10 @@ public struct ContactRecord: Identifiable, Sendable, Equatable {
     /// Friend link id; `contact.remove`, `contact.block` and `contact.unblock` select the contact by it.
     public let linkID: String?
     public let blocked: Bool
-    public init(id: String, displayName: String, subtitle: String, verified: Bool? = nil, rootCommitment: String? = nil, linkID: String? = nil, blocked: Bool = false) {
+    /// SDK-verified kind; `.aiAgent` shows the AI marker.
+    public let classification: PrincipalClassification
+    public init(id: String, displayName: String, subtitle: String, verified: Bool? = nil, rootCommitment: String? = nil, linkID: String? = nil, blocked: Bool = false, classification: PrincipalClassification = .unknown) {
+        self.classification = classification
         self.id = id; self.displayName = displayName; self.subtitle = subtitle; self.verified = verified; self.rootCommitment = rootCommitment
         self.linkID = linkID; self.blocked = blocked
     }

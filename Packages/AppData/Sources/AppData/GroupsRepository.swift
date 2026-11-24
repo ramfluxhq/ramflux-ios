@@ -22,7 +22,10 @@ public struct NativeGroupsRepository: GroupsRepository {
     private let mutations = RetainedMutation<GroupMutation, GroupMutationOutcome>()
     /// `group.list` is unpaged in the SDK; this pages its snapshot.
     private let pager = SnapshotPager<GroupRecord>()
-    public init(client: RamfluxClient, updates: NativeUpdateSource) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates }
+    private let peers: PeerClassifications?
+    public init(client: RamfluxClient, updates: NativeUpdateSource, contacts: (any ContactsRepository)? = nil) {
+        gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates; peers = contacts.map(PeerClassifications.init)
+    }
     public func page(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<GroupRecord>> {
         let query = String(query.prefix(256))
         return await pager.page(cursor: cursor, limit: limit, read: { await self.list(account: account) }, include: { GroupRecord.matches($0, query) })
@@ -57,7 +60,7 @@ public struct NativeGroupsRepository: GroupsRepository {
             let status = try await gateway.call(.accountStatus, account: account)
             let value = try await gateway.call(.groupMembers, account: account, body: .object(["group_id": .string(group)]))
             let record = try Self.record(value); guard record.id == group else { throw AppFailure.invalidData }
-            let roster: [GroupMemberRecord]
+            var roster: [GroupMemberRecord]
             if value["member_roster"] != nil {
                 let exclusions = try ProxyGateway.rows(value, "excluded_devices")
                 roster = try ProxyGateway.rows(value, "member_roster").map { row in
@@ -72,6 +75,13 @@ public struct NativeGroupsRepository: GroupsRepository {
                 roster = record.members.map { GroupMemberRecord(principal: "", root: nil, device: $0, role: value["roles"]?[$0]?.string ?? "") }
             }
             guard Set(roster.map(\.id)).count == roster.count else { throw AppFailure.invalidData }
+            // Members that are contacts carry their name and SDK-verified kind (the AI marker).
+            let wanted = Set(roster.flatMap { [$0.principal] + ($0.root.map { [$0] } ?? []) }.filter { !$0.isEmpty })
+            let known = wanted.isEmpty ? [:] : await peers?.entries(account: account, wanted: wanted) ?? [:]
+            roster = roster.map { member in
+                guard let entry = known[member.principal] ?? member.root.flatMap({ known[$0] }) else { return member }
+                return GroupMemberRecord(principal: member.principal, root: member.root, device: member.device, role: member.role, isActive: member.isActive, displayName: entry.name, classification: entry.classification)
+            }
             return .success(GroupDetail(group: record, roster: roster, ownRoot: try ProxyGateway.text(status, "principal_commitment"), ownDevice: try ProxyGateway.text(status, "device_id"), authorized: status["local_device_authorized"] == .bool(true) && status["authority_blocked"] != .bool(true)))
         } catch { EventDiagnostics.failed("group.members", error); return .failure(AppFailure.map(error)) }
     }
@@ -113,6 +123,11 @@ public struct NativeGroupsRepository: GroupsRepository {
                 case .invitation(let invitation, let accept):
                     guard case .success(let current) = await invitations(account: account), current.contains(invitation), invitation.expiresAt > Int64(Date().timeIntervalSince1970) else { return .failure(.invalidData) }
                     operation = accept ? .groupInvitationAccept : .groupInvitationDecline
+                case .leave(_, let epoch):
+                    let detail: GroupDetail
+                    switch await self.detail(account: account, group: mutation.groupID) { case .success(let value): detail = value; case .failure(let failure): return .failure(failure) }
+                    guard epoch == detail.group.epoch, detail.ownRole != "owner" else { return .failure(.invalidInput) }
+                    operation = .groupLeave
                 default:
                     let detail: GroupDetail
                     switch await self.detail(account: account, group: mutation.groupID) { case .success(let value): detail = value; case .failure(let failure): return .failure(failure) }
@@ -160,7 +175,7 @@ public struct NativeGroupsRepository: GroupsRepository {
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func unavailable(_ capability: GroupUnavailable) -> AppFailure { Self.refusal(capability) }
     static func refusal(_ capability: GroupUnavailable) -> AppFailure {
-        let key: String = switch capability { case .managementPermission: "groups.unavailable.permission"; case .threads: "groups.unavailable.threads"; case .ownershipTransfer: "groups.unavailable.transfer"; case .leave: "groups.unavailable.leave"; case .historyPolicy: "groups.unavailable.history"; case .archive: "groups.unavailable.archive" }
+        let key: String = switch capability { case .managementPermission: "groups.unavailable.permission"; case .threads: "groups.unavailable.threads"; case .ownershipTransfer: "groups.unavailable.transfer"; case .historyPolicy: "groups.unavailable.history"; case .archive: "groups.unavailable.archive" }
         return .unavailableResource(key)
     }
     private static func record(_ row: JSONValue) throws -> GroupRecord {

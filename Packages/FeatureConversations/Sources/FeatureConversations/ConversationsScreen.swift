@@ -93,6 +93,7 @@ public struct ConversationsScreen: View {
                     pinned: row.pinned,
                     read: row.readReceipt,
                     badge: badge(row.unreadCount),
+                    aiMarker: row.classification.isAIAgent,
                     tag: row.id,
                     action: { onAction(.open(row.id)) }
                 ) {

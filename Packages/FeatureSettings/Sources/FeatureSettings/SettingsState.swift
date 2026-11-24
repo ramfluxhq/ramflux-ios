@@ -19,5 +19,7 @@ public struct SettingsState: Equatable, Sendable {
     /// The change-code sheet is open; `codeChanged` confirms a finished change.
     public var changingCode = false
     public var codeChanged = false
+    /// This account's username as the username directory reports it.
+    public var username: String?
     public init(route: AppRoute = .settings) { self.route = route }
 }

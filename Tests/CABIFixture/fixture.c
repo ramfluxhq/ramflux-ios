@@ -110,6 +110,12 @@ int32_t ramflux_v2_client_close(uint64_t h) {
     if(!code && live_client==h) { live_client=0;subscription=0; }
     pthread_mutex_unlock(&lock);return code;
 }
+int32_t ramflux_v2_client_suspend(uint64_t h) {
+    pthread_mutex_lock(&lock);int code=(h==live_client && h)?0:26;if(!code)subscription=0;pthread_mutex_unlock(&lock);return code;
+}
+int32_t ramflux_v2_client_resume(uint64_t h) {
+    pthread_mutex_lock(&lock);int code=(h==live_client && h)?0:26;pthread_mutex_unlock(&lock);return code;
+}
 int32_t ramflux_v2_client_release(uint64_t h) {
     pthread_mutex_lock(&lock);
     client_releases++;

@@ -82,7 +82,7 @@ public struct NativeContactsRepository: ContactsRepository {
             let records = try await ProxyGateway.mapRows(body, "contacts") { row in
                 let id = try ProxyGateway.text(row, "principal_id")
                 return ContactRecord(id: id, displayName: row["display_name"]?.string ?? id, subtitle: id, verified: row["verified"]?.bool, rootCommitment: row["root_commitment"]?.string,
-                                     linkID: row["link_id"]?.string, blocked: row["blocked"]?.bool ?? false)
+                                     linkID: row["link_id"]?.string, blocked: row["blocked"]?.bool ?? false, classification: PrincipalClassification(sdk: row["verified_classification"]))
             }
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
         } catch { return .failure(AppFailure.map(error)) }
@@ -93,7 +93,7 @@ public struct NativeContactsRepository: ContactsRepository {
             let records = try await ProxyGateway.mapRows(body, "requests") { row in
                 let principal = try ProxyGateway.text(row, "principal_id")
                 return ContactRequestRecord(id: try ProxyGateway.text(row, "request_id"), principal: principal, name: row["display_name"]?.string ?? principal,
-                    direction: try ProxyGateway.text(row, "direction"), state: try ProxyGateway.text(row, "state"), preview: row["preview"]?.string, safetyNumber: Self.number(row["safety_number"]))
+                    direction: try ProxyGateway.text(row, "direction"), state: try ProxyGateway.text(row, "state"), preview: row["preview"]?.string, safetyNumber: Self.number(row["safety_number"]), classification: PrincipalClassification(sdk: row["verified_classification"]))
             }
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
         } catch { return .failure(AppFailure.map(error)) }
@@ -104,6 +104,15 @@ public struct NativeContactsRepository: ContactsRepository {
         // leaves the contact without a pinned home node, so attachments to it fail with authority_unavailable.
         let card = Self.isCard(value)
         guard !value.isEmpty, value.utf8.count <= (card ? 64 * 1024 : 2048) else { return .failure(.invalidInput) }
+        // "@name" adds by username through the username directory (`username.contact.add`).
+        if !card, value.hasPrefix("@") {
+            let name = String(value.dropFirst())
+            guard !name.isEmpty, name.utf8.count <= 256 else { return .failure(.invalidInput) }
+            return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
+                do { _ = try await gateway.call(.usernameContactAdd, account: account, body: .object(["name": .string(name)]), operationID: operationID); return .success(()) }
+                catch { EventDiagnostics.failed("username.contact.add", error); return .failure(AppFailure.mapUsername(error)) }
+            }
+        }
         let body: JSONValue = .object(card ? ["card": .string(value)] : ["principal_id": .string(value)])
         return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
         do { _ = try await gateway.call(.contactAdd, account: account, body: body, operationID: operationID); return .success(()) }

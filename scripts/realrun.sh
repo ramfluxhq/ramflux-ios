@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (c) 2026 Span Brain
 #
-# Opt-in real run of the beta flows: the native app with the real SDK against a test node, with two
-# peer accounts (alice and bob) driven through the rf CLI.
+# Opt-in real run of the beta flows: the native app with the real SDK against a test node, with peer
+# accounts (alice and bob, and carol for the invitation flows) driven through the rf CLI.
 #
 #   scripts/realrun.sh [--out DIR] [--simulator NAME] [--only TEST[,TEST...]] [--keep-app] [--no-clock-sync]
 #   scripts/realrun.sh prepare [--out DIR] [--simulator NAME] [--keep-app]
@@ -15,7 +15,9 @@
 #   RAMFLUX_REALRUN_NODE_FACTS   required: node facts JSON (discovery_origin, node_id, node_public_key,
 #                                node_key_fingerprint)
 #   RAMFLUX_REALRUN_PEERS        required: peers JSON ("peers": name, account_id, display_name, principal_id,
-#                                principal_commitment, device_id, daemon_socket for alice and bob)
+#                                principal_commitment, device_id, daemon_socket for alice and bob; carol is a
+#                                third account that is never a contact of the phone, needed by flows 5c and 5d,
+#                                which report BLOCKED without her)
 #   RAMFLUX_REALRUN_RF           required: the rf CLI that talks to the peer daemons
 #   RAMFLUX_REALRUN_DM_HELPER    required: command printing a direct conversation id for
 #                                `COMMAND dm-conversation ROOT_A ROOT_B`
@@ -25,10 +27,14 @@
 #   RAMFLUX_REALRUN_CLOCK_CONTAINER optional: a node container whose clock is compared with this machine's
 #   RAMFLUX_MOBILE_ENV           optional: a shell file sourced before building (toolchain paths)
 #   RAMFLUX_CORE_XCFRAMEWORK     optional: the native SDK artifact (default build/RamfluxSDKBinary.xcframework)
+#   RAMFLUX_USERNAME_DIRECTORY_URL, _ID, _PUBLIC_KEY, _GENERATION  optional: the independently provisioned username
+#                                directory pin the app is built with (all four, or none: usernames then refuse with
+#                                `directory_unavailable`)
 #
 # Steps: check the node and peers, build the native app and the RamfluxRealRun UI tests, reset the
 # app's data and Keychain on the simulator, start the loopback peer-control server, run the suite,
-# and write DIR/flow-table.md (PASS / FAIL / BLOCKED / NOT RUN per flow) with screenshots.
+# and write DIR/flow-table.md (PASS / FAIL / BLOCKED / NOT RUN per flow) with screenshots. At the end of every
+# run the SDK's diagnostic log files are copied from the app's data container to DIR/sdk-diag/.
 # Without a phase everything runs in one command. With phases the run is split into commands that each
 # stay short: `prepare` does the steps up to the control server and leaves the server running,
 # `run` runs some flows on the prepared app (repeat it with further flows; tests are named as for
@@ -99,6 +105,7 @@ DERIVED=$ROOT/build/realrun-derived
 RESULT_BUNDLE=$DERIVED/realrun.xcresult
 facts() { "$PYTHON" -I -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$NODE_FACTS" "$1"; }
 peer() { "$PYTHON" -I -c 'import json,sys; print(next(p for p in json.load(open(sys.argv[1]))["peers"] if p["name"]==sys.argv[2])[sys.argv[3]])' "$PEERS" "$1" "$2"; }
+has_peer() { "$PYTHON" -I -c 'import json,sys; sys.exit(0 if any(p["name"]==sys.argv[2] for p in json.load(open(sys.argv[1]))["peers"]) else 1)' "$PEERS" "$1"; }
 
 # Branch proofs live at most 300 s, so a node whose clock drifts from this machine's fails every session
 # with "branch proof or challenge expired". With RAMFLUX_REALRUN_CLOCK_CONTAINER set, the skew to that
@@ -121,8 +128,14 @@ build_all() {
   say "building the native app and the real-run suite (log: $OUT/build.log)"
   export RAMFLUX_CORE_XCFRAMEWORK="$XCFRAMEWORK"
   xcodegen generate > "$OUT/build.log" 2>&1 || die "xcodegen failed (see $OUT/build.log)"
+  # The username directory pin is public build configuration; without it the build has none.
+  pin=""
+  if [ -n "${RAMFLUX_USERNAME_DIRECTORY_URL:-}" ]; then
+    pin="RAMFLUX_USERNAME_DIRECTORY_URL=$RAMFLUX_USERNAME_DIRECTORY_URL RAMFLUX_USERNAME_DIRECTORY_ID=${RAMFLUX_USERNAME_DIRECTORY_ID:-} RAMFLUX_USERNAME_DIRECTORY_PUBLIC_KEY=${RAMFLUX_USERNAME_DIRECTORY_PUBLIC_KEY:-} RAMFLUX_USERNAME_DIRECTORY_GENERATION=${RAMFLUX_USERNAME_DIRECTORY_GENERATION:-}"
+  fi
+  # shellcheck disable=SC2086
   xcodebuild -project Ramflux.xcodeproj -scheme RamfluxRealRun -destination "platform=iOS Simulator,id=$UDID" \
-    -derivedDataPath "$DERIVED" -jobs "${RAMFLUX_XCODEBUILD_JOBS:-6}" build-for-testing >> "$OUT/build.log" 2>&1 \
+    -derivedDataPath "$DERIVED" -jobs "${RAMFLUX_XCODEBUILD_JOBS:-6}" $pin build-for-testing >> "$OUT/build.log" 2>&1 \
     || { grep -E "error:|BUILD FAILED" "$OUT/build.log" | sort -u | head -20 >&2; die "build failed (see $OUT/build.log)"; }
 }
 
@@ -144,7 +157,7 @@ prepare() {
     grep -q 'alice: running' "$OUT/peers-status.log" && grep -q 'bob: running' "$OUT/peers-status.log" \
       || sh -c "$PEERS_CTL start" >> "$OUT/peers-status.log" 2>&1 || die "peer daemons are not running"
     # After a clock correction the peer daemons reconnect within seconds; give them a minute.
-    i=0; until [ "$(sh -c "$PEERS_CTL status" | grep -c 'networking=live')" = 2 ] || [ $i -ge 12 ]; do i=$((i + 1)); sleep 5; done
+    i=0; until [ "$(sh -c "$PEERS_CTL status" | grep -c 'networking=live')" -ge 2 ] || [ $i -ge 12 ]; do i=$((i + 1)); sleep 5; done
     for name in alice bob; do
       sh -c "$PEERS_CTL status" | grep -A1 "^$name:" | grep -q 'networking=live' \
         || say "warning: $name is not networking live now (flows that need $name report it; see $OUT/peers-status.log)"
@@ -220,6 +233,11 @@ run_suite() {
     eval "export TEST_RUNNER_RF_PEER_${key}_COMMITMENT=\"\$(peer $name principal_commitment)\""
     eval "export TEST_RUNNER_RF_PEER_${key}_NAME=\"\$(peer $name display_name)\""
   done
+  if has_peer carol; then
+    export TEST_RUNNER_RF_PEER_CAROL_PRINCIPAL="$(peer carol principal_id)"
+    export TEST_RUNNER_RF_PEER_CAROL_COMMITMENT="$(peer carol principal_commitment)"
+    export TEST_RUNNER_RF_PEER_CAROL_NAME="$(peer carol display_name)"
+  fi
   export TEST_RUNNER_RF_PHONE_PHOTO="$(cat "$OUT/phone-photo.path")"
   FILTER=""
   for test in $(printf '%s' "$ONLY" | tr ',' ' '); do
@@ -235,6 +253,20 @@ run_suite() {
     | sed -E "s/(Type|Typing) '[^']*'/\\1 '<redacted>'/g" >> "$OUT/xcodebuild-test.log"
   # The result bundle holds the test activity log, which names typed text; it is never kept.
   rm -rf "$RESULT_BUNDLE"
+}
+
+# The SDK's diagnostic log (NDJSON, `diag/` in the app's data root) is copied out of the simulator app's
+# data container after every run, so it is kept even when the app is reset for the next run. Files hold
+# no message content; identifiers are keyed hashes. The copy replaces the previous one of this run.
+collect_sdk_log() {
+  container=$(xcrun simctl get_app_container "$UDID" org.ramflux.ios data 2>/dev/null) || { say "no app container; no SDK log to collect"; return 0; }
+  diag_dir="$container/Library/Application Support/ramflux/diag"
+  if [ -d "$diag_dir" ]; then
+    mkdir -p "$OUT/sdk-diag"
+    cp -R "$diag_dir/." "$OUT/sdk-diag/" && say "SDK log copied to $OUT/sdk-diag ($(ls "$OUT/sdk-diag" | wc -l | tr -d ' ') files)"
+  else
+    say "the app has no SDK log directory ($diag_dir)"
+  fi
 }
 
 # 7. Flow table.
@@ -264,10 +296,12 @@ case "$PHASE" in
     check_skew
     say "running $ONLY (log: $OUT/xcodebuild-test.log)"
     set +e; run_suite; set -e
+    collect_sdk_log
     "$PYTHON" -I -c 'import json,sys
 for k,v in json.load(open(sys.argv[1])).items(): print("realrun:", k, v["status"])' "$OUT/results.json" 2>/dev/null || true
     ;;
   finish)
+    collect_sdk_log
     flow_table
     stop_control
     rm -f "$STATE_FILE"
@@ -293,6 +327,7 @@ for k,v in json.load(open(sys.argv[1])).items(): print("realrun:", k, v["status"
       rm -f "$OUT/results.json"
     done
     set -e
+    collect_sdk_log
     flow_table
     grep -q '| FAIL |' "$OUT/flow-table.md" && exit 1
     ;;

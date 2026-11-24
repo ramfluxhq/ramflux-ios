@@ -11,6 +11,8 @@ struct RealRunConfig {
     let fingerprint: String
     let alice: Peer
     let bob: Peer
+    /// A third account that was never a contact of the phone (flows 5c and 5d); nil when the peers file has none.
+    let carol: Peer?
     struct Peer { let name: String; let principal: String; let commitment: String; let displayName: String }
 
     static func load() throws -> RealRunConfig {
@@ -20,13 +22,19 @@ struct RealRunConfig {
             return text
         }
         guard let control = URL(string: try value("RF_REALRUN_CONTROL")) else { throw XCTSkip("RF_REALRUN_CONTROL is not a URL") }
+        func optionalPeer(_ name: String) -> Peer? {
+            let key = name.uppercased()
+            guard let principal = env["RF_PEER_\(key)_PRINCIPAL"], !principal.isEmpty, let commitment = env["RF_PEER_\(key)_COMMITMENT"], !commitment.isEmpty,
+                  let displayName = env["RF_PEER_\(key)_NAME"], !displayName.isEmpty else { return nil }
+            return Peer(name: name, principal: principal, commitment: commitment, displayName: displayName)
+        }
         func peer(_ name: String) throws -> Peer {
             let key = name.uppercased()
             return Peer(name: name, principal: try value("RF_PEER_\(key)_PRINCIPAL"), commitment: try value("RF_PEER_\(key)_COMMITMENT"),
                         displayName: try value("RF_PEER_\(key)_NAME"))
         }
         return RealRunConfig(control: control, origin: try value("RF_NODE_ORIGIN"), operatorKey: try value("RF_NODE_OPERATOR_KEY"),
-                             fingerprint: try value("RF_NODE_FINGERPRINT"), alice: try peer("alice"), bob: try peer("bob"))
+                             fingerprint: try value("RF_NODE_FINGERPRINT"), alice: try peer("alice"), bob: try peer("bob"), carol: optionalPeer("carol"))
     }
 }
 
@@ -99,6 +107,8 @@ enum RunSecrets {
     nonisolated(unsafe) static var groupName: String?
     nonisolated(unsafe) static var groupID: String?
     nonisolated(unsafe) static var groupConversation: String?
+    /// The group of flow 5c (carol's group the phone joined through an invitation).
+    nonisolated(unsafe) static var invitedGroupID: String?
     /// The backup archive passphrase of flow 14 (memory only), for the restore on a fresh install.
     nonisolated(unsafe) static var archivePassphrase: String?
     /// Unique per run so the peers can tell this run's phone account from earlier runs' accounts.
@@ -112,12 +122,13 @@ enum RunSecrets {
         phoneCommitment = state["phoneCommitment"] as? String; aliceConversation = state["aliceConversation"] as? String
         archivePassphrase = state["archivePassphrase"] as? String; mediaCaptions = state["mediaCaptions"] as? [String] ?? []
         groupName = state["groupName"] as? String; groupID = state["groupID"] as? String; groupConversation = state["groupConversation"] as? String
+        invitedGroupID = state["invitedGroupID"] as? String
     }
     static func save(to control: PeerControl) {
         var state: [String: Any] = ["accountCode": accountCode, "displayName": displayName, "mediaCaptions": mediaCaptions]
         for (key, value) in [("accountID", accountID), ("phonePrincipal", phonePrincipal), ("phoneCommitment", phoneCommitment),
                              ("aliceConversation", aliceConversation), ("archivePassphrase", archivePassphrase),
-                             ("groupName", groupName), ("groupID", groupID), ("groupConversation", groupConversation)] { if let value { state[key] = value } }
+                             ("groupName", groupName), ("groupID", groupID), ("groupConversation", groupConversation), ("invitedGroupID", invitedGroupID)] { if let value { state[key] = value } }
         control.post("run-state", json: state)
     }
 }

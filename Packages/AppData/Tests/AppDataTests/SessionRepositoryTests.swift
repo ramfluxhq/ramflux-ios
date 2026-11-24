@@ -64,7 +64,6 @@ private func seal(_ body: JSONValue) throws -> SecretBytes {
         for body: JSONValue in [
             .object([:]), .object(["accounts": .array([row("a"), row("a")])]), .object(["accounts": .array([.string("a")])]),
             .object(["accounts": .array([row("a")]), "active_account_id": .string("other")]),
-            .object(["accounts": .array([row("a", locked: true)]), "active_account_id": .string("a")]),
         ] {
             let invalid = try seal(body)
             #expect(throws: AppFailure.invalidData) { try NativeSessionRepository.decodeAccounts(invalid) }

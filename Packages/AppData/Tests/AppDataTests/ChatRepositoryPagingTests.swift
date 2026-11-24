@@ -149,8 +149,8 @@ private func page(_ rows: [JSONValue], before: JSONValue = .null, snapshot: Doub
     @Test func typingFocusesSubmitsAGeneratedTypingRequestAndBlurs() async {
         let transport = ProxyTransport { _ in .null }
         let repo = repository(transport)
-        guard case .success = await repo.setTyping(account: "a", conversation: "c", active: true) else { Issue.record("Typing start must succeed"); return }
-        guard case .success = await repo.setTyping(account: "a", conversation: "c", active: false) else { Issue.record("Typing stop must succeed"); return }
+        guard case .success = await repo.setTyping(account: "a", conversation: "c", isGroup: false, active: true) else { Issue.record("Typing start must succeed"); return }
+        guard case .success = await repo.setTyping(account: "a", conversation: "c", isGroup: false, active: false) else { Issue.record("Typing stop must succeed"); return }
         let calls = transport.calls.withLock { $0 }
         #expect(calls.map(\.method) == ["message.focus", "message.submit", "message.submit", "message.focus"])
         #expect(calls[0].body == .object(["conversation_id": .string("c")]))
@@ -160,6 +160,14 @@ private func page(_ rows: [JSONValue], before: JSONValue = .null, snapshot: Doub
         #expect(submit["send"]?["content"]?["typing"]?["active"] == .bool(true)); #expect(calls[2].body["send"]?["content"]?["typing"]?["active"] == .bool(false))
         let operation = submit["requestId"]?.string ?? ""
         #expect((16...64).contains(operation.utf8.count)); #expect(submit["send"]?["operationId"] == .string(Data(operation.utf8).base64EncodedString()))
+    }
+
+    @Test func groupTypingSubmitsWithoutFocus() async {
+        let transport = ProxyTransport { _ in .null }
+        let repo = repository(transport)
+        guard case .success = await repo.setTyping(account: "a", conversation: "g", isGroup: true, active: true) else { Issue.record("Typing start must succeed"); return }
+        guard case .success = await repo.setTyping(account: "a", conversation: "g", isGroup: true, active: false) else { Issue.record("Typing stop must succeed"); return }
+        #expect(transport.calls.withLock { $0.map(\.method) } == ["message.submit", "message.submit"])
     }
 
     @Test func detailsReadMuteFromTheDirectoryAndMatchThePeerByRootCommitment() async {

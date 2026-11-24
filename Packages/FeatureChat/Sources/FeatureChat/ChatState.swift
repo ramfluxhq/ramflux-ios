@@ -58,6 +58,11 @@ public struct MediaPreview: Equatable, Sendable {
 public struct ChatState: Equatable, Sendable {
     public var isGroup = false
     public var displayTitle = ""
+    /// The direct peer is a participant the SDK verified as an AI agent (the header's AI marker).
+    public var peerIsAgent = false
+    /// Account anchors and principal ids of known participants the SDK verified as AI agents; incoming
+    /// messages from them carry the AI marker.
+    public var agentAuthors: Set<String> = []
     public var conversationID = ""
     /// The bounded window of read-model rows, newest first.
     public var messages: [MessageRecord] = []

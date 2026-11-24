@@ -1122,22 +1122,6 @@
         }
       }
     },
-    "groups.unavailable.leave": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A dedicated leave-group flow is not available. Removing a device is not a substitute for leaving the account’s group."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "专用的退出群组流程暂不可用。移除某台设备并不等于账户退出群组。"
-          }
-        }
-      }
-    },
     "groups.unavailable.history": {
       "localizations": {
         "en": {
@@ -2621,23 +2605,6 @@
         }
       }
     },
-    "settings.unavailable.username": {
-      "comment": "Shown when @username lookup is opened: the app has no method for it yet.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finding people by @username is not available yet. Share your contact card instead."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂不支持通过 @用户名查找。请改为分享你的联系人名片。"
-          }
-        }
-      }
-    },
     "tasks.approval.appSignature": {
       "comment": "Failure message: approving this tool request needs an app signature this phone cannot make yet.",
       "localizations": {
@@ -3093,6 +3060,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "错误的账户码次数过多。请在 %@ 后再试。"
+          }
+        }
+      }
+    },
+    "username.unavailable.directory": {
+      "comment": "Shown when the username directory refuses with directory_unavailable (settings username row, or adding a contact by @name).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usernames are not available on this server yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此服务器暂不支持用户名。"
+          }
+        }
+      }
+    },
+    "username.unavailable.notFound": {
+      "comment": "Shown when adding a contact by @name and the directory knows no such name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No one has this username."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有人使用这个用户名。"
+          }
+        }
+      }
+    },
+    "username.unavailable.claim": {
+      "comment": "Shown on the username row when the directory answers but the app cannot run the claim with the recovery phrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claiming a username needs your recovery phrase, which this version of the app does not ask for yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "认领用户名需要你的恢复短语，此版本的应用暂不支持输入。"
+          }
+        }
+      }
+    },
+    "refusal.sdkReason": {
+      "comment": "Shown when the SDK refuses a request with a typed reason that has no screen of its own. %@ is the reason in words, for example 'directory unavailable'.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The request was refused: %@. Nothing was changed; review the screen before retrying."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请求被拒绝：%@。未做任何更改；请先核对页面再决定是否重试。"
           }
         }
       }

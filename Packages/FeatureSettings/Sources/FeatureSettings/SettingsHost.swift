@@ -13,7 +13,6 @@ public struct SettingsHost: View {
         if coordinator.viewModel.state.route == .backup {
             BackupScreen(state: coordinator.backup.state, onAction: { coordinator.send($0) })
                 .onAppear { coordinator.send(BackupAction.appeared) }.onDisappear { coordinator.send(BackupAction.disappeared) }
-                .onChange(of: phase) { _, value in coordinator.send(value == .active ? BackupAction.appeared : BackupAction.disappeared) }
         } else if coordinator.viewModel.state.route == .pairDevice {
             // Leaving the app covers the invitation; only leaving the screen ends the ceremony.
             PairingScreen(state: coordinator.pairing.state, onAction: { coordinator.send($0) })
@@ -21,7 +20,6 @@ public struct SettingsHost: View {
                 .onChange(of: phase) { _, value in coordinator.send(PairingAction.covered(value != .active)) }
         } else {
             SettingsScreen(state: coordinator.viewModel.state, onAction: { coordinator.send($0) }).onAppear { coordinator.send(SettingsAction.appeared) }.onDisappear { coordinator.send(SettingsAction.disappeared) }
-                .onChange(of: phase) { _, value in coordinator.send(value == .active ? SettingsAction.appeared : SettingsAction.disappeared) }
         }
     }
 }

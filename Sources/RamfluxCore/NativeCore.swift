@@ -14,7 +14,8 @@ public final class NativeCore: CoreTransport {
     private let custody: HostCustodyProvider?
     public let methods: Set<String>
     public let descriptorFingerprint: String
-    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil, custody: HostCustodyProvider? = nil) throws {
+    public init(dataRoot: URL, builtinNodes: [JSONValue] = [], expectedDescriptorFingerprint: String? = nil, custody: HostCustodyProvider? = nil,
+                usernameDirectory: UsernameDirectoryPin? = nil, diagnostics: DiagnosticSettings? = nil) throws {
         guard dataRoot.isFileURL, builtinNodes.count <= 64 else { throw BridgeError.invalidInput }
         #if os(iOS)
         guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
@@ -25,11 +26,16 @@ public final class NativeCore: CoreTransport {
         self.dataRoot = dataRoot; self.custody = custody
         // Show-once is a key-export method. The C ABI admits it only when the host opts in.
         // Raw message submit stays disabled.
-        configuration = try JSONValue.object([
+        var open: [String: JSONValue] = [
             "data_root": .string(dataRoot.path),
             "builtin_nodes": .array(builtinNodes),
             "allow_secret_exports": .bool(true),
-        ]).encoded()
+        ]
+        // Both are optional open-config fields: an omitted directory pin makes username calls refuse with a typed
+        // `directory_unavailable`, and an omitted `diag` object keeps the SDK's defaults.
+        if let usernameDirectory { open["username_directory"] = usernameDirectory.json }
+        if let diagnostics { open["diag"] = diagnostics.json }
+        configuration = try JSONValue.object(open).encoded()
         var pointer: UnsafeMutablePointer<RamfluxBuffer>?
         let code = ramflux_v2_negotiate(2, 0, &pointer)
         guard code == 0 else { if let pointer { rf_buffer_wipe_free(pointer) }; throw CoreFailure(code: code, effect: .none) }
@@ -114,7 +120,7 @@ public final class NativeCore: CoreTransport {
         let secret = try SecretBytes(copying: UnsafeRawBufferPointer(start: value.ptr, count: value.len), maximumBytes: CoreLimits.frameBytes)
         guard code == 0 else {
             let reason = rf_completion_refusal_reason(buffer).map { String(cString: $0) }
-            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, typedName: typedName(buffer), sealedResponse: secret)
+            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, typedName: typedName(buffer), reason: rf_completion_directory_reason(buffer).map { String(cString: $0) }, sealedResponse: secret)
         }
         return secret
     }
@@ -131,7 +137,8 @@ public final class NativeCore: CoreTransport {
         if status != 0 {
             let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
             throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
-                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer), response: terminal["response"])
+                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer),
+                statusName: CoreFailure.token(terminal["name"]), reason: CoreFailure.token(terminal["reason"]), response: terminal["response"])
         }
         guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }
         return frame
@@ -208,10 +215,31 @@ public final class NativeCore: CoreTransport {
         }
         guard code == 0, handle != 0 else { throw CoreFailure(code: code == 0 ? 16 : code, effect: .none) }
     }
-    public func resume() throws { try start() }
+    /// Reopens files and reconnects a suspended client without asking for the account code
+    /// (`ramflux_v2_client_resume`). A client that was never opened starts instead.
+    public func resume() throws {
+        guard let handle = try lifecycleHandle() else { try start(); return }
+        let code = ramflux_v2_client_resume(handle)
+        state.withLock { $0.lifecycleBusy = false }
+        guard code == 0 else { throw CoreFailure(code: code, effect: .none) }
+    }
+    /// Stops networking, flushes databases and closes file descriptors while the unlocked accounts stay
+    /// in memory (`ramflux_v2_client_suspend`). Pending operations complete as suspended (30).
     public func suspend() throws -> JSONValue {
-        try close()
+        guard let handle = try lifecycleHandle() else { return .object(["data_root_lock_released": .bool(true)]) }
+        let code = ramflux_v2_client_suspend(handle)
+        state.withLock { $0.lifecycleBusy = false; if code == 0 { $0.streamOpened = false } }
+        guard code == 0 else { throw CoreFailure(code: code, effect: .unknown) }
         return .object(["data_root_lock_released": .bool(true)])
+    }
+    /// The open handle, marked busy for one suspend or resume; nil when no client is open.
+    private func lifecycleHandle() throws -> UInt64? {
+        try state.withLock { state in
+            guard !state.closing, !state.opening, !state.lifecycleBusy else { throw BridgeError.lockStillHeld }
+            guard state.handle != 0 else { return nil }
+            state.lifecycleBusy = true
+            return state.handle
+        }
     }
     public func close() throws {
         let handle = try state.withLock { state in

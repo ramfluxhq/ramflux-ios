@@ -8,7 +8,9 @@ public struct ContactRequestRecord: Identifiable, Equatable, Sendable {
     public let state: String
     public let preview: String?
     public let safetyNumber: String?
-    public init(id: String, principal: String, name: String, direction: String, state: String, preview: String? = nil, safetyNumber: String? = nil) {
+    public let classification: PrincipalClassification
+    public init(id: String, principal: String, name: String, direction: String, state: String, preview: String? = nil, safetyNumber: String? = nil, classification: PrincipalClassification = .unknown) {
+        self.classification = classification
         self.id = id; self.principal = principal; self.name = name; self.direction = direction; self.state = state; self.preview = preview; self.safetyNumber = safetyNumber
     }
 }

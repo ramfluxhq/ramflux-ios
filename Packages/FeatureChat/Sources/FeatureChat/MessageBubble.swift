@@ -39,6 +39,7 @@ public struct MessageBubble: View {
         } else {
             let placement = BubblePlacement(isOwn: own, text: text, uiDirection: layoutDirection)
             VStack(alignment: placement.alignment, spacing: theme.gap / 2) {
+                if media.authorIsAgent { KitAIMarker(tag: message.id + "-ai") }
                 quote
                 if message.kind != .deleted, !message.attachments.isEmpty {
                     // Photos and videos first with the caption below (media design 4.1); file cards

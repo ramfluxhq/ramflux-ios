@@ -122,3 +122,25 @@ const char *rf_completion_typed_name(const struct RamfluxBuffer *buffer) {
     if (name) return name;
     return named_string(nested, "code");
 }
+// The completion root's own `reason` token, for a sealed response whose body is never decoded. The SDK writes the
+// username directory's closed code set there (`directory_unavailable`, ...); anything else yields NULL.
+const char *rf_completion_directory_reason(const struct RamfluxBuffer *buffer) {
+    int32_t code = 0;
+    if (!buffer || !buffer->ptr || !rf_completion_code(buffer, &code) || code == 0) return NULL;
+    struct parser whole = {buffer->ptr, buffer->len, 0};
+    if (!skip(&whole, 0)) return NULL;
+    ws(&whole); if (whole.i != whole.n) return NULL;
+    struct span root = {buffer->ptr, buffer->len}, encoded, reason;
+    if (!field(root, "reason", &encoded)) return NULL;
+    struct parser s = {encoded.p, encoded.n, 0};
+    if (!string(&s, &reason) || s.i != s.n) return NULL;
+    static const char *const allowed[] = {
+        "authentication_required", "invalid_username", "invalid_profile", "invalid_avatar", "username_taken", "username_held",
+        "username_reserved", "rate_limited", "capacity", "directory_unavailable", "unsupported_version", "operation_pending",
+        "stale_epoch", "replay", "ownership_mismatch", "signature_invalid", "not_found", "key_changed", "name_changed",
+        "stale_profile", "profile_rollback", "profile_equivocation", "profile_downgrade", "clock_unsafe", "migration_required",
+        "account_deleted"
+    };
+    for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) if (equal(reason, allowed[i])) return allowed[i];
+    return NULL;
+}

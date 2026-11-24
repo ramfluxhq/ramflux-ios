@@ -17,6 +17,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
     public let groupID: String?
     /// True when no name is known and `title` is a short identifier (left-to-right isolated) instead.
     public let titleIsIdentifier: Bool
+    /// SDK-verified kind of a direct conversation's peer; `.aiAgent` shows the AI marker.
+    public let classification: PrincipalClassification
     public init(
         id: String,
         title: String,
@@ -31,8 +33,10 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         readReceipt: Bool = false,
         sender: String = "",
         groupID: String? = nil,
-        titleIsIdentifier: Bool = false
+        titleIsIdentifier: Bool = false,
+        classification: PrincipalClassification = .unknown
     ) {
+        self.classification = classification
         self.titleIsIdentifier = titleIsIdentifier
         self.id = id
         self.title = title

@@ -13,19 +13,17 @@ import AppData
     @ObservationIgnored public lazy var viewModel = AppShellViewModel(repository: repository) { [weak self] event in self?.handle(event) }
     public init(repository: any SessionRepository) { self.repository = repository }
     public func send(_ action: AppShellAction) { viewModel.send(action) }
-    /// Closes the unlock step. When `account` was unlocked and had screens open when it was locked, they
-    /// replace the unlock step in the same path change: a pop followed at once by a push lets the
-    /// navigation stack finish the pop after the push and drop the reopened screen.
-    public func closeUnlock(reopening account: String?) {
+    /// Closes the unlock step (after an explicit lock or sign-out the code is asked; nothing else
+    /// closes the screens, so there is nothing to reopen).
+    public func closeUnlock() {
         sheet = nil
-        path = account.map { viewModel.takeParked(for: $0) } ?? []
+        path = []
     }
     private func handle(_ event: AppShellEvent) {
         switch event {
         case .navigate(let route): sheet = nil; path.append(route)
         case .showAccounts: sheet = .accounts
         case .accountSelected: path = []; sheet = nil
-        case .dismissPrivateNavigation: viewModel.park(path); path = []; sheet = nil
         }
     }
 }

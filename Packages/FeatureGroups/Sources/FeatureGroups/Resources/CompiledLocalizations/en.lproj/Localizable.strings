@@ -82,6 +82,8 @@
 	<string>This is the last confirmed group state. Refresh before applying changes.</string>
 	<key>groups.leave</key>
 	<string>Leave group</string>
+	<key>groups.leave.action</key>
+	<string>Leave this group. You stop receiving its messages; the other members are told.</string>
 	<key>groups.loading</key>
 	<string>Loading groups</string>
 	<key>groups.manageUnavailable</key>

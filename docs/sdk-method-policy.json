@@ -41,6 +41,24 @@
       "bridge_allowed": true,
       "capability": "account",
       "key_export": false,
+      "name": "account.app_lock.configure",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "account",
+      "key_export": false,
+      "name": "account.app_lock.state",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "account",
+      "key_export": false,
       "name": "account.backup.cancel",
       "secret_input": true,
       "secret_output": false,
@@ -337,6 +355,96 @@
     {
       "bridge_allowed": true,
       "capability": "agent",
+      "key_export": false,
+      "name": "agent.approval.decide",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.approval.list",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.approval.publish",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.list",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.pause",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.remove",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.resume",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.session",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.job.sessions",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.progress",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
       "key_export": true,
       "name": "agent.create",
       "secret_input": false,
@@ -357,6 +465,15 @@
       "capability": "agent",
       "key_export": false,
       "name": "agent.get",
+      "secret_input": false,
+      "secret_output": false,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "agent",
+      "key_export": false,
+      "name": "agent.host.manage",
       "secret_input": false,
       "secret_output": false,
       "show_once": false
@@ -815,6 +932,15 @@
       "bridge_allowed": true,
       "capability": "contact",
       "key_export": false,
+      "name": "contact.requests.decline",
+      "secret_input": true,
+      "secret_output": true,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "contact",
+      "key_export": false,
       "name": "contact.requests.list",
       "secret_input": false,
       "secret_output": true,
@@ -870,9 +996,9 @@
       "capability": "contact.verify.cas",
       "contract": "CONTACT-VERIFY-CAS-01",
       "key_export": false,
-      "message_descriptor_blake3": "88d7da63263e2132e048ee86d833bd12c95088c80e112cce03456bf00fd6dab9",
+      "message_descriptor_blake3": "424943ce9bcc6b1b629366deed741bd9dbd2c9bd154643346cd8ced5051ee78d",
       "name": "contact.verify",
-      "product_pin": "679c753bdaa6bd31c8b5b493cfc4cbe8088a3537",
+      "product_pin": "4ac17e2eebee3cdcafe5b7e5748da00a08c8cb1c",
       "request_type": "ramflux.message.v1.ContactSafetyVerifyRequest",
       "response_type": "ramflux.message.v1.ContactSafetyVerifyResult",
       "secret_input": true,
@@ -1236,6 +1362,15 @@
       "key_export": false,
       "name": "group.invitations.list",
       "secret_input": false,
+      "secret_output": true,
+      "show_once": false
+    },
+    {
+      "bridge_allowed": true,
+      "capability": "group",
+      "key_export": false,
+      "name": "group.leave",
+      "secret_input": true,
       "secret_output": true,
       "show_once": false
     },
@@ -2041,7 +2176,7 @@
       "show_once": false
     },
     {
-      "bridge_allowed": false,
+      "bridge_allowed": true,
       "capability": "username",
       "key_export": false,
       "name": "username.mutate",
@@ -2050,7 +2185,7 @@
       "show_once": false
     },
     {
-      "bridge_allowed": false,
+      "bridge_allowed": true,
       "capability": "username",
       "key_export": false,
       "name": "username.status",
@@ -2059,7 +2194,7 @@
       "show_once": false
     },
     {
-      "bridge_allowed": false,
+      "bridge_allowed": true,
       "capability": "username",
       "key_export": false,
       "name": "username.resolve",
@@ -2068,7 +2203,7 @@
       "show_once": false
     },
     {
-      "bridge_allowed": false,
+      "bridge_allowed": true,
       "capability": "username",
       "key_export": false,
       "name": "username.contact.add",
@@ -2077,7 +2212,7 @@
       "show_once": false
     },
     {
-      "bridge_allowed": false,
+      "bridge_allowed": true,
       "capability": "profile",
       "key_export": false,
       "name": "profile.update",

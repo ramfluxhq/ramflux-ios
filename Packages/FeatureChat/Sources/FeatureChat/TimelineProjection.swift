@@ -36,6 +36,8 @@ struct MessageMedia: Equatable, Sendable {
     var revealed: Set<String> = []
     /// The agent surface this message carried, if any.
     var card: SurfaceCardState?
+    /// The incoming message's author is a participant the SDK verified as an AI agent.
+    var authorIsAgent = false
     static let none = MessageMedia()
 }
 
@@ -48,7 +50,7 @@ enum TimelineProjection {
     /// Chronological rows with a day chip where the calendar day changes, the unread divider
     /// above `unreadAnchorID`, and unadmitted sends after the last message. Messages without a
     /// valid timestamp start no new day. Linear in the window size; the window is bounded.
-    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:]) -> [TimelineItem] {
+    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:], agentAuthors: Set<String> = []) -> [TimelineItem] {
         var items: [TimelineItem] = []
         items.reserveCapacity(messages.count + outbox.count + 8)
         if loadingOlder { items.append(.history) }
@@ -65,6 +67,7 @@ enum TimelineProjection {
                 if revealed.contains(attachment.id) { slice.revealed.insert(attachment.id) }
             }
             slice.card = cards[message.id]
+            slice.authorIsAgent = message.isOwn == false && message.authorAnchor.map(agentAuthors.contains) == true
             items.append(.message(message, slice))
         }
         for entry in outbox { items.append(.outbox(entry)) }

@@ -45,6 +45,7 @@ public struct KitRow: View {
     var tagLabel: String?
     var trailing: KitRowTrailing
     var enabled: Bool
+    var aiMarker: Bool
     var tag: String?
     @Environment(\.rfTheme) private var theme
     @Environment(\.kitPreviewPressed) private var previewPressed
@@ -58,8 +59,10 @@ public struct KitRow: View {
         tagLabel: String? = nil,
         trailing: KitRowTrailing = .chevron,
         enabled: Bool = true,
+        aiMarker: Bool = false,
         tag: String? = nil
     ) {
+        self.aiMarker = aiMarker
         self.label = label
         self.action = action
         self.icon = icon
@@ -92,13 +95,21 @@ public struct KitRow: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(label)
+        .accessibilityValue(aiMarker ? RFDesignStrings.text("kit.ai.marker.accessibility") : "")
     }
 
     private func content(lines: Int?) -> some View {
         HStack(spacing: KitMetrics.rowGap) {
             if let icon { KitIconTile(icon: icon) }
             VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: lines)
+                if aiMarker {
+                    HStack(spacing: KitMetrics.bubbleGap) {
+                        KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: lines)
+                        KitAIMarker()
+                    }
+                } else {
+                    KitLabel(label, size: theme.size_mobile_body, weight: .regular, color: theme.text, line: KitMetrics.lineTitle, lines: lines)
+                }
                 if let value, !value.isEmpty {
                     KitLabel(value, size: theme.size_secondary, weight: .regular, color: theme.secondary, line: KitMetrics.lineSecondary, lines: lines)
                 }
@@ -139,6 +150,7 @@ public struct KitConversationRow<Avatar: View>: View {
     var read: Bool
     var badge: String?
     var enabled: Bool
+    var aiMarker: Bool
     var tag: String?
     var avatar: Avatar
     @Environment(\.rfTheme) private var theme
@@ -155,10 +167,12 @@ public struct KitConversationRow<Avatar: View>: View {
         read: Bool = false,
         badge: String? = nil,
         enabled: Bool = true,
+        aiMarker: Bool = false,
         tag: String? = nil,
         action: @escaping () -> Void = {},
         @ViewBuilder avatar: () -> Avatar
     ) {
+        self.aiMarker = aiMarker
         self.title = title
         self.preview = preview
         self.time = time
@@ -180,6 +194,7 @@ public struct KitConversationRow<Avatar: View>: View {
             VStack(alignment: .leading, spacing: KitMetrics.summaryGap) {
                 HStack(spacing: KitMetrics.bubbleGap) {
                     KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                    if aiMarker { KitAIMarker(tag: tag.map { $0 + "-ai" }) }
                     if muted { KitIcon(name: "bell-off", size: KitMetrics.metaIcon, tint: theme.secondary) }
                     Spacer(minLength: KitMetrics.bubbleGap)
                     if !time.isEmpty {

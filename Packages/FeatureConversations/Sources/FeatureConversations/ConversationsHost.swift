@@ -5,12 +5,10 @@ import AppData
 import RFDesign
 public struct ConversationsHost: View {
     @Environment(\.locale) private var locale
-    @Environment(\.scenePhase) private var phase
     public let coordinator: ConversationsCoordinator
     public init(coordinator: ConversationsCoordinator) { self.coordinator = coordinator }
     public var body: some View { ConversationsScreen(state: coordinator.viewModel.state, onAction: coordinator.send)
         .onAppear { coordinator.send(.localeChanged(locale)); coordinator.send(.appeared) }
         .onChange(of: locale) { _, value in coordinator.send(.localeChanged(value)) }.onDisappear { coordinator.send(.disappeared) }
-        .onChange(of: phase) { _, value in coordinator.send(value == .active ? .appeared : .disappeared) }
     }
 }

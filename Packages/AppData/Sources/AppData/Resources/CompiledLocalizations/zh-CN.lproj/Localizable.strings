@@ -154,8 +154,6 @@
 	<string>当前 SDK 暂不支持归档群组。</string>
 	<key>groups.unavailable.history</key>
 	<string>当前 SDK 暂不支持更改新成员的历史记录策略。</string>
-	<key>groups.unavailable.leave</key>
-	<string>专用的退出群组流程暂不可用。移除某台设备并不等于账户退出群组。</string>
 	<key>groups.unavailable.permission</key>
 	<string>此设备当前没有与根身份绑定的群组管理权限。未提交任何管理变更。</string>
 	<key>groups.unavailable.threads</key>
@@ -288,6 +286,8 @@
 	<string>此会话需要重置后才能继续。</string>
 	<key>refusal.schema_reset_required.title</key>
 	<string>需要重置</string>
+	<key>refusal.sdkReason</key>
+	<string>请求被拒绝：%@。未做任何更改；请先核对页面再决定是否重试。</string>
 	<key>refusal.storage_capacity</key>
 	<string>没有足够的空间保存。</string>
 	<key>refusal.storage_capacity.title</key>
@@ -320,8 +320,6 @@
 	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
 	<key>settings.unavailable.pairing</key>
 	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
-	<key>settings.unavailable.username</key>
-	<string>暂不支持通过 @用户名查找。请改为分享你的联系人名片。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>
@@ -372,5 +370,11 @@
 	<string>批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。</string>
 	<key>tasks.unavailable</key>
 	<string>智能体任务创建及移动端审批和干预决策需要额外的已验证上下文。请在受信任客户端审核；尚未授予任何权限。</string>
+	<key>username.unavailable.claim</key>
+	<string>认领用户名需要你的恢复短语，此版本的应用暂不支持输入。</string>
+	<key>username.unavailable.directory</key>
+	<string>此服务器暂不支持用户名。</string>
+	<key>username.unavailable.notFound</key>
+	<string>没有人使用这个用户名。</string>
 </dict>
 </plist>

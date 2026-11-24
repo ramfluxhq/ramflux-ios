@@ -64,6 +64,9 @@ import AppData
         case .prepareInvitation(let id, let accept):
             guard let invitation = state.invitations.first(where: { $0.id == id }), invitation.expiresAt > Int64(Date().timeIntervalSince1970) else { state.failure = .invalidInput; return }
             prepare(.invitation(invitation, accept: accept))
+        case .prepareLeave:
+            guard let detail = state.detail, detail.ownRole != "owner" else { state.failure = repository.unavailable(.ownershipTransfer); return }
+            prepare(.leave(group: detail.group.id, epoch: detail.group.epoch))
         case .cancelConfirmation: if !state.busy { state.confirmation = nil }
         case .confirm(let id):
             guard !state.busy, state.pending == nil, let confirmation = state.confirmation, confirmation.id == id else { return }
@@ -81,12 +84,13 @@ import AppData
     }
     private func prepare(_ change: GroupMutation) {
         guard !state.busy, !state.loading, state.pending == nil else { return }
+        state.outcome = nil
         state.confirmation = GroupConfirmation(attempt: PendingGroupMutation(mutation: change, operationID: UUID().uuidString))
     }
     private func refuseManagement() { state.confirmation = nil; state.mode = .managementUnavailable; state.failure = repository.unavailable(.managementPermission) }
     private func dispatch(_ attempt: PendingGroupMutation) {
         readID &+= 1; read?.cancel(); state.loading = false
-        let current = epoch; state.busy = true; state.failure = nil
+        let current = epoch; state.busy = true; state.failure = nil; state.outcome = nil
         mutation = Task { [weak self, repository, account] in
             let result = await repository.mutate(account: account, mutation: attempt.mutation, operationID: attempt.operationID)
             let pending = await repository.pending(account: account)
@@ -119,6 +123,7 @@ import AppData
                     }
                 }
                 if case .invitation = attempt.mutation { self.state.mode = .list }
+                if case .leave = attempt.mutation { self.state.mode = .list; self.state.detail = nil }
                 self.refresh()
             case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.authorityFresh = false; self.state.detail = nil; self.state.mode = .accessChanged }
             }
@@ -129,8 +134,14 @@ import AppData
         state.accountID = account; readID &+= 1; let id = readID, mode = state.mode; read?.cancel(); state.loading = true; state.authorityFresh = false; state.confirmation = nil; projectRows()
         let selected: String? = switch mode { case .detail(let id), .members(let id), .requests(let id), .created(let id): id; default: nil }
         let query = state.query
+        let retained = state.outcome.flatMap { $0.waitingForOwner && $0.requestID != nil ? $0 : nil }
         read = Task { [weak self, repository, contacts, account] in
             let pending = await repository.pending(account: account)
+            // A retained acknowledgement ends once the SDK no longer reports its request as waiting for the owner.
+            var resolved = false
+            if let retained, case .success(let rows) = await repository.requests(account: account, group: retained.groupID) {
+                resolved = !rows.contains { $0.id == retained.requestID && $0.waitingForOwner }
+            }
             let groups = await RowWindow.first({ cursor, limit in await repository.page(account: account, query: query, cursor: cursor, limit: limit) })
             let invitations = await repository.invitations(account: account)
             let detail: RepositoryResult<GroupDetail>? = if let selected { await repository.detail(account: account, group: selected) } else { nil }
@@ -138,6 +149,7 @@ import AppData
             let people: RepositoryResult<RowWindow<ContactRecord>>? = if case .members = mode { await RowWindow.first({ cursor, limit in await contacts.contactsPage(account: account, query: "", cursor: cursor, limit: limit) }) } else { nil }
             guard !Task.isCancelled, let self, self.readID == id else { return }
             self.state.loading = false; self.state.pending = pending
+            if resolved, self.state.outcome?.requestID == retained?.requestID { self.state.outcome = nil }
             switch groups { case .success(let window): self.groupWindow = window; case .failure(let failure): self.state.failure = failure; if failure == .locked { self.groupWindow = RowWindow() } }
             switch invitations {
             case .success(let rows): self.state.invitations = rows; self.state.invitationsFailure = nil

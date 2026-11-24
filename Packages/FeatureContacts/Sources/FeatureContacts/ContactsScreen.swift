@@ -70,7 +70,7 @@ public struct ContactsScreen: View {
             let rows = state.contacts
             if rows.isEmpty && !state.loading { RFUnavailableView(title: FeatureContactsStrings.text("contacts.empty.title", locale: locale), message: FeatureContactsStrings.text("contacts.empty.message", locale: locale)) }
             ForEach(rows) { contact in
-                KitConversationRow(contact.displayName, preview: contact.subtitle, time: "", tag: contact.id, action: { onAction(.mode(.profile(contact.id))) }) {
+                KitConversationRow(contact.displayName, preview: contact.subtitle, time: "", aiMarker: contact.classification.isAIAgent, tag: contact.id, action: { onAction(.mode(.profile(contact.id))) }) {
                     KitAvatar(String(contact.displayName.prefix(1)), size: 44, kind: .person, tag: contact.id + "-avatar")
                 }
                 .background { pageTriggers(id: contact.id, first: rows.first?.id, last: rows.last?.id) }
@@ -96,7 +96,8 @@ public struct ContactsScreen: View {
             else { Text(FeatureContactsStrings.text("contacts.request.missing", locale: locale)) }
         case .profile(let id):
             if let contact = state.selected, contact.id == id {
-                Text(untrusted: contact.displayName).rfFont(.page); KitIdentifierText(contact.id).textSelection(.enabled)
+                HStack(spacing: theme.gap) { Text(untrusted: contact.displayName).rfFont(.page); if contact.classification.isAIAgent { KitAIMarker(tag: "contact-ai") } }
+                KitIdentifierText(contact.id).textSelection(.enabled)
                 Label(contact.verified == true ? FeatureContactsStrings.text("contacts.profile.verified", locale: locale) : FeatureContactsStrings.text("contacts.profile.notVerified", locale: locale), systemImage: contact.verified == true ? "checkmark.shield" : "shield")
                 if contact.blocked { Label(FeatureContactsStrings.text("contacts.profile.blocked", locale: locale), systemImage: "hand.raised") }
                 KitButton(FeatureContactsStrings.text("contacts.profile.viewSafety", locale: locale), action: { onAction(.mode(.safety(id))) }, kind: .secondary, tag: "contact-safety")
@@ -130,7 +131,7 @@ public struct ContactsScreen: View {
         }
     }
     private func requestRow(_ request: ContactRequestRecord) -> some View {
-        KitRow(RFUntrustedText.clean(request.name), action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : RFIdentifier.display(request.principal), tagLabel: AppDataStrings.status(request.state, locale: locale), tag: request.id)
+        KitRow(RFUntrustedText.clean(request.name), action: { onAction(.mode(.request(request.id))) }, value: request.direction == "outbound" ? FeatureContactsStrings.format("request.sentStatus", AppDataStrings.status(request.state, locale: locale), locale: locale) : RFIdentifier.display(request.principal), tagLabel: AppDataStrings.status(request.state, locale: locale), aiMarker: request.classification.isAIAgent, tag: request.id)
     }
     private func requestDetails(_ request: ContactRequestRecord) -> some View {
         VStack(alignment: .leading, spacing: theme.gap) {

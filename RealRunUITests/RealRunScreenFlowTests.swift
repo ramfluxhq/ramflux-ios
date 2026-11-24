@@ -114,6 +114,49 @@ final class RealRunScreenFlowTests: RealRunTestCase {
         }
     }
 
+    // MARK: Flow 15b: usernames on the phone (username.status in Settings, add a contact by @name)
+
+    func test16_usernames() {
+        flow("15b-usernames") {
+            try ensureShell()
+            try openSettings()
+            try tap(element("settings-account"), "Account and security")
+            try tap(element("settings-privacy"), "Privacy")
+            let row = try require(element("settings-username"), "username row", timeout: 30)
+            scrollIntoView(row)
+            try tap(row, "Username row")
+            let unavailable = text(containing: "Usernames are not available")
+            let claim = text(containing: "Claiming a username needs your recovery phrase")
+            let unknown = text(containing: "Outcome not confirmed")
+            _ = eventually(30, { unavailable.exists || claim.exists || unknown.exists })
+            snap("15b-username-status")
+            if unknown.exists { throw FlowStop.fail("the username row shows an unknown outcome instead of the directory's answer: \(visibleFailure())") }
+            let status = unavailable.exists ? "username.status refused; the app shows: \(unavailable.label)"
+                : claim.exists ? "username.status answered; claiming needs the recovery phrase ceremony, shown as unavailable" : "username.status answered with a claimed name"
+            for _ in 0..<4 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.5) }
+            // Add a contact by @name: the directory resolves it, or its refusal is shown.
+            try openMore()
+            try tap(element("more-contacts"), "Contacts in More")
+            try tap(element("contacts-add"), "Add contact")
+            let address = try require(element("contacts-add-address"), "account address field")
+            address.tap(); address.typeText("@rr" + String(UUID().uuidString.prefix(6)).lowercased())
+            try tap(element("contacts-add-send"), "Add by @name")
+            let notFound = text(containing: "No one has this username")
+            guard eventually(60, { unavailable.exists || notFound.exists || unknown.exists || self.text(containing: "could not").exists }) else {
+                throw FlowStop.fail("adding by @name showed no outcome: \(visibleFailure())")
+            }
+            snap("15b-username-add")
+            if unknown.exists { throw FlowStop.fail("adding by @name shows an unknown outcome instead of the directory's answer: \(visibleFailure())") }
+            let add = unavailable.exists ? "username.contact.add refused; the add screen shows: \(unavailable.label)"
+                : notFound.exists ? "username.contact.add reached the directory: an unknown name is reported as not found" : "username.contact.add refused: \(visibleFailure())"
+            back()
+            if unavailable.exists || status.contains("refused") {
+                throw FlowStop.blocked("\(status); \(add). The build has no username directory pin (RAMFLUX_USERNAME_DIRECTORY_URL, _ID, _PUBLIC_KEY, _GENERATION), or the directory refused; the SDK answers with a typed directory_unavailable then")
+            }
+            return "\(status); \(add)"
+        }
+    }
+
     func ensureShell() throws {
         dismissPrompts()
         closeLeftoverSheet()

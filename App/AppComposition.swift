@@ -53,8 +53,7 @@ import UserNotifications
         let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .unlockKnown(account: account, name: name),
             forget: { [weak self] id in self?.forgetKnownAccount(id) }) { [weak self] unlocked in
             self?.currentUnlock = nil
-            // One path change: the unlock step closes and the screens open before the lock come back.
-            self?.shell.closeUnlock(reopening: unlocked?.id)
+            self?.shell.closeUnlock()
             if unlocked != nil { self?.shell.send(.retry) }
         }
         currentUnlock = (account, coordinator); return coordinator
@@ -81,8 +80,10 @@ import UserNotifications
         if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == group { return currentChat.3 }
         currentChat?.3.send(.disappeared)
         // A direct conversation takes the name its directory row resolved (contact name or short identifier).
-        let resolved = title ?? inbox.flatMap { $0.0 == account ? $0.1.viewModel.state.rows.first { $0.id == conversation }?.title : nil }
-        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved) { [weak self] event in
+        let row = inbox.flatMap { $0.0 == account ? $0.1.viewModel.state.rows.first { $0.id == conversation } : nil }
+        let resolved = title ?? row?.title
+        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved,
+                                          peerIsAgent: group == nil && row?.classification.isAIAgent == true) { [weak self] event in
             self?.chatEvent(event, account: account, conversation: conversation)
         }
         currentChat = (account, conversation, group, coordinator); return coordinator
@@ -189,13 +190,15 @@ import UserNotifications
     /// media engine refuses (see docs/app-shell.md, "Calls and the media engine boundary").
     @ObservationIgnored private(set) lazy var callService = CallSystemService(repository: repositories.calls, provider: CallKitProvider(supportsVideo: false), audio: CallAudioSession())
     private func accountLocked() { unlockedAccount = nil; callService.stop() }
-    /// The scene went to the background: the SDK closes (the C ABI has no suspend), which locks every
-    /// account. Account-scoped stores seal as on a lock, so the next unlock resumes queued sends
-    /// (including one interrupted in flight) and restarts what follows the account.
-    func enteredBackground() {
-        guard let account = unlockedAccount else { return }
-        accountLocked()
-        Task { [chat = repositories.chat] in await chat.sealForLock(account: account) }
+    /// The scene is active again: the SDK resumed without asking for anything and the account stayed
+    /// unlocked, so a send the suspension interrupted (it completes as suspended and stays queued) is
+    /// flushed again with its operation id once the session is back.
+    func returnedToForeground() {
+        Task { [weak self, chat = repositories.chat] in
+            await self?.shell.viewModel.settle()
+            guard let account = self?.unlockedAccount else { return }
+            _ = await chat.resumeAfterUnlock(account: account)
+        }
     }
     /// Account-scoped stores react before the SDK locks or removes the account.
     private func registerLifecycle() {

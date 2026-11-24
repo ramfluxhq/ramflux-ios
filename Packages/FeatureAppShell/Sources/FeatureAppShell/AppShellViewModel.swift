@@ -12,24 +12,25 @@ import AppData
     @ObservationIgnored private var updates: Task<Void, Never>?
     @ObservationIgnored private var generation: UInt64 = 0
     @ObservationIgnored private var pendingRoute: (route: AppRoute, account: String)?
-    /// The account that was active when the privacy shield went up, and the screens it had open; they
-    /// reopen when that account is active again (after the scene returns, or after unlock when the SDK
-    /// closed in the background). In memory only, never saved.
-    @ObservationIgnored private var concealedAccount: String?
-    @ObservationIgnored private var parked: (account: String, routes: [AppRoute])?
-    public init(repository: any SessionRepository, state: AppShellState = AppShellState(), emit: @escaping @MainActor (AppShellEvent) -> Void) {
-        self.repository = repository; self.state = state; self.emit = emit
+    /// The optional app lock. Off by default: a return from the background or a relaunch asks for
+    /// nothing and the screens stay as they were. See docs/app-shell.md, "Background and relaunch".
+    @ObservationIgnored private let appLock: any AppLockGate
+    public init(repository: any SessionRepository, state: AppShellState = AppShellState(), appLock: any AppLockGate = AppLockOff(),
+                emit: @escaping @MainActor (AppShellEvent) -> Void) {
+        self.repository = repository; self.state = state; self.appLock = appLock; self.emit = emit
     }
     public func send(_ action: AppShellAction) {
         switch action {
         case .appeared:
             observe(); activate()
-        case .sceneActive, .retry: observe(); activate()
-        case .sceneInactive: conceal()
-        case .sceneBackground:
-            conceal(); suspend()
+        case .sceneActive:
+            observe()
+            if appLock.requiresUnlockOnReturn { conceal() } else { activate() }
+        case .retry: observe(); activate()
+        case .sceneInactive: break
+        case .sceneBackground: suspend()
         case .disappeared:
-            conceal(); updates?.cancel(); updates = nil; suspend()
+            updates?.cancel(); updates = nil; suspend()
         case .selectTab(let tab): state.tab = tab
         case .open(let route):
             guard !state.privacyShield else { return }
@@ -70,38 +71,15 @@ import AppData
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
             self.state.busy = false; self.state.privacyShield = false
             switch result {
-            case .success(let snapshot): self.state.session = snapshot; self.openPending(); self.reopenParked()
+            case .success(let snapshot): self.state.session = snapshot; self.openPending()
             case .failure(let failure): self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure))
             }
         }
     }
-    /// Keeps the screens the navigation had open when the shield went up (the coordinator hands them
-    /// over before it clears the stack). Onboarding and unlock steps are not reopened.
-    public func park(_ routes: [AppRoute]) {
-        let kept = routes.filter { route in
-            switch route { case .onboarding, .recoverAccount, .linkDevice, .unlockAccount: false; default: true }
-        }
-        guard let account = concealedAccount, !kept.isEmpty else { return }
-        parked = (account, kept)
-    }
-    /// The screens parked for `account`, handed over once (the unlock step reopens them itself).
-    public func takeParked(for account: String) -> [AppRoute] {
-        guard let held = parked, held.account == account else { return [] }
-        parked = nil
-        return held.routes
-    }
-    private func reopenParked() {
-        guard let held = parked, !state.privacyShield, state.session.phase == .ready, let active = state.session.activeAccountID else { return }
-        parked = nil
-        guard active == held.account else { return }
-        for route in held.routes { emit(.navigate(route)) }
-    }
+    /// The app lock seam: covers the account records until the lock (not part of this build) is passed.
     private func conceal() {
-        if state.session.phase == .ready, let active = state.session.activeAccountID { concealedAccount = active }
         generation &+= 1; work?.cancel()
         state.privacyShield = true; state.busy = false; state.failure = nil
-        state.session = SessionSnapshot(phase: .suspended)
-        emit(.dismissPrivateNavigation)
     }
     private func suspend() {
         generation &+= 1; let epoch = generation
@@ -123,7 +101,7 @@ import AppData
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
             self.state.busy = false
             switch result {
-            case .success(let snapshot): self.state.session = snapshot; self.parked = nil; self.emit(.accountSelected)
+            case .success(let snapshot): self.state.session = snapshot; self.emit(.accountSelected)
             case .failure(let failure): self.state.failure = failure
             }
         }

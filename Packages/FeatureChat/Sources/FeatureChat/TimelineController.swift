@@ -60,8 +60,8 @@ import RFDesign
         let gap = max(0, visible - tableView.contentSize.height)
         if abs(tableView.contentInset.top - gap) > 0.5 { tableView.contentInset.top = gap }
     }
-    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:]) {
-        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards)
+    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:], agentAuthors: Set<String> = []) {
+        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors)
         loadViewIfNeeded()
         self.olderAvailable = olderAvailable
         if !loadingOlder { requestedOlderAt = nil }
@@ -80,6 +80,7 @@ import RFDesign
         snapshot.appendSections([0]); snapshot.appendItems(items.map(\.id), toSection: 0)
         let changed = items.filter { old[$0.id] != nil && (presentationChanged || old[$0.id] != $0) }.map(\.id)
         for id in changed { heights[id] = nil }
+        EventDiagnostics.note("timeline update items=\(items.count) reconfigured=\(changed.count)")
         snapshot.reconfigureItems(changed)
         revision &+= 1; let current = revision
         source.apply(snapshot, animatingDifferences: false) { [weak self] in

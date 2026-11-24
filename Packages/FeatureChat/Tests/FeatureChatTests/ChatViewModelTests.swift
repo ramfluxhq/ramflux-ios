@@ -104,7 +104,7 @@ actor ChatFake: ChatRepository {
     func setDeleteResult(_ result: RepositoryResult<Void>) { deleteResult = result }
     func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) -> RepositoryResult<Void> { deletes.append((message, scope)); return deleteResult }
     func markRead(account: String, conversation: String, message: String) -> RepositoryResult<Void> { reads.append(message); return .success(()) }
-    func setTyping(account: String, conversation: String, active: Bool) -> RepositoryResult<Void> { typing.append(active); return .success(()) }
+    func setTyping(account: String, conversation: String, isGroup: Bool, active: Bool) -> RepositoryResult<Void> { typing.append(active); return .success(()) }
     func details(account: String, conversation: String, peerAnchor: String?) -> RepositoryResult<ChatDetails> { detailResult }
     func setMuted(account: String, conversation: String, muted value: Bool, operationID: String) -> RepositoryResult<Bool> { muted.append(value); return .success(value) }
     private(set) var downloads: [String] = []

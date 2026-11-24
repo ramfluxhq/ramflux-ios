@@ -118,7 +118,7 @@ public struct SettingsScreen: View {
             Text(copy(automatic ? "settings.privacy.autoAccept.on" : "settings.privacy.autoAccept.off")).foregroundStyle(theme.secondary)
             group(copy("settings.privacy.openAccount.section"), [
                 KitRow(copy("settings.privacy.openAccount"), action: { onAction(.unavailable(.openAccount)) }, icon: "globe", tag: "settings-open-account"),
-                KitRow(copy("settings.privacy.username"), action: { onAction(.unavailable(.username)) }, icon: "at-sign", tag: "settings-username"),
+                KitRow(copy("settings.privacy.username"), action: { onAction(.unavailable(.username)) }, icon: "at-sign", value: state.username.map { "@" + $0 }, tag: "settings-username"),
             ])
         case .permissions:
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))

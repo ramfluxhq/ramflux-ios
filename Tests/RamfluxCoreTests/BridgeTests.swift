@@ -251,16 +251,6 @@ struct BridgeTests {
         _ = try await SDKProxy(client: client).accountList(context: context())
         await subscription.stop(); try await client.close()
     }
-    @Test func failedSuspendDoesNotAuthorizeReplacementWriter() async throws {
-        rf_fixture_reset(); let (_, client) = try await open()
-        let lifecycle = PhoneLifecycle(client: client, dataRoot: URL(fileURLWithPath: "/unused-fixture-root"))
-        try await lifecycle.foreground(); rf_fixture_set_close_code(10)
-        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.background() }
-        #expect(await lifecycle.state == .failed)
-        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.foreground() }
-        rf_fixture_set_close_code(0)
-        try await lifecycle.close()
-    }
     @Test func ceremonyRequiresHideAndAllowsOneConfirmationAttempt() async throws {
         rf_fixture_reset(); let (_, client) = try await open()
         let ceremony = AccountCeremony(proxy: SDKProxy(client: client), kind: .creation)
@@ -441,17 +431,13 @@ struct BridgeTests {
         #expect(await lifecycle.state == .stopped)
         try await lifecycle.foreground()
         #expect(rf_fixture_opens() == 2)
-        rf_fixture_set_close_code(10)
-        await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.background() }
-        #expect(throws: BridgeError.closed) { try core.start() }
-        #expect(rf_fixture_opens() == 2)
         rf_fixture_set_close_code(24)
         await #expect(throws: BridgeError.lockStillHeld) { try await lifecycle.close() }
         #expect(throws: BridgeError.closed) { try core.start() }
         #expect(rf_fixture_opens() == 2)
         rf_fixture_set_close_code(0)
         try await lifecycle.close()
-        #expect(rf_fixture_closes() == 3)
+        #expect(rf_fixture_closes() == 2)
         try await lifecycle.foreground()
         #expect(rf_fixture_opens() == 3)
         try await lifecycle.close()

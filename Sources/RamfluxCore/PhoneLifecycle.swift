@@ -3,6 +3,8 @@
 import Foundation
 
 /// Serializes transitions even across actor reentrancy. Failed shutdown never permits reopen.
+/// Background suspends the SDK (files released, unlocked accounts kept in memory) and foreground
+/// resumes it without the account code; only the first foreground opens the client.
 public actor PhoneLifecycle {
     public enum State: Sendable { case stopped, running, suspended, failed }
     private enum Event: Sendable { case foreground, background, close }

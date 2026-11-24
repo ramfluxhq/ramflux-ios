@@ -64,9 +64,11 @@ generation to the C ABI, so it cannot clear a replacement stream. Invalid/missin
 open generations fail closed. The fixture exercises close/reopen and stale frames. A copied stream or iterator
 retains the subscription; requested stop ends cleanly and event gaps require resync.
 
-`PhoneLifecycle` serializes transitions across actor suspension. Background return
-means the C supervisor shutdown completed and its writer was released. The app
-must grant background execution time around this call and end that OS task only
+`PhoneLifecycle` serializes transitions across actor suspension. Background calls
+`ramflux_v2_client_suspend` (networking stopped, files and the data-root lease released,
+unlocked accounts kept in memory) and foreground calls `ramflux_v2_client_resume`, which
+never asks for the account code; only the first foreground opens the client. The app
+must grant background execution time around the suspend and end that OS task only
 after completion. Pending shutdown retains its client handle and refuses start until confirmed
 completion. After any close error, nonblocking `client_release` probes terminal
 completion: Pending preserves the fence, while confirmed release permits rebuild
