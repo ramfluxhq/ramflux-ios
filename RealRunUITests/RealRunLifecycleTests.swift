@@ -164,7 +164,8 @@ final class RealRunLifecycleTests: RealRunTestCase {
             guard banner.waitForExistence(timeout: 30) else { throw FlowStop.fail("no in-app banner on the conversation list: \(visibleFailure())") }
             snap("17-banner")
             let label = banner.label
-            try tap(banner, "banner")
+            // Not `tap(_:_:)`: that helper swipes an on-screen banner away first.
+            banner.tap()
             guard element("chat-composer-input").waitForExistence(timeout: 15) else { throw FlowStop.fail("tapping the banner did not open the conversation: \(visibleFailure())") }
             guard text(containing: phrase).waitForExistence(timeout: 30) else { throw FlowStop.fail("the opened conversation does not show the message") }
             snap("17-opened")
