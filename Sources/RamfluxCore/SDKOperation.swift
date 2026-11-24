@@ -6,6 +6,8 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case a2iAppend = "a2i.append"
     case a2iList = "a2i.list"
     case a2iListPending = "a2i.list_pending"
+    case accountAppLockConfigure = "account.app_lock.configure"
+    case accountAppLockState = "account.app_lock.state"
     case accountBackupCancel = "account.backup.cancel"
     case accountBackupCreate = "account.backup.create"
     case accountBackupExport = "account.backup.export"
@@ -265,7 +267,7 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     }
     public var requiresOperationID: Bool {
         switch self {
-        case .a2iList, .a2iListPending, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentApprovalDecide, .agentApprovalList, .agentApprovalPublish, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentHostManage, .agentJobList, .agentJobPause, .agentJobRemove, .agentJobResume, .agentJobSession, .agentJobSessions, .agentList, .agentOperationGet, .agentPersonaEdit, .agentProgress, .agentRetire, .agentWatch, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
+        case .a2iList, .a2iListPending, .accountAppLockState, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentApprovalDecide, .agentApprovalList, .agentApprovalPublish, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentHostManage, .agentJobList, .agentJobPause, .agentJobRemove, .agentJobResume, .agentJobSession, .agentJobSessions, .agentList, .agentOperationGet, .agentPersonaEdit, .agentProgress, .agentRetire, .agentWatch, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
         default: true
         }
     }
@@ -275,6 +277,8 @@ public enum SDKOperation: String, CaseIterable, Sendable {
         case .a2iAppend: "a2i"
         case .a2iList: "a2i"
         case .a2iListPending: "a2i"
+        case .accountAppLockConfigure: "account"
+        case .accountAppLockState: "account"
         case .accountBackupCancel: "account"
         case .accountBackupCreate: "account"
         case .accountBackupExport: "account"

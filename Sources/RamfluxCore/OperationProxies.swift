@@ -18,6 +18,12 @@ public extension A2IProxy {
 }
 public protocol AccountProxy: SDKProxyProtocol {}
 public extension AccountProxy {
+    func accountAppLockConfigure(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.accountAppLockConfigure, context: context, body: body)
+    }
+    func accountAppLockState(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.accountAppLockState, context: context, body: body)
+    }
     func accountBackupCancel(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
         try await performSecret(.accountBackupCancel, context: context, body: body, secrets: secrets)
     }
