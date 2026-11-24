@@ -105,6 +105,24 @@ By default the app asks for nothing when it returns from the background or is re
 
 No recovery words, keys, message bodies or operation payloads are logged or exported by the shell.
 
+## In-app banner and snapshot privacy
+
+- `InAppBannerFeed` (AppData) follows the same event source as `MessageNotifier`: on each invalidation it
+  reads the first directory page, picks the audible conversation whose unread count rose, and reads that
+  conversation's newest message through `ChatRepository.messages`. Nothing is raised while the scene is
+  not active, for the conversation on screen, for a muted conversation or for an own message. The
+  directory has no per-sender name for groups, so the group name is the title there.
+- The banner (`InAppBannerOverlay`, FeatureAppShell) is a view in the app's own window, never a system
+  notification. It is generic ("New message", no name, no text, text hidden from accessibility) while
+  `sceneCaptureState` is active (`App/CaptureStateProbe.swift`) or the shell's privacy shield (the app
+  lock seam) is up; a tap while locked queues the route until the unlock completes. The preview is one
+  line of at most 80 characters, only for user text messages without attachments; calls and other content
+  use fixed texts. Banner state is in memory only: no logging, `SceneStorage`, `NSUserActivity` or donation.
+- `App/PrivacyCover.swift` draws an opaque cover (app name on the theme background) over every
+  normal-level window of the scene when it will resign active, before the app-switcher snapshot, removes it
+  when the scene is active, and calls `ignoreSnapshotOnNextApplicationLaunch()` on every move to the
+  background. It is always on and is not tied to the app lock.
+
 ## Feature modules
 
 `FeatureOnboarding`, `FeatureConversations`, `FeatureChat`, `FeatureContacts` and

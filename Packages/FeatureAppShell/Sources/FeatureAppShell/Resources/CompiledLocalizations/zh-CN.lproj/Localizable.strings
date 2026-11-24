@@ -4,6 +4,16 @@
 <dict>
 	<key>account.add</key>
 	<string>添加账户</string>
+	<key>banner.accessibility.dismiss</key>
+	<string>关闭</string>
+	<key>banner.accessibility.from</key>
+	<string>来自 %@ 的新消息</string>
+	<key>banner.call</key>
+	<string>通话</string>
+	<key>banner.generic</key>
+	<string>新消息</string>
+	<key>banner.other</key>
+	<string>新消息</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
 	<key>common.nav.contacts</key>
