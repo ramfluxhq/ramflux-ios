@@ -126,12 +126,15 @@ class RealRunTestCase: XCTestCase {
             // XCUITest sometimes reports an enabled, visible control as not hittable (seen with the keyboard
             // up under an overlay); after a few seconds an enabled control on screen is tapped at its centre.
             if element.isEnabled, Date().timeIntervalSince(started) > 4, app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) {
+                dismissBanner()
                 element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); return
             }
             guard Date() < deadline else { throw FlowStop.fail("\(what) never became enabled and hittable") }
             dismissPrompts()
             Thread.sleep(forTimeInterval: 0.3)
         }
+        // A banner can arrive between the first check and the tap (it would take the tap).
+        dismissBanner()
         element.tap()
     }
     /// Taps the host confirmation ("Confirm: ..."); a long review sheet keeps it below the fold, so scroll first.
