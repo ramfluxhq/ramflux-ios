@@ -87,6 +87,7 @@ private struct InAppBannerCard: View {
             })
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spoken)
+        .accessibilityIdentifier("in-app-banner")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(named: Text(FeatureAppShellStrings.text("banner.accessibility.dismiss", locale: locale)), onDismiss)
         .accessibilityHidden(hidden)
