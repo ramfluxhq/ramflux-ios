@@ -96,7 +96,7 @@ public struct GroupsScreen: View {
             }
             if !state.invitations.isEmpty {
                 Text(FeatureGroupsStrings.text("groups.invites", locale: locale)).rfFont(.body, weight: .semibold)
-                ForEach(state.invitations) { invitation in Button(invitation.name ?? invitation.id) { onAction(.mode(.invitation(invitation.id))) } }
+                ForEach(state.invitations) { invitation in Button(invitation.name ?? invitation.id) { onAction(.mode(.invitation(invitation.id))) }.accessibilityIdentifier("group-invitation-" + invitation.id) }
             }
             Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).rfFont(.caption)
         case .create:
@@ -118,7 +118,8 @@ public struct GroupsScreen: View {
                     Button(FeatureGroupsStrings.text("groups.rename", locale: locale)) { onAction(.prepareRename) }.disabled(state.name.isEmpty || state.busy || state.pending != nil)
                 } else { Text(FeatureGroupsStrings.text("groups.permissions.info", locale: locale)).rfFont(.caption) }
                 Button(FeatureGroupsStrings.text("groups.transfer", locale: locale)) { onAction(.unavailable(.ownershipTransfer)) }
-                Button(FeatureGroupsStrings.text("groups.leave", locale: locale)) { onAction(.unavailable(.leave)) }
+                Button(FeatureGroupsStrings.text("groups.leave", locale: locale), role: .destructive) { onAction(.prepareLeave) }
+                    .disabled(state.busy || state.pending != nil).accessibilityIdentifier("group-leave")
                 Button(FeatureGroupsStrings.text("groups.historyPolicy", locale: locale)) { onAction(.unavailable(.historyPolicy)) }
                 Button(FeatureGroupsStrings.text("groups.archive", locale: locale)) { onAction(.unavailable(.archive)) }
             }
@@ -127,7 +128,11 @@ public struct GroupsScreen: View {
                 ForEach(state.memberRows) { row in
                     let member = row.member
                     VStack(alignment: .leading, spacing: theme.gap / 2) {
-                        Text(untrusted: member.principal.isEmpty ? member.device : member.principal).rfFont(.body, weight: .semibold)
+                        HStack {
+                            Text(untrusted: member.displayName ?? (member.principal.isEmpty ? member.device : member.principal)).rfFont(.body, weight: .semibold)
+                            if member.classification.isAIAgent { KitAIMarker(tag: member.id + "-ai") }
+                        }
+                        if member.displayName != nil, !member.principal.isEmpty { KitIdentifierText(member.principal) }
                         KitIdentifierText(member.device).textSelection(.enabled)
                         if let root = member.root { Text(root).rfFont(.caption).textSelection(.enabled) }
                         Text(role(member.role))
@@ -158,8 +163,8 @@ public struct GroupsScreen: View {
                 Text(untrusted: invitation.name ?? invitation.id).rfFont(.page); Text(invitation.id)
                 LabeledContent(FeatureGroupsStrings.text("groups.creator", locale: locale), value: invitation.creator)
                 LabeledContent(FeatureGroupsStrings.text("groups.inviter", locale: locale), value: invitation.inviter); expiry(invitation.expiresAt)
-                Button(FeatureGroupsStrings.text("groups.accept", locale: locale)) { onAction(.prepareInvitation(id, true)) }.disabled(state.pending != nil || state.busy)
-                Button(FeatureGroupsStrings.text("groups.decline", locale: locale), role: .destructive) { onAction(.prepareInvitation(id, false)) }.disabled(state.pending != nil || state.busy)
+                Button(FeatureGroupsStrings.text("groups.accept", locale: locale)) { onAction(.prepareInvitation(id, true)) }.disabled(state.pending != nil || state.busy).accessibilityIdentifier("group-invitation-accept")
+                Button(FeatureGroupsStrings.text("groups.decline", locale: locale), role: .destructive) { onAction(.prepareInvitation(id, false)) }.disabled(state.pending != nil || state.busy).accessibilityIdentifier("group-invitation-decline")
             }
         case .managementUnavailable:
             RFFailureView(title: FeatureGroupsStrings.text("groups.manageUnavailable", locale: locale), message: FeatureGroupsStrings.text("groups.manageUnavailable.message", locale: locale))
@@ -186,6 +191,7 @@ public struct GroupsScreen: View {
         case .remove: "groups.remove"
         case .add: "groups.add"
         case .invitation(_, let accept): accept ? "groups.accept" : "groups.decline"
+        case .leave: "groups.leave"
         }
         // Fact values are names and identifiers: each is isolated, and the locale's list format joins them.
         let values = facts(change).map { RFBidi.isolate($0.value) }.formatted(.list(type: .and, width: .narrow).locale(locale))
@@ -200,6 +206,7 @@ public struct GroupsScreen: View {
         case .role(_, let epoch, let member, let selected): append("epoch", epoch.formatted(.number.locale(locale))); append("principal", member.principal); append("root", member.root ?? ""); append("device", member.device); append("newRole", role(selected))
         case .remove(_, let epoch, let member): append("epoch", epoch.formatted(.number.locale(locale))); append("remove.action", FeatureGroupsStrings.text("groups.remove.action", locale: locale)); append("principal", member.principal); append("root", member.root ?? ""); append("device", member.device)
         case .add(_, let epoch, let principal, let root): append("epoch", epoch.formatted(.number.locale(locale))); append("add.action", FeatureGroupsStrings.text("groups.add.action", locale: locale)); append("principal", principal); append("root", root)
+        case .leave(_, let epoch): append("epoch", epoch.formatted(.number.locale(locale))); append("leave.action", FeatureGroupsStrings.text("groups.leave.action", locale: locale))
         case .invitation(let invitation, let accept): append(accept ? "accept.action" : "decline.action", FeatureGroupsStrings.text(accept ? "groups.accept.action" : "groups.decline.action", locale: locale)); append("creator", invitation.creator); append("inviter", invitation.inviter); if (0...253402300799).contains(invitation.expiresAt) { append("expires", Date(timeIntervalSince1970: TimeInterval(invitation.expiresAt)).formatted(.dateTime.year().month().day().hour().minute().locale(locale))) }
         }
         return values

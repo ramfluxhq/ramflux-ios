@@ -4,14 +4,14 @@ import Testing
 import RamfluxCore
 @testable import AppData
 @Suite(.timeLimit(.minutes(1))) struct ConversationsRepositoryTests {
-    @Test func directRowsAreNamedFromContactsInOneLookupAndFallBackToAShortIdentifier() async {
+    @Test func directRowsAreNamedByTheSdkClassifiedFromContactsAndFallBackToAShortIdentifier() async {
         let transport = ProxyTransport { request in
             switch request.method {
-            case "contact.list": return .object(["contacts": .array([.object(["principal_id": .string("principal-alice"), "display_name": .string("Alice"), "root_commitment": .string("root-alice")])])])
+            case "contact.list": return .object(["contacts": .array([.object(["principal_id": .string("principal-alice"), "display_name": .string("Alice"), "root_commitment": .string("root-alice"), "verified_classification": .string("ai_agent")])])])
             default: return .object(["conversations": .array([
-                .object(["id": .string("dm:a"), "direct_route": .object(["recipient_principal_commitment": .string("root-alice")])]),
-                .object(["id": .string("dm:b"), "self_principal_id": .string("principal-me"), "participants": .array([.string("principal-me"), .string("principal-stranger-with-a-long-id")])]),
-                .object(["id": .string("dm:c"), "title": .string("Named by the SDK"), "direct_route": .object(["recipient_principal_commitment": .string("root-alice")])]),
+                .object(["id": .string("dm:a"), "peer_principal_id": .string("principal-alice"), "peer_display_name": .string("Alice")]),
+                .object(["id": .string("dm:b"), "peer_principal_id": .string("principal-stranger-with-a-long-id")]),
+                .object(["id": .string("dm:c"), "title": .string("Named by the SDK"), "peer_principal_id": .string("principal-alice")]),
                 .object(["id": .string("group-1"), "group_id": .string("g1")]),
             ])])
             }
@@ -21,6 +21,7 @@ import RamfluxCore
         guard case .success(let page) = await repository.page(account: "account", cursor: nil, limit: 50) else { Issue.record("Directory mapping failed"); return }
         #expect(page.rows.map(\.title) == ["Alice", "\u{2066}stranger-w\u{2026}\u{2069}", "Named by the SDK", "group-1"])
         #expect(page.rows.map(\.titleIsIdentifier) == [false, true, false, false])
+        #expect(page.rows.map(\.classification) == [.aiAgent, .unknown, .aiAgent, .unknown])
         // A second page within the reuse window does not read contacts again.
         _ = await repository.page(account: "account", cursor: nil, limit: 50)
         #expect(transport.calls.withLock { $0.filter { $0.method == "contact.list" }.count } == 1)

@@ -101,6 +101,11 @@ public protocol ChatRepository: Sendable {
     /// Typing updates of peers in the conversation from `message.transient`; finishes at once
     /// when no transient source is connected.
     func typing(account: String, conversation: String) async -> AsyncStream<TypingEvent>
+    /// Root commitments and principal ids of contacts the SDK verified as AI agents (`verified_classification`).
+    func agentAuthors(account: String) async -> Set<String>
+}
+public extension ChatRepository {
+    func agentAuthors(account: String) async -> Set<String> { [] }
 }
 public struct NativeChatRepository: ChatRepository {
     private let sends = RetainedMutation<String, SendOutcome>()
@@ -258,6 +263,15 @@ public struct NativeChatRepository: ChatRepository {
             guard case .success = await media.revoke(account, message: message) else { return }
             await queue.removeRevoke(account, message: message)
         }
+    }
+    public func agentAuthors(account: String) async -> Set<String> {
+        guard let rows = try? ProxyGateway.rows(try await gateway.call(.contactList, account: account), "contacts") else { return [] }
+        var authors = Set<String>()
+        for row in rows.prefix(50_000) where PrincipalClassification(sdk: row["verified_classification"]).isAIAgent {
+            if let principal = row["principal_id"]?.string { authors.insert(principal) }
+            if let root = row["root_commitment"]?.string { authors.insert(root) }
+        }
+        return authors
     }
     public func markRead(account: String, conversation: String, message: String) async -> RepositoryResult<Void> {
         guard Self.identity(conversation), Self.identity(message) else { return .failure(.invalidInput) }

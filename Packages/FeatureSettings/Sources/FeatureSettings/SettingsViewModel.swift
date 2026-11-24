@@ -11,6 +11,7 @@ import AppData
     private let preferences: any PreferencesRepository
     private let emit: (SettingsEvent) -> Void
     @ObservationIgnored private var read: Task<Void, Never>?
+    @ObservationIgnored private var sideTask: Task<Void, Never>?
     @ObservationIgnored private var mutation: Task<Void, Never>?
     @ObservationIgnored private var observer: Task<Void, Never>?
     @ObservationIgnored private var epoch: UInt64 = 0
@@ -72,14 +73,32 @@ import AppData
         case .setDefault(let id):
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
+        case .unavailable(.username): readUsername()
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false }
         case .reconcileOriginal(let id):
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
+            sideTask?.cancel()
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
             state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown
+        }
+    }
+    /// The username row asks the username directory (`username.status`): the claimed name, or the
+    /// directory's refusal as an honest unavailable state.
+    private func readUsername() {
+        guard let account else { state.failure = repository.unavailable(.username); return }
+        state.failure = nil
+        sideTask?.cancel()
+        sideTask = Task { [weak self, repository] in
+            let result = await repository.username(account: account)
+            guard let self, !Task.isCancelled else { return }
+            switch result {
+            case .success(let name?): self.state.username = name
+            case .success(nil): self.state.failure = repository.unavailable(.username)
+            case .failure(let failure): self.state.failure = failure
+            }
         }
     }
     private func dispatch(_ attempt: PendingSettingsMutation, reconciling: Bool = false) {

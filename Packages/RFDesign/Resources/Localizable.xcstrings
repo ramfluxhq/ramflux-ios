@@ -392,6 +392,40 @@
           }
         }
       }
+    },
+    "kit.ai.marker": {
+      "comment": "Short marker shown next to the name of a participant the app verified as an AI agent. Keep it to two or three characters.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI"
+          }
+        }
+      }
+    },
+    "kit.ai.marker.accessibility": {
+      "comment": "Spoken label of the AI marker next to a participant's name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI agent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 智能体"
+          }
+        }
+      }
     }
   }
 }

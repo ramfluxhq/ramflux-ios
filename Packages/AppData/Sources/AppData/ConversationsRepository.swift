@@ -18,9 +18,9 @@ public protocol ConversationsRepository: Sendable {
 public struct NativeConversationsRepository: ConversationsRepository {
     private let gateway: ProxyGateway
     private let updates: NativeUpdateSource
-    private let titles: DirectConversationTitles?
+    private let peers: PeerClassifications?
     public init(client: RamfluxClient, updates: NativeUpdateSource, contacts: (any ContactsRepository)? = nil) {
-        gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates; titles = contacts.map(DirectConversationTitles.init)
+        gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates; peers = contacts.map(PeerClassifications.init)
     }
     public static let pageLimit = 50
     public func page(account: String, cursor: String?, limit: Int) async -> RepositoryResult<ConversationPage> {
@@ -34,24 +34,23 @@ public struct NativeConversationsRepository: ConversationsRepository {
                 guard seen.insert(try ProxyGateway.text(row, "id")).inserted else { throw AppFailure.invalidData }
             }
             let visible = rows.filter { $0["archived"] != .bool(true) && $0["hidden"] != .bool(true) }
-            // Direct rows without an SDK title are named from contacts in one lookup per page.
-            let peers = visible.compactMap { row -> [String]? in
-                guard row["group_id"]?.string?.isEmpty ?? true, row["title"]?.string?.isEmpty ?? true else { return nil }
-                return Self.directPeers(row)
-            }
-            let names = peers.isEmpty ? [:] : await titles?.names(account: account, wanted: Set(peers.joined())) ?? [:]
+            // Direct rows carry the peer and its name from the SDK (`peer_principal_id`, `peer_display_name`);
+            // the peer's verified kind comes from contacts in one lookup per page.
+            let wanted = Set(visible.compactMap { Self.peer($0) })
+            let known = wanted.isEmpty ? [:] : await peers?.entries(account: account, wanted: wanted) ?? [:]
             let records = try visible.map { row -> ConversationRecord in
                 let id = try ProxyGateway.text(row, "id")
                 let group = row["group_id"]?.string.flatMap { $0.isEmpty ? nil : $0 }
                 var title = row["title"]?.string.flatMap { $0.isEmpty ? nil : $0 }
                 var identifier = false
+                let peer = group == nil ? Self.peer(row) : nil
                 if title == nil, group == nil {
-                    let keys = Self.directPeers(row)
-                    title = keys.lazy.compactMap { names[$0] }.first
-                    if title == nil { title = keys.first.map(Self.shortIdentifier) ?? id; identifier = true }
+                    title = row["peer_display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 }
+                    if title == nil { title = peer.map(Self.shortIdentifier) ?? id; identifier = true }
                 }
                 return ConversationRecord(id: id, title: title ?? id, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]),
-                                          kind: group == nil ? "person" : "group", muted: row["muted"] == .bool(true), groupID: group, titleIsIdentifier: identifier)
+                                          kind: group == nil ? "person" : "group", muted: row["muted"] == .bool(true), groupID: group, titleIsIdentifier: identifier,
+                                          classification: peer.flatMap { known[$0]?.classification } ?? .unknown)
             }
             let next: String?
             switch body["next_cursor"] {
@@ -68,15 +67,10 @@ public struct NativeConversationsRepository: ConversationsRepository {
             return .success(UInt(rows.filter { $0["direction"]?.string == "inbound" && $0["state"]?.string == "pending" }.count))
         } catch { return .failure(AppFailure.map(error)) }
     }
-    /// The peer of a direct row: the route's principal commitment, then the participants other than this account.
-    static func directPeers(_ row: JSONValue) -> [String] {
-        var keys: [String] = []
-        if let commitment = row["direct_route"]?["recipient_principal_commitment"]?.string, !commitment.isEmpty { keys.append(commitment) }
-        let me = row["self_principal_id"]?.string
-        if case .array(let participants)? = row["participants"] {
-            keys += participants.prefix(8).compactMap { $0.string }.filter { !$0.isEmpty && $0 != me }
-        }
-        return keys
+    /// The peer of a direct row as the SDK names it.
+    static func peer(_ row: JSONValue) -> String? {
+        guard row["group_id"]?.string?.isEmpty ?? true else { return nil }
+        return row["peer_principal_id"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 2048 ? nil : $0 }
     }
     /// A short form of an identifier for a row with no known name: the first characters after any
     /// `principal-` style prefix, left-to-right isolated like every identifier.

@@ -615,18 +615,18 @@
       }
     },
     "contacts.add.address": {
-      "comment": "Field label on the add-contact screen: the person's principal id, or their contact card (text or link) which also names their home node.",
+      "comment": "Field label on the add-contact screen: the person's principal id, their @username (looked up in the username directory), or their contact card (text or link) which also names their home node.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account address or contact card"
+            "value": "Account address, @username or contact card"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户地址或联系人名片"
+            "value": "账户地址、@用户名或联系人名片"
           }
         }
       }

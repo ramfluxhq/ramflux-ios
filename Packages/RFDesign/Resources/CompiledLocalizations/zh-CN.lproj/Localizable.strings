@@ -8,6 +8,10 @@
 	<string>取消</string>
 	<key>confirmation.confirm</key>
 	<string>确认</string>
+	<key>kit.ai.marker</key>
+	<string>AI</string>
+	<key>kit.ai.marker.accessibility</key>
+	<string>AI 智能体</string>
 	<key>kit.attach</key>
 	<string>添加附件</string>
 	<key>kit.back</key>

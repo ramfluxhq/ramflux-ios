@@ -151,6 +151,7 @@ public struct KitChatHeader<Avatar: View>: View {
     var onBack: () -> Void
     var onCall: (() -> Void)?
     var onMore: (() -> Void)?
+    var aiMarker: Bool
     var tag: String?
     var avatar: Avatar
     @Environment(\.rfTheme) private var theme
@@ -161,9 +162,11 @@ public struct KitChatHeader<Avatar: View>: View {
         onBack: @escaping () -> Void,
         onCall: (() -> Void)? = nil,
         onMore: (() -> Void)? = nil,
+        aiMarker: Bool = false,
         tag: String? = nil,
         @ViewBuilder avatar: () -> Avatar
     ) {
+        self.aiMarker = aiMarker
         self.title = title
         self.subtitle = subtitle
         self.onBack = onBack
@@ -178,7 +181,14 @@ public struct KitChatHeader<Avatar: View>: View {
             KitIconHit(icon: "chevron-left", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.back"), tag: tag.map { $0 + "-back" }, action: onBack)
             avatar
             VStack(alignment: .leading, spacing: 0) {
-                KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                if aiMarker {
+                    HStack(spacing: KitMetrics.bubbleGap) {
+                        KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                        KitAIMarker(tag: tag.map { $0 + "-ai" })
+                    }
+                } else {
+                    KitLabel(RFUntrustedText(title, kind: .identity).text, size: theme.size_mobile_body, weight: .semibold, color: theme.text, line: KitMetrics.lineTitle)
+                }
                 if let subtitle, !subtitle.isEmpty {
                     KitLabel(subtitle, size: theme.size_meta, weight: .regular, color: theme.secondary, line: KitMetrics.lineTitle)
                 }

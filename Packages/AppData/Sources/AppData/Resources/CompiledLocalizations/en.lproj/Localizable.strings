@@ -154,8 +154,6 @@
 	<string>Group archive is not available in the current SDK.</string>
 	<key>groups.unavailable.history</key>
 	<string>Changing new-member history policy is not available in the current SDK.</string>
-	<key>groups.unavailable.leave</key>
-	<string>A dedicated leave-group flow is not available. Removing a device is not a substitute for leaving the account’s group.</string>
 	<key>groups.unavailable.permission</key>
 	<string>This device has no current root-qualified permission to manage this group. No management change has been submitted.</string>
 	<key>groups.unavailable.threads</key>
@@ -320,8 +318,6 @@
 	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
 	<key>settings.unavailable.pairing</key>
 	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
-	<key>settings.unavailable.username</key>
-	<string>Finding people by @username is not available yet. Share your contact card instead.</string>
 	<key>status.accept</key>
 	<string>Accept</string>
 	<key>status.accepted</key>
@@ -372,5 +368,11 @@
 	<string>Approving this request needs an app signature this phone cannot make yet. You can still deny it.</string>
 	<key>tasks.unavailable</key>
 	<string>Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted.</string>
+	<key>username.unavailable.claim</key>
+	<string>Claiming a username needs your recovery phrase, which this version of the app does not ask for yet.</string>
+	<key>username.unavailable.directory</key>
+	<string>Usernames are not available on this phone yet: the app has no username directory to ask. Share your contact card instead.</string>
+	<key>username.unavailable.notFound</key>
+	<string>No one has this username.</string>
 </dict>
 </plist>

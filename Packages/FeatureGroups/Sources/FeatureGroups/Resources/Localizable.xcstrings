@@ -1223,6 +1223,23 @@
           }
         }
       }
+    },
+    "groups.leave.action": {
+      "comment": "Fact row in the confirmation sheet before leaving a group: what leaving does.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave this group. You stop receiving its messages; the other members are told."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出该群组。你将不再收到群消息，其他成员会收到通知。"
+          }
+        }
+      }
     }
   }
 }

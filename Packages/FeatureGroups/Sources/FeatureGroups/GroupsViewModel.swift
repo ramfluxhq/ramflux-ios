@@ -64,6 +64,9 @@ import AppData
         case .prepareInvitation(let id, let accept):
             guard let invitation = state.invitations.first(where: { $0.id == id }), invitation.expiresAt > Int64(Date().timeIntervalSince1970) else { state.failure = .invalidInput; return }
             prepare(.invitation(invitation, accept: accept))
+        case .prepareLeave:
+            guard let detail = state.detail, detail.ownRole != "owner" else { state.failure = repository.unavailable(.ownershipTransfer); return }
+            prepare(.leave(group: detail.group.id, epoch: detail.group.epoch))
         case .cancelConfirmation: if !state.busy { state.confirmation = nil }
         case .confirm(let id):
             guard !state.busy, state.pending == nil, let confirmation = state.confirmation, confirmation.id == id else { return }
@@ -119,6 +122,7 @@ import AppData
                     }
                 }
                 if case .invitation = attempt.mutation { self.state.mode = .list }
+                if case .leave = attempt.mutation { self.state.mode = .list; self.state.detail = nil }
                 self.refresh()
             case .failure(let failure): self.state.failure = failure; if failure == .locked { self.state.authorityFresh = false; self.state.detail = nil; self.state.mode = .accessChanged }
             }

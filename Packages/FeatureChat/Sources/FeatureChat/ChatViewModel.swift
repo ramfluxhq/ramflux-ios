@@ -44,18 +44,18 @@ import FeatureCards
     @ObservationIgnored private var lastMarked: MessageOrder?
     @ObservationIgnored private var marking = false
     @ObservationIgnored private var typingSentAt: Date?
-    public init(repository: any ChatRepository, cards: any CardsRepository = UnavailableCardsRepository(), account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+    public init(repository: any ChatRepository, cards: any CardsRepository = UnavailableCardsRepository(), account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, peerIsAgent: Bool = false, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
         // A group's conversation id and group_id are equal only for groups this app created; the
         // host passes the real group_id, and the conversation id stands in only when it has none.
         self.groupID = isGroup ? (groupID ?? conversation) : nil
         self.repository = repository; self.cards = cards; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
-        var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation
+        var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation; initial.peerIsAgent = peerIsAgent
         self.state = initial; self.emit = emit; window = TimelineWindow(capacity: windowCapacity)
     }
     public func send(_ action: ChatAction) {
         switch action {
         case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
-        case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards()
+        case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards(); loadAgentAuthors()
         case .refresh: reload(); observe()
         case .loadOlder: loadOlder()
         case .jumpToLatest: reload()
@@ -432,6 +432,18 @@ import FeatureCards
     }
     private func saveDraft(_ text: String) {
         sideTasks.append(Task { [repository, account, conversation] in await repository.saveDraft(account: account, conversation: conversation, text: text) })
+    }
+
+    /// Known participants the SDK verified as AI agents, read once when the chat opens (one contact list read).
+    private func loadAgentAuthors() {
+        sideTasks.append(Task { [weak self, repository, account] in
+            let authors = await repository.agentAuthors(account: account)
+            guard let self, !Task.isCancelled else { return }
+            self.state.agentAuthors = authors
+            if !self.state.isGroup, !self.state.peerIsAgent, let anchor = self.state.messages.first(where: { $0.isOwn == false && $0.authorAnchor != nil })?.authorAnchor {
+                self.state.peerIsAgent = authors.contains(anchor)
+            }
+        })
     }
 
     // MARK: Details

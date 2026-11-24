@@ -82,6 +82,8 @@
 	<string>这是上次已确认的群组状态。执行变更前请刷新。</string>
 	<key>groups.leave</key>
 	<string>退出群组</string>
+	<key>groups.leave.action</key>
+	<string>退出该群组。你将不再收到群消息，其他成员会收到通知。</string>
 	<key>groups.loading</key>
 	<string>正在加载群组</string>
 	<key>groups.manageUnavailable</key>

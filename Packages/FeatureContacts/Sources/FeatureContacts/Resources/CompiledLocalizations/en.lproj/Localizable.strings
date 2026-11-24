@@ -11,7 +11,7 @@
 	<key>contacts.add.action</key>
 	<string>Add</string>
 	<key>contacts.add.address</key>
-	<string>Account address or contact card</string>
+	<string>Account address, @username or contact card</string>
 	<key>contacts.add.notVerifiedNote</key>
 	<string>A request does not make the other account verified.</string>
 	<key>contacts.add.send</key>

@@ -7,5 +7,7 @@ public enum GroupMutation: Equatable, Sendable {
     case remove(group: String, epoch: UInt64, member: GroupMemberRecord)
     case add(group: String, epoch: UInt64, principal: String, root: String)
     case invitation(GroupInvitation, accept: Bool)
-    public var groupID: String { switch self { case .create(let id, _): id; case .rename(let group, _, _), .role(let group, _, _, _), .remove(let group, _, _), .add(let group, _, _, _): group; case .invitation(let invitation, _): invitation.id } }
+    /// This account leaves the group (`group.leave`); an owner transfers ownership first.
+    case leave(group: String, epoch: UInt64)
+    public var groupID: String { switch self { case .create(let id, _): id; case .rename(let group, _, _), .role(let group, _, _, _), .remove(let group, _, _), .add(let group, _, _, _), .leave(let group, _): group; case .invitation(let invitation, _): invitation.id } }
 }

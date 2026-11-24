@@ -82,6 +82,16 @@ public enum AppFailure: Error, Sendable, Equatable {
         if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }
         return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
     }
+    /// A username directory call: the directory's typed refusals (`username_directory` codes) become an
+    /// honest unavailable state; anything else maps as usual.
+    public static func mapUsername(_ error: any Error) -> Self {
+        guard let failure = error as? CoreFailure, let reason = failure.reasonCode ?? failure.response?["error"]?["code"]?.string else { return map(error) }
+        switch reason {
+        case "directory_unavailable": return .unavailableResource("username.unavailable.directory")
+        case "name_not_found", "not_found": return .unavailableResource("username.unavailable.notFound")
+        default: return map(error)
+        }
+    }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
@@ -106,6 +116,8 @@ public enum AppFailure: Error, Sendable, Equatable {
             case .unsupportedVersion, .schemaResetRequired: return .upgradeRequired
             case .authenticationFailed, .deviceRevoked, .permissionDenied, .custodyForkFenced: return .locked
             case .accountBusy, .rateLimited: return .busy
+            case .vaultLocked: return .vaultLocked
+            case .suspended: return .offline
             case .transportUnavailable, .timeout, .closed: return .offline
             case .invalidArgument, .invalidCanonicalJSON: return .invalidInput
             default: return .sdkRefusal(failure.rawCode)
