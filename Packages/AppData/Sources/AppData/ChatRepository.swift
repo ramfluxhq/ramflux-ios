@@ -56,8 +56,9 @@ public protocol ChatRepository: Sendable {
     func delete(account: String, conversation: String, message: String, scope: MessageDeleteScope, operationID: String) async -> RepositoryResult<Void>
     /// Marks the conversation read through `message` for this device (`message.receipt.read`).
     func markRead(account: String, conversation: String, message: String) async -> RepositoryResult<Void>
-    /// Best-effort typing indicator over the live session; never queued or retried.
-    func setTyping(account: String, conversation: String, active: Bool) async -> RepositoryResult<Void>
+    /// Best-effort typing indicator over the live session; never queued or retried. `message.focus`
+    /// is sent only for direct chats: the core does not support it for groups.
+    func setTyping(account: String, conversation: String, isGroup: Bool, active: Bool) async -> RepositoryResult<Void>
     func details(account: String, conversation: String, peerAnchor: String?) async -> RepositoryResult<ChatDetails>
     func setMuted(account: String, conversation: String, muted: Bool, operationID: String) async -> RepositoryResult<Bool>
     func draft(account: String, conversation: String) async -> String
@@ -282,14 +283,14 @@ public struct NativeChatRepository: ChatRepository {
             return .success(())
         } catch { return .failure(AppFailure.map(error)) }
     }
-    public func setTyping(account: String, conversation: String, active: Bool) async -> RepositoryResult<Void> {
+    public func setTyping(account: String, conversation: String, isGroup: Bool, active: Bool) async -> RepositoryResult<Void> {
         guard Self.identity(conversation) else { return .failure(.invalidInput) }
         let operation = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
         do {
-            if active { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .string(conversation)])) }
+            if active, !isGroup { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .string(conversation)])) }
             let send: JSONValue = .object(["conversationId": .string(conversation), "operationId": .string(Data(operation.utf8).base64EncodedString()), "content": .object(["typing": .object(["active": .bool(active)])])])
             _ = try await gateway.call(.messageSubmit, account: account, body: .object(["requestId": .string(operation), "accountId": .string(account), "send": send]), operationID: operation)
-            if !active { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .null])) }
+            if !active, !isGroup { _ = try await gateway.call(.messageFocus, account: account, body: .object(["conversation_id": .null])) }
             return .success(())
         } catch { return .failure(AppFailure.map(error)) }
     }
@@ -464,7 +465,7 @@ public extension ChatRepository {
     func retryOutbox(account: String, conversation: String, operationID: String) async -> [SendOutcome] { [] }
     func discardOutbox(account: String, conversation: String, operationID: String) async -> Bool { false }
     func markRead(account: String, conversation: String, message: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
-    func setTyping(account: String, conversation: String, active: Bool) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
+    func setTyping(account: String, conversation: String, isGroup: Bool, active: Bool) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     func details(account: String, conversation: String, peerAnchor: String?) async -> RepositoryResult<ChatDetails> { .failure(unavailable(.details)) }
     func setMuted(account: String, conversation: String, muted: Bool, operationID: String) async -> RepositoryResult<Bool> { .failure(unavailable(.details)) }
     func draft(account: String, conversation: String) async -> String { "" }

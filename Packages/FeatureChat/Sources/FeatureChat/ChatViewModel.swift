@@ -419,7 +419,8 @@ import FeatureCards
             typingSentAt = nil
         }
         sideTasks.removeAll { $0.isCancelled }
-        sideTasks.append(Task { [repository, account, conversation] in _ = await repository.setTyping(account: account, conversation: conversation, active: active) })
+        let isGroup = state.isGroup
+        sideTasks.append(Task { [repository, account, conversation] in _ = await repository.setTyping(account: account, conversation: conversation, isGroup: isGroup, active: active) })
     }
     private func restoreDraft() {
         guard state.draft.isEmpty, state.composer == nil else { return }
