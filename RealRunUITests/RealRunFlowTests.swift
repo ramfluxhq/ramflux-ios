@@ -585,23 +585,23 @@ final class RealRunFlowTests: RealRunTestCase {
         }
     }
 
-    // MARK: Flow 5c: a group invitation from someone who is no longer a contact, accepted on the phone
+    // MARK: Flow 5c: a group invitation from someone who was never a contact, accepted on the phone
 
     func test05c_groupInvitationAccepted() {
         flow("05c-group-invitation") {
             try ensureReady()
             guard let phone = RunSecrets.phonePrincipal else { throw FlowStop.blocked("needs flow 6 (the phone's principal)") }
+            guard let carol = config.carol else { throw FlowStop.blocked("needs a third peer account (carol) in the peers file, who was never a contact of the phone") }
             var notes: [String] = []
             // A group from an accepted contact joins at once (implicit consent); from anyone else it waits as an
-            // invitation. The phone removes bob as a contact first, so bob's group arrives as an invitation.
-            try removeContact(config.bob)
-            notes.append("the phone removed bob as a contact")
+            // invitation. The core drops an invitation from a contact that was removed, so the inviter is carol,
+            // who the phone never added and who never added the phone.
             let name = "rr-invite-" + token()
             let group = UUID().uuidString.lowercased()
-            let created = control.rf("bob", ["group", "create", "--group", group, "--creator", config.bob.principal, "--member", phone], timeout: 120)
-            guard created.exit == 0 else { throw FlowStop.blocked("bob: rf group create with the phone as member failed (exit \(created.exit)): \(created.stderr.suffix(400))") }
-            let renamed = control.rf("bob", ["group", "rename", "--group", group, "--name", name], timeout: 60)
-            notes.append(renamed.exit == 0 ? "bob created group \(group) named \(name) with the phone as member" : "bob created group \(group) with the phone as member (rename exit \(renamed.exit))")
+            let created = control.rf("carol", ["group", "create", "--group", group, "--creator", carol.principal, "--member", phone], timeout: 120)
+            guard created.exit == 0 else { throw FlowStop.blocked("carol: rf group create with the phone as member failed (exit \(created.exit)): \(created.stderr.suffix(400))") }
+            let renamed = control.rf("carol", ["group", "rename", "--group", group, "--name", name], timeout: 60)
+            notes.append(renamed.exit == 0 ? "carol created group \(group) named \(name) with the phone as member" : "carol created group \(group) with the phone as member (rename exit \(renamed.exit))")
             RunSecrets.invitedGroupID = group
             try ensureReady()
             try openTab("groups")
@@ -609,18 +609,18 @@ final class RealRunFlowTests: RealRunTestCase {
             guard eventually(120, every: 3, {
                 if invitation.exists { return true }
                 self.app.buttons["Refresh"].firstMatch.tapIfExists(); return false
-            }) else { throw FlowStop.fail("the invitation to bob's group never appeared on the phone's Groups tab: \(visibleFailure())") }
+            }) else { throw FlowStop.fail("the invitation to carol's group never appeared on the phone's Groups tab: \(visibleFailure())") }
             snap("05c-invitation-listed")
             notes.append("the invitation is listed on the Groups tab")
             scrollIntoView(invitation)
-            try tap(invitation, "bob's invitation")
+            try tap(invitation, "carol's invitation")
             try tap(element("group-invitation-accept"), "Review acceptance")
             try confirmHost("invitation acceptance confirmation")
             let row = element(group)
             guard eventually(120, every: 3, {
                 if row.exists { return true }
                 self.app.buttons["Refresh"].firstMatch.tapIfExists(); return false
-            }) else { throw FlowStop.fail("after accepting, bob's group is not in the phone's group list: \(visibleFailure())") }
+            }) else { throw FlowStop.fail("after accepting, carol's group is not in the phone's group list: \(visibleFailure())") }
             snap("05c-invitation-accepted")
             notes.append("accepted; the group is in the phone's list")
             if invitation.exists { throw FlowStop.fail("the invitation is still listed after accepting; \(notes.joined(separator: "; "))") }
@@ -648,12 +648,12 @@ final class RealRunFlowTests: RealRunTestCase {
             snap("05d-left")
             var members = ""
             let gone = eventually(120, every: 4, {
-                let value = self.control.rf("bob", ["group", "members", "--group", group])
+                let value = self.control.rf("carol", ["group", "members", "--group", group])
                 members = value.stdout
                 return value.exit == 0 && !value.stdout.contains(phone)
             })
-            guard gone else { throw FlowStop.fail("bob still lists the phone as a member after it left (members: \(members.prefix(300)))") }
-            return "group.leave accepted; the group left the phone's list; bob no longer lists the phone as a member"
+            guard gone else { throw FlowStop.fail("carol still lists the phone as a member after it left (members: \(members.prefix(300)))") }
+            return "group.leave accepted; the group left the phone's list; carol no longer lists the phone as a member"
         }
     }
 

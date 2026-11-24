@@ -151,7 +151,7 @@ final class RealRunScreenFlowTests: RealRunTestCase {
                 : notFound.exists ? "username.contact.add reached the directory: an unknown name is reported as not found" : "username.contact.add refused: \(visibleFailure())"
             back()
             if unavailable.exists || status.contains("refused") {
-                throw FlowStop.blocked("\(status); \(add). The SDK refuses every username call on a phone with code 16 and no typed reason; it reads the username centre only from process environment variables (SDK gap)")
+                throw FlowStop.blocked("\(status); \(add). The build has no username directory pin (RAMFLUX_USERNAME_DIRECTORY_URL, _ID, _PUBLIC_KEY, _GENERATION), or the directory refused; the SDK answers with a typed directory_unavailable then")
             }
             return "\(status); \(add)"
         }
