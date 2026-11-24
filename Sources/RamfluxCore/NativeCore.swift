@@ -120,7 +120,7 @@ public final class NativeCore: CoreTransport {
         let secret = try SecretBytes(copying: UnsafeRawBufferPointer(start: value.ptr, count: value.len), maximumBytes: CoreLimits.frameBytes)
         guard code == 0 else {
             let reason = rf_completion_refusal_reason(buffer).map { String(cString: $0) }
-            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, typedName: typedName(buffer), sealedResponse: secret)
+            throw CoreFailure(code: code, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: reason, typedName: typedName(buffer), reason: rf_completion_directory_reason(buffer).map { String(cString: $0) }, sealedResponse: secret)
         }
         return secret
     }

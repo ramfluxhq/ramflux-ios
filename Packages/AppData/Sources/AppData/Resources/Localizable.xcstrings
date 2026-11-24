@@ -3070,13 +3070,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usernames are not available on this phone yet: the app has no username directory to ask. Share your contact card instead."
+            "value": "Usernames are not available on this server yet."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此手机暂不支持用户名：应用尚无可查询的用户名目录。请改为分享你的联系人名片。"
+            "value": "此服务器暂不支持用户名。"
           }
         }
       }

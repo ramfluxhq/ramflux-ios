@@ -373,7 +373,7 @@
 	<key>username.unavailable.claim</key>
 	<string>认领用户名需要你的恢复短语，此版本的应用暂不支持输入。</string>
 	<key>username.unavailable.directory</key>
-	<string>此手机暂不支持用户名：应用尚无可查询的用户名目录。请改为分享你的联系人名片。</string>
+	<string>此服务器暂不支持用户名。</string>
 	<key>username.unavailable.notFound</key>
 	<string>没有人使用这个用户名。</string>
 </dict>

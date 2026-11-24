@@ -373,7 +373,7 @@
 	<key>username.unavailable.claim</key>
 	<string>Claiming a username needs your recovery phrase, which this version of the app does not ask for yet.</string>
 	<key>username.unavailable.directory</key>
-	<string>Usernames are not available on this phone yet: the app has no username directory to ask. Share your contact card instead.</string>
+	<string>Usernames are not available on this server yet.</string>
 	<key>username.unavailable.notFound</key>
 	<string>No one has this username.</string>
 </dict>
