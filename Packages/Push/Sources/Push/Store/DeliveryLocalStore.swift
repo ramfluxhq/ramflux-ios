@@ -30,6 +30,15 @@ public final class DeliveryLocalStore: @unchecked Sendable {
         defer { defaults.set(hash, forKey: key) }
         return defaults.string(forKey: key) != hash
     }
+    /// The last wake of each class: when it was processed, and how many were. No ids, tokens or tags.
+    public func recordWake(_ wakeClass: WakeClass, at date: Date = Date()) {
+        defaults.set(date.timeIntervalSince1970, forKey: "delivery.lastWake." + wakeClass.rawValue)
+        defaults.set(defaults.integer(forKey: "delivery.count." + wakeClass.rawValue) + 1, forKey: "delivery.count." + wakeClass.rawValue)
+    }
+    public func lastWake(_ wakeClass: WakeClass) -> Date? {
+        let value = defaults.double(forKey: "delivery.lastWake." + wakeClass.rawValue)
+        return value > 0 ? Date(timeIntervalSince1970: value) : nil
+    }
     public func forget(account: String) {
         defaults.removeObject(forKey: "delivery.status." + digest(account)); defaults.removeObject(forKey: "delivery.token." + digest(account))
     }

@@ -283,7 +283,7 @@ import Push
         registerLifecycle()
         AppDelegate.remoteWake = { [weak self] userInfo in await self?.handleRemoteWake(userInfo) ?? .noData }
         #if RAMFLUX_DEBUG_WAKE
-        if let mode = DebugWakeInjector.launchMode() { Task { [weak self] in await self?.runDebugWake(mode, payload: WakePayload(userInfo: ["rf": ["v": 1, "c": mode == .voip ? "call" : (mode == .remote ? "x" : "m"), "t": RouteRegistry()?.anyTag() ?? "AAAAAAAAAAAAAAAAAAAAAA", "w": "debug-launch"]])) } }
+        if let mode = DebugWakeInjector.launchMode() { Task { [weak self] in await self?.runDebugWake(mode, payload: WakePayload(userInfo: ["rf": ["v": 1, "c": mode == .voip ? "call" : (mode == .remote ? "x" : (mode == .test ? "t" : "m")), "t": RouteRegistry()?.anyTag() ?? "AAAAAAAAAAAAAAAAAAAAAA", "w": "debug-launch"]])) } }
         #endif
         ApnsTokenSource.shared.onChange { [weak self] in Task { await self?.routeRegistrar.tokenChanged() } }
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },

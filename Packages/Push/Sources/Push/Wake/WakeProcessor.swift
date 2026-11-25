@@ -11,12 +11,14 @@ public struct WakeProcessor: Sendable {
         public let content: UNMutableNotificationContent?
     }
     private let dispatcher: WakeDispatcher
+    private let store: DeliveryLocalStore?
     public static let fetchBudget: Duration = .seconds(18)
-    public init(dispatcher: WakeDispatcher) { self.dispatcher = dispatcher }
+    public init(dispatcher: WakeDispatcher, store: DeliveryLocalStore? = nil) { self.dispatcher = dispatcher; self.store = store }
 
     public func process(payload: WakePayload, original: UNNotificationContent?, source: WakeSignal.Source,
                         overrideClass: WakeClass? = nil) async -> Output {
         let signal = WakeSignal(wakeClass: overrideClass ?? payload.wakeClass, routeTag: payload.routeTag, wakeID: payload.wakeID, source: source)
+        store?.recordWake(signal.wakeClass)
         let result = await dispatcher.handle(signal, deadline: .now + Self.fetchBudget)
         switch result {
         case .showGeneric(let kind):
