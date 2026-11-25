@@ -26,6 +26,8 @@
 #                                and `start` for the peer daemons
 #   RAMFLUX_REALRUN_CLOCK_CONTAINER optional: a node container whose clock is compared with this machine's
 #   RAMFLUX_REALRUN_BUNDLE_ID    optional: bundle id of the Debug build (default org.ramflux.ios.dev)
+#   RAMFLUX_REALRUN_ALLOW_NOTIFICATIONS optional: 1 makes the suite accept the notification prompt instead of declining it
+#                                (the one-time preparation of a simulator for scripts/push/inject.sh; default 0)
 #   RAMFLUX_MOBILE_ENV           optional: a shell file sourced before building (toolchain paths)
 #   RAMFLUX_CORE_XCFRAMEWORK     optional: the native SDK artifact (default build/RamfluxSDKBinary.xcframework)
 #   RAMFLUX_USERNAME_DIRECTORY_URL, _ID, _PUBLIC_KEY, _GENERATION  optional: the independently provisioned username
@@ -241,6 +243,7 @@ run_suite() {
     export TEST_RUNNER_RF_PEER_CAROL_COMMITMENT="$(peer carol principal_commitment)"
     export TEST_RUNNER_RF_PEER_CAROL_NAME="$(peer carol display_name)"
   fi
+  [ "${RAMFLUX_REALRUN_ALLOW_NOTIFICATIONS:-0}" = 1 ] && export TEST_RUNNER_RF_ALLOW_NOTIFICATIONS=1
   export TEST_RUNNER_RF_PHONE_PHOTO="$(cat "$OUT/phone-photo.path")"
   FILTER=""
   for test in $(printf '%s' "$ONLY" | tr ',' ' '); do
