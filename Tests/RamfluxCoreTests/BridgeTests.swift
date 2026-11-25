@@ -281,11 +281,11 @@ struct BridgeTests {
         let temp = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: temp, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: temp) }
-        let root = try AppStorage.prepare(applicationSupport: temp)
+        let root = try AppStorage.prepare(groupContainer: temp, appGroup: nil)
         #expect(try root.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup == true)
         let link = temp.appendingPathComponent("link")
         try FileManager.default.createSymbolicLink(at: link, withDestinationURL: temp)
-        #expect(throws: BridgeError.unsafeStoragePath) { try AppStorage.prepare(applicationSupport: link) }
+        #expect(throws: BridgeError.unsafeStoragePath) { try AppStorage.prepare(groupContainer: link, appGroup: nil) }
     }
     @Test func exactJournalCursorAndParserLimits() throws {
         let filter = try SubscriptionFilter(topics: ["message"], afterSequence: "18446744073709551615")
@@ -521,14 +521,8 @@ struct BridgeTests {
         try await client.close()
     }
     @Test func nestedStorageFilesAreProtectedAndSymlinksRefused() throws {
-        #if os(iOS)
-        let support = try #require(FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first)
-        let root = try AppStorage.prepare(applicationSupport: support)
-        let owned = root.appendingPathComponent(UUID().uuidString)
-        #else
         let root = FileManager.default.temporaryDirectory.resolvingSymlinksInPath().appendingPathComponent(UUID().uuidString)
         let owned = root
-        #endif
         let nested = owned.appendingPathComponent("account/nested")
         try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: owned) }

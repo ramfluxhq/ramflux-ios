@@ -164,7 +164,9 @@ class Harness:
         for _ in range(5):
             # The archive may be replaced while it is listed (write then rename); list again on a miss.
             container = Path(self.simctl("get_app_container", self.udid, BUNDLE, "data"))
-            listed = [p for p in (container / "Library" / "Application Support" / "ramflux" / "backups").rglob("*.rfb")]
+            # The SDK data root lives in the App Group container.
+            shared = Path(self.simctl("get_app_container", self.udid, BUNDLE, "group." + BUNDLE))
+            listed = [p for p in (shared / "ramflux" / "backups").rglob("*.rfb")]
             self.log("fresh install: archives listed " + ", ".join(f"{p.name}:{p.stat().st_size if p.exists() else -1}" for p in listed))
             for candidate in sorted((p for p in listed if p.exists()), key=lambda p: p.stat().st_mtime, reverse=True):
                 try:

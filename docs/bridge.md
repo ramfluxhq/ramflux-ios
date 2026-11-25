@@ -122,13 +122,17 @@ into erased storage. A new method without explicit SDK policy fails generation. 
 and a single confirmation attempt; errors do not permit another confirmation.
 Creation and recovery must not interleave on one client connection.
 
-The Keychain adapter uses AfterFirstUnlockThisDeviceOnly with synchronization
-disabled and no extension access group or file fallback. A key without its
-existing database returns orphanedVault; it never creates replacement identity
-state. AppStorage sets directory backup exclusion and owner permissions. On iOS
-it restricts the root to Application Support and applies
-completeUntilFirstUserAuthentication recursively to account directories and database/WAL/shm files after foreground.
-The database/spool never belong in an App Group. There is no NSE.
+The Keychain adapters (`HostCustodyProvider`, `KeychainVault`) use AfterFirstUnlockThisDeviceOnly with
+synchronization disabled and no file fallback. Their items live in the shared Keychain access group declared in
+Info.plist (`RamfluxKeychainGroup`, build setting `RAMFLUX_KEYCHAIN_GROUP`), the first and only group of both the
+app and the notification service extension, as the core's shared-root custody contract requires. A key without its
+existing database returns orphanedVault; it never creates replacement identity state. AppStorage sets directory
+backup exclusion and owner permissions. On iOS the SDK data root is `ramflux/` inside the App Group container
+(`RamfluxAppGroup`, `RAMFLUX_APP_GROUP`), shared by the app and the extension and never the app's private
+container; `AppStorage.prepare(groupContainer:)` and `NativeCore` refuse any other base. completeUntilFirstUserAuthentication
+is applied recursively to account directories and database/WAL/shm files after foreground. The extension never
+constructs a `NativeCore`; it will use the core's wake-fetch entry point (see `docs/push.md`). There is no
+migration: an install made before this layout starts empty.
 
 Show-once responses never pass through Data, String, JSONValue, or JSONDecoder
 inside the bridge. A bounded C scan reads the numeric completion prefix, then the

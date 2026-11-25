@@ -256,8 +256,9 @@ Pausing, hiding and goal settings have no SDK methods. Opening an agent's chat n
 SDK's direct conversation id for this account's root (`account.status` `principal_commitment`) and the agent
 anchor: `"dm:" + base64url(BLAKE3(lp(domain) || lp(lower root) || lp(higher root)))` (`message/dm_scope.rs`),
 derived in AppData (`DirectConversationID.resolve`, the one place that addresses a peer or agent conversation by
-anchor, over the app's one `BLAKE3`, checked against the reference crate; no directory scan). The inbox and
-message notifications open directory rows through `ConversationRecord.route` (direct, or group with its `group_id`). The
+anchor, over the app's one `BLAKE3`, checked against the reference crate; no directory scan). The inbox and the
+in-app banner open directory rows through `ConversationRecord.route` (direct, or group with its `group_id`); a system
+notification shows the account's chat list. The
 SDK creates that conversation only for an accepted contact; whether an owner's agents are always linked
 that way is not verified against a node.
 
@@ -431,8 +432,9 @@ RAMFLUX_CORE_XCFRAMEWORK=build/RamfluxSDKBinary.xcframework xcodebuild \
   build ARCHS=arm64 ONLY_ACTIVE_ARCH=YES
 ```
 
-`App/Ramflux.entitlements` supplies the app identifier and its own Keychain group;
-no extension or shared group is granted. Xcode embeds simulator entitlements in
+`App/Ramflux.entitlements` and the extension's entitlements supply the app identifier, the shared
+Keychain access group (`RAMFLUX_KEYCHAIN_GROUP`) and the App Group (`RAMFLUX_APP_GROUP`); no
+filtering or other Apple-granted entitlement is declared. Xcode embeds simulator entitlements in
 the executable. `CODE_SIGNING_ALLOWED=NO` source builds do not prove Keychain
 access. Device signing still requires the caller's normal development team and
 provisioning profile.
