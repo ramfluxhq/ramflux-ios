@@ -240,6 +240,15 @@ public extension AttachmentProxy {
     func attachmentRevoke(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.attachmentRevoke, context: context, body: body, secrets: secrets)
     }
+    func attachmentTransferList(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.attachmentTransferList, context: context, body: body)
+    }
+    func attachmentTransferPause(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.attachmentTransferPause, context: context, body: body)
+    }
+    func attachmentTransferResume(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.attachmentTransferResume, context: context, body: body)
+    }
 }
 public protocol BotProxy: SDKProxyProtocol {}
 public extension BotProxy {
