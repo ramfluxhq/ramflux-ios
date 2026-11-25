@@ -6,14 +6,14 @@ import Push
 
 /// Debug-only entry points that run a wake through the same dispatcher, processor and call handler as the real
 /// ones, with source `.debugInjector` (design 6.4). It is compiled out of Release (scripts/check-release-symbols.sh).
-///   launch argument `-RFDebugWake call` or `-RFDebugWake message`: a cold-start wake, before the shell loads;
+///   launch argument `-RFDebugWake call`, `message` or `clear`: a cold-start wake, before the shell loads;
 ///   payload key `rf_debug.as` on an alert push to the foreground app (`simctl push` refuses silent pushes on this
-///   runtime): `voip` rings the call wake, `nse` runs the message path the extension runs.
+///   runtime): `voip` rings the call wake, `nse` runs the message path the extension runs, `remote` runs the path of a background push (clears).
 enum DebugWakeInjector {
-    enum Mode: String { case voip, nse }
+    enum Mode: String { case voip, nse, remote }
     static func launchMode(arguments: [String] = ProcessInfo.processInfo.arguments) -> Mode? {
         guard let index = arguments.firstIndex(of: "-RFDebugWake"), arguments.indices.contains(index + 1) else { return nil }
-        switch arguments[index + 1] { case "call": return .voip; case "message": return .nse; default: return nil }
+        switch arguments[index + 1] { case "call": return .voip; case "message": return .nse; case "clear": return .remote; default: return nil }
     }
     static func mode(userInfo: [AnyHashable: Any]) -> Mode? {
         ((userInfo["rf_debug"] as? [String: Any])?["as"] as? String).flatMap(Mode.init(rawValue:))
