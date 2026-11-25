@@ -106,7 +106,7 @@ class RealRunTestCase: XCTestCase {
     /// seconds; a swipe up dismisses it, so it never hides a control the flow is about to use.
     func dismissBanner() {
         let banner = app.buttons["in-app-banner"]
-        if banner.exists { banner.swipeUp(); _ = banner.waitForNonExistence(timeout: 5) }
+        if banner.exists { control.log("banner on screen, swiped away"); banner.swipeUp(); _ = banner.waitForNonExistence(timeout: 5) }
     }
     /// Declines the app's notification explanation sheet (Cancel never asks the system) when it covers the screen.
     func dismissPrompts() {
