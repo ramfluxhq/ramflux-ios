@@ -369,6 +369,13 @@ final class RealRunFlowTests: RealRunTestCase {
                 Thread.sleep(forTimeInterval: 2)
                 if app.buttons["Done"].firstMatch.exists { app.buttons["Done"].firstMatch.tap() }
                 else if app.buttons["Close"].firstMatch.exists { app.buttons["Close"].firstMatch.tap() }
+                // A file that is already stored (auto-download) opens the in-app preview on this tap. Its sheet has no
+                // close control, so drag it down from its top edge.
+                let preview = element("QLPreviewControllerView")
+                if preview.exists {
+                    preview.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.02)).press(forDuration: 0.1, thenDragTo: preview.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 1.0)))
+                    guard preview.waitForNonExistence(timeout: 10) else { throw FlowStop.fail("the file preview did not close") }
+                }
                 if !element("chat-composer-input").exists { back() }
             }
             snap("07-received")

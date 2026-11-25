@@ -18,7 +18,7 @@ class RealRunTestCase: XCTestCase {
         continueAfterFailure = true
         if Self.config == nil { Self.config = try RealRunConfig.load(); RunSecrets.load(from: control) }
         // -RFRealRunPhraseAccess: the debug-only accessibility seam of the recovery phrase display (flow 1).
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES", "-RFRealRunBanners", "NO"]
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES"]
         if app.state == .notRunning || app.state == .unknown { app.launch() } else { app.activate() }
     }
 
@@ -105,7 +105,7 @@ class RealRunTestCase: XCTestCase {
     /// An in-app banner (a message from a peer arrived on another screen) covers the top bar for about four
     /// seconds; a swipe up dismisses it, so it never hides a control the flow is about to use.
     func dismissBanner() {
-        let banner = app.descendants(matching: .any).matching(identifier: "in-app-banner").firstMatch
+        let banner = app.buttons["in-app-banner"]
         if banner.exists { banner.swipeUp(); _ = banner.waitForNonExistence(timeout: 5) }
     }
     /// Declines the app's notification explanation sheet (Cancel never asks the system) when it covers the screen.
@@ -126,15 +126,12 @@ class RealRunTestCase: XCTestCase {
             // XCUITest sometimes reports an enabled, visible control as not hittable (seen with the keyboard
             // up under an overlay); after a few seconds an enabled control on screen is tapped at its centre.
             if element.isEnabled, Date().timeIntervalSince(started) > 4, app.frame.contains(CGPoint(x: element.frame.midX, y: element.frame.midY)) {
-                dismissBanner()
                 element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap(); return
             }
             guard Date() < deadline else { throw FlowStop.fail("\(what) never became enabled and hittable") }
             dismissPrompts()
             Thread.sleep(forTimeInterval: 0.3)
         }
-        // A banner can arrive between the first check and the tap (it would take the tap).
-        dismissBanner()
         element.tap()
     }
     /// Taps the host confirmation ("Confirm: ..."); a long review sheet keeps it below the fold, so scroll first.
