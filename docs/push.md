@@ -52,6 +52,16 @@ Answer mapping: registered gives `ready`. A refused registration reaches the app
 treated as `serverNoPush` ("your server does not send push notifications") and is open question CR4 for the core.
 A real node with an APNs credential would answer `registered`; this was not exercised, the test node has none.
 
+## Message delivery page
+
+Settings, next to System permissions, opens `FeatureDelivery`'s page (route `AppRoute.delivery`). It shows the
+`DeliveryStatus` of the active account, the last wake per class (App Group defaults), this iPhone's notification
+settings, Background App Refresh and Low Power Mode (`NativeDeliverySignalsRepository` is the only reader), guidance
+for what Ramflux cannot check, how calls reach the phone until calling exists, a local self-test (a test
+notification after five seconds; lock the phone to see it) and the late-delivery wording. It re-reads every signal
+when the app becomes active, so a change made in iOS Settings shows on return. Debug builds can open it with the
+launch argument `-RFDebugRoute delivery`.
+
 ## Platform facts measured on the simulator
 
 Measured with Xcode 27.2 (27B52), simulator runtime iOS 27.2 (device `rf-realrun`), macOS 26.6.2, Apple silicon,
@@ -80,5 +90,7 @@ and `CallWakeHandler` as the extension and PushKit, with source `debugInjector`.
 `rf_debug` sent to the app in the foreground (`debug-call.apns` rings, `debug-message.apns` runs the message path;
 silent pushes cannot be sent, see F6). `scripts/check-release-symbols.sh` fails when a Release binary contains the
 injector.
+
+| F15 | Time Sensitive and Scheduled Summary settings | Both exist on the simulator and are read through `UNNotificationSettings`. Time Sensitive reads "not supported" until the app declares `com.apple.developer.usernotifications.time-sensitive`; with it declared the build still signs ad hoc and the setting reads on. Scheduled Summary reads off by default. |
 
 F4 to F9 and F12 to F16 are recorded by the tasks that need them.

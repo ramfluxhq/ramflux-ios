@@ -11,6 +11,7 @@ import FeatureChat
 import FeatureContacts
 import FeatureSettings
 import FeaturePermissions
+import FeatureDelivery
 import FeatureTasks
 import FeatureAgents
 import FeatureCalls
@@ -173,6 +174,8 @@ import Push
     /// Local message notifications while the app is not active (see docs/permissions.md).
     @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
     @ObservationIgnored private var notificationDelegate: MessageNotificationDelegate?
+    /// The Settings delivery page for the active account.
+    @ObservationIgnored private(set) lazy var delivery = DeliveryCoordinator(repository: repositories.delivery, account: { [weak self] in self?.shell.viewModel.state.session.activeAccountID })
     /// Registers the unlocked account's push route (Debug builds: the raw token, to the developer's own node).
     @ObservationIgnored lazy var routeRegistrar = RouteRegistrar(repository: repositories.pushRoutes, registry: RouteRegistry(), store: DeliveryLocalStore())
     /// The in-app banner on screen, if any. It lives in memory only: never logged, restored or donated.
@@ -284,6 +287,16 @@ import Push
         AppDelegate.remoteWake = { [weak self] userInfo in await self?.handleRemoteWake(userInfo) ?? .noData }
         #if RAMFLUX_DEBUG_WAKE
         if let mode = DebugWakeInjector.launchMode() { Task { [weak self] in await self?.runDebugWake(mode, payload: WakePayload(userInfo: ["rf": ["v": 1, "c": mode == .voip ? "call" : (mode == .remote ? "x" : (mode == .test ? "t" : "m")), "t": RouteRegistry()?.anyTag() ?? "AAAAAAAAAAAAAAAAAAAAAA", "w": "debug-launch"]])) } }
+        #endif
+        #if RAMFLUX_DEBUG_WAKE
+        if DebugWakeInjector.launchRoute() == "delivery" {
+            Task { @MainActor [weak self] in
+                for _ in 0..<80 {
+                    if let account = self?.shell.viewModel.state.session.activeAccountID { self?.shell.send(.openWhenReady(.delivery, account: account)); return }
+                    try? await Task.sleep(for: .milliseconds(250))
+                }
+            }
+        }
         #endif
         ApnsTokenSource.shared.onChange { [weak self] in Task { await self?.routeRegistrar.tokenChanged() } }
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },

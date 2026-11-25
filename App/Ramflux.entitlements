@@ -6,6 +6,8 @@
 	<string>$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>aps-environment</key>
 	<string>$(RAMFLUX_APNS_ENVIRONMENT)</string>
+	<key>com.apple.developer.usernotifications.time-sensitive</key>
+	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
 		<string>$(RAMFLUX_APP_GROUP)</string>

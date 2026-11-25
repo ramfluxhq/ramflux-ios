@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>background.late</key>
+	<string>在其他设备上已读后的清除可能延迟。</string>
+	<key>background.lowPower</key>
+	<string>低电量模式</string>
+	<key>background.refresh</key>
+	<string>后台 App 刷新</string>
+	<key>calls.interim</key>
+	<string>在 iPhone 上可通话之前，来电会以通知形式显示。</string>
+	<key>guidance.focus</key>
+	<string>专注模式：允许 Ramflux，或开启时效性通知。</string>
+	<key>guidance.swipe</key>
+	<string>如果你将 Ramflux 从后台划掉，消息仍会通知，但清除要等到你再次打开才生效。</string>
+	<key>late</key>
+	<string>这可能由 iPhone 设置或你的服务器推送限制造成。</string>
+	<key>phone.allowed</key>
+	<string>允许通知</string>
+	<key>phone.badges</key>
+	<string>标记</string>
+	<key>phone.banners</key>
+	<string>横幅</string>
+	<key>phone.lockScreen</key>
+	<string>锁定屏幕</string>
+	<key>phone.notificationCenter</key>
+	<string>通知中心</string>
+	<key>phone.previews</key>
+	<string>显示预览</string>
+	<key>phone.scheduledSummary</key>
+	<string>定时摘要</string>
+	<key>phone.sounds</key>
+	<string>声音</string>
+	<key>phone.summaryOn</key>
+	<string>消息可能会被留到你的摘要时间。</string>
+	<key>phone.timeSensitive</key>
+	<string>时效性通知</string>
+	<key>previews.always</key>
+	<string>始终</string>
+	<key>previews.never</key>
+	<string>从不</string>
+	<key>previews.whenUnlocked</key>
+	<string>解锁时</string>
+	<key>refresh.disabled</key>
+	<string>关</string>
+	<key>refresh.enabled</key>
+	<string>开</string>
+	<key>refresh.restricted</key>
+	<string>受限</string>
+	<key>section.background</key>
+	<string>后台</string>
+	<key>section.calls</key>
+	<string>通话</string>
+	<key>section.guidance</key>
+	<string>Ramflux 无法检查</string>
+	<key>section.lastWake</key>
+	<string>最近唤醒</string>
+	<key>section.phone</key>
+	<string>此 iPhone</string>
+	<key>section.selfTest</key>
+	<string>自检</string>
+	<key>section.status</key>
+	<string>状态</string>
+	<key>selfTest.action</key>
+	<string>发送测试通知</string>
+	<key>selfTest.failed</key>
+	<string>通知已关闭，无法显示测试。</string>
+	<key>selfTest.hint</key>
+	<string>锁定你的 iPhone，通知将在 5 秒后到达。</string>
+	<key>selfTest.sent</key>
+	<string>已发送，请现在锁定 iPhone。</string>
+	<key>status.appleFailed</key>
+	<string>无法向 Apple 注册</string>
+	<key>status.notConfigured</key>
+	<string>此版本未配置</string>
+	<key>status.notificationsOff</key>
+	<string>通知已关闭</string>
+	<key>status.pending</key>
+	<string>等待向你的服务器注册</string>
+	<key>status.ready</key>
+	<string>就绪</string>
+	<key>status.retrying</key>
+	<string>注册失败，正在重试</string>
+	<key>status.serverNoPush</key>
+	<string>你的服务器不发送推送通知</string>
+	<key>status.waitingForCentre</key>
+	<string>等待中央服务</string>
+	<key>title</key>
+	<string>消息送达</string>
+	<key>value.notSupported</key>
+	<string>不支持</string>
+	<key>value.off</key>
+	<string>关</string>
+	<key>value.on</key>
+	<string>开</string>
+	<key>wake.call</key>
+	<string>来电</string>
+	<key>wake.clear</key>
+	<string>清除</string>
+	<key>wake.justNow</key>
+	<string>刚刚</string>
+	<key>wake.message</key>
+	<string>消息</string>
+	<key>wake.never</key>
+	<string>从未</string>
+	<key>wake.test</key>
+	<string>测试</string>
+</dict>
+</plist>

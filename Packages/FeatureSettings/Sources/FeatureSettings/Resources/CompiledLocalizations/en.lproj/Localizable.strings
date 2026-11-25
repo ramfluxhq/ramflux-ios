@@ -274,6 +274,8 @@
 	<string>Manage services</string>
 	<key>settings.connectedServices.title</key>
 	<string>Connected services</string>
+	<key>settings.delivery</key>
+	<string>Message delivery</string>
 	<key>settings.devices.link</key>
 	<string>Link new device</string>
 	<key>settings.devices.linked</key>

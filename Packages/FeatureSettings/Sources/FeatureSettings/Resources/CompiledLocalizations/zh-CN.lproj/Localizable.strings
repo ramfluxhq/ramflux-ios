@@ -274,6 +274,8 @@
 	<string>管理服务</string>
 	<key>settings.connectedServices.title</key>
 	<string>已连接的服务</string>
+	<key>settings.delivery</key>
+	<string>消息送达</string>
 	<key>settings.devices.link</key>
 	<string>关联新设备</string>
 	<key>settings.devices.linked</key>
