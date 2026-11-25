@@ -21,8 +21,8 @@ public protocol CallsRepository: Sendable {
     func signal(account: String, attempt: CallSignalAttempt) async -> RepositoryResult<CallRecord>
     /// `call.invite` for a direct conversation (voice only in the SDK today).
     func start(account: String, conversation: String) async -> RepositoryResult<CallRecord>
-    /// Reads `call.media.session` once for an active call and hands it to the engine. A second
-    /// request for the same call succeeds without reading again.
+    /// Media for an active call. The core denies `call.media.session` export over the C ABI, so
+    /// this reports media as unavailable until a host engine is wired to the SDK's media control.
     func connectMedia(account: String, call: CallRecord) async -> RepositoryResult<Void>
     func control(_ control: CallMediaControl, callID: String) async -> RepositoryResult<Void>
     func stopMedia(callID: String) async

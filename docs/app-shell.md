@@ -312,7 +312,9 @@ the engine reports itself available, because a real invite rings the peer. While
 the call screens say that voice and video are not available in this build; incoming calls can
 be seen and declined but not answered, and no connected state is shown.
 
-`call.media.session {call_id}` is read at most once per call, only for an `active` call, and
+Core 0.2.8 denies `call.media.session` over the C ABI, so `NativeCallsRepository.connectMedia` reports
+media as unavailable; the rest of this section describes the former handoff and is not reachable.
+`call.media.session {call_id}` was read at most once per call, only for an `active` call, and
 only by the repository. The SDK returns the material once (`media_taken`); a lost read or an
 engine restart requires a new call. The reply is a secret-output frame: the repository checks
 only `code`, `response.ok` and the presence of `relay` and `sframe`, copies the frame into an
