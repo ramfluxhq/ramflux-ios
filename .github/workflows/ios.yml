@@ -56,6 +56,8 @@ jobs:
           swift test --package-path Packages/FeatureAgents
           swift test --package-path Packages/FeatureTasks
           swift test --package-path Packages/FeaturePermissions
+          swift test --package-path Packages/FeatureDelivery
+          swift test --package-path Packages/Push
           swift test --package-path Packages/FeatureCards
           swift test --package-path Packages/RFMedia
       - name: Build iOS Simulator application
