@@ -13,6 +13,12 @@ RF_UNAVAILABLE int32_t ramflux_v2_client_open(const uint8_t *json, size_t len, u
 }
 RF_UNAVAILABLE int32_t ramflux_v2_client_close(uint64_t h) { (void)h; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_client_release(uint64_t h) { (void)h; return 3; }
+RF_UNAVAILABLE int32_t ramflux_v2_wake_fetch(const uint8_t *config, size_t config_len, const struct RamfluxV2CustodyProvider *provider, struct RamfluxBuffer **out) {
+    (void)config; (void)config_len; (void)provider; if(out)*out=NULL; return 3;
+}
+RF_UNAVAILABLE int32_t ramflux_v2_shared_snapshot(const uint8_t *config, size_t config_len, const struct RamfluxV2CustodyProvider *provider, struct RamfluxBuffer **out) {
+    (void)config; (void)config_len; (void)provider; if(out)*out=NULL; return 3;
+}
 RF_UNAVAILABLE int32_t ramflux_v2_client_suspend(uint64_t h) { (void)h; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_client_resume(uint64_t h) { (void)h; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_username_authorize(uint64_t h, const uint8_t *request, size_t request_len, const uint8_t *phrase, size_t phrase_len, struct RamfluxBuffer **out_signed, struct RamfluxBuffer **out_error) {
