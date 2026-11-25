@@ -116,8 +116,8 @@ class RealRunTestCase: XCTestCase {
         let prompt = app.staticTexts["Turn on notifications?"]
         if prompt.exists {
             if ProcessInfo.processInfo.environment["RF_ALLOW_NOTIFICATIONS"] == "1" {
-                let proceed = app.buttons["Continue"].firstMatch
-                if proceed.exists {
+                let proceed = app.descendants(matching: .any).matching(identifier: "Continue").firstMatch
+                if proceed.waitForExistence(timeout: 3) {
                     proceed.tap()
                     let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
                     if allow.waitForExistence(timeout: 10) { allow.tap() }

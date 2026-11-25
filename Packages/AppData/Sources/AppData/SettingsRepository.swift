@@ -85,10 +85,12 @@ public struct NativeSettingsRepository: SettingsRepository {
                     await lifecycle.notify(.willLock(account: account))
                     _ = try await gateway.call(.accountLock, account: account, operationID: operationID)
                 case .signOut:
+                    await lifecycle.notify(.willLeave(account: account))
                     await lifecycle.notify(.willLock(account: account))
                     _ = try await gateway.call(.accountSignOut, account: account, operationID: operationID)
                 case .removeLocal:
                     // The SDK closes an open account before erasing it; the confirmation is the account id.
+                    await lifecycle.notify(.willLeave(account: account))
                     await lifecycle.notify(.willLock(account: account))
                     let body = try await gateway.call(.accountRemoveLocal, account: account, body: .object(["confirmation": .string(account)]), operationID: operationID)
                     guard body["removed"]?.bool == true else { return .failure(.outcomeUnknown) }

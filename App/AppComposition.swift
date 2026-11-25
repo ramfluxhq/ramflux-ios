@@ -173,6 +173,8 @@ import Push
     /// Local message notifications while the app is not active (see docs/permissions.md).
     @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
     @ObservationIgnored private var notificationDelegate: MessageNotificationDelegate?
+    /// Registers the unlocked account's push route (Debug builds: the raw token, to the developer's own node).
+    @ObservationIgnored lazy var routeRegistrar = RouteRegistrar(repository: repositories.pushRoutes, registry: RouteRegistry(), store: DeliveryLocalStore())
     /// The in-app banner on screen, if any. It lives in memory only: never logged, restored or donated.
     var banner: InAppBanner?
     /// New incoming messages while the app is in the foreground, from the same directory stream as the
@@ -208,6 +210,7 @@ import Push
         // After unlock: queued sends resume with their operation ids, and the system call UI follows the account.
         Task { [chat = repositories.chat] in _ = await chat.resumeAfterUnlock(account: account) }
         callService.start(account: account)
+        Task { [routeRegistrar] in await routeRegistrar.register(account: account) }
     }
     /// The account the composition last saw unlocked; calls and the outbox follow it.
     @ObservationIgnored private var unlockedAccount: String?
@@ -233,6 +236,8 @@ import Push
                 await MainActor.run { self?.accountLocked() }
                 await chat.sealForLock(account: account)
                 ImagePipeline.shared.purge()
+            case .willLeave(let account):
+                await self?.routeRegistrar.deregister(account: account)
             case .willRemove(let account):
                 await MainActor.run { self?.accountLocked() }
                 await chat.purgeAccount(account: account)
@@ -256,6 +261,7 @@ import Push
         notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
         UNUserNotificationCenter.current().setNotificationCategories(MessageNotificationSlot.categories())
         registerLifecycle()
+        ApnsTokenSource.shared.onChange { [weak self] in Task { await self?.routeRegistrar.tokenChanged() } }
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },
                              activated: { [weak self] in self?.bannerFeed.setForeground(true) })
     }

@@ -36,6 +36,22 @@ no tag, no account and no text), and otherwise sends a tag no account owns. It r
 The app must be authorised for notifications on that simulator, or `simctl push` refuses with "Source is not
 authorized" (UNErrorDomain 2003).
 
+## Token and routes
+
+The app delegate reports the APNs token to `Push.ApnsTokenSource` (memory only; logs carry its length only).
+`RouteRegistrar` (AppData) registers an unlocked account: Debug builds send `{provider: apns, token, route_tag,
+environment: sandbox, capability: alert}` with `device.push_route.set` to the developer's own node (design D4);
+Release builds record `waitingForCentre` and send nothing until the central service seals tokens. One route tag
+(16 random bytes, unpadded base64url) exists per account in `push/routes.json` of the App Group container, which
+`inject.sh` reads. `DeliveryStatus` per account lives in the group's defaults suite under a salted hash of the
+account id. Sign-out and local removal call `device.push_route.set` with a null registration first (five seconds at
+most) and then drop the tag and the status.
+
+Answer mapping: registered gives `ready`. A refused registration reaches the app as the generic `invalid_argument`
+(SDK status ValidationFailed) with no finer reason, because the C ABI does not carry the node's typed code; that is
+treated as `serverNoPush` ("your server does not send push notifications") and is open question CR4 for the core.
+A real node with an APNs credential would answer `registered`; this was not exercised, the test node has none.
+
 ## Platform facts measured on the simulator
 
 Measured with Xcode 27.2 (27B52), simulator runtime iOS 27.2 (device `rf-realrun`), macOS 26.6.2, Apple silicon,
