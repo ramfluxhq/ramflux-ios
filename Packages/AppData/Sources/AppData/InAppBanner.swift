@@ -51,15 +51,26 @@ public struct InAppBanner: Identifiable, Sendable, Equatable, CustomStringConver
     private var previous: [String: UInt]?
     private var task: Task<Void, Never>?
     private var generation: UInt64 = 0
+    /// The newest displayable item the feed has looked at in each conversation (kept in memory only). A banner
+    /// needs an item newer than this; a rise of the unread count with no such item (a service or group
+    /// event) raises nothing.
+    private var seen: [String: Seen] = [:]
+    private struct Seen { let id: String; let order: MessageOrder? }
+    /// An item in a conversation the feed has not looked at yet counts as new only when it is this recent
+    /// (milliseconds, a generous allowance for clock skew between devices).
+    nonisolated static let freshness: Int64 = 120_000
+    private let now: @Sendable () -> Date
     /// `isOpen` answers whether a conversation id is the one on screen; `deliver` receives each banner.
     public init(conversations: any ConversationsRepository, chat: any ChatRepository, window: Int = InAppBannerFeed.defaultWindow,
+                now: @escaping @Sendable () -> Date = { Date() },
                 isOpen: @escaping @MainActor (String) -> Bool, deliver: @escaping @MainActor (InAppBanner) -> Void) {
-        self.conversations = conversations; self.chat = chat; self.window = window; self.isOpen = isOpen; self.deliver = deliver
+        self.conversations = conversations; self.chat = chat; self.window = window; self.now = now; self.isOpen = isOpen; self.deliver = deliver
     }
     /// Follows `account` (nil stops). Following the same account while it runs does nothing.
     public func follow(account: String?) {
         guard account != self.account || (account != nil && task == nil) else { return }
         generation &+= 1; task?.cancel(); task = nil; previous = nil
+        if account != self.account { seen = [:] }
         self.account = account
         guard let account else { return }
         let current = generation
@@ -93,8 +104,9 @@ public struct InAppBanner: Identifiable, Sendable, Equatable, CustomStringConver
         let before = previous
         previous = Dictionary(page.rows.map { ($0.id, $0.unreadCount ?? 0) }, uniquingKeysWith: { first, _ in first })
         guard foreground, let before else { return }
-        guard let row = Self.candidate(previous: before, rows: page.rows), !isOpen(row.id) else { return }
-        let content = await newest(account: account, conversation: row.id)
+        guard let row = Self.candidate(previous: before, rows: page.rows) else { return }
+        // The conversation on screen is still looked at, so that its items count as seen.
+        let content = await newest(account: account, conversation: row.id, raise: !isOpen(row.id))
         // The user may have opened the conversation, left the foreground or switched account while the read ran.
         guard self.generation == current, foreground, !isOpen(row.id), let content else { return }
         deliver(InAppBanner(account: account, conversation: row.id, route: row.route, sender: row.title, content: content))
@@ -103,18 +115,33 @@ public struct InAppBanner: Identifiable, Sendable, Equatable, CustomStringConver
     nonisolated static func candidate(previous: [String: UInt], rows: [ConversationRecord]) -> ConversationRecord? {
         rows.filter { !$0.muted && ($0.unreadCount ?? 0) > (previous[$0.id] ?? 0) }.max { ($0.lastActivity ?? .min) < ($1.lastActivity ?? .min) }
     }
-    /// The banner content for the conversation's newest message; nil for an own message. A failed read still
-    /// raises a banner with the fixed text, because the unread count rose.
-    private func newest(account: String, conversation: String) async -> InAppBanner.Content? {
-        guard case .success(let page) = await chat.messages(account: account, conversation: conversation, before: nil), let record = page.records.first else { return .other }
-        if record.isOwn == true { return nil }
+    /// The banner content for the conversation's newest displayable item, or nil when no banner is due: the item
+    /// is not new (not newer than the last one seen; a service or group event leaves the newest item as it
+    /// was), is an own or removed message, the read failed, or `raise` is false. The newest item is recorded as
+    /// seen either way, so it never raises a banner later. Only a user text or media message and a call
+    /// record can raise one; the text of an older message is never shown.
+    private func newest(account: String, conversation: String, raise: Bool) async -> InAppBanner.Content? {
+        guard case .success(let page) = await chat.messages(account: account, conversation: conversation, before: nil), let record = page.records.first else { return nil }
+        let before = seen[conversation]
+        seen[conversation] = Seen(id: record.id, order: record.order)
+        guard raise, Self.isNew(record, since: before, now: now()), record.isOwn != true else { return nil }
         switch record.kind {
         case .text(let text):
             guard record.attachments.isEmpty, let line = Self.line(text) else { return .other }
             return .text(preview: line)
         case .callHistory: return .call
-        case .deleted, .unsupported: return .other
+        case .unsupported: return .other
+        case .deleted: return nil
         }
+    }
+    private nonisolated static func isNew(_ record: MessageRecord, since seen: Seen?, now: Date) -> Bool {
+        if let seen {
+            guard record.id != seen.id else { return false }
+            if let order = record.order, let known = seen.order, order <= known { return false }
+            return true
+        }
+        guard let order = record.order else { return false }
+        return Int64(now.timeIntervalSince1970 * 1000) - order.milliseconds <= freshness
     }
     /// One line of at most `previewLimit` characters: control characters, newlines and line or paragraph
     /// separators become spaces, bidirectional override and isolate controls are dropped, runs of spaces
