@@ -24,7 +24,11 @@ public struct WakeProcessor: Sendable {
             return Output(result: result, content: GenericContent.make(kind, from: original))
         case .showUnlockNotice:
             return Output(result: result, content: GenericContent.make(.unlockNotice, from: original))
-        case .suppress, .ringCall, .clearMessages, .ignore:
+        case .clearMessages:
+            let removed = await MessageNotificationSlot.removeDeliveredMessages()
+            PushLog.wake.notice("push.clear.removed count=\(removed, privacy: .public)")
+            return Output(result: result, content: nil)
+        case .suppress, .ringCall, .ignore:
             return Output(result: result, content: nil)
         }
     }

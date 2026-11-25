@@ -33,4 +33,16 @@ public enum MessageNotificationSlot {
         let content = GenericContent.make(.missedCall)
         try? await center.add(UNNotificationRequest(identifier: "ramflux.call.missed", content: content, trigger: nil))
     }
+    /// Removes every delivered message notification (pushed and local): a clear wake says the messages were read
+    /// elsewhere (a pushed one is recognised by its category, or by its `rf` class when the extension did not run). Returns how many were removed.
+    @discardableResult public static func removeDeliveredMessages() async -> Int {
+        let center = UNUserNotificationCenter.current()
+        let identifiers = await withCheckedContinuation { (continuation: CheckedContinuation<[String], Never>) in
+            center.getDeliveredNotifications { delivered in
+                continuation.resume(returning: delivered.filter { $0.request.content.categoryIdentifier == message || $0.request.identifier.hasPrefix(localPrefix) || WakePayload(userInfo: $0.request.content.userInfo).wakeClass == .message }.map(\.request.identifier))
+            }
+        }
+        if !identifiers.isEmpty { center.removeDeliveredNotifications(withIdentifiers: identifiers) }
+        return identifiers.count
+    }
 }
