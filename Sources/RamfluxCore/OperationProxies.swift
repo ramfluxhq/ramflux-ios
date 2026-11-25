@@ -21,6 +21,12 @@ public extension AccountProxy {
     func accountAppLockConfigure(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.accountAppLockConfigure, context: context, body: body)
     }
+    func accountAppLockLifecycle(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.accountAppLockLifecycle, context: context, body: body)
+    }
+    func accountAppLockLock(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.accountAppLockLock, context: context, body: body)
+    }
     func accountAppLockState(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.accountAppLockState, context: context, body: body)
     }
@@ -89,6 +95,12 @@ public extension AccountProxy {
     }
     func accountPassphraseRotate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.accountPassphraseRotate, context: context, body: body, secrets: secrets)
+    }
+    func accountReachGet(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await performSecretResponse(.accountReachGet, context: context, body: body)
+    }
+    func accountReachSet(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.accountReachSet, context: context, body: body, secrets: secrets)
     }
     func accountRecoverBegin(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.accountRecoverBegin, context: context, body: body, secrets: secrets)
@@ -264,9 +276,6 @@ public extension CallProxy {
     func callList(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.callList, context: context, body: body)
     }
-    func callMediaSession(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
-        try await performSecretRequestResponse(.callMediaSession, context: context, body: body, secrets: secrets)
-    }
     func callReject(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.callReject, context: context, body: body, secrets: secrets)
     }
@@ -348,6 +357,9 @@ public extension ContactProxy {
     func contactRequestsPolicySet(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.contactRequestsPolicySet, context: context, body: body, secrets: secrets)
     }
+    func contactRequestsReply(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.contactRequestsReply, context: context, body: body, secrets: secrets)
+    }
     func contactSafetyNumber(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.contactSafetyNumber, context: context, body: body, secrets: secrets)
     }
@@ -392,6 +404,9 @@ public extension ConversationProxy {
     }
     func conversationSend(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.conversationSend, context: context, body: body, secrets: secrets)
+    }
+    func conversationStart(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.conversationStart, context: context, body: body, secrets: secrets)
     }
 }
 public protocol DaemonProxy: SDKProxyProtocol {}
