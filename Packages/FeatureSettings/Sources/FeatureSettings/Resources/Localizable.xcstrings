@@ -3280,6 +3280,23 @@
           }
         }
       }
+    },
+    "settings.delivery": {
+      "comment": "Settings row that opens the page showing how messages reach this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message delivery"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息送达"
+          }
+        }
+      }
     }
   }
 }

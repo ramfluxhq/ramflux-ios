@@ -15,6 +15,11 @@ enum DebugWakeInjector {
         guard let index = arguments.firstIndex(of: "-RFDebugWake"), arguments.indices.contains(index + 1) else { return nil }
         switch arguments[index + 1] { case "call": return .voip; case "message": return .nse; case "clear": return .remote; case "test": return .test; default: return nil }
     }
+    /// `-RFDebugRoute delivery`: opens the delivery page once the account is ready (screenshots of the page).
+    static func launchRoute(arguments: [String] = ProcessInfo.processInfo.arguments) -> String? {
+        guard let index = arguments.firstIndex(of: "-RFDebugRoute"), arguments.indices.contains(index + 1) else { return nil }
+        return arguments[index + 1]
+    }
     static func mode(userInfo: [AnyHashable: Any]) -> Mode? {
         ((userInfo["rf_debug"] as? [String: Any])?["as"] as? String).flatMap(Mode.init(rawValue:))
     }

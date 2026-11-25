@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>background.late</key>
+	<string>Read-on-another-device clears may be late.</string>
+	<key>background.lowPower</key>
+	<string>Low Power Mode</string>
+	<key>background.refresh</key>
+	<string>Background App Refresh</string>
+	<key>calls.interim</key>
+	<string>Incoming calls show as a notification until calling is available on iPhone.</string>
+	<key>guidance.focus</key>
+	<string>Focus: allow Ramflux, or turn on Time Sensitive.</string>
+	<key>guidance.swipe</key>
+	<string>If you swipe Ramflux away, messages still notify, but clears wait until you open it.</string>
+	<key>late</key>
+	<string>This can be caused by iPhone settings or by your server's push limits.</string>
+	<key>phone.allowed</key>
+	<string>Notifications allowed</string>
+	<key>phone.badges</key>
+	<string>Badges</string>
+	<key>phone.banners</key>
+	<string>Banners</string>
+	<key>phone.lockScreen</key>
+	<string>Lock Screen</string>
+	<key>phone.notificationCenter</key>
+	<string>Notification Center</string>
+	<key>phone.previews</key>
+	<string>Show Previews</string>
+	<key>phone.scheduledSummary</key>
+	<string>Scheduled Summary</string>
+	<key>phone.sounds</key>
+	<string>Sounds</string>
+	<key>phone.summaryOn</key>
+	<string>Messages may be held until your summary.</string>
+	<key>phone.timeSensitive</key>
+	<string>Time Sensitive</string>
+	<key>previews.always</key>
+	<string>Always</string>
+	<key>previews.never</key>
+	<string>Never</string>
+	<key>previews.whenUnlocked</key>
+	<string>When unlocked</string>
+	<key>refresh.disabled</key>
+	<string>Off</string>
+	<key>refresh.enabled</key>
+	<string>On</string>
+	<key>refresh.restricted</key>
+	<string>Restricted</string>
+	<key>section.background</key>
+	<string>Background</string>
+	<key>section.calls</key>
+	<string>Calls</string>
+	<key>section.guidance</key>
+	<string>Not checked by Ramflux</string>
+	<key>section.lastWake</key>
+	<string>Last wake</string>
+	<key>section.phone</key>
+	<string>This iPhone</string>
+	<key>section.selfTest</key>
+	<string>Self-test</string>
+	<key>section.status</key>
+	<string>Status</string>
+	<key>selfTest.action</key>
+	<string>Send a test notification</string>
+	<key>selfTest.failed</key>
+	<string>Notifications are off, so the test could not be shown.</string>
+	<key>selfTest.hint</key>
+	<string>Lock your iPhone; the notification arrives in 5 seconds.</string>
+	<key>selfTest.sent</key>
+	<string>Sent. Lock your iPhone now.</string>
+	<key>status.appleFailed</key>
+	<string>Couldn't register with Apple</string>
+	<key>status.notConfigured</key>
+	<string>Not configured in this build</string>
+	<key>status.notificationsOff</key>
+	<string>Notifications are off</string>
+	<key>status.pending</key>
+	<string>Waiting to register with your server</string>
+	<key>status.ready</key>
+	<string>Ready</string>
+	<key>status.retrying</key>
+	<string>Registration failed, retrying</string>
+	<key>status.serverNoPush</key>
+	<string>Your server does not send push notifications</string>
+	<key>status.waitingForCentre</key>
+	<string>Waiting for the central service</string>
+	<key>title</key>
+	<string>Message delivery</string>
+	<key>value.notSupported</key>
+	<string>Not supported</string>
+	<key>value.off</key>
+	<string>Off</string>
+	<key>value.on</key>
+	<string>On</string>
+	<key>wake.call</key>
+	<string>Call</string>
+	<key>wake.clear</key>
+	<string>Clear</string>
+	<key>wake.justNow</key>
+	<string>Just now</string>
+	<key>wake.message</key>
+	<string>Message</string>
+	<key>wake.never</key>
+	<string>Never</string>
+	<key>wake.test</key>
+	<string>Test</string>
+</dict>
+</plist>

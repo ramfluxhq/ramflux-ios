@@ -1,0 +1,890 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "title": {
+      "comment": "Title of the Settings page that shows how messages reach this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message delivery"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息送达"
+          }
+        }
+      }
+    },
+    "section.status": {
+      "comment": "Section title: whether this iPhone is set up to receive pushed messages.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "状态"
+          }
+        }
+      }
+    },
+    "section.lastWake": {
+      "comment": "Section title: when the phone was last woken by a push, per kind.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last wake"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近唤醒"
+          }
+        }
+      }
+    },
+    "section.phone": {
+      "comment": "Section title: the notification settings of this iPhone for Ramflux.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This iPhone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此 iPhone"
+          }
+        }
+      }
+    },
+    "section.background": {
+      "comment": "Section title: background refresh and low power settings that can delay delivery.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台"
+          }
+        }
+      }
+    },
+    "section.guidance": {
+      "comment": "Section title: advice about settings Ramflux cannot read.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not checked by Ramflux"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramflux 无法检查"
+          }
+        }
+      }
+    },
+    "section.calls": {
+      "comment": "Section title: how incoming calls reach this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calls"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通话"
+          }
+        }
+      }
+    },
+    "section.selfTest": {
+      "comment": "Section title: a local test of notifications on this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-test"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自检"
+          }
+        }
+      }
+    },
+    "status.pending": {
+      "comment": "Delivery status: no push token or registration yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting to register with your server"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待向你的服务器注册"
+          }
+        }
+      }
+    },
+    "status.ready": {
+      "comment": "Delivery status: this iPhone is registered for pushed messages.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "就绪"
+          }
+        }
+      }
+    },
+    "status.notConfigured": {
+      "comment": "Delivery status: this build cannot receive pushes (no push entitlement).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not configured in this build"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本未配置"
+          }
+        }
+      }
+    },
+    "status.waitingForCentre": {
+      "comment": "Delivery status: pushes for this build need a central service that is not available yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the central service"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待中央服务"
+          }
+        }
+      }
+    },
+    "status.serverNoPush": {
+      "comment": "Delivery status: the server this account uses has no push credential.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your server does not send push notifications"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的服务器不发送推送通知"
+          }
+        }
+      }
+    },
+    "status.appleFailed": {
+      "comment": "Delivery status: Apple did not give this iPhone a push token.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't register with Apple"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法向 Apple 注册"
+          }
+        }
+      }
+    },
+    "status.notificationsOff": {
+      "comment": "Delivery status: notifications are turned off for Ramflux on this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知已关闭"
+          }
+        }
+      }
+    },
+    "status.retrying": {
+      "comment": "Delivery status: registering with the server failed and will be retried automatically.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registration failed, retrying"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "注册失败，正在重试"
+          }
+        }
+      }
+    },
+    "wake.message": {
+      "comment": "Row label: last push for a new message.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息"
+          }
+        }
+      }
+    },
+    "wake.test": {
+      "comment": "Row label: last test push.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试"
+          }
+        }
+      }
+    },
+    "wake.call": {
+      "comment": "Row label: last push for an incoming call.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来电"
+          }
+        }
+      }
+    },
+    "wake.clear": {
+      "comment": "Row label: last push that clears read notifications.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除"
+          }
+        }
+      }
+    },
+    "wake.never": {
+      "comment": "Value: no push of this kind has arrived.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从未"
+          }
+        }
+      }
+    },
+    "wake.justNow": {
+      "comment": "Value: a push arrived less than a minute ago.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just now"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刚刚"
+          }
+        }
+      }
+    },
+    "phone.allowed": {
+      "comment": "Row label: whether Ramflux may send notifications.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications allowed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许通知"
+          }
+        }
+      }
+    },
+    "phone.lockScreen": {
+      "comment": "Row label: notifications on the Lock Screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock Screen"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁定屏幕"
+          }
+        }
+      }
+    },
+    "phone.notificationCenter": {
+      "comment": "Row label: notifications in Notification Center.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notification Center"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知中心"
+          }
+        }
+      }
+    },
+    "phone.banners": {
+      "comment": "Row label: banner alerts.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banners"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横幅"
+          }
+        }
+      }
+    },
+    "phone.sounds": {
+      "comment": "Row label: notification sounds.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sounds"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "声音"
+          }
+        }
+      }
+    },
+    "phone.badges": {
+      "comment": "Row label: app icon badges.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badges"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标记"
+          }
+        }
+      }
+    },
+    "phone.timeSensitive": {
+      "comment": "Row label: time sensitive notifications that can break through Focus.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Sensitive"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "时效性通知"
+          }
+        }
+      }
+    },
+    "phone.scheduledSummary": {
+      "comment": "Row label: notifications collected into a scheduled summary.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scheduled Summary"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "定时摘要"
+          }
+        }
+      }
+    },
+    "phone.summaryOn": {
+      "comment": "Hint shown when Scheduled Summary is on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages may be held until your summary."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息可能会被留到你的摘要时间。"
+          }
+        }
+      }
+    },
+    "phone.previews": {
+      "comment": "Row label: iOS preview setting (information only: Ramflux notifications never show message text).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Previews"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示预览"
+          }
+        }
+      }
+    },
+    "previews.always": {
+      "comment": "Value of the Show Previews setting.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "始终"
+          }
+        }
+      }
+    },
+    "previews.whenUnlocked": {
+      "comment": "Value of the Show Previews setting.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When unlocked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁时"
+          }
+        }
+      }
+    },
+    "previews.never": {
+      "comment": "Value of the Show Previews setting.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从不"
+          }
+        }
+      }
+    },
+    "value.on": {
+      "comment": "Value: a setting is on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开"
+          }
+        }
+      }
+    },
+    "value.off": {
+      "comment": "Value: a setting is off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关"
+          }
+        }
+      }
+    },
+    "value.notSupported": {
+      "comment": "Value: the setting does not exist on this iPhone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not supported"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "不支持"
+          }
+        }
+      }
+    },
+    "background.refresh": {
+      "comment": "Row label: iOS Background App Refresh.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background App Refresh"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台 App 刷新"
+          }
+        }
+      }
+    },
+    "background.lowPower": {
+      "comment": "Row label: iOS Low Power Mode.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Power Mode"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低电量模式"
+          }
+        }
+      }
+    },
+    "background.late": {
+      "comment": "Hint shown when background refresh is off or Low Power Mode is on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read-on-another-device clears may be late."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在其他设备上已读后的清除可能延迟。"
+          }
+        }
+      }
+    },
+    "refresh.enabled": {
+      "comment": "Value of Background App Refresh.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开"
+          }
+        }
+      }
+    },
+    "refresh.disabled": {
+      "comment": "Value of Background App Refresh.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关"
+          }
+        }
+      }
+    },
+    "refresh.restricted": {
+      "comment": "Value of Background App Refresh when a restriction forbids it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restricted"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "受限"
+          }
+        }
+      }
+    },
+    "guidance.focus": {
+      "comment": "Guidance about Focus modes, which Ramflux cannot detect.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus: allow Ramflux, or turn on Time Sensitive."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "专注模式：允许 Ramflux，或开启时效性通知。"
+          }
+        }
+      }
+    },
+    "guidance.swipe": {
+      "comment": "Guidance about swiping the app away.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you swipe Ramflux away, messages still notify, but clears wait until you open it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果你将 Ramflux 从后台划掉，消息仍会通知，但清除要等到你再次打开才生效。"
+          }
+        }
+      }
+    },
+    "calls.interim": {
+      "comment": "Explains how calls reach this iPhone for now.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incoming calls show as a notification until calling is available on iPhone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在 iPhone 上可通话之前，来电会以通知形式显示。"
+          }
+        }
+      }
+    },
+    "selfTest.action": {
+      "comment": "Button: post a local test notification.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a test notification"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送测试通知"
+          }
+        }
+      }
+    },
+    "selfTest.hint": {
+      "comment": "Hint for the self-test button.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock your iPhone; the notification arrives in 5 seconds."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "锁定你的 iPhone，通知将在 5 秒后到达。"
+          }
+        }
+      }
+    },
+    "selfTest.sent": {
+      "comment": "Shown after the self-test was scheduled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent. Lock your iPhone now."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已发送，请现在锁定 iPhone。"
+          }
+        }
+      }
+    },
+    "selfTest.failed": {
+      "comment": "Shown when the self-test could not be scheduled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are off, so the test could not be shown."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知已关闭，无法显示测试。"
+          }
+        }
+      }
+    },
+    "late": {
+      "comment": "Note under the page: why a notification can arrive late.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can be caused by iPhone settings or by your server's push limits."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这可能由 iPhone 设置或你的服务器推送限制造成。"
+          }
+        }
+      }
+    }
+  }
+}

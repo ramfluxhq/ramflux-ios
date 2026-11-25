@@ -57,6 +57,8 @@ packages:
     path: Packages/RFLocalization
   Push:
     path: Packages/Push
+  FeatureDelivery:
+    path: Packages/FeatureDelivery
 targets:
   Ramflux:
     type: application
@@ -69,6 +71,7 @@ targets:
         aps-environment: $(RAMFLUX_APNS_ENVIRONMENT)
         keychain-access-groups: [$(RAMFLUX_KEYCHAIN_GROUP)]
         com.apple.security.application-groups: [$(RAMFLUX_APP_GROUP)]
+        com.apple.developer.usernotifications.time-sensitive: true
     preBuildScripts:
       - name: Require device signing team
         basedOnDependencyAnalysis: false
@@ -80,6 +83,7 @@ targets:
     dependencies:
       - target: RamfluxNotificationService
       - package: Push
+      - package: FeatureDelivery
       - package: FeaturePermissions
       - package: FeatureCards
       - package: FeatureTasks

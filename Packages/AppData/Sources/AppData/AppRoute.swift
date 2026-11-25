@@ -13,6 +13,8 @@ public enum AppRoute: Hashable, Sendable {
     case conversation(String), groupConversation(String, group: String, title: String?), contacts, strangers, contact(String), safetyNumber(String)
     case settings, devices, device(String), nodes, node(String), appearance, privacy, backup, account, about
     case systemPermissions
+    /// The Settings page that shows how messages reach this phone.
+    case delivery
     case calls(String?)
     /// Media storage of the active account on this device.
     case mediaStorage
