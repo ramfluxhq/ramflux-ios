@@ -22,6 +22,8 @@ public final class RouteRegistry: @unchecked Sendable {
         map[tag] = account
         return write(map) ? tag : nil
     }
+    /// Any one tag of the map; used by the Debug injector to address a wake to this device's own account.
+    public func anyTag() -> String? { lock.lock(); defer { lock.unlock() }; return read().keys.sorted().first }
     public func account(for tag: String) -> String? { lock.lock(); defer { lock.unlock() }; return read()[tag] }
     public func remove(account: String) {
         lock.lock(); defer { lock.unlock() }
