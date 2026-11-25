@@ -12,6 +12,10 @@
 # route map in the app's App Group container (push/routes.json); neither is printed. When the app has not
 # written a route map yet, a tag that no account owns is used, which is what the unknown-route class sends.
 #
+# Preparation (once per simulator and install): run the suite with RAMFLUX_REALRUN_ALLOW_NOTIFICATIONS=1, for example
+#   RAMFLUX_REALRUN_ALLOW_NOTIFICATIONS=1 scripts/realrun.sh run --only test01_onboardingCustomNodeAccountLockUnlock
+# so the onboarding flow accepts the notification prompt; without that grant `simctl push` refuses (outcome=refused).
+#
 # Environment: RAMFLUX_BUNDLE_ID (default org.ramflux.ios.dev) is the Debug bundle id; the App Group is
 # group.<bundle id>.
 set -eu

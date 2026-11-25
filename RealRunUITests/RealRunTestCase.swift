@@ -109,10 +109,22 @@ class RealRunTestCase: XCTestCase {
         if banner.exists { control.log("banner on screen, swiped away"); banner.swipeUp(); _ = banner.waitForNonExistence(timeout: 5) }
     }
     /// Declines the app's notification explanation sheet (Cancel never asks the system) when it covers the screen.
+    /// With RAMFLUX_REALRUN_ALLOW_NOTIFICATIONS=1 (the push preparation run) it continues and taps Allow on the
+    /// system prompt instead.
     func dismissPrompts() {
         dismissBanner()
         let prompt = app.staticTexts["Turn on notifications?"]
         if prompt.exists {
+            if ProcessInfo.processInfo.environment["RF_ALLOW_NOTIFICATIONS"] == "1" {
+                let proceed = app.buttons["Continue"].firstMatch
+                if proceed.exists {
+                    proceed.tap()
+                    let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
+                    if allow.waitForExistence(timeout: 10) { allow.tap() }
+                    _ = prompt.waitForNonExistence(timeout: 5)
+                }
+                return
+            }
             let cancel = app.buttons["Cancel"].firstMatch
             if cancel.exists { cancel.tap(); _ = prompt.waitForNonExistence(timeout: 5) }
         }
