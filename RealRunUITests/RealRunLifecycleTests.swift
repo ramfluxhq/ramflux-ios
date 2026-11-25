@@ -154,6 +154,10 @@ final class RealRunLifecycleTests: RealRunTestCase {
 
     func test17_inAppBannerTap() {
         flow("17-in-app-banner") {
+            // The suite launches the app with banners off (-RFRealRunBanners NO); this flow needs them on.
+            app.terminate()
+            app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES"]
+            app.launch()
             try ensureSession()
             guard let conversation = RunSecrets.aliceConversation else { throw FlowStop.blocked("needs flows 3 and 4 (conversation with alice)") }
             try openTab("messages")
