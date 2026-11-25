@@ -52,7 +52,7 @@ SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,80}$")
 STATUSES = {"PASS", "FAIL", "BLOCKED", "NOT RUN"}
 
 
-BUNDLE = "org.ramflux.ios"
+BUNDLE = "org.ramflux.ios.dev"  # replaced by --bundle
 
 
 def image_info(path: Path):
@@ -306,6 +306,7 @@ def handler_for(harness: Harness):
 
 
 def main():
+    global BUNDLE
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--out", type=Path, required=True)
@@ -315,7 +316,9 @@ def main():
     parser.add_argument("--dm-helper", required=True)
     parser.add_argument("--udid", default="")
     parser.add_argument("--app", default="")
+    parser.add_argument("--bundle", default=BUNDLE)
     options = parser.parse_args()
+    BUNDLE = options.bundle
     options.out.mkdir(parents=True, exist_ok=True)
     harness = Harness(options.out, options.facts, options.peers, options.rf, options.dm_helper, options.udid, options.app)
     server = ThreadingHTTPServer(("127.0.0.1", options.port), handler_for(harness))
