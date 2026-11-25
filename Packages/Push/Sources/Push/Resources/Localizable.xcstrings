@@ -2,6 +2,40 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
+    "push.call.body": {
+      "comment": "Body of the system notification for an incoming call while the app was not in use. It names no caller; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incoming call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来电"
+          }
+        }
+      }
+    },
+    "push.locked.body": {
+      "comment": "Body of the notification shown when messages arrived before the phone was unlocked for the first time since it restarted. It names no sender and shows no message text.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock your iPhone to receive new messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁 iPhone 以接收新消息"
+          }
+        }
+      }
+    },
     "push.message.body": {
       "comment": "Body of the system notification for a message that arrived while the app was not in use. It deliberately names no sender and shows no message text; keep it generic.",
       "localizations": {
@@ -15,6 +49,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "新消息"
+          }
+        }
+      }
+    },
+    "push.missedCall.body": {
+      "comment": "Body of the system notification posted when an incoming call was not answered in time. It names no caller; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Missed call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未接来电"
+          }
+        }
+      }
+    },
+    "push.test.body": {
+      "comment": "Body of the system notification the user asks for to check that notifications reach this phone.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test notification"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试通知"
           }
         }
       }

@@ -11,7 +11,7 @@ import AppData
     @ObservationIgnored private var work: Task<Void, Never>?
     @ObservationIgnored private var updates: Task<Void, Never>?
     @ObservationIgnored private var generation: UInt64 = 0
-    @ObservationIgnored private var pendingRoute: (route: AppRoute, account: String)?
+    @ObservationIgnored private var pendingRoute: (route: AppRoute?, account: String)?
     /// The optional app lock. Off by default: a return from the background or a relaunch asks for
     /// nothing and the screens stay as they were. See docs/app-shell.md, "Background and relaunch".
     @ObservationIgnored private let appLock: any AppLockGate
@@ -51,7 +51,8 @@ import AppData
     private func openPending() {
         guard let pending = pendingRoute, !state.privacyShield, state.session.phase == .ready, let active = state.session.activeAccountID else { return }
         pendingRoute = nil
-        if active == pending.account { emit(.navigate(pending.route)) }
+        guard active == pending.account else { return }
+        if let route = pending.route { emit(.navigate(route)) } else { state.tab = .messages; emit(.showChatList) }
     }
     private func observe() {
         guard updates == nil else { return }

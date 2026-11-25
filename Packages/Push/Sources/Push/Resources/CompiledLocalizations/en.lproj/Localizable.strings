@@ -2,7 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>push.call.body</key>
+	<string>Incoming call</string>
+	<key>push.locked.body</key>
+	<string>Unlock your iPhone to receive new messages</string>
 	<key>push.message.body</key>
 	<string>New message</string>
+	<key>push.missedCall.body</key>
+	<string>Missed call</string>
+	<key>push.test.body</key>
+	<string>Test notification</string>
 </dict>
 </plist>
