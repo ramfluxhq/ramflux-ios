@@ -200,5 +200,7 @@
 	<string>通话状态不可用</string>
 	<key>calls.video.unavailable</key>
 	<string>暂时无法发起视频通话：你的账户服务目前只支持语音通话。</string>
+	<key>calls.wake.caller</key>
+	<string>Ramflux 来电</string>
 </dict>
 </plist>

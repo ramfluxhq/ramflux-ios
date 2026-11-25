@@ -217,6 +217,24 @@ import Push
     /// One system call integration per process (one CallKit provider). It reports nothing while the
     /// media engine refuses (see docs/app-shell.md, "Calls and the media engine boundary").
     @ObservationIgnored private(set) lazy var callService = CallSystemService(repository: repositories.calls, provider: CallKitProvider(supportsVideo: false), audio: CallAudioSession())
+    /// Call wakes that must ring (PushKit later, the debug injector now) report a placeholder to the system call UI.
+    @ObservationIgnored private(set) lazy var callWakeHandler = CallWakeHandler(bridge: callService.bridge)
+    /// A remote notification delivered to the app process (clears, debug wakes). Returns what the system is told.
+    func handleRemoteWake(_ userInfo: [AnyHashable: Any]) async -> UIBackgroundFetchResult {
+        #if RAMFLUX_DEBUG_WAKE
+        if let mode = DebugWakeInjector.mode(userInfo: userInfo) { await runDebugWake(mode, payload: WakePayload(userInfo: userInfo)); return .newData }
+        #endif
+        return .noData
+    }
+    #if RAMFLUX_DEBUG_WAKE
+    /// Runs a wake through the shared processor with the debug source and logs the result kind only.
+    func runDebugWake(_ mode: DebugWakeInjector.Mode, payload: WakePayload) async {
+        let processor = WakeHost.processor()
+        let output = await processor.process(payload: payload, original: nil, source: .debugInjector, overrideClass: mode == .nse ? .message : nil)
+        PushLog.wake.notice("push.debug.result \(String(describing: output.result).prefix(40), privacy: .public)")
+        if case .ringCall = output.result { await callWakeHandler.ring() }
+    }
+    #endif
     private func accountLocked() { unlockedAccount = nil; banner = nil; callService.stop() }
     /// The scene is active again: the SDK resumed without asking for anything and the account stayed
     /// unlocked, so a send the suspension interrupted (it completes as suspended and stays queued) is
@@ -261,6 +279,10 @@ import Push
         notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
         UNUserNotificationCenter.current().setNotificationCategories(MessageNotificationSlot.categories())
         registerLifecycle()
+        AppDelegate.remoteWake = { [weak self] userInfo in await self?.handleRemoteWake(userInfo) ?? .noData }
+        #if RAMFLUX_DEBUG_WAKE
+        if let mode = DebugWakeInjector.launchMode() { Task { [weak self] in await self?.runDebugWake(mode, payload: WakePayload(userInfo: ["rf": ["v": 1, "c": mode == .voip ? "call" : "m", "t": "AAAAAAAAAAAAAAAAAAAAAA", "w": "debug-launch"]])) } }
+        #endif
         ApnsTokenSource.shared.onChange { [weak self] in Task { await self?.routeRegistrar.tokenChanged() } }
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },
                              activated: { [weak self] in self?.bannerFeed.setForeground(true) })

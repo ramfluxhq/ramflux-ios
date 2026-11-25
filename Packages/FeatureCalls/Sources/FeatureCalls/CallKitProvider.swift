@@ -3,6 +3,7 @@
 #if os(iOS)
 import Foundation
 import CallKit
+import Push
 import AVFAudio
 
 /// CallKit behind `CallSystemProvider`: one `CXProvider` and one `CXCallController` per
@@ -36,7 +37,8 @@ import AVFAudio
         return update
     }
     public func reportIncoming(_ call: CallSystemCall) async -> Bool {
-        do { try await provider.reportNewIncomingCall(with: call.uuid, update: update(call)); return true } catch { return false }
+        do { try await provider.reportNewIncomingCall(with: call.uuid, update: update(call)); return true }
+        catch { let code = (error as NSError).code; PushLog.call.notice("push.call.report.error domain=\((error as NSError).domain, privacy: .public) code=\(code, privacy: .public)"); return false }
     }
     public func startOutgoing(_ call: CallSystemCall) async -> Bool {
         let action = CXStartCallAction(call: call.uuid, handle: CXHandle(type: .generic, value: call.handle))
