@@ -24,6 +24,7 @@ import AppData
         case .navigate(let route): sheet = nil; path.append(route)
         case .showAccounts: sheet = .accounts
         case .accountSelected: path = []; sheet = nil
+        case .showChatList: path = []; sheet = nil
         }
     }
 }

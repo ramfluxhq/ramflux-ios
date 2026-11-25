@@ -47,9 +47,9 @@ private func row(_ id: String, unread: UInt?, muted: Bool = false) -> Conversati
         #expect(MessageNotifier.plan(previous: nil, rows: rows, active: false).notify.isEmpty, "the first read is a baseline")
     }
     @Test func eventsDriveGenericNotificationsWithInMemoryRoutes() async {
-        let directory = FakeDirectory(), center = FakeCenter(), counter = Mutex(0)
+        let directory = FakeDirectory(), center = FakeCenter()
         await directory.set([row("a", unread: 0)])
-        let notifier = MessageNotifier(conversations: directory, center: center, makeToken: { counter.withLock { $0 += 1; return "t\($0)" } })
+        let notifier = MessageNotifier(conversations: directory, center: center, slot: { _ in "t1" })
         notifier.follow(account: "acc")
         await until { directory.observed.withLock { $0 } == 1 }
         directory.invalidate()
@@ -59,29 +59,29 @@ private func row(_ id: String, unread: UInt?, muted: Bool = false) -> Conversati
         directory.invalidate()
         await until { await center.posted.count == 1 }
         #expect(await center.posted == ["t1"])
-        #expect(notifier.route(for: "t1")?.route == .conversation("a") && notifier.route(for: "t1")?.account == "acc")
+        #expect(notifier.account(for: "t1") == "acc")
         #expect(await center.badges.last == 2)
         #expect(await directory.limits.allSatisfy { $0 == MessageNotifier.defaultWindow })
         notifier.setActive(true)
         await until { await center.cleared == 1 }
-        #expect(notifier.route(for: "t1") != nil, "the tap that activates the app arrives after activation")
+        #expect(notifier.account(for: "t1") != nil, "the tap that activates the app arrives after activation")
         notifier.follow(account: nil)
     }
-    @Test func groupRowsUseTheInboxRoute() async {
+    @Test func groupRowsRaiseTheSameSingleSlot() async {
         let directory = FakeDirectory(), center = FakeCenter()
-        let notifier = MessageNotifier(conversations: directory, center: center, makeToken: { "g" })
+        let notifier = MessageNotifier(conversations: directory, center: center, slot: { _ in "g" })
         notifier.setActive(false)
         notifier.follow(account: "acc")
         await until { directory.observed.withLock { $0 } == 1 }
         directory.invalidate(); await until { await directory.reads == 1 }
         await directory.set([ConversationRecord(id: "grp", title: "Team", preview: "", unreadCount: 1, kind: "group", groupID: "team")])
         directory.invalidate(); await until { await center.posted.count == 1 }
-        #expect(notifier.route(for: "g")?.route == .groupConversation("grp", group: "team", title: "Team"))
+        #expect(notifier.account(for: "g") == "acc", "a group row raises the same single slot")
         notifier.follow(account: nil)
     }
     @Test func switchingAccountsDropsRoutesAndRebaselines() async {
         let directory = FakeDirectory(), center = FakeCenter()
-        let notifier = MessageNotifier(conversations: directory, center: center, makeToken: { "tok" })
+        let notifier = MessageNotifier(conversations: directory, center: center, slot: { _ in "tok" })
         notifier.setActive(false)
         await directory.set([row("a", unread: 0)])
         notifier.follow(account: "one")
@@ -90,7 +90,7 @@ private func row(_ id: String, unread: UInt?, muted: Bool = false) -> Conversati
         await directory.set([row("a", unread: 1)])
         directory.invalidate(); await until { await center.posted.count == 1 }
         notifier.follow(account: "two")
-        #expect(notifier.route(for: "tok") == nil)
+        #expect(notifier.account(for: "tok") == nil)
         await until { directory.observed.withLock { $0 } == 2 }
         await directory.set([row("a", unread: 5)])
         directory.invalidate(); await until { await directory.reads == 3 }

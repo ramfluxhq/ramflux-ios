@@ -52,6 +52,57 @@
           }
         }
       }
+    },
+    "RF_PUSH_MESSAGE": {
+      "comment": "Body of a push notification for a new message, resolved by the system from the push's localization key. It names no sender and shows no message text; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新消息"
+          }
+        }
+      }
+    },
+    "RF_PUSH_CALL": {
+      "comment": "Body of a push notification for an incoming call, resolved by the system from the push's localization key. It names no caller; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incoming call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "来电"
+          }
+        }
+      }
+    },
+    "RF_PUSH_TEST": {
+      "comment": "Body of a push notification the user asked for to check that notifications reach this phone, resolved by the system from the push's localization key.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test notification"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "测试通知"
+          }
+        }
+      }
     }
   }
 }

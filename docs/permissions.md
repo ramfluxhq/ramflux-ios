@@ -75,10 +75,12 @@ neither notify nor count. The app follows the active unlocked account (a locked 
 privacy shield of an inactive scene does not) and tells it whether the scene is active.
 
 - Content is the catalog's generic "New message" (`notification.message.title`), with no message text, no
-  sender, no conversation title and no conversation id. A notification carries only a random token in
-  `userInfo`; the running app maps it back to the account and conversation in memory (at most 64 routes).
-  After the process ends a tap opens the app only. No sender-name setting exists yet.
-- A tap sends `AppShellAction.openWhenReady(.conversation(id), account:)`: the shell opens the conversation
+  sender, no conversation title and no conversation id. There is one notification per account: its request
+  id is the fixed slot `ramflux.message.local.<n>` (`AccountSlots` numbers the accounts on this phone), so a
+  later message replaces the earlier notification, and its category is `RF_MESSAGE`. The slot id in
+  `userInfo` is mapped back to the account in memory; after the process ends a tap opens the app only. A
+  pushed message notification (see `docs/push.md`) removes the local slot before it is shown.
+- A tap sends `AppShellAction.openWhenReady(nil, account:)`: the shell shows that account's chat list
   once that account is active and unlocked and the privacy shield is down, so a locked or concealed
   session shows unlock first, and another account becoming active drops the route.
 - Notifications are not presented while the app is active; becoming active removes delivered ones.

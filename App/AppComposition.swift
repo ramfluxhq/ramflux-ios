@@ -18,6 +18,7 @@ import FeatureGroups
 import RFMedia
 import Observation
 import UserNotifications
+import Push
 @Observable @MainActor final class AppComposition {
     let repositories: AppRepositories
     let shell: AppShellCoordinator
@@ -240,8 +241,8 @@ import UserNotifications
         }
     }
     private func openNotification(_ token: String) {
-        guard let target = notifier.route(for: token) else { return }
-        shell.send(.openWhenReady(target.route, account: target.account))
+        guard let account = notifier.account(for: token) else { return }
+        shell.send(.openWhenReady(nil, account: account))
     }
     func startPreferences() {
         preferenceTask?.cancel()
@@ -253,6 +254,7 @@ import UserNotifications
     init() { _ = DesignFonts.registered; let repositories = AppDataFactory.repositories(); self.repositories = repositories; shell = AppShellCoordinator(repository: repositories.session)
         let delegate = MessageNotificationDelegate { [weak self] token in self?.openNotification(token) }
         notificationDelegate = delegate; UNUserNotificationCenter.current().delegate = delegate
+        UNUserNotificationCenter.current().setNotificationCategories(MessageNotificationSlot.categories())
         registerLifecycle()
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },
                              activated: { [weak self] in self?.bannerFeed.setForeground(true) })

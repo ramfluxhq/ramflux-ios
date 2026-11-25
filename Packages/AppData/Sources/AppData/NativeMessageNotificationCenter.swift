@@ -4,6 +4,7 @@ import Foundation
 #if os(iOS)
 import UserNotifications
 #endif
+import Push
 
 /// The system notification centre for message notifications. It never requests authorisation (that is the
 /// permission flow's job, `NativeDevicePermissionsRepository`); it posts only when alerts are allowed and sets
@@ -19,6 +20,7 @@ public struct NativeMessageNotificationCenter: MessageNotificationCenter {
         guard [.authorized, .provisional, .ephemeral].contains(settings.authorizationStatus), settings.alertSetting == .enabled || settings.notificationCenterSetting == .enabled else { return }
         let content = UNMutableNotificationContent()
         content.title = AppDataStrings.text("notification.message.title")
+        content.categoryIdentifier = MessageNotificationSlot.message
         content.sound = settings.soundSetting == .enabled ? .default : nil
         content.userInfo = [Self.tokenKey: token]
         try? await center.add(UNNotificationRequest(identifier: token, content: content, trigger: nil))

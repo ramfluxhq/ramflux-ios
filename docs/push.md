@@ -49,4 +49,6 @@ ad hoc simulator signing, no team.
 | F10 | Device token on the simulator without a team | Yes: `didRegisterForRemoteNotificationsWithDeviceToken` fires after authorisation (`push.token.ok len=80`). |
 | F11 | App Group container and shared Keychain group with ad hoc signing | App side: yes. `containerURL(forSecurityApplicationGroupIdentifier:)` returns a container for `group.org.ramflux.ios.dev`, and a generic-password item with `kSecAttrAccessGroup` = `FAKETEAMID.org.ramflux.ios.dev.shared` was added (status 0). `$(AppIdentifierPrefix)` resolves to `FAKETEAMID.` in simulator builds, not to an empty string. Extension side: not provable, because F3 means the extension cannot be started on the simulator. Device only. |
 
+The generic floor (IP02): with the app terminated or at Home, `inject.sh message` shows one "New message" banner; with the app in the foreground nothing is presented (`willPresent` returns no options). The extension-side behaviour (catalog body, removal of the local slot) cannot be exercised on the simulator, see F3. The local-notification path needs the scene inactive (Notification Center pulled over the app), which no script can set up, so it is covered by the existing unit tests only.
+
 F4 to F9 and F12 to F16 are recorded by the tasks that need them.

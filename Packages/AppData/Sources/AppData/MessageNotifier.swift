@@ -23,7 +23,7 @@ public struct MessageNotificationPlan: Equatable, Sendable {
 
 /// Local notifications for messages that arrive while the app is not active and the process and core are
 /// alive, driven by the shared event source. On every invalidation it reads the first directory page and
-/// compares unread counts with the previous read. Limitations at this SDK pin: the directory is ordered by
+/// compares unread counts with the previous read; it keeps one notification per account. Limitations at this SDK pin: the directory is ordered by
 /// conversation id, not activity, and has no account-wide unread total, so detection and the badge cover the
 /// first `window` conversations only; the core is shut down when the app enters the background (to release
 /// the database), so nothing is observed there. Background delivery needs push routes and a decrypting
@@ -32,26 +32,25 @@ public struct MessageNotificationPlan: Equatable, Sendable {
     private let conversations: any ConversationsRepository
     private let center: any MessageNotificationCenter
     private let window: Int
-    private let makeToken: @Sendable () -> String
+    private let slot: @Sendable (String) -> String
     private var account: String?
     private var active = true
     private var previous: [String: UInt]?
     private var task: Task<Void, Never>?
     private var generation: UInt64 = 0
-    /// Tokens of posted notifications, newest last; kept only in memory (at most `maxRoutes`), so a tap after
-    /// the process ended opens the app only.
-    private var routes: [(token: String, account: String, route: AppRoute)] = []
-    static let maxRoutes = 64
+    /// Slot identifiers of posted notifications and their accounts; kept only in memory, so a tap after the
+    /// process ended opens the app only.
+    private var routes: [String: String] = [:]
     public static let defaultWindow = 100
     public init(conversations: any ConversationsRepository, center: any MessageNotificationCenter, window: Int = MessageNotifier.defaultWindow,
-                makeToken: @escaping @Sendable () -> String = { UUID().uuidString }) {
-        self.conversations = conversations; self.center = center; self.window = window; self.makeToken = makeToken
+                slot: @escaping @Sendable (String) -> String = { AccountSlots.localIdentifier(account: $0) }) {
+        self.conversations = conversations; self.center = center; self.window = window; self.slot = slot
     }
     /// Follows `account` (nil stops). Following the same account while it runs does nothing.
     public func follow(account: String?) {
         guard account != self.account || (account != nil && task == nil) else { return }
         generation &+= 1; task?.cancel(); task = nil; previous = nil
-        if account != self.account { routes = [] }
+        if account != self.account { routes = [:] }
         self.account = account
         guard let account else { return }
         let current = generation
@@ -72,22 +71,18 @@ public struct MessageNotificationPlan: Equatable, Sendable {
         active = value
         if value { Task { [center] in await center.removeDelivered() } }
     }
-    /// The account and conversation route of a tapped notification, if this process posted it.
-    public func route(for token: String) -> (account: String, route: AppRoute)? {
-        routes.last { $0.token == token }.map { ($0.account, $0.route) }
-    }
+    /// The account of a tapped notification, if this process posted it. A tap opens that account's chat list.
+    public func account(for token: String) -> String? { routes[token] }
 
     private func read(account: String, generation current: UInt64) async {
         guard case .success(let page) = await conversations.page(account: account, cursor: nil, limit: window), self.generation == current else { return }
         let plan = Self.plan(previous: previous, rows: page.rows, active: active)
         previous = Dictionary(page.rows.map { ($0.id, $0.unreadCount ?? 0) }, uniquingKeysWith: { first, _ in first })
         await center.setBadge(plan.badge)
-        for id in plan.notify {
-            guard let row = page.rows.first(where: { $0.id == id }) else { continue }
-            // The same route the inbox uses for a row, direct or group.
-            let token = makeToken()
-            routes.append((token, account, row.route))
-            if routes.count > Self.maxRoutes { routes.removeFirst(routes.count - Self.maxRoutes) }
+        // One notification per account: a later one replaces the earlier one in the same slot.
+        if !plan.notify.isEmpty {
+            let token = slot(account)
+            routes[token] = account
             await center.post(token: token)
         }
     }
