@@ -7,7 +7,6 @@ public struct NativeCallsRepository: CallsRepository {
     private let updates: NativeUpdateSource
     private let engine: any CallMediaEngine
     private let signals = RetainedMutation<CallSignalArguments, CallRecord>()
-    private let handoff = CallMediaHandoff()
     public init(client: RamfluxClient, updates: NativeUpdateSource, engine: any CallMediaEngine = RefusingCallMediaEngine()) {
         gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.updates = updates; self.engine = engine
     }
@@ -75,15 +74,9 @@ public struct NativeCallsRepository: CallsRepository {
     public func connectMedia(account: String, call: CallRecord) async -> RepositoryResult<Void> {
         if case .unavailable(let failure) = engine.availability() { return .failure(failure) }
         guard call.phase == .active else { return .failure(.invalidInput) }
-        // The SDK returns the material once per call; a lost read requires a new call.
-        guard await handoff.claim(account: account, callID: call.id) else { return .success(()) }
-        let reply: SecretBytes
-        do {
-            reply = try await gateway.proxy.callMediaSession(context: gateway.context(.callMediaSession, account: account), body: .object(["call_id": .string(call.id)]))
-        } catch { return .failure(AppFailure.map(error)) }
-        let session: CallMediaSession
-        do { session = try CallMediaSession.sealed(reply, call: call) } catch { return .failure(.invalidData) }
-        return await engine.start(session)
+        // Core 0.2.8 denies `call.media.session` over the C ABI: media keys stay inside the SDK engine.
+        // A host engine is not wired to the SDK's in-process media control yet, so media is not available.
+        return .failure(audioUnavailable())
     }
     public func control(_ control: CallMediaControl, callID: String) async -> RepositoryResult<Void> { await engine.control(control, callID: callID) }
     public func stopMedia(callID: String) async { await engine.stop(callID: callID) }

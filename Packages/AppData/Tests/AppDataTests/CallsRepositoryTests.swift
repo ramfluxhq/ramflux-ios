@@ -108,32 +108,6 @@ final class FakeCallMediaEngine: CallMediaEngine {
         #expect(await repo.start(account: "a", conversation: "thread") == .failure(.outcomeUnknown))
         #expect(fixture.calls.withLock { $0.count == 1 })
     }
-    @Test func mediaSessionIsReadOnceAndHandedSealedToTheEngine() async {
-        let fixture = ProxyTransport { request in
-            #expect(request.method == "call.media.session"); #expect(request.body == .object(["call_id": .string("c")]))
-            return Self.session
-        }
-        let engine = FakeCallMediaEngine(), repo = repository(fixture, engine: engine)
-        let active = CallRecord(id: "c", conversationID: "thread", peerID: "peer", direction: .incoming, phase: .active, sequence: 9, createdAt: 1_800_000_000)
-        let ringing = CallRecord(id: "c", conversationID: "thread", peerID: "peer", direction: .incoming, phase: .incomingRinging, sequence: 8, createdAt: 1_800_000_000)
-        #expect(failure(await repo.connectMedia(account: "a", call: ringing)) == .invalidInput)
-        #expect(failure(await repo.connectMedia(account: "a", call: active)) == nil)
-        #expect(failure(await repo.connectMedia(account: "a", call: active)) == nil)
-        #expect(fixture.calls.withLock { $0.count == 1 }); #expect(engine.started.withLock { $0 } == ["c"])
-        // The engine receives the whole completion frame; the body is the SDK's handoff verbatim.
-        guard let material = engine.materials.withLock({ $0.first }), let frame = try? JSONDecoder().decode(JSONValue.self, from: material) else { Issue.record("No material"); return }
-        #expect(frame["code"] == .number(0)); #expect(frame["response"]?["body"] == Self.session)
-        #expect(failure(await repo.control(.mute(true), callID: "c")) == nil); #expect(engine.controls.withLock { $0 } == [.mute(true)])
-    }
-    @Test func incompleteMediaSessionNeverReachesTheEngine() async {
-        let fixture = ProxyTransport { _ in .object(["relay": .object([:])]) }
-        let engine = FakeCallMediaEngine(), repo = repository(fixture, engine: engine)
-        let active = CallRecord(id: "c", conversationID: "thread", peerID: "peer", direction: .outgoing, phase: .active, sequence: 9, createdAt: 1_800_000_000)
-        #expect(failure(await repo.connectMedia(account: "a", call: active)) == .invalidData)
-        #expect(engine.started.withLock { $0.isEmpty })
-        // Never read twice, even after a failed handoff: the SDK has already spent the keys.
-        #expect(failure(await repo.connectMedia(account: "a", call: active)) == nil); #expect(fixture.calls.withLock { $0.count == 1 })
-    }
     @Test func liveStateSubscribesToTheSpecificCallTopic() async {
         let topics = Mutex<[String]>([])
         let fixture = ProxyTransport(onSubscribe: { filter in if case .array(let values)? = filter.body["topics"] { topics.withLock { $0 = values.compactMap(\.string) } }; throw BridgeError.invalidInput }) { _ in .null }
