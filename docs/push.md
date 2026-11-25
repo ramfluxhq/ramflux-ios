@@ -62,6 +62,27 @@ notification after five seconds; lock the phone to see it) and the late-delivery
 when the app becomes active, so a change made in iOS Settings shows on return. Debug builds can open it with the
 launch argument `-RFDebugRoute delivery`.
 
+## What only a device can exercise
+
+The extension host is thin: `NotificationService` builds a `WakePayload`, calls `WakeProcessor.process` (the code
+the Debug injector runs in the app process on the simulator) and hands the result to the system. Fetch, the
+dispatcher table, the generic content, the local-slot removal, the clears and the call placeholder are therefore
+proven in-process on the simulator. These lines are the ones the simulator cannot start (F3, F6, F9) and need a
+device once the developer account exists:
+
+| What | Why not on the simulator | What to run on a device |
+|---|---|---|
+| `NotificationService.didReceive` and `serviceExtensionTimeWillExpire`, and `push.nse.received` | `simctl push` does not start the extension (F3) | Send an alert push with `mutable-content` (real APNs); read `log show --predicate 'subsystem == "org.ramflux.push"'` |
+| The extension's time limit and memory ceiling (F4, F5) | not enforced like a device | Instruments on the extension process during a fetch |
+| Shared Keychain group and App Group read from the extension process (F11) | the extension cannot be started | A message push after the app wrote its data: `push.fetch.fetched` in the extension |
+| `UNUserNotificationCenter` removal of the local slot from the extension | extension | Run the app, leave it with the scene inactive so a local notification is posted, then push |
+| Unlock notice before the first unlock (`push.fetch.locked`, route map unreadable) | data protection is not enforced (F12) | Restart the device, do not unlock, push once |
+| Fetch while the app is suspended; open the app during a fetch | awaiting the core's answer to RFCORE-142 question 1 (CR1) | Home the app, push, read `push.fetch.*`; open the app during a fetch |
+| `AppDelegate.application(_:didReceiveRemoteNotification:)` for a real background push in every state (F6) | `simctl push` refuses silent pushes | Send an APNs background push with `content-available` to the app at Home, terminated and swiped away |
+| CallKit incoming-call UI and the 45 s ring (F9) | CallKit fails on the simulator | Debug build: `-RFDebugWake call` on the device |
+| Collapse id, priority, push type and expiration (F14) | not expressible in `.apns` files | Real APNs through a node with a credential |
+| Registered state of a route (`ready`) | the test node has no APNs credential | A node with an APNs sandbox credential |
+
 ## Platform facts measured on the simulator
 
 Measured with Xcode 27.2 (27B52), simulator runtime iOS 27.2 (device `rf-realrun`), macOS 26.6.2, Apple silicon,
