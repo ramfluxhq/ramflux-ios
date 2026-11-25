@@ -8,4 +8,5 @@ let package = Package(name: "Push", defaultLocalization: "en", platforms: [.iOS(
     dependencies: [.package(name: "RamfluxCoreBridge", path: "../.."), .package(path: "../RFLocalization")], targets: [
         .target(name: "Push", dependencies: [.product(name: "RamfluxCore", package: "RamfluxCoreBridge"), "RFLocalization"],
                 exclude: ["Resources/Localizable.xcstrings"], resources: [.process("Resources/CompiledLocalizations")]),
+        .testTarget(name: "PushTests", dependencies: ["Push"]),
     ], swiftLanguageModes: [.v6])
