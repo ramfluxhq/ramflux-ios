@@ -8,9 +8,11 @@ import CRamflux
 /// Synchronous, thread-safe protected storage callback. SDK-owned pointers never escape a call.
 public final class HostCustodyProvider: Sendable {
     private let service: String
+    private let accessGroup: String?
     private let access: any KeychainAccess
-    public convenience init(service: String = "org.ramflux.primary-vault") { self.init(service: service, access: SecurityKeychain()) }
-    init(service: String, access: any KeychainAccess) { self.service = service; self.access = access }
+    /// Items live in the shared Keychain access group declared in Info.plist, so the notification extension reads them.
+    public convenience init(service: String = "org.ramflux.primary-vault") { self.init(service: service, access: SecurityKeychain(), accessGroup: SharedGroups.keychainGroup()) }
+    init(service: String, access: any KeychainAccess, accessGroup: String? = nil) { self.service = service; self.access = access; self.accessGroup = accessGroup }
     func table() -> RamfluxV2CustodyProvider {
         let context = UInt64(UInt(bitPattern: Unmanaged.passUnretained(self).toOpaque()))
         return RamfluxV2CustodyProvider(abi_version: 1, context: context, retain: { token in
@@ -26,9 +28,11 @@ public final class HostCustodyProvider: Sendable {
     }
     private func query(_ reference: String) -> [String: Any] {
         let context = LAContext(); context.interactionNotAllowed = true
-        return [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
+        var query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
                 kSecAttrAccount as String: reference, kSecAttrSynchronizable as String: false,
                 kSecUseDataProtectionKeychain as String: true, kSecUseAuthenticationContext as String: context]
+        if let accessGroup { query[kSecAttrAccessGroup as String] = accessGroup }
+        return query
     }
     private func status(_ status: OSStatus) -> Int32 {
         switch status { case errSecSuccess: 0; case errSecItemNotFound: 1; case errSecDuplicateItem, errSecDecode: 2

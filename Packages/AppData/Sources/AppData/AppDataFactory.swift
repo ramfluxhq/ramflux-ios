@@ -2,14 +2,16 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import RamfluxCore
+import Push
 public enum AppDataFactory {
     /// Source-only builds explicitly refuse account operations. No fixture is linked into the app.
     public static func sessionRepository() -> any SessionRepository { repositories().session }
     public static func repositories() -> AppRepositories {
         #if RF_NATIVE_SDK
         do {
-            guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else { return unavailable() }
-            let root = support.appendingPathComponent("ramflux", isDirectory: true)
+            // The SDK data root is shared with the notification extension: `ramflux/` in the App Group container.
+            guard let shared = SharedContainer.containerURL() else { return unavailable() }
+            let root = shared.appendingPathComponent("ramflux", isDirectory: true)
             let client = RamfluxClient(transport: try NativeCore(dataRoot: root, custody: HostCustodyProvider(), usernameDirectory: AppOpenConfiguration.usernameDirectory(info: Bundle.main.infoDictionary), diagnostics: AppOpenConfiguration.diagnostics))
             let updates = NativeUpdateSource(client: client)
             let nodes = NativeNodeRepository(client: client), lifecycle = AccountLifecycleHooks()

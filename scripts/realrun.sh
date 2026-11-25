@@ -262,8 +262,8 @@ run_suite() {
 # data container after every run, so it is kept even when the app is reset for the next run. Files hold
 # no message content; identifiers are keyed hashes. The copy replaces the previous one of this run.
 collect_sdk_log() {
-  container=$(xcrun simctl get_app_container "$UDID" "$APP_BUNDLE" data 2>/dev/null) || { say "no app container; no SDK log to collect"; return 0; }
-  diag_dir="$container/Library/Application Support/ramflux/diag"
+  container=$(xcrun simctl get_app_container "$UDID" "$APP_BUNDLE" "group.$APP_BUNDLE" 2>/dev/null) || { say "no app group container; no SDK log to collect"; return 0; }
+  diag_dir="$container/ramflux/diag"
   if [ -d "$diag_dir" ]; then
     mkdir -p "$OUT/sdk-diag"
     cp -R "$diag_dir/." "$OUT/sdk-diag/" && say "SDK log copied to $OUT/sdk-diag ($(ls "$OUT/sdk-diag" | wc -l | tr -d ' ') files)"

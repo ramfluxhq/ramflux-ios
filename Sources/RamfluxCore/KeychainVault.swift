@@ -5,17 +5,21 @@ import Security
 import LocalAuthentication
 import Darwin
 
-/// App-private keychain items. No access group, synchronization, file fallback, or shared DB.
+/// Keychain items in the shared access group declared in Info.plist (also read by the notification extension).
+/// No synchronization, file fallback, or shared DB.
 public actor KeychainVault {
     private let service: String
     private let keychain: any KeychainAccess
-    public init(service: String = "org.ramflux.core.vault") { self.service = service; keychain = SecurityKeychain() }
-    init(service: String, keychain: any KeychainAccess) { self.service = service; self.keychain = keychain }
+    private let accessGroup: String?
+    public init(service: String = "org.ramflux.core.vault") { self.service = service; keychain = SecurityKeychain(); accessGroup = SharedGroups.keychainGroup() }
+    init(service: String, keychain: any KeychainAccess, accessGroup: String? = nil) { self.service = service; self.keychain = keychain; self.accessGroup = accessGroup }
     private func query(_ account: String) -> [String: Any] {
         let context = LAContext(); context.interactionNotAllowed = true
-        return [kSecClass as String: kSecClassGenericPassword,
+        var query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
          kSecAttrService as String: service, kSecAttrAccount as String: account,
          kSecAttrSynchronizable as String: false, kSecUseDataProtectionKeychain as String: true, kSecUseAuthenticationContext as String: context]
+        if let accessGroup { query[kSecAttrAccessGroup as String] = accessGroup }
+        return query
     }
     public func store(_ secret: SecretBytes, account: String) throws {
         guard !account.isEmpty, account.utf8.count <= 256 else { throw BridgeError.invalidInput }

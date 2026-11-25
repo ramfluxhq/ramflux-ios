@@ -18,8 +18,8 @@ public final class NativeCore: CoreTransport {
                 usernameDirectory: UsernameDirectoryPin? = nil, diagnostics: DiagnosticSettings? = nil) throws {
         guard dataRoot.isFileURL, builtinNodes.count <= 64 else { throw BridgeError.invalidInput }
         #if os(iOS)
-        guard let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first,
-              dataRoot.standardizedFileURL == support.appendingPathComponent("ramflux", isDirectory: true).standardizedFileURL else {
+        guard let group = SharedGroups.appGroup(), let shared = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: group),
+              dataRoot.standardizedFileURL == shared.appendingPathComponent("ramflux", isDirectory: true).standardizedFileURL else {
             throw BridgeError.unsafeStoragePath
         }
         #endif
@@ -192,7 +192,7 @@ public final class NativeCore: CoreTransport {
         var code: Int32 = 0
         do {
             #if os(iOS)
-            _ = try AppStorage.prepare(applicationSupport: dataRoot.deletingLastPathComponent())
+            _ = try AppStorage.prepare(groupContainer: dataRoot.deletingLastPathComponent())
             #endif
             code = configuration.withUnsafeBytes { bytes in
                 if let custody { var table = custody.table(); return ramflux_v2_client_open_with_custody(bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count, &table, &handle) }

@@ -2,19 +2,30 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 
+/// The App Group and Keychain access group declared in the host bundle's Info.plist (`RamfluxAppGroup`,
+/// `RamfluxKeychainGroup`, set from build settings). The app and its notification extension share both.
+public enum SharedGroups {
+    public static func appGroup(info: [String: Any]? = Bundle.main.infoDictionary) -> String? { value("RamfluxAppGroup", info) }
+    public static func keychainGroup(info: [String: Any]? = Bundle.main.infoDictionary) -> String? { value("RamfluxKeychainGroup", info) }
+    private static func value(_ key: String, _ info: [String: Any]?) -> String? {
+        guard let text = info?[key] as? String, !text.isEmpty, !text.contains("$(") else { return nil }
+        return text
+    }
+}
+
 public enum AppStorage {
-    /// The application passes its own Application Support directory, never an App Group.
-    public static func prepare(applicationSupport: URL) throws -> URL {
-        guard applicationSupport.isFileURL else { throw BridgeError.unsafeStoragePath }
+    /// The data root is `ramflux/` inside the App Group container that the app and its extension share, never the
+    /// app's private container. On iOS the base must be that container.
+    public static func prepare(groupContainer: URL, appGroup: String? = SharedGroups.appGroup()) throws -> URL {
+        guard groupContainer.isFileURL else { throw BridgeError.unsafeStoragePath }
         #if os(iOS)
-        let canonical = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
-            appropriateFor: nil, create: true)
-        guard applicationSupport.standardizedFileURL == canonical.standardizedFileURL else { throw BridgeError.unsafeStoragePath }
+        guard let appGroup, let canonical = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup),
+              groupContainer.standardizedFileURL == canonical.standardizedFileURL else { throw BridgeError.unsafeStoragePath }
         #endif
-        let root = applicationSupport.appendingPathComponent("ramflux", isDirectory: true)
+        let root = groupContainer.appendingPathComponent("ramflux", isDirectory: true)
         // The base is supplied by the application container; reject symlinks in owned paths.
         // System ancestors such as /var may legitimately resolve through an OS symlink.
-        for candidate in [applicationSupport, root] {
+        for candidate in [groupContainer, root] {
             if FileManager.default.fileExists(atPath: candidate.path),
                try candidate.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink == true {
                 throw BridgeError.unsafeStoragePath

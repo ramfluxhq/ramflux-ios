@@ -94,31 +94,13 @@ privacy shield of an inactive scene does not) and tells it whether the scene is 
   scene (Notification Centre or Control Centre over the app, the app switcher, an incoming system
   alert); delivery to a backgrounded or terminated app needs the push work below.
 
-### What background delivery needs from the SDK and the node (requests R21 and R28)
+### Background delivery
 
-The pinned SDK has `device.push_route.set` with a registration `{provider: apns | apns_voip | fcm |
-webpush, token}` that the gateway stores per device (`gateway/push_route.rs`, `bus/dispatch/device.rs`).
-That is push-route registration; nothing else needed for phones exists yet:
-
-1. Node: send an APNs alert push with `mutable-content` (or a background push) when a delivery is queued for
-   an offline device, with a payload that names no sender or content (an opaque mailbox hint at most),
-   and an `apns_voip` push for an incoming call (R28). Rate and coalescing rules, and what the node may log.
-2. SDK, for a Notification Service Extension: a decrypt-only entry point that an extension process may
-   call within its 24 MiB / 30 s limits. It must open the account read-only with a key the extension can
-   reach, fetch and decrypt only the pending deliveries named by the push, and return display-safe fields
-   (conversation id, sender display name, a text preview or a kind) without taking the database writer,
-   advancing ratchets the main app needs, sending receipts or touching the event journal. Today
-   `NativeCore` must not be constructed in an extension (bridge notes) and the database belongs in the
-   app's own container.
-3. App Group storage for that path: which state may live in a shared container (a separate
-   decrypt-only store or key-wrapped copy), its data-protection class (complete-until-first-unlock at
-   most) and how the main app reconciles what the extension decrypted. The Keychain item would need an
-   access group shared with the extension; today it has none by design.
-4. SDK, for VoIP pushes: PushKit requires reporting a CallKit call for every VoIP push, so the payload
-   must carry enough to report the call (call id, caller display decision) before the core is open, and
-   `call.*` must accept answering after a cold start (R28).
-5. Token forwarding: the app would call `device.push_route.set` after
-   `registerForRemoteNotifications` reports a token (APNs) and after PushKit registration (VoIP), and
-   clear the route on lock or account removal; it does not call it today because the node sends no push.
-
-No extension target is added until 1–3 are answered.
+The node sends an APNs alert push with `mutable-content` and a generic localization key when a delivery is
+queued for an offline device (payload contract: `docs/push.md`). A notification service extension
+(`RamfluxNotificationService`) shows the fixed generic text of the wake's class; it shares the SDK data root (App
+Group container) and the Keychain access group with the app, as `docs/bridge.md` describes. The core's wake-fetch
+entry point can fetch the named deliveries from the extension without decrypting them; showing, suppressing and
+clearing by decrypted state, the call wake path (PushKit and CallKit) and the token and route registration are
+later tasks of the push work and are not part of the app yet. Until then `registerForRemoteNotifications` runs
+after authorisation and nothing registers the token with the node.
