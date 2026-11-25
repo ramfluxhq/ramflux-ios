@@ -85,6 +85,10 @@ public enum CallSystemIntent: Equatable, Sendable {
     private var uuids: [String: UUID] = [:]
     private var endedHere: Set<String> = []
     public var onIntent: ((CallSystemIntent) -> Void)?
+    /// The placeholder call reported for a call wake before the call itself is known. It cannot be answered yet.
+    private var wakeCall: UUID?
+    /// The user declined the placeholder in the system UI.
+    public var onWakeDeclined: (() -> Void)?
     public init(provider: any CallSystemProvider, availability: @escaping () -> CallMediaAvailability, display: @escaping (CallRecord) -> String) {
         self.provider = provider; self.availability = availability; self.display = display
         provider.onAction = { [weak self] action in self?.handle(action) ?? false }
@@ -119,7 +123,21 @@ public enum CallSystemIntent: Equatable, Sendable {
         let uuid = UUID(); uuids[row.id] = uuid; phases[row.id] = row.phase
         _ = await provider.startOutgoing(CallSystemCall(uuid: uuid, callID: row.id, handle: display(row), video: false))
     }
+    /// Reports the placeholder of a call wake to the system UI (it must happen before any I/O).
+    public func reportWake(_ call: CallSystemCall) async -> Bool {
+        guard wakeCall == nil else { return false }
+        wakeCall = call.uuid
+        if await provider.reportIncoming(call) { return true }
+        wakeCall = nil; return false
+    }
+    /// Ends the placeholder, if any.
+    public func endWake(reason: CallSystemEndReason) {
+        guard let uuid = wakeCall else { return }
+        wakeCall = nil; provider.reportEnded(uuid, reason: reason)
+    }
     func handle(_ action: CallSystemAction) -> Bool {
+        if case .end(let uuid) = action, uuid == wakeCall { wakeCall = nil; onWakeDeclined?(); return true }
+        if case .answer(let uuid) = action, uuid == wakeCall { return false }
         func call(_ uuid: UUID) -> String? { uuids.first { $0.value == uuid }?.key }
         switch action {
         case .answer(let uuid):

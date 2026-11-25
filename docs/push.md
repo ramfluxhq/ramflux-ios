@@ -69,4 +69,16 @@ The generic floor (IP02): with the app terminated or at Home, `inject.sh message
 
 Uninstalling the app removes its App Group container on the simulator (verified: the container and its contents are gone, and a fresh install starts empty), so the real-run reset still starts from an empty SDK root.
 
+| F6 (setup) | `simctl push` of a silent push (`content-available`, no visible content) | Refused: UNErrorDomain 1401 "Notification has no user visible content" (badge only: 2002). `clear.apns` and a silent `debug-*` payload cannot be sent on this runtime. |
+| F9 | CallKit incoming-call UI on the simulator via `reportNewIncomingCall` | No. The call fails with `com.apple.CallKit.error` code 0 (unknown); no UI appears. The dispatcher, the placeholder report, the 45 s timer and the "Missed call" notification still run (log `push.call.refused`, `push.call.missed`). A call the system refuses ends as missed after the same timeout. |
+
+## Debug wake injector
+
+Compiled only with `RAMFLUX_DEBUG_WAKE` (Debug). It runs a wake through the same `WakeProcessor`, `WakeDispatcher`
+and `CallWakeHandler` as the extension and PushKit, with source `debugInjector`. Entry points: the launch argument
+`-RFDebugWake call` or `-RFDebugWake message` (cold start, before the shell loads), and an alert push carrying
+`rf_debug` sent to the app in the foreground (`debug-call.apns` rings, `debug-message.apns` runs the message path;
+silent pushes cannot be sent, see F6). `scripts/check-release-symbols.sh` fails when a Release binary contains the
+injector.
+
 F4 to F9 and F12 to F16 are recorded by the tasks that need them.

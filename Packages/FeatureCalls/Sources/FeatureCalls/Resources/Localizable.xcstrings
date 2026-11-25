@@ -1697,6 +1697,23 @@
           }
         }
       }
+    },
+    "calls.wake.caller": {
+      "comment": "Caller name the system call screen shows for an incoming call before the app knows who is calling. It names no person; keep it generic.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramflux call"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ramflux 来电"
+          }
+        }
+      }
     }
   }
 }

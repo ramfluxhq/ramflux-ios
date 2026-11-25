@@ -6,7 +6,7 @@
 # simulator with `xcrun simctl push`. It is not part of any test target. Prints only the class and the outcome.
 #
 #   scripts/push/inject.sh CLASS [--simulator NAME] [--account ACCOUNT_ID]
-#   CLASS: message | test | clear | call-alert | unknown-route | unknown-class | debug-call
+#   CLASS: message | test | clear | call-alert | unknown-route | unknown-class | debug-call|debug-message
 #
 # ROUTE_TAG in the payload is replaced with the route tag of the account (default: the first one) from the
 # route map in the app's App Group container (push/routes.json); neither is printed. When the app has not

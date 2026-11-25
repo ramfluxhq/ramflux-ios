@@ -8,5 +8,7 @@ public enum PushLog {
     public static let subsystem = "org.ramflux.push"
     public static let nse = Logger(subsystem: subsystem, category: "nse")
     public static let token = Logger(subsystem: subsystem, category: "token")
+    public static let wake = Logger(subsystem: subsystem, category: "wake")
+    public static let call = Logger(subsystem: subsystem, category: "call")
     public static let route = Logger(subsystem: subsystem, category: "route")
 }

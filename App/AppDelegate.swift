@@ -5,6 +5,11 @@ import Push
 
 /// Receives the APNs device token callbacks. The token is not kept or logged: only its length and the failure code.
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    /// Set by the composition: handles a remote notification delivered to the running or woken app.
+    @MainActor static var remoteWake: (@MainActor ([AnyHashable: Any]) async -> UIBackgroundFetchResult)?
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async -> UIBackgroundFetchResult {
+        await AppDelegate.remoteWake?(userInfo) ?? .noData
+    }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         ApnsTokenSource.shared.received(deviceToken)
         PushLog.token.notice("push.token.ok len=\(deviceToken.count, privacy: .public)")
