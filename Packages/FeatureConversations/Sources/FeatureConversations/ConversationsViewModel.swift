@@ -13,6 +13,10 @@ import AppData
     @ObservationIgnored private var observer: Task<Void, Never>?
     @ObservationIgnored private var observationID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
+    /// Screens currently showing this inbox. SwiftUI can deliver a replacement's appearance before the old
+    /// instance's disappearance (seen when the scene becomes active again); only the last disappearance may
+    /// reset the inbox and stop its observation.
+    @ObservationIgnored private var presenters = 0
     @ObservationIgnored private var generation: UInt64 = 0
     @ObservationIgnored private var window = ConversationsWindow()
     @ObservationIgnored private var locale = Locale.current
@@ -29,13 +33,15 @@ import AppData
     public func send(_ action: ConversationsAction) {
         switch action {
         case .appeared:
+            presenters += 1
+            EventDiagnostics.note("inbox appeared presenters=\(presenters) observing=\(observer != nil)")
             guard observer == nil else { return }; reload(search: false)
             observationID &+= 1; let watchID = observationID
             observer = Task { [weak self, repository, account] in
                 let observation = await repository.observe(account: account)
                 for await update in observation.stream {
                     guard !Task.isCancelled, let self else { break }
-                    switch update { case .invalidated: self.state.failure = nil; if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
+                    switch update { case .invalidated: EventDiagnostics.note("inbox invalidated loading=\(self.state.loading)"); self.state.failure = nil; if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
                 }
                 await observation.stop()
                 if let self, self.observationID == watchID { self.observer = nil }
@@ -52,6 +58,9 @@ import AppData
         case .contacts, .newConversation, .addContact: emit(.navigate(.contacts))
         case .strangers: emit(.navigate(.strangers))
         case .disappeared:
+            presenters = max(0, presenters - 1)
+            EventDiagnostics.note("inbox disappeared presenters=\(presenters)")
+            guard presenters == 0 else { return }
             observationID &+= 1; pendingRefresh = false
             generation &+= 1; work?.cancel(); observer?.cancel(); observer = nil
             window = ConversationsWindow()
@@ -76,6 +85,7 @@ import AppData
             let loaded = await Task.detached { await ConversationsWindow.load(repository, account: account, pages: pages, locale: locale, now: Date()) }.value
             let pending = await requests
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
+            if case .success(let next) = loaded { EventDiagnostics.note("inbox reload rows=\(next.rows.count)") } else { EventDiagnostics.note("inbox reload failed") }
             self.state.loading = false
             if case .success(let count) = pending { self.state.strangersUnread = count }
             switch loaded {
