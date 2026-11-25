@@ -18,7 +18,7 @@ class RealRunTestCase: XCTestCase {
         continueAfterFailure = true
         if Self.config == nil { Self.config = try RealRunConfig.load(); RunSecrets.load(from: control) }
         // -RFRealRunPhraseAccess: the debug-only accessibility seam of the recovery phrase display (flow 1).
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES"]
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-RFRealRunPhraseAccess", "YES", "-RFRealRunBanners", "NO"]
         if app.state == .notRunning || app.state == .unknown { app.launch() } else { app.activate() }
     }
 

@@ -177,7 +177,19 @@ import UserNotifications
     /// New incoming messages while the app is in the foreground, from the same directory stream as the
     /// notifier; the conversation on screen, muted conversations and own messages raise nothing.
     @ObservationIgnored lazy var bannerFeed = InAppBannerFeed(conversations: repositories.conversations, chat: repositories.chat,
-        isOpen: { [weak self] id in self?.isConversationOpen(id) ?? false }, deliver: { [weak self] banner in self?.banner = banner })
+        isOpen: { [weak self] id in self?.isConversationOpen(id) ?? false }, deliver: { [weak self] banner in
+            if !Self.bannersSuppressed { self?.banner = banner }
+        })
+    /// Debug builds launched by the real-run suite (launch argument `-RFRealRunBanners NO`) raise no banner: a
+    /// banner covers the top bar and takes taps for about four seconds, which the other flows do not expect.
+    /// The banner flow launches the app without the argument. Release builds ignore it.
+    private static var bannersSuppressed: Bool {
+        #if DEBUG
+        UserDefaults.standard.string(forKey: "RFRealRunBanners") == "NO"
+        #else
+        false
+        #endif
+    }
     private func isConversationOpen(_ id: String) -> Bool {
         switch shell.path.last {
         case .conversation(let open)?: open == id
