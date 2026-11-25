@@ -10,6 +10,8 @@ public enum AccountLifecycleEvent: Equatable, Sendable {
     case willLock(account: String)
     /// The account is about to leave this device (sign-out or removal): purge everything it stored.
     case willRemove(account: String)
+    /// The account is about to sign out or be removed from this device: clear what the node holds for it (push route).
+    case willLeave(account: String)
 }
 
 /// Registry of account lifecycle handlers. Handlers run in registration order and are awaited before
