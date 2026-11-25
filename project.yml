@@ -9,6 +9,17 @@ settings:
   base:
     SWIFT_VERSION: '6.0'
     SWIFT_STRICT_CONCURRENCY: complete
+    # Identifiers shared by the app and its extension; a company team or registration changes only these.
+    RAMFLUX_APP_GROUP: group.$(RAMFLUX_APP_BUNDLE_ID)
+    RAMFLUX_KEYCHAIN_GROUP: $(AppIdentifierPrefix)$(RAMFLUX_APP_BUNDLE_ID).shared
+  configs:
+    Debug:
+      RAMFLUX_APP_BUNDLE_ID: org.ramflux.ios.dev
+      RAMFLUX_APNS_ENVIRONMENT: development
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) RAMFLUX_DEBUG_WAKE
+    Release:
+      RAMFLUX_APP_BUNDLE_ID: org.ramflux.ios
+      RAMFLUX_APNS_ENVIRONMENT: production
 packages:
   FeaturePermissions:
     path: Packages/FeaturePermissions
@@ -44,6 +55,8 @@ packages:
     path: Packages/AppData
   RFLocalization:
     path: Packages/RFLocalization
+  Push:
+    path: Packages/Push
 targets:
   Ramflux:
     type: application
@@ -54,7 +67,8 @@ targets:
       properties:
         application-identifier: $(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)
         aps-environment: $(RAMFLUX_APNS_ENVIRONMENT)
-        keychain-access-groups: [$(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)]
+        keychain-access-groups: [$(RAMFLUX_KEYCHAIN_GROUP)]
+        com.apple.security.application-groups: [$(RAMFLUX_APP_GROUP)]
     preBuildScripts:
       - name: Require device signing team
         basedOnDependencyAnalysis: false
@@ -64,6 +78,8 @@ targets:
             exit 1
           fi
     dependencies:
+      - target: RamfluxNotificationService
+      - package: Push
       - package: FeaturePermissions
       - package: FeatureCards
       - package: FeatureTasks
@@ -83,7 +99,6 @@ targets:
     settings:
       configs:
         Debug:
-          RAMFLUX_APNS_ENVIRONMENT: development
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
@@ -91,7 +106,6 @@ targets:
           DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
           CODE_SIGN_STYLE: Automatic
         Release:
-          RAMFLUX_APNS_ENVIRONMENT: production
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
@@ -99,7 +113,7 @@ targets:
           DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
           CODE_SIGN_STYLE: Automatic
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.ramflux.ios
+        PRODUCT_BUNDLE_IDENTIFIER: $(RAMFLUX_APP_BUNDLE_ID)
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: Ramflux
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -120,6 +134,8 @@ targets:
         NSCameraUsageDescription: Ramflux uses the camera only while taking a photo or scanning a QR code.
         NSPhotoLibraryAddUsageDescription: Ramflux can add images you choose to Photos, without viewing your library.
         UIBackgroundModes: [remote-notification]
+        RamfluxAppGroup: $(RAMFLUX_APP_GROUP)
+        RamfluxKeychainGroup: $(RAMFLUX_KEYCHAIN_GROUP)
         CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [en, zh-CN]
         RamfluxUsernameDirectoryURL: $(RAMFLUX_USERNAME_DIRECTORY_URL)
@@ -129,6 +145,55 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: org.ramflux.ios.navigation
             CFBundleURLSchemes: [ramflux]
+  RamfluxNotificationService:
+    type: app-extension
+    platform: iOS
+    sources: [NotificationService]
+    dependencies:
+      - package: Push
+      - package: RamfluxCore
+    entitlements:
+      path: NotificationService/RamfluxNotificationService.entitlements
+      properties:
+        application-identifier: $(AppIdentifierPrefix)$(PRODUCT_BUNDLE_IDENTIFIER)
+        keychain-access-groups: [$(RAMFLUX_KEYCHAIN_GROUP)]
+        com.apple.security.application-groups: [$(RAMFLUX_APP_GROUP)]
+    settings:
+      configs:
+        Debug:
+          "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+          "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Development
+          DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
+          "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Distribution
+          DEVELOPMENT_TEAM: $(RAMFLUX_DEVELOPMENT_TEAM)
+          CODE_SIGN_STYLE: Automatic
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(RAMFLUX_APP_BUNDLE_ID).NotificationService
+        APPLICATION_EXTENSION_API_ONLY: YES
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Ramflux
+        TARGETED_DEVICE_FAMILY: '1,2'
+        MARKETING_VERSION: '0.2.6'
+        CURRENT_PROJECT_VERSION: '8'
+    info:
+      path: build/NotificationService-Info.plist
+      properties:
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, zh-CN]
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+        RamfluxAppGroup: $(RAMFLUX_APP_GROUP)
+        RamfluxKeychainGroup: $(RAMFLUX_KEYCHAIN_GROUP)
   RamfluxTests:
     type: bundle.unit-test
     platform: iOS

@@ -25,6 +25,7 @@
 #   RAMFLUX_REALRUN_PEERS_CTL    optional: command with `status` (lines "NAME: running" and "networking=live")
 #                                and `start` for the peer daemons
 #   RAMFLUX_REALRUN_CLOCK_CONTAINER optional: a node container whose clock is compared with this machine's
+#   RAMFLUX_REALRUN_BUNDLE_ID    optional: bundle id of the Debug build (default org.ramflux.ios.dev)
 #   RAMFLUX_MOBILE_ENV           optional: a shell file sourced before building (toolchain paths)
 #   RAMFLUX_CORE_XCFRAMEWORK     optional: the native SDK artifact (default build/RamfluxSDKBinary.xcframework)
 #   RAMFLUX_USERNAME_DIRECTORY_URL, _ID, _PUBLIC_KEY, _GENERATION  optional: the independently provisioned username
@@ -65,6 +66,8 @@ CLOCK_CONTAINER=${RAMFLUX_REALRUN_CLOCK_CONTAINER:-}
 MOBILE_ENV=${RAMFLUX_MOBILE_ENV:-}
 XCFRAMEWORK=${RAMFLUX_CORE_XCFRAMEWORK:-build/RamfluxSDKBinary.xcframework}
 SIM_NAME=${RAMFLUX_REALRUN_SIMULATOR:-rf-realrun}
+# The Debug build id (project.yml RAMFLUX_APP_BUNDLE_ID); the suite builds and runs the Debug configuration.
+APP_BUNDLE=${RAMFLUX_REALRUN_BUNDLE_ID:-org.ramflux.ios.dev}
 OUT=$ROOT/build/realrun/$(date -u '+%Y%m%dT%H%M%SZ')
 ONLY=""
 KEEP_APP=0
@@ -188,8 +191,8 @@ print(sorted(r, key=lambda x: [int(p) for p in x["version"].split(".")])[-1]["id
   # 4. Reset the app: its container and the simulator Keychain (Keychain items survive an uninstall).
   if [ "$KEEP_APP" = 0 ]; then
     say "resetting the app data and Keychain on $SIM_NAME"
-    xcrun simctl terminate "$UDID" org.ramflux.ios 2>/dev/null || true
-    xcrun simctl uninstall "$UDID" org.ramflux.ios 2>/dev/null || true
+    xcrun simctl terminate "$UDID" "$APP_BUNDLE" 2>/dev/null || true
+    xcrun simctl uninstall "$UDID" "$APP_BUNDLE" 2>/dev/null || true
     xcrun simctl keychain "$UDID" reset
   fi
 
@@ -202,10 +205,10 @@ print(sorted(r, key=lambda x: [int(p) for p in x["version"].split(".")])[-1]["id
 log=open(sys.argv[1],"ab")
 p=subprocess.Popen(sys.argv[2:], stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
 print(p.pid)' "$OUT/peer-control.log" "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --facts "$NODE_FACTS" --peers "$PEERS" --rf "$RAMFLUX_REALRUN_RF" --dm-helper "$RAMFLUX_REALRUN_DM_HELPER" \
-      --udid "$UDID" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app")
+      --udid "$UDID" --bundle "$APP_BUNDLE" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app")
   else
     "$PYTHON" -I "$ROOT/scripts/realrun/peer_control.py" --port "$PORT" --out "$OUT" --facts "$NODE_FACTS" --peers "$PEERS" --rf "$RAMFLUX_REALRUN_RF" --dm-helper "$RAMFLUX_REALRUN_DM_HELPER" \
-      --udid "$UDID" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app" > "$OUT/peer-control.log" 2>&1 &
+      --udid "$UDID" --bundle "$APP_BUNDLE" --app "$DERIVED/Build/Products/Debug-iphonesimulator/Ramflux.app" > "$OUT/peer-control.log" 2>&1 &
     CONTROL_PID=$!
   fi
   i=0; until curl -sf "http://127.0.0.1:$PORT/health" > /dev/null; do i=$((i + 1)); [ $i -lt 50 ] || die "peer control did not start"; sleep 0.2; done
@@ -259,7 +262,7 @@ run_suite() {
 # data container after every run, so it is kept even when the app is reset for the next run. Files hold
 # no message content; identifiers are keyed hashes. The copy replaces the previous one of this run.
 collect_sdk_log() {
-  container=$(xcrun simctl get_app_container "$UDID" org.ramflux.ios data 2>/dev/null) || { say "no app container; no SDK log to collect"; return 0; }
+  container=$(xcrun simctl get_app_container "$UDID" "$APP_BUNDLE" data 2>/dev/null) || { say "no app container; no SDK log to collect"; return 0; }
   diag_dir="$container/Library/Application Support/ramflux/diag"
   if [ -d "$diag_dir" ]; then
     mkdir -p "$OUT/sdk-diag"
@@ -321,8 +324,8 @@ for k,v in json.load(open(sys.argv[1])).items(): print("realrun:", k, v["status"
       grep -q '"01-onboarding"' "$OUT/results.json" 2>/dev/null && break
       [ -n "$ONLY" ] && break
       say "flow 1 left no result (test runner restart); resetting the app and running again"
-      xcrun simctl terminate "$UDID" org.ramflux.ios 2>/dev/null
-      xcrun simctl uninstall "$UDID" org.ramflux.ios 2>/dev/null
+      xcrun simctl terminate "$UDID" "$APP_BUNDLE" 2>/dev/null
+      xcrun simctl uninstall "$UDID" "$APP_BUNDLE" 2>/dev/null
       xcrun simctl keychain "$UDID" reset
       rm -f "$OUT/results.json"
     done

@@ -16,6 +16,7 @@ import FeatureGroups
 import RFDesign
 
 @main struct RamfluxApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.scenePhase) private var phase
     @State private var runtime = AppLifecycleCoordinator()
     @State private var composition = AppComposition()
