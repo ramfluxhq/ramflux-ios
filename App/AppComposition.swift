@@ -76,13 +76,15 @@ import Push
             self?.shell.path = []; self?.shell.send(.retry)
         }
     }
-    @ObservationIgnored private var inbox: (String, ConversationsCoordinator)?
+    @ObservationIgnored private var inbox: (String, String, ConversationsCoordinator)?
     func conversations(account: String) -> ConversationsCoordinator {
-        if let inbox, inbox.0 == account { return inbox.1 }
-        inbox?.1.send(.disappeared)
         let title = shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? ""
+        // The title is part of the coordinator: while the app lock is engaged the SDK hides the account's name, so the
+        // inbox is built again once the real name is back after the unlock.
+        if let inbox, inbox.0 == account, inbox.1 == title { return inbox.2 }
+        inbox?.2.send(.disappeared)
         let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account, accountTitle: title) { [weak self] route in self?.shell.send(.open(route)) }
-        inbox = (account, coordinator); return coordinator
+        inbox = (account, title, coordinator); return coordinator
     }
     @ObservationIgnored private var currentChat: (String, String, String?, ChatCoordinator)?
     /// Opens a conversation; `group` is the SDK `group_id` of a group conversation (nil for a direct one).
@@ -90,7 +92,7 @@ import Push
         if let currentChat, currentChat.0 == account, currentChat.1 == conversation, currentChat.2 == group { return currentChat.3 }
         currentChat?.3.send(.disappeared)
         // A direct conversation takes the name its directory row resolved (contact name or short identifier).
-        let row = inbox.flatMap { $0.0 == account ? $0.1.viewModel.state.rows.first { $0.id == conversation } : nil }
+        let row = inbox.flatMap { $0.0 == account ? $0.2.viewModel.state.rows.first { $0.id == conversation } : nil }
         let resolved = title ?? row?.title
         let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved,
                                           peerIsAgent: group == nil && row?.classification.isAIAgent == true) { [weak self] event in
@@ -181,6 +183,7 @@ import Push
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
+            case .appLockChanged(let enabled): Task { [session = self?.repositories.session] in await session?.appLockConfigured(enabled: enabled) }
             case .restored: self?.shell.path = []; self?.shell.send(.retry)
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
@@ -221,7 +224,9 @@ import Push
         // Not ready (opening, failed, stopped): nothing of the account is followed for banners or notifications.
         guard session.phase == .ready else { notifier.follow(account: nil); bannerFeed.follow(account: nil); banner = nil; return }
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
-        guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); accountLocked(); return }
+        // The delivered notifications go with the lock; while it is on, posts carry only the generic "New message".
+        guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); notifier.appLockEngaged(); lockWasEngaged = true; accountLocked(); return }
+        if lockWasEngaged { lockWasEngaged = false; reloadScreensAfterAppLock() }
         notifier.follow(account: session.activeAccountID)
         bannerFeed.follow(account: session.activeAccountID)
         if banner?.account != session.activeAccountID { banner = nil }
@@ -233,6 +238,19 @@ import Push
         Task { [chat = repositories.chat] in _ = await chat.resumeAfterUnlock(account: account) }
         callService.start(account: account)
         Task { [routeRegistrar] in await routeRegistrar.register(account: account) }
+    }
+    /// The app lock was engaged and has not been released yet.
+    @ObservationIgnored private var lockWasEngaged = false
+    /// The code was accepted: the screens kept as they were (same navigation path) failed their reads while the lock was
+    /// engaged, so each open one reads again instead of showing the locked state it caught.
+    private func reloadScreensAfterAppLock() {
+        inbox?.2.send(.refresh)
+        currentChat?.3.send(.refresh)
+        currentContacts?.2.send(.refresh)
+        currentGroups?.1.send(.refresh)
+        currentCalls?.2.send(.refresh)
+        currentAgents?.1.send(.retry)
+        currentTasks?.2.send(.refresh)
     }
     /// The account the composition last saw unlocked; calls and the outbox follow it.
     @ObservationIgnored private var unlockedAccount: String?

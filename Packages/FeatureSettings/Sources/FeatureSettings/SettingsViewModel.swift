@@ -35,7 +35,7 @@ import AppData
                 guard !Task.isCancelled, let self, self.epoch == current else { return }
                 self.state.busy = false
                 switch result {
-                case .success(let record): self.state.appLock = record
+                case .success(let record): self.state.appLock = record; self.emit(.appLockChanged(record.enabled))
                 case .failure(let failure): self.state.failure = failure
                 }
             }

@@ -106,7 +106,10 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         guard let fields = submission.take(), fields["passphrase"] != nil else { return .failure(.invalidInput) }
         do {
             return .success(try Self.account(await gateway.call(.accountUnlock, account: accountID, secrets: fields)))
-        } catch { return .failure(Self.failure(error)) }
+        } catch {
+            let failure = AppFailure.mapUnlock(error)
+            return .failure(failure == .failed || failure == .invalidData ? .onboardingProtocol : failure)
+        }
     }
     public func networking(accountID: String) async -> RepositoryResult<AccountNetworking> {
         do {

@@ -104,7 +104,10 @@ import AppData
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
             self.state.busy = false
             switch result {
-            case .success(let snapshot): self.state.session = snapshot; self.emit(.accountSelected)
+            case .success(let snapshot):
+                // The selected account may have its app lock engaged: the records stay covered until the code is entered.
+                self.state.appLocked = snapshot.appLocked; self.state.privacyShield = snapshot.appLocked
+                self.state.session = snapshot; self.emit(.accountSelected)
             case .failure(let failure): self.state.failure = failure
             }
         }

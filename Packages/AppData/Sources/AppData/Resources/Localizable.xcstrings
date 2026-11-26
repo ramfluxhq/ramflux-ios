@@ -2146,6 +2146,23 @@
         }
       }
     },
+    "accountCode.failure.wrong": {
+      "comment": "Shown when the entered account code is not the account's code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That code is not right. Check it and try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码不正确。请检查后重试。"
+          }
+        }
+      }
+    },
     "contacts.unavailable.contactGone": {
       "comment": "Failure message when a contact change is retried but the contact no longer exists.",
       "localizations": {

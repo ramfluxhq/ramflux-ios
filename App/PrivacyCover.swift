@@ -6,14 +6,21 @@ import FeatureAppShell
 import RFDesign
 
 /// App-wide privacy for the system's app-switcher snapshot. When the scene is about to become inactive, an
-/// opaque cover is added over every normal-level window of the scene (so it also hides sheets), before the
-/// system takes the snapshot; it is removed when the scene is active again. On every move to the background
-/// the system is also told not to reuse the snapshot on the next launch. The cover is always on and is not
-/// tied to the app lock.
+/// opaque cover is shown over the scene, before the system takes the snapshot; it is removed when the scene is
+/// active again. On every move to the background the system is also told not to reuse the snapshot on the next
+/// launch. The cover is always on and is not tied to the app lock.
+///
+/// Both covers are their own `UIWindow`s at a level above alerts, so a presentation made later (an alert, a
+/// sheet in the app's windows) cannot draw above them. The privacy cover is the topmost, for the snapshot.
 @MainActor enum PrivacyCover {
-    private static var covers: [ObjectIdentifier: (window: UIWindow, controller: UIHostingController<AnyView>)] = [:]
-    /// The shell's own cover (privacy shield, app lock form): a window subview too, so no sheet renders above it.
-    private static var stateCovers: [ObjectIdentifier: UIHostingController<AnyView>] = [:]
+    /// One cover window and the hosting controller that draws it.
+    private struct CoverWindow {
+        let window: UIWindow
+        let controller: UIHostingController<AnyView>
+    }
+    private static var covers: [ObjectIdentifier: CoverWindow] = [:]
+    /// The shell's own cover (failure and retry, app lock form). Above the alerts, below the privacy cover.
+    private static var stateCovers: [ObjectIdentifier: CoverWindow] = [:]
     private static var observers: [NSObjectProtocol] = []
     /// The cover stays up after the scene became active while the app lock may engage; it is released once the
     /// activation has read the lock (`releaseAppLockHold`). A window cover sits above the SwiftUI content, so it
@@ -40,6 +47,10 @@ import RFDesign
             center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
                 MainActor.assumeIsolated { show(appearance: appearance()); UIApplication.shared.ignoreSnapshotOnNextApplicationLaunch() }
             },
+            center.addObserver(forName: UIScene.didDisconnectNotification, object: nil, queue: .main) { note in
+                let id = (note.object as? UIScene).map(ObjectIdentifier.init)
+                MainActor.assumeIsolated { if let id { forget(id) } }
+            },
         ]
     }
 
@@ -53,44 +64,69 @@ import RFDesign
 
     private static func show(appearance: String) {
         heldForAppLock = false
-        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
-            for window in scene.windows where window.windowLevel == .normal && covers[ObjectIdentifier(window)] == nil {
-                let controller = UIHostingController(rootView: AnyView(RFThemeScope(selection: appearance) { PrivacyCoverView() }))
-                controller.view.frame = window.bounds
-                controller.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                controller.view.backgroundColor = .systemBackground
-                controller.view.isOpaque = true
-                controller.view.accessibilityViewIsModal = true
-                window.addSubview(controller.view)
-                covers[ObjectIdentifier(window)] = (window, controller)
-            }
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) where covers[ObjectIdentifier(scene)] == nil {
+            let content = AnyView(RFThemeScope(selection: appearance) { PrivacyCoverView() })
+            covers[ObjectIdentifier(scene)] = makeCover(in: scene, level: .alert + 2, content: content)
         }
     }
 
-    /// Shows or removes the state cover on every normal-level window of the scene, always as the topmost subview.
+    /// Shows or removes the state cover of every connected scene. Editing ends in the app's windows when the cover
+    /// rises, so no text field keeps the keyboard active under it. The state cover is made key while it is up: a
+    /// text field (the app lock's code field) takes first responder only in a key window. The privacy cover is
+    /// never key. When the state cover goes, the scene's first normal window becomes key again.
     static func setStateCover(visible: Bool, appearance: String, content: () -> AnyView) {
         guard visible else {
-            for controller in stateCovers.values { controller.view.removeFromSuperview() }
-            stateCovers = [:]
+            guard !stateCovers.isEmpty else { return }
+            dismiss(&stateCovers)
+            for scene in windowScenes() { scene.windows.first { $0.windowLevel == .normal }?.makeKey() }
             return
         }
-        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
-            for window in scene.windows where window.windowLevel == .normal {
-                if let existing = stateCovers[ObjectIdentifier(window)] { window.bringSubviewToFront(existing.view); continue }
-                let controller = UIHostingController(rootView: AnyView(RFThemeScope(selection: appearance) { content() }))
-                controller.view.frame = window.bounds
-                controller.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                controller.view.backgroundColor = .systemBackground
-                controller.view.isOpaque = true
-                controller.view.accessibilityViewIsModal = true
-                window.addSubview(controller.view)
-                stateCovers[ObjectIdentifier(window)] = controller
+        for scene in windowScenes() {
+            for window in scene.windows where window.windowLevel == .normal { window.endEditing(true) }
+            let cover: CoverWindow
+            if let existing = stateCovers[ObjectIdentifier(scene)] {
+                existing.window.isHidden = false
+                cover = existing
+            } else {
+                let wrapped = AnyView(RFThemeScope(selection: appearance) { content() })
+                cover = makeCover(in: scene, level: .alert + 1, content: wrapped)
+                stateCovers[ObjectIdentifier(scene)] = cover
             }
+            cover.window.makeKey()
         }
     }
 
-    private static func hide() {
-        for entry in covers.values { entry.controller.view.removeFromSuperview() }
-        covers = [:]
+    private static func windowScenes() -> [UIWindowScene] {
+        UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
     }
+
+    /// Drops the covers of a scene that disconnected, so no window or controller outlives its scene.
+    private static func forget(_ id: ObjectIdentifier) {
+        covers.removeValue(forKey: id)?.window.rootViewController = nil
+        stateCovers.removeValue(forKey: id)?.window.rootViewController = nil
+    }
+
+    /// Creates a cover window above alerts with the content as its only view; accessibility treats it as modal.
+    private static func makeCover(in scene: UIWindowScene, level: UIWindow.Level, content: AnyView) -> CoverWindow {
+        let controller = UIHostingController(rootView: content)
+        controller.view.backgroundColor = .systemBackground
+        controller.view.isOpaque = true
+        controller.view.accessibilityViewIsModal = true
+        let window = UIWindow(windowScene: scene)
+        window.windowLevel = level
+        window.backgroundColor = .systemBackground
+        window.rootViewController = controller
+        window.isHidden = false
+        return CoverWindow(window: window, controller: controller)
+    }
+
+    private static func dismiss(_ entries: inout [ObjectIdentifier: CoverWindow]) {
+        for entry in entries.values {
+            entry.window.isHidden = true
+            entry.window.rootViewController = nil
+        }
+        entries = [:]
+    }
+
+    private static func hide() { dismiss(&covers) }
 }

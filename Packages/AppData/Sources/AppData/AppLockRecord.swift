@@ -48,7 +48,8 @@ struct AppLockService: Sendable {
                                    body: .object(["enabled": .bool(enabled), "timeout_ms": .number(Double(timeoutMilliseconds))]), operationID: operationID)
         return try await state(account: account)
     }
-    func lifecycle(account: String, _ phase: AppLockPhase) async throws {
-        _ = try await gateway.call(.accountAppLockLifecycle, account: account, body: .object(["state": .string(phase.rawValue)]), operationID: UUID().uuidString)
+    /// The reply is the lock as the core holds it after the call: the foreground may engage an expired lock at once.
+    func lifecycle(account: String, _ phase: AppLockPhase) async throws -> AppLockRecord {
+        try AppLockRecord.decode(try await gateway.call(.accountAppLockLifecycle, account: account, body: .object(["state": .string(phase.rawValue)]), operationID: UUID().uuidString))
     }
 }

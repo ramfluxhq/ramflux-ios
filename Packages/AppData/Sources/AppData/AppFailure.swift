@@ -103,6 +103,14 @@ public enum AppFailure: Error, Sendable, Equatable {
         guard let failure = error as? CoreFailure else { return false }
         return failure.reasonCode == "app_locked" || failure.reason == "app_locked"
     }
+    /// The refusal of `account.unlock`: a plain invalid-argument refusal (no finer reason) means the code is not the
+    /// account's. The call changed nothing, so it is a definite refusal even though the bridge reports an unknown
+    /// effect; every other failure maps as usual.
+    public static func mapUnlock(_ error: any Error) -> Self {
+        if let failure = error as? CoreFailure, failure.code == .invalidArgument, failure.specificReason == nil,
+           AccountCodeIssue.sdk(failure.reasonCode) == nil { return .accountCode(.wrong) }
+        return map(error)
+    }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
@@ -178,6 +186,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .attemptsExhausted: "accountCode.failure.attemptsExhausted"
         case .required: "accountCode.failure.required"
         case .deviceUnlockUnavailable: "accountCode.failure.deviceUnlockUnavailable"
+        case .wrong: "accountCode.failure.wrong"
         }
     }
     private static func knownRefusal(_ name: String) -> AppFailure? {

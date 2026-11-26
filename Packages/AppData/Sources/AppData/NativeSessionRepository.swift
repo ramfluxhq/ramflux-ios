@@ -23,7 +23,14 @@ public actor NativeSessionRepository: SessionRepository {
         observer = pair.continuation; observer?.yield(current)
         return pair.stream
     }
-    private func publish(_ value: SessionSnapshot) { current = value; observer?.yield(value) }
+    /// The last account that was open in this process: an engaged app lock closes the account in the SDK, so
+    /// `account.list` then names no active account and this is the first one to ask about.
+    private var lastActiveAccount: String?
+    private func publish(_ value: SessionSnapshot) {
+        current = value
+        if let id = value.activeAccountID { lastActiveAccount = id }
+        observer?.yield(value)
+    }
     /// Opens the SDK on the first foreground and resumes it after the background; neither asks for
     /// the account code. A return from the background keeps the published snapshot, so the screens stay
     /// as they were. On a cold start the SDK reopens accounts that were not explicitly locked through
@@ -47,7 +54,7 @@ public actor NativeSessionRepository: SessionRepository {
             publish(value); return .success(value)
         } catch where AppFailure.isAppLocked(error) {
             // The SDK refused a call because the app lock is engaged: the records stay covered and the code is asked.
-            return lockedActivation(epoch: epoch)
+            return await raiseAppLock(account: current.activeAccountID, epoch: epoch)
         } catch {
             EventDiagnostics.failed("session activate", error)
             let failure = AppFailure.map(error)
@@ -55,27 +62,48 @@ public actor NativeSessionRepository: SessionRepository {
             return .failure(failure)
         }
     }
-    /// An `app_locked` refusal during activation: with an account known, the locked snapshot is published (the
-    /// shell covers it and offers the code); without one there is nothing to unlock, so the failure is kept
-    /// covered with a retry.
-    private func lockedActivation(epoch: UInt64) -> RepositoryResult<SessionSnapshot> {
-        guard epoch == revision else { return .failure(.busy) }
-        if let active = current.activeAccountID {
-            let value = SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: active, appLocked: true, appLockEnabled: true)
-            publish(value); return .success(value)
+    /// The one handler of an `app_locked` refusal, wherever it comes from (activation, selection, background): the
+    /// lock screen is raised and `account.app_lock.state` is read again for the enabled flag; a failed read keeps
+    /// the flag on (fail closed). With no account there is nothing to unlock, so the failure is kept covered with a
+    /// retry. Nothing is published once a newer operation has started.
+    private func raiseAppLock(account: String?, epoch: UInt64) async -> RepositoryResult<SessionSnapshot> {
+        guard let account else {
+            guard epoch == revision else { return .failure(.busy) }
+            publish(SessionSnapshot(phase: .failed(.locked), appLockEnabled: true))
+            return .failure(.locked)
         }
-        publish(SessionSnapshot(phase: .failed(.locked), appLockEnabled: true))
-        return .failure(.locked)
+        let enabled = (try? await appLock.state(account: account))?.enabled ?? true
+        guard epoch == revision else { return .failure(.busy) }
+        let value = SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: account, appLocked: true, appLockEnabled: enabled)
+        publish(value); return .success(value)
     }
     /// Reads the active account's app lock after the SDK resumed. An engaged lock is reported in the snapshot and
-    /// nothing is told to the SDK (the shell covers the records until the code is entered). Otherwise the
-    /// SDK gets the foreground lifecycle, which cancels the deadline armed when the app went away.
+    /// nothing is told to the SDK (the shell covers the records until the code is entered). Otherwise the SDK gets
+    /// the foreground lifecycle, which cancels the deadline armed when the app went away. Its reply is the lock as
+    /// the core holds it now, so a lock that expired at that call is reported as engaged.
     private func withAppLock(_ value: SessionSnapshot) async throws -> SessionSnapshot {
-        guard let account = value.activeAccountID else { return value }
-        let record = try await appLock.state(account: account)
-        let locked = record.state == .locked
-        if !locked { try await appLock.lifecycle(account: account, .foreground) }
-        return SessionSnapshot(phase: value.phase, accounts: value.accounts, activeAccountID: value.activeAccountID, appLocked: locked, appLockEnabled: record.enabled)
+        guard let account = value.activeAccountID else { return await engagedAppLock(in: value) }
+        var record = try await appLock.state(account: account)
+        if record.state != .locked { record = try await appLock.lifecycle(account: account, .foreground) }
+        return SessionSnapshot(phase: value.phase, accounts: value.accounts, activeAccountID: value.activeAccountID, appLocked: record.state == .locked, appLockEnabled: record.enabled)
+    }
+    /// An engaged app lock closes the account inside the SDK: `account.list` then lists it as locked (name redacted)
+    /// and names no active account. Such an account whose app lock is on and engaged is the one the code is asked
+    /// for, so the shell shows the app-lock form instead of the locked-accounts screen. Any other locked account
+    /// (an explicit lock with the app lock off) keeps the ordinary account-unlock path.
+    private func engagedAppLock(in value: SessionSnapshot) async -> SessionSnapshot {
+        var candidates = value.accounts.filter(\.isLocked)
+        if let last = lastActiveAccount, let index = candidates.firstIndex(where: { $0.id == last }) { candidates.insert(candidates.remove(at: index), at: 0) }
+        for candidate in candidates.prefix(8) {
+            let record: AppLockRecord?
+            do { record = try await appLock.state(account: candidate.id) }
+            catch where AppFailure.isAppLocked(error) { record = nil }
+            catch { continue }
+            guard record == nil || (record?.enabled == true && record?.state == .locked) else { continue }
+            let rows = value.accounts.map { $0.id == candidate.id ? AccountRecord(id: $0.id, displayName: $0.displayName, isLocked: false) : $0 }
+            return SessionSnapshot(phase: value.phase, accounts: rows, activeAccountID: candidate.id, appLocked: true, appLockEnabled: true)
+        }
+        return value
     }
     private func accounts() async throws -> (value: SessionSnapshot, restorePending: Bool) {
         try Self.decodeAccountList(try await proxy.accountList(context: context()))
@@ -89,16 +117,31 @@ public actor NativeSessionRepository: SessionRepository {
         // deadline on suspend as well, so a refusal here (for instance an already suspended core) is not fatal.
         if let account = current.activeAccountID {
             // A failed read leaves the flag unknown, so the next return keeps the records covered (fail closed).
+            // A refused read means the lock is already engaged: it is raised, and the suspend below still runs.
+            var lockRefused = false
             let enabled: Bool?
             do { enabled = try await appLock.state(account: account).enabled }
+            catch where AppFailure.isAppLocked(error) { lockRefused = true; enabled = nil }
             catch { EventDiagnostics.failed("app lock state at background", error); enabled = nil }
-            publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: enabled))
-            do { try await appLock.lifecycle(account: account, .background) }
-            catch { EventDiagnostics.failed("app lock lifecycle at background", error) }
+            // A newer activation or selection owns the session now: nothing of this background is applied.
+            guard epoch == revision else { return .failure(.busy) }
+            if lockRefused {
+                _ = await raiseAppLock(account: account, epoch: epoch)
+            } else {
+                publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: enabled))
+                do { _ = try await appLock.lifecycle(account: account, .background) }
+                catch where AppFailure.isAppLocked(error) { _ = await raiseAppLock(account: account, epoch: epoch) }
+                catch { EventDiagnostics.failed("app lock lifecycle at background", error) }
+            }
         }
+        guard epoch == revision else { return .failure(.busy) }
         await updates?.suspendForBackground()
         do { try await lifecycle.background(); return .success(()) }
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
+    }
+    /// The app lock of the active account was configured in Settings: the flag the shell reads follows at once.
+    public func appLockConfigured(enabled: Bool) async {
+        publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: enabled))
     }
     public func selectAccount(_ id: String) async -> RepositoryResult<SessionSnapshot> {
         guard current.phase == .ready, current.accounts.contains(where: { $0.id == id && !$0.isLocked }) else { return .failure(.locked) }
@@ -110,8 +153,7 @@ public actor NativeSessionRepository: SessionRepository {
             let snapshot = try await withAppLock(SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: id))
             publish(snapshot); return .success(snapshot)
         } catch where AppFailure.isAppLocked(error) {
-            let snapshot = SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: id, appLocked: true, appLockEnabled: true)
-            publish(snapshot); return .success(snapshot)
+            return await raiseAppLock(account: id, epoch: epoch)
         } catch { return .failure(AppFailure.map(error)) }
     }
     private func context(account: String? = nil, operation: OperationID? = nil) -> RequestContext {

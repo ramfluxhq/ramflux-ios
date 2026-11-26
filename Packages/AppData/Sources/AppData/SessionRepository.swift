@@ -7,4 +7,10 @@ public protocol SessionRepository: Sendable {
     func activate() async -> RepositoryResult<SessionSnapshot>
     func suspend() async -> RepositoryResult<Void>
     func selectAccount(_ id: String) async -> RepositoryResult<SessionSnapshot>
+    /// The active account's app lock was configured to `enabled` in Settings; the shell's flag follows at once.
+    func appLockConfigured(enabled: Bool) async
+}
+
+public extension SessionRepository {
+    func appLockConfigured(enabled: Bool) async {}
 }
