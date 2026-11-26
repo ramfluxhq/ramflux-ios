@@ -76,8 +76,13 @@ import RFDesign
             }
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
                                               onOpen: { composition.openBanner($0) }, onDismiss: { composition.dismissBanner($0) }) }
-                // The app lock: the shell is covered; the account code of the active account unlocks it (the same code-only unlock step).
-                .overlay { if coordinator.viewModel.state.appLocked, let account = coordinator.viewModel.state.session.activeAccountID { OnboardingHost(coordinator: composition.unlock(account: account)) } }
+                // The cover spans the whole stack (pushed screens too) while the privacy shield is up or the app lock is engaged.
+                .overlay {
+                    if coordinator.viewModel.state.privacyShield || coordinator.viewModel.state.appLocked {
+                        AppShellCover(state: coordinator.viewModel.state, onRetry: { coordinator.send(.retry) },
+                                      lock: coordinator.viewModel.state.appLocked ? coordinator.viewModel.state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
+                    }
+                }
             }
                 .background(CaptureStateProbe(captured: $captured).frame(width: 0, height: 0).allowsHitTesting(false))
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))
@@ -89,6 +94,8 @@ import RFDesign
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
                 .onChange(of: coordinator.viewModel.state.session) { _, session in composition.sessionChanged(session) }
+                // The activation answered (the lock was read): the cover held for the app lock may go.
+                .onChange(of: coordinator.viewModel.state.busy) { _, busy in if !busy { PrivacyCover.releaseAppLockHold() } }
                 .onChange(of: phase) { _, phase in
                     switch phase {
                     case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive); composition.returnedToForeground()

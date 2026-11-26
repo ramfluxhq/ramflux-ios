@@ -48,6 +48,10 @@
 	<string>Switch the account on this phone</string>
 	<key>shell.accounts.title</key>
 	<string>Accounts</string>
+	<key>shell.appLock.code</key>
+	<string>Account code</string>
+	<key>shell.appLock.instructions</key>
+	<string>Enter your account code to continue.</string>
 	<key>shell.loading.accountServices</key>
 	<string>Opening account services</string>
 	<key>shell.locked.accessibility</key>

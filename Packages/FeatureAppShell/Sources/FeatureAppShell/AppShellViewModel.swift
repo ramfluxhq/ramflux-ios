@@ -22,7 +22,7 @@ import AppData
         case .sceneActive:
             observe()
             // With the app lock on, the records stay covered until the activation has read the lock.
-            if state.session.appLockEnabled { state.privacyShield = true }
+            if state.session.appLockEnabled != false { state.privacyShield = true }
             activate()
         case .retry: observe(); activate()
         case .sceneInactive: break
@@ -75,8 +75,12 @@ import AppData
                 self.state.appLocked = snapshot.appLocked; self.state.privacyShield = snapshot.appLocked
                 self.state.session = snapshot; if !snapshot.appLocked { self.openPending() }
             case .failure(let failure):
-                self.state.appLocked = false; self.state.privacyShield = false
-                self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure))
+                // Fail closed: while the app lock is on or unknown (or the SDK reported it locked), the cover stays up
+                // with the failure and a retry on top. A known-off lock keeps the ordinary failure screen.
+                let previous = self.state.session.appLockEnabled
+                let keepCover = previous != false || failure == .locked
+                self.state.appLocked = false; self.state.privacyShield = keepCover
+                self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure), appLockEnabled: previous)
             }
         }
     }

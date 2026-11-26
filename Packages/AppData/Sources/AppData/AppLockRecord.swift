@@ -5,7 +5,9 @@ import RamfluxCore
 
 /// The app lock of one account as the SDK reports it (`account.app_lock.state`). Off by default.
 public struct AppLockRecord: Equatable, Sendable {
-    public enum State: String, Sendable { case unlocked, locked, unavailable }
+    /// `armed` (the deadline runs, access is still open) reads as unlocked. Any other state the SDK may name is
+    /// `locked`: an unknown state fails closed, so the shell covers the records and asks for the code.
+    public enum State: Equatable, Sendable { case unlocked, locked, unavailable }
     public let enabled: Bool
     public let timeoutMilliseconds: UInt64
     public let state: State
@@ -14,8 +16,13 @@ public struct AppLockRecord: Equatable, Sendable {
         self.enabled = enabled; self.timeoutMilliseconds = timeoutMilliseconds; self.state = state; self.remainingMilliseconds = remainingMilliseconds
     }
     static func decode(_ body: JSONValue) throws -> AppLockRecord {
-        guard let enabled = body["enabled"]?.bool, let state = body["state"]?.string.flatMap(State.init(rawValue:)),
+        guard let enabled = body["enabled"]?.bool, let name = body["state"]?.string,
               let timeout = ProxyGateway.integer(body["timeout_ms"]), timeout >= 0, timeout <= 86_400_000 else { throw AppFailure.invalidData }
+        let state: State = switch name {
+        case "unlocked", "armed": .unlocked
+        case "unavailable": .unavailable
+        default: .locked
+        }
         let remaining = ProxyGateway.integer(body["remaining_ms"]).flatMap { $0 >= 0 ? UInt64($0) : nil }
         return AppLockRecord(enabled: enabled, timeoutMilliseconds: UInt64(timeout), state: state, remainingMilliseconds: remaining)
     }

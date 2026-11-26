@@ -48,6 +48,14 @@ import Push
                      onUnlock: { [weak self] id in self?.shell.send(.unlockAccount(id)) }, onAccounts: { [weak self] in self?.shell.send(.openAccounts) })
     }
     @ObservationIgnored private var currentUnlock: (String, OnboardingCoordinator)?
+    /// The app lock's code field for the active account. Success re-activates the shell only: the navigation
+    /// path and any sheet stay as they were, so the same conversation is back underneath.
+    @ObservationIgnored private var appLockScreen: (String, AppLockModel)?
+    func appLock(account: String) -> AppLockModel {
+        if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
+        let model = AppLockModel(repository: repositories.onboarding, account: account) { [weak self] in self?.shell.send(.retry) }
+        appLockScreen = (account, model); return model
+    }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {
         if let currentUnlock, currentUnlock.0 == account { return currentUnlock.1 }
@@ -202,7 +210,8 @@ import Push
     private func sceneResigning() { banner = nil; bannerFeed.setForeground(false) }
     /// Follows the active unlocked account; a locked session stops notifications, a concealed one keeps them.
     func sessionChanged(_ session: SessionSnapshot) {
-        guard session.phase == .ready else { return }
+        // Not ready (opening, failed, stopped): nothing of the account is followed for banners or notifications.
+        guard session.phase == .ready else { notifier.follow(account: nil); bannerFeed.follow(account: nil); banner = nil; return }
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
         guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); accountLocked(); return }
         notifier.follow(account: session.activeAccountID)
@@ -302,7 +311,8 @@ import Push
         #endif
         ApnsTokenSource.shared.onChange { [weak self] in Task { await self?.routeRegistrar.tokenChanged() } }
         PrivacyCover.install(appearance: { [weak self] in self?.appearance.rawValue ?? "system" }, resigning: { [weak self] in self?.sceneResigning() },
-                             activated: { [weak self] in self?.bannerFeed.setForeground(true) })
+                             activated: { [weak self] in self?.bannerFeed.setForeground(true) },
+                             holdsForAppLock: { [weak self] in self?.shell.viewModel.state.session.appLockEnabled != false })
     }
 }
 /// Calls ask for the microphone and camera through the shared explanation flow.

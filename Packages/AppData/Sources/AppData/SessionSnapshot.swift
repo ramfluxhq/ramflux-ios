@@ -10,8 +10,9 @@ public struct SessionSnapshot: Equatable, Sendable {
     public let appLocked: Bool
     /// The active account has the app lock on (as read when the app last went away or came back). While it is on,
     /// the shell covers the records from the return until the activation has read the lock.
-    public let appLockEnabled: Bool
-    public init(phase: Phase, accounts: [AccountRecord] = [], activeAccountID: String? = nil, appLocked: Bool = false, appLockEnabled: Bool = false) {
+    /// nil while unknown (never read, or the read failed): the shell fails closed and keeps the cover up.
+    public let appLockEnabled: Bool?
+    public init(phase: Phase, accounts: [AccountRecord] = [], activeAccountID: String? = nil, appLocked: Bool = false, appLockEnabled: Bool? = nil) {
         self.phase = phase; self.accounts = accounts; self.activeAccountID = activeAccountID; self.appLocked = appLocked; self.appLockEnabled = appLockEnabled
     }
 }
