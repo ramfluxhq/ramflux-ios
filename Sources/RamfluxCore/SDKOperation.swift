@@ -78,6 +78,9 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     case attachmentPrepareRenew = "attachment.prepare.renew"
     case attachmentPrepareStatus = "attachment.prepare.status"
     case attachmentRevoke = "attachment.revoke"
+    case attachmentTransferList = "attachment.transfer.list"
+    case attachmentTransferPause = "attachment.transfer.pause"
+    case attachmentTransferResume = "attachment.transfer.resume"
     case botInstall = "bot.install"
     case botList = "bot.list"
     case botRevoke = "bot.revoke"
@@ -272,7 +275,7 @@ public enum SDKOperation: String, CaseIterable, Sendable {
     }
     public var requiresOperationID: Bool {
         switch self {
-        case .a2iList, .a2iListPending, .accountAppLockState, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentApprovalDecide, .agentApprovalList, .agentApprovalPublish, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentHostManage, .agentJobList, .agentJobPause, .agentJobRemove, .agentJobResume, .agentJobSession, .agentJobSessions, .agentList, .agentOperationGet, .agentPersonaEdit, .agentProgress, .agentRetire, .agentWatch, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
+        case .a2iList, .a2iListPending, .accountAppLockState, .accountConfigGet, .accountCreateBegin, .accountCreateCancel, .accountCreateConfirm, .accountCreateHiddenChallenge, .accountCreateShowOnce, .accountCustodyBegin, .accountCustodyCancel, .accountCustodyConfirm, .accountCustodyHiddenChallenge, .accountCustodyShowOnce, .accountList, .accountRecoverBegin, .accountRecoverCancel, .accountRecoverConfirm, .accountStatus, .agentAccessSet, .agentApprovalDecide, .agentApprovalList, .agentApprovalPublish, .agentCreate, .agentCreationDecide, .agentDelete, .agentGet, .agentHostManage, .agentJobList, .agentJobPause, .agentJobRemove, .agentJobResume, .agentJobSession, .agentJobSessions, .agentList, .agentOperationGet, .agentPersonaEdit, .agentProgress, .agentRetire, .agentWatch, .attachmentTransferList, .botList, .busSubscribe, .callList, .contactList, .contactRejected, .contactRequestsList, .contactRequestsPolicyGet, .contactVerificationStatus, .conversationDirectory, .conversationList, .daemonStatus, .deviceList, .devicePairStatus, .deviceTransferStatus, .diagResidue, .grantList, .grantListStandingApprovals, .groupHistory, .groupInvitationsList, .groupList, .groupMembers, .groupRequestsList, .identityDirectory, .mcpApprovalList, .mcpAuditList, .mcpServerList, .mcpServerRefresh, .mcpToolList, .messageFrankingEvidence, .messageRead, .nodeList, .objectDirectory, .objectGetStatus, .objectList, .objectPutStatus, .objectTransferStatus, .streamRead, .surfaceGet, .surfaceList, .syncStatusGet, .taskGet, .taskList: false
         default: true
         }
     }
@@ -354,6 +357,9 @@ public enum SDKOperation: String, CaseIterable, Sendable {
         case .attachmentPrepareRenew: "account"
         case .attachmentPrepareStatus: "account"
         case .attachmentRevoke: "account"
+        case .attachmentTransferList: "account"
+        case .attachmentTransferPause: "account"
+        case .attachmentTransferResume: "account"
         case .botInstall: "bot"
         case .botList: "bot"
         case .botRevoke: "bot"
