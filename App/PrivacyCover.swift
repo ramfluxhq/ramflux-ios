@@ -47,6 +47,10 @@ import RFDesign
             center.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main) { _ in
                 MainActor.assumeIsolated { show(appearance: appearance()); UIApplication.shared.ignoreSnapshotOnNextApplicationLaunch() }
             },
+            center.addObserver(forName: UIScene.didDisconnectNotification, object: nil, queue: .main) { note in
+                let id = (note.object as? UIScene).map(ObjectIdentifier.init)
+                MainActor.assumeIsolated { if let id { forget(id) } }
+            },
         ]
     }
 
@@ -67,15 +71,39 @@ import RFDesign
     }
 
     /// Shows or removes the state cover of every connected scene. Editing ends in the app's windows when the cover
-    /// rises, so no text field keeps the keyboard active under it.
+    /// rises, so no text field keeps the keyboard active under it. The state cover is made key while it is up: a
+    /// text field (the app lock's code field) takes first responder only in a key window. The privacy cover is
+    /// never key. When the state cover goes, the scene's first normal window becomes key again.
     static func setStateCover(visible: Bool, appearance: String, content: () -> AnyView) {
-        guard visible else { dismiss(&stateCovers); return }
-        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
-            for window in scene.windows where window.windowLevel == .normal { window.endEditing(true) }
-            if let existing = stateCovers[ObjectIdentifier(scene)] { existing.window.isHidden = false; continue }
-            let wrapped = AnyView(RFThemeScope(selection: appearance) { content() })
-            stateCovers[ObjectIdentifier(scene)] = makeCover(in: scene, level: .alert + 1, content: wrapped)
+        guard visible else {
+            guard !stateCovers.isEmpty else { return }
+            dismiss(&stateCovers)
+            for scene in windowScenes() { scene.windows.first { $0.windowLevel == .normal }?.makeKey() }
+            return
         }
+        for scene in windowScenes() {
+            for window in scene.windows where window.windowLevel == .normal { window.endEditing(true) }
+            let cover: CoverWindow
+            if let existing = stateCovers[ObjectIdentifier(scene)] {
+                existing.window.isHidden = false
+                cover = existing
+            } else {
+                let wrapped = AnyView(RFThemeScope(selection: appearance) { content() })
+                cover = makeCover(in: scene, level: .alert + 1, content: wrapped)
+                stateCovers[ObjectIdentifier(scene)] = cover
+            }
+            cover.window.makeKey()
+        }
+    }
+
+    private static func windowScenes() -> [UIWindowScene] {
+        UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+    }
+
+    /// Drops the covers of a scene that disconnected, so no window or controller outlives its scene.
+    private static func forget(_ id: ObjectIdentifier) {
+        covers.removeValue(forKey: id)?.window.rootViewController = nil
+        stateCovers.removeValue(forKey: id)?.window.rootViewController = nil
     }
 
     /// Creates a cover window above alerts with the content as its only view; accessibility treats it as modal.

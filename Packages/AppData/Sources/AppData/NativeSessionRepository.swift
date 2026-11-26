@@ -92,16 +92,22 @@ public actor NativeSessionRepository: SessionRepository {
         // deadline on suspend as well, so a refusal here (for instance an already suspended core) is not fatal.
         if let account = current.activeAccountID {
             // A failed read leaves the flag unknown, so the next return keeps the records covered (fail closed).
+            // A refused read means the lock is already engaged: it is raised, and the suspend below still runs.
+            var lockRefused = false
             let enabled: Bool?
             do { enabled = try await appLock.state(account: account).enabled }
-            catch where AppFailure.isAppLocked(error) { _ = await raiseAppLock(account: account, epoch: epoch); return .success(()) }
+            catch where AppFailure.isAppLocked(error) { lockRefused = true; enabled = nil }
             catch { EventDiagnostics.failed("app lock state at background", error); enabled = nil }
             // A newer activation or selection owns the session now: nothing of this background is applied.
             guard epoch == revision else { return .failure(.busy) }
-            publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: enabled))
-            do { _ = try await appLock.lifecycle(account: account, .background) }
-            catch where AppFailure.isAppLocked(error) { _ = await raiseAppLock(account: account, epoch: epoch); return .success(()) }
-            catch { EventDiagnostics.failed("app lock lifecycle at background", error) }
+            if lockRefused {
+                _ = await raiseAppLock(account: account, epoch: epoch)
+            } else {
+                publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: enabled))
+                do { _ = try await appLock.lifecycle(account: account, .background) }
+                catch where AppFailure.isAppLocked(error) { _ = await raiseAppLock(account: account, epoch: epoch) }
+                catch { EventDiagnostics.failed("app lock lifecycle at background", error) }
+            }
         }
         guard epoch == revision else { return .failure(.busy) }
         await updates?.suspendForBackground()
