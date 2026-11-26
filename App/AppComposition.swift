@@ -203,6 +203,8 @@ import Push
     /// Follows the active unlocked account; a locked session stops notifications, a concealed one keeps them.
     func sessionChanged(_ session: SessionSnapshot) {
         guard session.phase == .ready else { return }
+        // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
+        guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); accountLocked(); return }
         notifier.follow(account: session.activeAccountID)
         bannerFeed.follow(account: session.activeAccountID)
         if banner?.account != session.activeAccountID { banner = nil }

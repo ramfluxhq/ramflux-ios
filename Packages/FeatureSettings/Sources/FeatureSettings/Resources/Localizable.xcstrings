@@ -3297,6 +3297,295 @@
           }
         }
       }
+    },
+    "settings.appLock.title": {
+      "comment": "Title of the App lock page and of its row in Settings > Privacy.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App lock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.section": {
+      "comment": "Section title above the App lock row on the Privacy page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App lock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.on": {
+      "comment": "Value of the App lock row when the lock is on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启"
+          }
+        }
+      }
+    },
+    "settings.appLock.off": {
+      "comment": "Value of the App lock row when the lock is off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "settings.appLock.toggle": {
+      "comment": "Switch that turns the app lock on or off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App lock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout": {
+      "comment": "Label of the picker for how long the app may be away before the lock.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock after"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "离开多久后锁定"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout.immediately": {
+      "comment": "App lock timeout choice: lock as soon as the app is in the background.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immediately"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout.oneMinute": {
+      "comment": "App lock timeout choice: one minute away.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 minute"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 分钟"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout.fiveMinutes": {
+      "comment": "App lock timeout choice: five minutes away.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 minutes"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 分钟"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout.fifteenMinutes": {
+      "comment": "App lock timeout choice: fifteen minutes away.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 minutes"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 分钟"
+          }
+        }
+      }
+    },
+    "settings.appLock.timeout.oneHour": {
+      "comment": "App lock timeout choice: one hour away.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 hour"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 小时"
+          }
+        }
+      }
+    },
+    "settings.appLock.explanation": {
+      "comment": "Plain statement of what the app lock does when it is on.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When on, Ramflux asks for your account code after the chosen time away."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开启后，离开应用超过所选时间时，Ramflux 会要求输入账户码。"
+          }
+        }
+      }
+    },
+    "settings.appLock.biometric.section": {
+      "comment": "Section title above the disabled biometric unlock row of the App lock page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biometric unlock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生物识别解锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.biometric": {
+      "comment": "Disabled row for unlocking with Face ID or a fingerprint; not available in this build.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock with Face ID / fingerprint"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用面容 ID 或指纹解锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.biometric.detail": {
+      "comment": "Value of the disabled biometric unlock row.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不可用"
+          }
+        }
+      }
+    },
+    "settings.appLock.unavailable": {
+      "comment": "Shown on the App lock page when this device cannot run the app lock; its controls are disabled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App lock is unavailable on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备无法使用应用锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.noAccount": {
+      "comment": "Shown on the App lock page when no account is open.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open an account to set up the app lock."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开账户后即可设置应用锁。"
+          }
+        }
+      }
     }
   }
 }

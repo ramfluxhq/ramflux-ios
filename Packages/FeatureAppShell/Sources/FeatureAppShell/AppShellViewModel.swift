@@ -12,12 +12,8 @@ import AppData
     @ObservationIgnored private var updates: Task<Void, Never>?
     @ObservationIgnored private var generation: UInt64 = 0
     @ObservationIgnored private var pendingRoute: (route: AppRoute?, account: String)?
-    /// The optional app lock. Off by default: a return from the background or a relaunch asks for
-    /// nothing and the screens stay as they were. See docs/app-shell.md, "Background and relaunch".
-    @ObservationIgnored private let appLock: any AppLockGate
-    public init(repository: any SessionRepository, state: AppShellState = AppShellState(), appLock: any AppLockGate = AppLockOff(),
-                emit: @escaping @MainActor (AppShellEvent) -> Void) {
-        self.repository = repository; self.state = state; self.appLock = appLock; self.emit = emit
+    public init(repository: any SessionRepository, state: AppShellState = AppShellState(), emit: @escaping @MainActor (AppShellEvent) -> Void) {
+        self.repository = repository; self.state = state; self.emit = emit
     }
     public func send(_ action: AppShellAction) {
         switch action {
@@ -25,7 +21,9 @@ import AppData
             observe(); activate()
         case .sceneActive:
             observe()
-            if appLock.requiresUnlockOnReturn { conceal() } else { activate() }
+            // With the app lock on, the records stay covered until the activation has read the lock.
+            if state.session.appLockEnabled { state.privacyShield = true }
+            activate()
         case .retry: observe(); activate()
         case .sceneInactive: break
         case .sceneBackground: suspend()
@@ -70,17 +68,17 @@ import AppData
         work = Task { [weak self, repository] in
             let result = await repository.activate()
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
-            self.state.busy = false; self.state.privacyShield = false
+            self.state.busy = false
             switch result {
-            case .success(let snapshot): self.state.session = snapshot; self.openPending()
-            case .failure(let failure): self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure))
+            case .success(let snapshot):
+                // An engaged app lock keeps the account records covered until the account code is entered.
+                self.state.appLocked = snapshot.appLocked; self.state.privacyShield = snapshot.appLocked
+                self.state.session = snapshot; if !snapshot.appLocked { self.openPending() }
+            case .failure(let failure):
+                self.state.appLocked = false; self.state.privacyShield = false
+                self.state.failure = failure; self.state.session = SessionSnapshot(phase: .failed(failure))
             }
         }
-    }
-    /// The app lock seam: covers the account records until the lock (not part of this build) is passed.
-    private func conceal() {
-        generation &+= 1; work?.cancel()
-        state.privacyShield = true; state.busy = false; state.failure = nil
     }
     private func suspend() {
         generation &+= 1; let epoch = generation

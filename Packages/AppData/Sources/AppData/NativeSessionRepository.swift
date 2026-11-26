@@ -12,8 +12,10 @@ public actor NativeSessionRepository: SessionRepository {
     private var current = SessionSnapshot(phase: .stopped)
     private var revision: UInt64 = 0
     private let updates: NativeUpdateSource?
+    private let appLock: AppLockService
     public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil) {
         self.client = client; self.updates = updates; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
+        appLock = AppLockService(gateway: ProxyGateway(proxy: proxy))
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
         observer?.finish()
@@ -40,13 +42,25 @@ public actor NativeSessionRepository: SessionRepository {
                 snapshot = try await accounts()
             }
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
-            publish(snapshot.value); return .success(snapshot.value)
+            let value = try await withAppLock(snapshot.value)
+            guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
+            publish(value); return .success(value)
         } catch {
             EventDiagnostics.failed("session activate", error)
             let failure = AppFailure.map(error)
             if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }
             return .failure(failure)
         }
+    }
+    /// Reads the active account's app lock after the SDK resumed. An engaged lock is reported in the snapshot and
+    /// nothing is told to the SDK (the shell covers the records until the code is entered). Otherwise the
+    /// SDK gets the foreground lifecycle, which cancels the deadline armed when the app went away.
+    private func withAppLock(_ value: SessionSnapshot) async throws -> SessionSnapshot {
+        guard let account = value.activeAccountID else { return value }
+        let record = try await appLock.state(account: account)
+        let locked = record.state == .locked
+        if !locked { try await appLock.lifecycle(account: account, .foreground) }
+        return SessionSnapshot(phase: value.phase, accounts: value.accounts, activeAccountID: value.activeAccountID, appLocked: locked, appLockEnabled: record.enabled)
     }
     private func accounts() async throws -> (value: SessionSnapshot, restorePending: Bool) {
         try Self.decodeAccountList(try await proxy.accountList(context: context()))
@@ -55,6 +69,15 @@ public actor NativeSessionRepository: SessionRepository {
     /// suspends. The session snapshot is kept, so nothing is torn down or asked for on return.
     public func suspend() async -> RepositoryResult<Void> {
         revision &+= 1; let epoch = revision
+        // Best effort while the SDK is still running: the lifecycle arms the deadline of an enabled app lock, and the
+        // enabled flag is published so the shell covers the next return until the lock is read. The SDK arms the
+        // deadline on suspend as well, so a refusal here (for instance an already suspended core) is not fatal.
+        if let account = current.activeAccountID {
+            if let record = try? await appLock.state(account: account) {
+                publish(SessionSnapshot(phase: current.phase, accounts: current.accounts, activeAccountID: current.activeAccountID, appLocked: current.appLocked, appLockEnabled: record.enabled))
+            }
+            try? await appLock.lifecycle(account: account, .background)
+        }
         await updates?.suspendForBackground()
         do { try await lifecycle.background(); return .success(()) }
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
@@ -66,7 +89,7 @@ public actor NativeSessionRepository: SessionRepository {
             let result = try await proxy.accountSwitch(context: context(account: id, operation: .fresh()))
             do { try Self.validateMutation(result) } catch { return .failure(.outcomeUnknown) }
             guard epoch == revision, !Task.isCancelled else { return .failure(.outcomeUnknown) }
-            let snapshot = SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: id)
+            let snapshot = try await withAppLock(SessionSnapshot(phase: .ready, accounts: current.accounts, activeAccountID: id))
             publish(snapshot); return .success(snapshot)
         } catch { return .failure(AppFailure.map(error)) }
     }

@@ -24,7 +24,21 @@ import AppData
     }
     public func send(_ action: SettingsAction) {
         switch action {
-        case .appeared, .refresh: refresh(); observe()
+        case .appeared, .refresh:
+            refresh(); observe()
+            if state.route == .appLock { readAppLock() }
+        case .configureAppLock(let enabled, let timeout):
+            guard let account, !state.busy, state.appLock?.state != .unavailable else { return }
+            state.busy = true; state.failure = nil; let current = epoch
+            mutation = Task { [weak self, repository] in
+                let result = await repository.configureAppLock(account: account, enabled: enabled, timeoutMilliseconds: timeout, operationID: UUID().uuidString)
+                guard !Task.isCancelled, let self, self.epoch == current else { return }
+                self.state.busy = false
+                switch result {
+                case .success(let record): self.state.appLock = record
+                case .failure(let failure): self.state.failure = failure
+                }
+            }
         case .open(let route): emit(.navigate(route))
         case .appearance(let mode):
             guard !state.busy else { return }
@@ -83,6 +97,19 @@ import AppData
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
             state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown
+        }
+    }
+    /// The App lock page reads the SDK's state of the active account (none is read without an open account).
+    private func readAppLock() {
+        guard let account else { return }
+        sideTask?.cancel()
+        sideTask = Task { [weak self, repository] in
+            let result = await repository.appLock(account: account)
+            guard let self, !Task.isCancelled else { return }
+            switch result {
+            case .success(let record): self.state.appLock = record
+            case .failure(let failure): self.state.failure = failure
+            }
         }
     }
     /// The username row asks the username directory (`username.status`): the claimed name, or the

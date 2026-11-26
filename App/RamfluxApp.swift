@@ -76,6 +76,8 @@ import RFDesign
             }
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
                                               onOpen: { composition.openBanner($0) }, onDismiss: { composition.dismissBanner($0) }) }
+                // The app lock: the shell is covered; the account code of the active account unlocks it (the same code-only unlock step).
+                .overlay { if coordinator.viewModel.state.appLocked, let account = coordinator.viewModel.state.session.activeAccountID { OnboardingHost(coordinator: composition.unlock(account: account)) } }
             }
                 .background(CaptureStateProbe(captured: $captured).frame(width: 0, height: 0).allowsHitTesting(false))
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))

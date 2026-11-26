@@ -33,9 +33,15 @@ public protocol SettingsRepository: Sendable {
     func unavailable(_ capability: SettingsUnavailable) -> AppFailure
     /// This account's username from the username directory (`username.status`); nil when none is claimed.
     func username(account: String) async -> RepositoryResult<String?>
+    /// The app lock of the account (`account.app_lock.state`). Off by default.
+    func appLock(account: String) async -> RepositoryResult<AppLockRecord>
+    /// Turns the app lock on or off and sets its timeout (`account.app_lock.configure`); returns the state the SDK now reports.
+    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord>
 }
 public extension SettingsRepository {
     func username(account: String) async -> RepositoryResult<String?> { .failure(unavailable(.username)) }
+    func appLock(account: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
+    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
 }
 public struct NativeSettingsRepository: SettingsRepository {
     private let gateway: ProxyGateway
@@ -44,6 +50,14 @@ public struct NativeSettingsRepository: SettingsRepository {
     private let updates: NativeUpdateSource
     private let journal = RetainedMutation<SettingsMutation, Void>()
     public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource, lifecycle: AccountLifecycleHooks = AccountLifecycleHooks()) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates; self.lifecycle = lifecycle }
+    public func appLock(account: String) async -> RepositoryResult<AppLockRecord> {
+        do { return .success(try await AppLockService(gateway: gateway).state(account: account)) }
+        catch { return .failure(AppFailure.map(error)) }
+    }
+    public func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord> {
+        do { return .success(try await AppLockService(gateway: gateway).configure(account: account, enabled: enabled, timeoutMilliseconds: timeoutMilliseconds, operationID: operationID)) }
+        catch { return .failure(AppFailure.map(error)) }
+    }
     public func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot> {
         let savedNodes: [NodeRecord]
         switch await nodes.list() { case .success(let rows): savedNodes = rows; case .failure(let failure): return .failure(failure) }

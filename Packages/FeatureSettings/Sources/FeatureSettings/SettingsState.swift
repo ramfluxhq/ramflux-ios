@@ -21,5 +21,7 @@ public struct SettingsState: Equatable, Sendable {
     public var codeChanged = false
     /// This account's username as the username directory reports it.
     public var username: String?
+    /// The account's app lock as the SDK reports it; nil until the App lock page has read it.
+    public var appLock: AppLockRecord?
     public init(route: AppRoute = .settings) { self.route = route }
 }
