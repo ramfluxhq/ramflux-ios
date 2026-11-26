@@ -12,6 +12,8 @@ import RFDesign
 /// tied to the app lock.
 @MainActor enum PrivacyCover {
     private static var covers: [ObjectIdentifier: (window: UIWindow, controller: UIHostingController<AnyView>)] = [:]
+    /// The shell's own cover (privacy shield, app lock form): a window subview too, so no sheet renders above it.
+    private static var stateCovers: [ObjectIdentifier: UIHostingController<AnyView>] = [:]
     private static var observers: [NSObjectProtocol] = []
     /// The cover stays up after the scene became active while the app lock may engage; it is released once the
     /// activation has read the lock (`releaseAppLockHold`). A window cover sits above the SwiftUI content, so it
@@ -61,6 +63,28 @@ import RFDesign
                 controller.view.accessibilityViewIsModal = true
                 window.addSubview(controller.view)
                 covers[ObjectIdentifier(window)] = (window, controller)
+            }
+        }
+    }
+
+    /// Shows or removes the state cover on every normal-level window of the scene, always as the topmost subview.
+    static func setStateCover(visible: Bool, appearance: String, content: () -> AnyView) {
+        guard visible else {
+            for controller in stateCovers.values { controller.view.removeFromSuperview() }
+            stateCovers = [:]
+            return
+        }
+        for scene in UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }) {
+            for window in scene.windows where window.windowLevel == .normal {
+                if let existing = stateCovers[ObjectIdentifier(window)] { window.bringSubviewToFront(existing.view); continue }
+                let controller = UIHostingController(rootView: AnyView(RFThemeScope(selection: appearance) { content() }))
+                controller.view.frame = window.bounds
+                controller.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                controller.view.backgroundColor = .systemBackground
+                controller.view.isOpaque = true
+                controller.view.accessibilityViewIsModal = true
+                window.addSubview(controller.view)
+                stateCovers[ObjectIdentifier(window)] = controller
             }
         }
     }

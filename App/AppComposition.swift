@@ -117,6 +117,14 @@ import Push
         guard let target, let chat = openChat(request.account, request.conversation) else { return }
         chat.send(.forwardTo(messageID: request.id, conversation: target.conversation, groupID: target.groupID))
     }
+    /// Closes every presented sheet (account picker, forward target, permission prompts) while the cover rises.
+    func dismissPresentedSheets() {
+        shell.sheet = nil
+        forwardChosen(nil)
+        let permission = permissions.viewModel.state
+        if permission.explanation != nil { permissions.send(.cancelExplanation) }
+        if permission.permissionNeeded != nil { permissions.send(.dismissNeeded) }
+    }
     private func openChat(_ account: String, _ conversation: String) -> ChatCoordinator? {
         guard let currentChat, currentChat.0 == account, currentChat.1 == conversation else { return nil }
         return currentChat.3
