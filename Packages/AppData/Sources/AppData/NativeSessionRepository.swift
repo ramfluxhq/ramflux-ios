@@ -23,7 +23,14 @@ public actor NativeSessionRepository: SessionRepository {
         observer = pair.continuation; observer?.yield(current)
         return pair.stream
     }
-    private func publish(_ value: SessionSnapshot) { current = value; observer?.yield(value) }
+    /// The last account that was open in this process: an engaged app lock closes the account in the SDK, so
+    /// `account.list` then names no active account and this is the first one to ask about.
+    private var lastActiveAccount: String?
+    private func publish(_ value: SessionSnapshot) {
+        current = value
+        if let id = value.activeAccountID { lastActiveAccount = id }
+        observer?.yield(value)
+    }
     /// Opens the SDK on the first foreground and resumes it after the background; neither asks for
     /// the account code. A return from the background keeps the published snapshot, so the screens stay
     /// as they were. On a cold start the SDK reopens accounts that were not explicitly locked through
@@ -75,10 +82,28 @@ public actor NativeSessionRepository: SessionRepository {
     /// the foreground lifecycle, which cancels the deadline armed when the app went away. Its reply is the lock as
     /// the core holds it now, so a lock that expired at that call is reported as engaged.
     private func withAppLock(_ value: SessionSnapshot) async throws -> SessionSnapshot {
-        guard let account = value.activeAccountID else { return value }
+        guard let account = value.activeAccountID else { return await engagedAppLock(in: value) }
         var record = try await appLock.state(account: account)
         if record.state != .locked { record = try await appLock.lifecycle(account: account, .foreground) }
         return SessionSnapshot(phase: value.phase, accounts: value.accounts, activeAccountID: value.activeAccountID, appLocked: record.state == .locked, appLockEnabled: record.enabled)
+    }
+    /// An engaged app lock closes the account inside the SDK: `account.list` then lists it as locked (name redacted)
+    /// and names no active account. Such an account whose app lock is on and engaged is the one the code is asked
+    /// for, so the shell shows the app-lock form instead of the locked-accounts screen. Any other locked account
+    /// (an explicit lock with the app lock off) keeps the ordinary account-unlock path.
+    private func engagedAppLock(in value: SessionSnapshot) async -> SessionSnapshot {
+        var candidates = value.accounts.filter(\.isLocked)
+        if let last = lastActiveAccount, let index = candidates.firstIndex(where: { $0.id == last }) { candidates.insert(candidates.remove(at: index), at: 0) }
+        for candidate in candidates.prefix(8) {
+            let record: AppLockRecord?
+            do { record = try await appLock.state(account: candidate.id) }
+            catch where AppFailure.isAppLocked(error) { record = nil }
+            catch { continue }
+            guard record == nil || (record?.enabled == true && record?.state == .locked) else { continue }
+            let rows = value.accounts.map { $0.id == candidate.id ? AccountRecord(id: $0.id, displayName: $0.displayName, isLocked: false) : $0 }
+            return SessionSnapshot(phase: value.phase, accounts: rows, activeAccountID: candidate.id, appLocked: true, appLockEnabled: true)
+        }
+        return value
     }
     private func accounts() async throws -> (value: SessionSnapshot, restorePending: Bool) {
         try Self.decodeAccountList(try await proxy.accountList(context: context()))

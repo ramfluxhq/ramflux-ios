@@ -21,6 +21,8 @@ public enum AccountCodeIssue: String, Equatable, Sendable, CaseIterable {
     case required
     /// The platform vault holds no device unlock secret (`device_unlock_unavailable`).
     case deviceUnlockUnavailable
+    /// The code is well formed but not the account's code. The SDK refuses it as a plain invalid argument.
+    case wrong
 
     /// SDK reason tokens; never peer text.
     static func sdk(_ reason: String?) -> Self? {

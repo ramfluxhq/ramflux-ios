@@ -20,6 +20,8 @@
 	<string>此账户码太容易被猜到（重复数字或连续数字），请另选一个。</string>
 	<key>accountCode.failure.wait</key>
 	<string>错误的账户码次数过多。请在 %@ 后再试。</string>
+	<key>accountCode.failure.wrong</key>
+	<string>账户码不正确。请检查后重试。</string>
 	<key>agents.unavailable.access</key>
 	<string>此手机暂不支持更改谁可以联系此智能体。</string>
 	<key>agents.unavailable.chat</key>

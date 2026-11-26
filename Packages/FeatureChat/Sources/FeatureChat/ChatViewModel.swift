@@ -291,6 +291,8 @@ import FeatureCards
             for outcome in admitted { self.emit(.messageSubmitted(outcome.messageID)) }
             switch result {
             case .success(let page):
+                // A read that works again ends the locked state an earlier refused read left (the app lock was released).
+                if self.state.failure == .locked { self.state.failure = nil }
                 var next = TimelineWindow(capacity: capacity); next.reset(page)
                 self.publish(next)
                 if !admitted.isEmpty || self.pendingRefresh { self.pendingRefresh = false; self.refresh() }
