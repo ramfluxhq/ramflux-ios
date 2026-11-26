@@ -71,6 +71,11 @@ public struct MessageNotificationPlan: Equatable, Sendable {
         active = value
         if value { Task { [center] in await center.removeDelivered() } }
     }
+    /// The app lock of the followed account engaged: the notifications this process delivered are removed from the
+    /// Notification Center. Posts stay generic ("New message") while the lock is on, so nothing else is removed or shown.
+    public func appLockEngaged() {
+        Task { [center] in await center.removeDelivered() }
+    }
     /// The account of a tapped notification, if this process posted it. A tap opens that account's chat list.
     public func account(for token: String) -> String? { routes[token] }
 

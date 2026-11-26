@@ -181,6 +181,7 @@ import Push
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
+            case .appLockChanged(let enabled): Task { [session = self?.repositories.session] in await session?.appLockConfigured(enabled: enabled) }
             case .restored: self?.shell.path = []; self?.shell.send(.retry)
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
@@ -221,7 +222,8 @@ import Push
         // Not ready (opening, failed, stopped): nothing of the account is followed for banners or notifications.
         guard session.phase == .ready else { notifier.follow(account: nil); bannerFeed.follow(account: nil); banner = nil; return }
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
-        guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); accountLocked(); return }
+        // The delivered notifications go with the lock; while it is on, posts carry only the generic "New message".
+        guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); notifier.appLockEngaged(); accountLocked(); return }
         notifier.follow(account: session.activeAccountID)
         bannerFeed.follow(account: session.activeAccountID)
         if banner?.account != session.activeAccountID { banner = nil }

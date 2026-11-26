@@ -6,4 +6,6 @@ public enum SettingsEvent: Equatable, Sendable { case navigate(AppRoute), locked
     case restored(String)
     /// Open the system settings page of this app, where iOS offers the per-app language.
     case openSystemSettings
+    /// The app lock of the account was configured (`enabled`); the session follows it at once.
+    case appLockChanged(Bool)
 }
