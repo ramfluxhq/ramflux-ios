@@ -48,6 +48,10 @@
 	<string>切换本机账号</string>
 	<key>shell.accounts.title</key>
 	<string>账户</string>
+	<key>shell.appLock.code</key>
+	<string>账户码</string>
+	<key>shell.appLock.instructions</key>
+	<string>输入账户码以继续。</string>
 	<key>shell.loading.accountServices</key>
 	<string>正在打开账户服务</string>
 	<key>shell.locked.accessibility</key>

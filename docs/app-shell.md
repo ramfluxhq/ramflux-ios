@@ -99,9 +99,15 @@ By default the app asks for nothing when it returns from the background or is re
   through its device-bound key while the client opens (`account.list` reports it `restore_pending`
   until then; activation waits for that, at most ten seconds). The code is asked only where the SDK
   requires it: first set-up, restore, after an explicit lock or sign-out, and when changing the code.
-- App lock seam: `AppShellViewModel` consults `AppLockGate` on return; the default `AppLockOff`
-  never requires anything. The optional lock (arm with a timeout, lock now, presence or code unlock)
-  plugs in there once its SDK part lands.
+- App lock (off by default, Settings > Privacy > App lock): before the background suspend the
+  composition's session repository sends `account.app_lock.lifecycle background` and publishes whether the
+  lock is on. On return, after `resume`, `account.app_lock.state` is read: when it reports `locked`, the
+  snapshot carries `appLocked`, the shell covers the records and an overlay asks for the account code (the
+  existing code-only unlock step; a successful unlock retries the activation). Otherwise the session sends
+  `account.app_lock.lifecycle foreground`. While the lock is on, the shell is covered from the return until
+  that read answers. Unlock is by account code only; biometric unlock waits for core APP-LOCK-01. Nothing
+  of the code is stored on the device. The SDK's `account.app_lock.changed` event is not observed on iOS:
+  the core is suspended while the app is away, so each return reads the state.
 
 No recovery words, keys, message bodies or operation payloads are logged or exported by the shell.
 

@@ -24,6 +24,7 @@ import RFDesign
     @State private var captured = false
     private var coordinator: AppShellCoordinator { composition.shell }
     private var appearance: AppearanceMode { composition.appearance }
+    private var coverWanted: Bool { coordinator.viewModel.state.privacyShield || coordinator.viewModel.state.appLocked }
     var body: some Scene {
         WindowGroup {
             RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
@@ -86,7 +87,14 @@ import RFDesign
                 .onAppear { composition.permissions.send(phase == .active ? .foreground : .sceneInactive); composition.startPreferences(); coordinator.send(phase == .active ? .appeared : .sceneInactive) }
                 .onDisappear { coordinator.send(.disappeared) }
                 .onOpenURL { coordinator.send(.deepLink($0)) }
+                // The lock and privacy cover lives in the window, above every sheet and pushed screen; sheets are dismissed as it rises.
+                .onChange(of: coverWanted, initial: true) { _, wanted in
+                    if wanted { composition.dismissPresentedSheets() }
+                    PrivacyCover.setStateCover(visible: wanted, appearance: appearance.rawValue) { AnyView(StateCoverContent(coordinator: coordinator, composition: composition)) }
+                }
                 .onChange(of: coordinator.viewModel.state.session) { _, session in composition.sessionChanged(session) }
+                // The activation answered (the lock was read): the cover held for the app lock may go.
+                .onChange(of: coordinator.viewModel.state.busy) { _, busy in if !busy { PrivacyCover.releaseAppLockHold() } }
                 .onChange(of: phase) { _, phase in
                     switch phase {
                     case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive); composition.returnedToForeground()
@@ -96,5 +104,16 @@ import RFDesign
                     }
                 }
         }
+    }
+}
+
+/// The content of the window-level cover: the app name with the failure and retry, or the account-code field of the app lock.
+private struct StateCoverContent: View {
+    let coordinator: AppShellCoordinator
+    let composition: AppComposition
+    var body: some View {
+        let state = coordinator.viewModel.state
+        AppShellCover(state: state, onRetry: { coordinator.send(.retry) },
+                      lock: state.appLocked ? state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
     }
 }

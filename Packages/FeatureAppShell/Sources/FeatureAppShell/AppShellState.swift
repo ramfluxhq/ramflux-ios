@@ -8,10 +8,12 @@ public struct AppShellState: Equatable, Sendable {
     public var busy: Bool
     public var failure: AppFailure?
     public var unavailableFeature: UnavailableReason
+    /// The app lock is engaged: the lock screen (the account code) is shown over the covered shell.
+    public var appLocked: Bool
     public init(session: SessionSnapshot = SessionSnapshot(phase: .stopped), tab: AppTab = .messages,
                 privacyShield: Bool = true, busy: Bool = false, failure: AppFailure? = nil,
-                unavailableFeature: UnavailableReason = .featureNotInstalled) {
+                unavailableFeature: UnavailableReason = .featureNotInstalled, appLocked: Bool = false) {
         self.session = session; self.tab = tab; self.privacyShield = privacyShield
-        self.busy = busy; self.failure = failure; self.unavailableFeature = unavailableFeature
+        self.busy = busy; self.failure = failure; self.unavailableFeature = unavailableFeature; self.appLocked = appLocked
     }
 }

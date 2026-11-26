@@ -11,7 +11,11 @@ private final class SessionTransport: CoreTransport {
     private let recorded = Mutex<[CoreRequest]>([])
     var calls: [CoreRequest] { recorded.withLock { $0 } }
     func newCancellation() throws -> any CancellationHandle { NoCancellation() }
-    func execute(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> JSONValue { throw BridgeError.invalidInput }
+    func execute(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> JSONValue {
+        // A selection reads and sets the active account's app lock: unlocked, lock off. Not recorded above.
+        guard request.method.hasPrefix("account.app_lock.") else { throw BridgeError.invalidInput }
+        return .object(["ok": .bool(true), "body": .object(["enabled": .bool(false), "timeout_ms": .number(0), "state": .string("unlocked")])])
+    }
     func executeSecret(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> JSONValue { throw BridgeError.invalidInput }
     func executeSecretResponse(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> SecretBytes {
         recorded.withLock { $0.append(request) }

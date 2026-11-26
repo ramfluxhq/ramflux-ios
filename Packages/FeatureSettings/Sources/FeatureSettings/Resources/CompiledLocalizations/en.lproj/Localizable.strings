@@ -164,6 +164,40 @@
 	<string>On this phone</string>
 	<key>settings.account.title</key>
 	<string>Account and security</string>
+	<key>settings.appLock.biometric</key>
+	<string>Unlock with Face ID / fingerprint</string>
+	<key>settings.appLock.biometric.detail</key>
+	<string>Not available yet</string>
+	<key>settings.appLock.biometric.section</key>
+	<string>Biometric unlock</string>
+	<key>settings.appLock.explanation</key>
+	<string>When on, Ramflux asks for your account code after the chosen time away.</string>
+	<key>settings.appLock.noAccount</key>
+	<string>Open an account to set up the app lock.</string>
+	<key>settings.appLock.off</key>
+	<string>Off</string>
+	<key>settings.appLock.on</key>
+	<string>On</string>
+	<key>settings.appLock.section</key>
+	<string>App lock</string>
+	<key>settings.appLock.timeout</key>
+	<string>Lock after</string>
+	<key>settings.appLock.timeout.fifteenMinutes</key>
+	<string>15 minutes</string>
+	<key>settings.appLock.timeout.fiveMinutes</key>
+	<string>5 minutes</string>
+	<key>settings.appLock.timeout.immediately</key>
+	<string>Immediately</string>
+	<key>settings.appLock.timeout.oneHour</key>
+	<string>1 hour</string>
+	<key>settings.appLock.timeout.oneMinute</key>
+	<string>1 minute</string>
+	<key>settings.appLock.title</key>
+	<string>App lock</string>
+	<key>settings.appLock.toggle</key>
+	<string>App lock</string>
+	<key>settings.appLock.unavailable</key>
+	<string>App lock is unavailable on this device</string>
 	<key>settings.appearance.system</key>
 	<string>System</string>
 	<key>settings.appearance.theme</key>

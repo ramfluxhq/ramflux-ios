@@ -164,6 +164,40 @@
 	<string>在此手机上</string>
 	<key>settings.account.title</key>
 	<string>账户与安全</string>
+	<key>settings.appLock.biometric</key>
+	<string>使用面容 ID 或指纹解锁</string>
+	<key>settings.appLock.biometric.detail</key>
+	<string>暂不可用</string>
+	<key>settings.appLock.biometric.section</key>
+	<string>生物识别解锁</string>
+	<key>settings.appLock.explanation</key>
+	<string>开启后，离开应用超过所选时间时，Ramflux 会要求输入账户码。</string>
+	<key>settings.appLock.noAccount</key>
+	<string>打开账户后即可设置应用锁。</string>
+	<key>settings.appLock.off</key>
+	<string>关闭</string>
+	<key>settings.appLock.on</key>
+	<string>开启</string>
+	<key>settings.appLock.section</key>
+	<string>应用锁</string>
+	<key>settings.appLock.timeout</key>
+	<string>离开多久后锁定</string>
+	<key>settings.appLock.timeout.fifteenMinutes</key>
+	<string>15 分钟</string>
+	<key>settings.appLock.timeout.fiveMinutes</key>
+	<string>5 分钟</string>
+	<key>settings.appLock.timeout.immediately</key>
+	<string>立即</string>
+	<key>settings.appLock.timeout.oneHour</key>
+	<string>1 小时</string>
+	<key>settings.appLock.timeout.oneMinute</key>
+	<string>1 分钟</string>
+	<key>settings.appLock.title</key>
+	<string>应用锁</string>
+	<key>settings.appLock.toggle</key>
+	<string>应用锁</string>
+	<key>settings.appLock.unavailable</key>
+	<string>此设备无法使用应用锁</string>
 	<key>settings.appearance.system</key>
 	<string>跟随系统</string>
 	<key>settings.appearance.theme</key>

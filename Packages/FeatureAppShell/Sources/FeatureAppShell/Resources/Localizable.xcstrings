@@ -815,6 +815,40 @@
           }
         }
       }
+    },
+    "shell.appLock.instructions": {
+      "comment": "Shown on the app lock screen above the account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your account code to continue."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入账户码以继续。"
+          }
+        }
+      }
+    },
+    "shell.appLock.code": {
+      "comment": "Label of the account code field on the app lock screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码"
+          }
+        }
+      }
     }
   }
 }

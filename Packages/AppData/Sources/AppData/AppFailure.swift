@@ -97,6 +97,12 @@ public enum AppFailure: Error, Sendable, Equatable {
         default: return map(error)
         }
     }
+    /// The SDK refused the call because the account's app lock is engaged (`reason_code` `app_locked`). The
+    /// caller must cover the records and ask for the account code, never show a generic failure.
+    public static func isAppLocked(_ error: any Error) -> Bool {
+        guard let failure = error as? CoreFailure else { return false }
+        return failure.reasonCode == "app_locked" || failure.reason == "app_locked"
+    }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {

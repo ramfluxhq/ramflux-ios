@@ -8,6 +8,8 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case appearance(AppearanceMode), retention(Int64), saveRetention, requestPolicy(autoAccept: Bool), unavailable(SettingsUnavailable)
     case dismissModal, setDefault(String)
     case startChangeCode, submitChangeCode(SensitiveSubmission), cancelChangeCode, openSystemLanguage
+    /// Turns the account's app lock on or off with its timeout (milliseconds); the page reads the SDK's answer back.
+    case configureAppLock(enabled: Bool, timeoutMilliseconds: UInt64)
     /// `signOut` closes the account on this phone; removal asks for confirmation first.
     case signOut, requestRemoveLocal, confirmRemoveLocal
     public var description: String { "SettingsAction" }

@@ -44,7 +44,7 @@ public struct SettingsScreen: View {
     }
     private var title: String {
         switch state.route { case .devices, .device: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes, .node: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale)
-        case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .about: FeatureSettingsStrings.text("settings.about.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.title", locale: locale) }
+        case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .appLock: FeatureSettingsStrings.text("settings.appLock.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .about: FeatureSettingsStrings.text("settings.about.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.title", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.route {
@@ -120,6 +120,11 @@ public struct SettingsScreen: View {
                 KitRow(copy("settings.privacy.openAccount"), action: { onAction(.unavailable(.openAccount)) }, icon: "globe", tag: "settings-open-account"),
                 KitRow(copy("settings.privacy.username"), action: { onAction(.unavailable(.username)) }, icon: "at-sign", value: state.username.map { "@" + $0 }, tag: "settings-username"),
             ])
+            group(copy("settings.appLock.section"), [
+                KitRow(copy("settings.appLock.title"), action: { onAction(.open(.appLock)) }, icon: "lock", value: appLockSummary, tag: "settings-app-lock"),
+            ])
+        case .appLock:
+            appLockContent
         case .permissions:
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))
             Button(FeatureSettingsStrings.text("settings.connectedServices.manage", locale: locale)) { onAction(.unavailable(.connectedServices)) }
@@ -172,6 +177,39 @@ public struct SettingsScreen: View {
         }
     }
     private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }
+    private var appLockSummary: String? { state.appLock.map { copy($0.enabled ? "settings.appLock.on" : "settings.appLock.off") } }
+    /// The App lock page (Settings > Privacy). Off by default. Unlock is by account code only: the biometric row
+    /// stays disabled until the core offers presence unlock.
+    @ViewBuilder private var appLockContent: some View {
+        if state.snapshot.accountID == nil {
+            Text(copy("settings.appLock.noAccount")).foregroundStyle(theme.secondary)
+        } else if let record = state.appLock {
+            let controlsDisabled = state.busy || state.unknownMutation || record.state == .unavailable
+            if record.state == .unavailable { Text(copy("settings.appLock.unavailable")).foregroundStyle(theme.danger) }
+            Toggle(copy("settings.appLock.toggle"), isOn: Binding(get: { record.enabled }, set: { onAction(.configureAppLock(enabled: $0, timeoutMilliseconds: record.timeoutMilliseconds)) }))
+                .disabled(controlsDisabled)
+            if record.enabled {
+                Picker(copy("settings.appLock.timeout"), selection: Binding(get: { record.timeoutMilliseconds }, set: { onAction(.configureAppLock(enabled: true, timeoutMilliseconds: $0)) })) {
+                    ForEach(AppLockTimeout.allCases) { Text(appLockTimeoutLabel($0)).tag($0.rawValue) }
+                }.disabled(controlsDisabled)
+            }
+            Text(copy("settings.appLock.explanation")).rfFont(.caption).foregroundStyle(theme.secondary)
+            group(copy("settings.appLock.biometric.section"), [
+                KitRow(copy("settings.appLock.biometric"), icon: "scan-face", value: copy("settings.appLock.biometric.detail"), enabled: false, tag: "settings-app-lock-biometric"),
+            ])
+        } else {
+            ProgressView(copy("settings.loading"))
+        }
+    }
+    private func appLockTimeoutLabel(_ timeout: AppLockTimeout) -> String {
+        switch timeout {
+        case .immediately: copy("settings.appLock.timeout.immediately")
+        case .oneMinute: copy("settings.appLock.timeout.oneMinute")
+        case .fiveMinutes: copy("settings.appLock.timeout.fiveMinutes")
+        case .fifteenMinutes: copy("settings.appLock.timeout.fifteenMinutes")
+        case .oneHour: copy("settings.appLock.timeout.oneHour")
+        }
+    }
     private func indexRow(_ route: AppRoute, icon: String, detail: String) -> KitRow {
         KitRow(label(route), action: { onAction(.open(route)) }, icon: icon, value: copy(detail), tag: "settings-" + String(describing: route))
     }
@@ -190,5 +228,5 @@ public struct SettingsScreen: View {
     private func row(id: String, title: String, subtitle: String, route: AppRoute) -> some View {
         KitRow(title, action: { onAction(.open(route)) }, value: subtitle.isEmpty ? nil : subtitle, tag: id)
     }
-    private func label(_ route: AppRoute) -> String { switch route { case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
+    private func label(_ route: AppRoute) -> String { switch route { case .tasks: FeatureSettingsStrings.text("tasks.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .devices: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale); case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .appLock: FeatureSettingsStrings.text("settings.appLock.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.about.title", locale: locale) } }
 }
