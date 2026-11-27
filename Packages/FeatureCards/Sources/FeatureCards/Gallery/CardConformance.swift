@@ -110,51 +110,69 @@ public struct CardConformance: Sendable {
 
     private func evaluate(_ row: CardFixtureRow, session: UInt64, held: CardTree) async -> [CardConformanceRecord] {
         let expectedTree = Self.expectedTree(root: root, row: row)
-        let heldDocument = CardFixtureDocument.sessionRewritten(CardFixtureDocument.treeJSON(held))
+        let heldDocument = Self.comparable(held, live: session)
         let fresh = await runtime.tree(session)
-        let freshDocument = fresh.payload.map(CardFixtureDocument.sessionRewritten)
-        let heldMatches = heldDocument == expectedTree
-        let freshMatches = freshDocument == expectedTree
-        var records = [record(row, "A", heldMatches && freshMatches,
-                              "held tree \(heldMatches ? "equal" : "differs") and fresh read \(freshMatches ? "equal" : "differs") to the expected tree")]
+        let freshDocument = fresh.payload.map { CardFixtureDocument.comparable($0, live: session) }
+        let heldMatches = expectedTree != nil && heldDocument == expectedTree
+        let freshMatches = expectedTree != nil && freshDocument == expectedTree
+        var detail = "held tree \(heldMatches ? "equal" : "differs") and fresh read \(freshMatches ? "equal" : "differs") to the expected tree"
+        if expectedTree == nil { detail += "; expected tree \(row.expected) unreadable" }
+        if !heldMatches { detail += "; held first differing field: \(CardFixtureDocument.firstDifference(heldDocument, expectedTree))" }
+        if !freshMatches {
+            detail += "; fresh read status \(fresh.status), first differing field: \(CardFixtureDocument.firstDifference(freshDocument, expectedTree))"
+        }
+        var records = [record(row, "A", heldMatches && freshMatches, detail)]
         let undrawn = drawing.undrawn(held)
         let drawn = !held.nodes.isEmpty && undrawn.isEmpty
         records.append(record(row, "B", drawn, drawn ? "no placeholder, every host slot drawn" : "undrawn: \(undrawn.joined(separator: ", "))"))
         if Self.interactiveKinds.contains(row.kind) {
-            records.append(await checkC(row, session: session, held: held, fresh: freshDocument))
+            records.append(await checkC(row, session: session, held: held))
         }
         return records
     }
 
-    private func checkC(_ row: CardFixtureRow, session: UInt64, held: CardTree, fresh: JSONValue?) async -> CardConformanceRecord {
+    /// Check C: the event is answered, its batch applies to the held tree, and the held tree then equals a runtime read
+    /// taken after the event (an Approval has no standalone event; its held tree must equal a read as it stands).
+    private func checkC(_ row: CardFixtureRow, session: UInt64, held: CardTree) async -> CardConformanceRecord {
         guard let key = Self.preorder(held).first(where: { held.nodes[$0]?.kind == row.kind }), let node = held.nodes[key] else {
             return record(row, "C", false, "no node of kind \(row.kind) to drive")
         }
         guard let event = Self.event(for: node, kind: row.kind) else {
-            let equal = fresh == CardFixtureDocument.sessionRewritten(CardFixtureDocument.treeJSON(held))
-            return record(row, "C", equal, "no standalone event (host slot answers only); runtime tree equal: \(equal)")
+            let (equal, note) = await runtimeEquals(held, session: session)
+            return record(row, "C", equal, "no standalone event (host slot answers only); runtime tree equal: \(equal)\(note)")
         }
         guard let token = held.token(for: key) else { return record(row, "C", false, "node is not mounted") }
-        let tokenJSON: JSONValue = .object([
-            "session": .unsigned(token.session), "signedVersion": .unsigned(token.signedVersion),
-            "editSeq": .unsigned(token.editSeq), "treeVersion": .unsigned(token.treeVersion), "key": .string(token.key),
-        ])
-        let reply = await runtime.event(session, input: .object(["token": tokenJSON, "event": event]))
+        let reply = await runtime.event(session, input: .object(["token": token.json, "event": event]))
         let eventText = Self.compact(event)
         guard reply.ok, let answer = reply.payload else {
             return record(row, "C", false, "event \(eventText) status \(reply.status)")
         }
         let result = answer["result"]?.string ?? "none"
         var next = held
-        if let batchJSON = answer["batch"] {
+        if let batchJSON = answer["batch"], batchJSON != .null {
             do {
                 next = try held.applying(CardMutationBatch.decode(batchJSON))
             } catch {
-                return record(row, "C", false, "event \(eventText) result \(result): batch does not apply to the held tree")
+                return record(row, "C", false, "event \(eventText) result \(result): batch does not apply to the held tree (\(error))")
             }
         }
-        let equal = fresh == CardFixtureDocument.sessionRewritten(CardFixtureDocument.treeJSON(next))
-        return record(row, "C", equal, "event \(eventText); result \(result); runtime tree equal: \(equal)")
+        let (equal, note) = await runtimeEquals(next, session: session)
+        return record(row, "C", equal, "event \(eventText); result \(result); tree version \(held.treeVersion) -> \(next.treeVersion); runtime tree equal: \(equal)\(note)")
+    }
+
+    /// Reads the runtime's tree now and compares it with `tree`; the note names the first differing field on a mismatch.
+    private func runtimeEquals(_ tree: CardTree, session: UInt64) async -> (Bool, String) {
+        let fresh = await runtime.tree(session)
+        let freshDocument = fresh.payload.map { CardFixtureDocument.comparable($0, live: session) }
+        let heldDocument = Self.comparable(tree, live: session)
+        guard let freshDocument, freshDocument == heldDocument else {
+            return (false, "; runtime read status \(fresh.status), first differing field: \(CardFixtureDocument.firstDifference(heldDocument, freshDocument))")
+        }
+        return (true, "")
+    }
+
+    static func comparable(_ tree: CardTree, live: UInt64) -> JSONValue {
+        CardFixtureDocument.comparable(CardFixtureDocument.treeJSON(tree), live: live)
     }
 
     /// The event the conformance table sends for an interactive node (the same table on every client).
@@ -196,7 +214,7 @@ public struct CardConformance: Sendable {
     static func expectedTree(root: URL, row: CardFixtureRow) -> JSONValue? {
         guard let data = try? read(root.appendingPathComponent("host-fixtures").appendingPathComponent(row.expected)),
               let json = try? JSONDecoder().decode(JSONValue.self, from: data) else { return nil }
-        return CardFixtureDocument.sessionRewritten(json)
+        return CardFixtureDocument.comparable(json, live: 1)
     }
 
     /// Node keys in document order (preorder from the root).

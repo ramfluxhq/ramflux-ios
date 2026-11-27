@@ -3,7 +3,6 @@
 #if RAMFLUX_CARD_GALLERY
 import AppData
 import CryptoKit
-import Dispatch
 import Foundation
 import RamfluxCore
 
@@ -81,17 +80,17 @@ public struct CardFixtureTrust: Sendable {
     }
 }
 
-/// The standalone card runtime for the realrun gallery. The actor's executor is one serial queue, so every
-/// `ramflux_card_*` call runs on the thread that owns the handles. Callback JSON is copied inside each call
-/// (`CardFixtureNative`), so results cross back to the main actor as values.
+/// The standalone card runtime for the realrun gallery. The runtime keeps its sessions in thread-local storage, so a
+/// handle is valid only on the thread that opened it. A serial dispatch queue is not enough (it hops between worker
+/// threads), so the actor runs on `CardFixtureThread`: one dedicated thread for the process. Callback JSON is copied
+/// inside each call (`CardFixtureNative`), so results cross back to the main actor as values.
 public actor CardFixtureRuntime {
     public static let budgetAttempts = 4
     public static let budgetWait: Duration = .milliseconds(1_100)
 
-    private let queue = DispatchSerialQueue(label: "org.ramflux.card-fixture-renderer")
     private var cachedTrust: CardFixtureTrust?
 
-    public nonisolated var unownedExecutor: UnownedSerialExecutor { queue.asUnownedSerialExecutor() }
+    public nonisolated var unownedExecutor: UnownedSerialExecutor { CardFixtureThread.shared.asUnownedSerialExecutor() }
 
     public init() {}
 
@@ -160,6 +159,40 @@ public actor CardFixtureRuntime {
     private static func payload(_ json: Data?) -> JSONValue? {
         guard let json, let envelope = try? JSONDecoder().decode(JSONValue.self, from: json) else { return nil }
         return envelope["payload"]
+    }
+}
+/// A serial executor that runs every job on one dedicated thread, started once and kept for the life of the process
+/// (the gallery is a test-build instrument; every runtime handle it opens belongs to this thread).
+final class CardFixtureThread: SerialExecutor, @unchecked Sendable {
+    static let shared = CardFixtureThread()
+
+    private let condition = NSCondition()
+    private var jobs: [UnownedJob] = []
+
+    private init() {
+        let thread = Thread { [self] in run() }
+        thread.name = "org.ramflux.card-fixture-runtime"
+        thread.start()
+    }
+
+    func enqueue(_ job: consuming ExecutorJob) {
+        let job = UnownedJob(job)
+        condition.lock()
+        jobs.append(job)
+        condition.signal()
+        condition.unlock()
+    }
+
+    func asUnownedSerialExecutor() -> UnownedSerialExecutor { UnownedSerialExecutor(ordinary: self) }
+
+    private func run() {
+        while true {
+            condition.lock()
+            while jobs.isEmpty { condition.wait() }
+            let job = jobs.removeFirst()
+            condition.unlock()
+            job.runSynchronously(on: asUnownedSerialExecutor())
+        }
     }
 }
 #endif
