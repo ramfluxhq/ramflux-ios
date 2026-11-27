@@ -19,7 +19,8 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
 
     func test22_exhaustRecoverRemove() {
         flow("22-exhaust-recover-remove") {
-            if element("tab-messages").exists || knownAccountUnlock().exists {
+            // The empty shell also shows the Messages tab; an existing account shows its unlock entry or the code field.
+            if knownAccountUnlock().exists || element("secure-entry-passphrase").exists {
                 throw FlowStop.blocked("needs a freshly prepared app with no account; run this flow alone after `scripts/realrun.sh prepare`")
             }
             let name = "Lockrr " + String((0..<4).map { _ in "abcdefghjkmnpqrstuvwxyz".randomElement()! })
