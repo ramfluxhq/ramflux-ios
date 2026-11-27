@@ -248,6 +248,12 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
         }
         let nameInput = try require(textField("n01-name"), "display name field")
         nameInput.tap(); nameInput.typeText(name)
+        if additional {
+            // Another account offers the saved nodes as choices; the saved node must be picked before Create is enabled.
+            let saved = app.descendants(matching: .any).matching(NSPredicate(
+                format: "identifier BEGINSWITH 'onboarding-node-' AND NOT (identifier BEGINSWITH 'onboarding-node-other') AND NOT (identifier BEGINSWITH 'onboarding-node-fingerprint') AND NOT (identifier BEGINSWITH 'onboarding-node-saved')")).firstMatch
+            if saved.waitForExistence(timeout: 10) { try tap(saved, "saved node choice") }
+        }
         try tap(button("Create the account"), "Create the account")
         Self.sensitive = true
         defer { Self.sensitive = false }
