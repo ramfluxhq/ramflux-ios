@@ -66,11 +66,11 @@ public struct NativeSettingsRepository: SettingsRepository {
         return failure
     }
     public func appLock(account: String) async -> RepositoryResult<AppLockRecord> {
-        do { return .success(try await AppLockService(gateway: gateway).state(account: account)) }
+        do { return .success(try await AppLockService(gateway: gateway, stream: updates).state(account: account)) }
         catch { return .failure(AppFailure.map(error)) }
     }
     public func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async -> RepositoryResult<AppLockRecord> {
-        do { return .success(try await AppLockService(gateway: gateway).configure(account: account, enabled: enabled, timeoutMilliseconds: timeoutMilliseconds, credentials: credentials, operationID: operationID)) }
+        do { return .success(try await AppLockService(gateway: gateway, stream: updates).configure(account: account, enabled: enabled, timeoutMilliseconds: timeoutMilliseconds, credentials: credentials, operationID: operationID)) }
         catch { return .failure(AppFailure.map(error)) }
     }
     public func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot> {

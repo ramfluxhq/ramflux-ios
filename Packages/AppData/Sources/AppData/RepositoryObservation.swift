@@ -29,6 +29,8 @@ public final class RepositoryObservation: Sendable {
 /// notification or byte-credit exhaustion (`resyncRequired`) resubscribes automatically and tells every
 /// observer to reload (`.invalidated`); any other failure is broadcast as `.failed` and ends all observers.
 /// Observing a different scope ends the previous scope's observers before the new subscription opens.
+/// Whether one `unattended` call holds a count of `detached`.
+final class LeaseMark: Sendable { let flag = Mutex(false) }
 public actor NativeUpdateSource {
     /// What one native subscription covers.
     enum Scope: Equatable, Sendable {
@@ -61,6 +63,8 @@ public actor NativeUpdateSource {
     /// The SDK is suspended for the background: observers stay registered and the subscription reopens
     /// on resume, which invalidates every observer once so each screen re-reads what changed meanwhile.
     private var suspended = false
+    /// Leases that keep the subscription closed (see `unattended`); nothing opens while this is above zero.
+    private var detached = 0
     public init(client: RamfluxClient) { self.client = client }
     /// Closes the native subscription before the SDK suspends; observers are kept.
     public func suspendForBackground() async {
@@ -74,7 +78,40 @@ public actor NativeUpdateSource {
     private func unpause() async {
         guard suspended else { return }
         suspended = false
-        if subscription == nil { await open() }
+        if subscription == nil, detached == 0 { await open() }
+    }
+    /// Runs `body` while this client's subscription is not attended for an account other than `account`
+    /// (nil: for any account). Core refuses app-lock calls for another account on an attended connection, so the
+    /// subscription is closed (its `subscription.close` answer awaited) before `body` and reopened for the same
+    /// scope afterwards, which tells every observer to reload. Nested leases share one close and one reopen.
+    public func unattended<T: Sendable>(for account: String?, _ body: @Sendable () async throws -> T) async throws -> T {
+        let held = LeaseMark()
+        await serialized { hub in await hub.detach(for: account, held: held) }
+        do {
+            let value = try await body()
+            await reattach(held: held)
+            return value
+        } catch {
+            await reattach(held: held)
+            throw error
+        }
+    }
+    private func detach(for account: String?, held: LeaseMark) async {
+        let attendedElsewhere = subscription != nil && scope?.accountID != nil && (account == nil || scope?.accountID != account)
+        guard attendedElsewhere || detached > 0 || subscription == nil else { return }
+        detached += 1; held.flag.withLock { $0 = true }
+        if subscription != nil { await close(finishing: false) }
+    }
+    private func reattach(held: LeaseMark) async {
+        await serialized { hub in
+            guard held.flag.withLock({ value in let was = value; value = false; return was }) else { return }
+            await hub.release()
+        }
+    }
+    private func release() async {
+        guard detached > 0 else { return }
+        detached -= 1
+        if detached == 0, !suspended, scope != nil, !observers.isEmpty, subscription == nil { await open() }
     }
     /// Number of live observers; for tests and diagnostics.
     public var observerCount: Int { observers.count }
@@ -114,7 +151,7 @@ public actor NativeUpdateSource {
         if observers.isEmpty { await close(finishing: false); scope = nil }
     }
     private func open() async {
-        guard !suspended, let scope, !observers.isEmpty else { return }
+        guard !suspended, detached == 0, let scope, !observers.isEmpty else { return }
         do {
             try await client.resetEvents()
             let filter = try SubscriptionFilter(accountID: scope.accountID, topics: scope.topics, attendedFrontend: true)

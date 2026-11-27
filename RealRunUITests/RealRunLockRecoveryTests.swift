@@ -138,25 +138,114 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
         }
     }
 
+    /// Flow 23: two accounts with the app lock on the first (G05e-A). Creating the second account while the first
+    /// is open, and every switch between them, must open the target with no SDK refusal (code 16): app-lock calls for
+    /// another account run with the event subscription detached. Steps R1-R7 of the G05e-A design.
+    ///
+    /// It needs a freshly prepared app and creates both accounts in this process; both phrases and codes stay in
+    /// memory (`Self.sensitive` is set while they are on screen or typed). Run it alone:
+    /// `scripts/realrun.sh run --only RealRunLockRecoveryTests/test23_twoAccountsAppLock`.
+    func test23_twoAccountsAppLock() {
+        flow("23-two-accounts-app-lock") {
+            if knownAccountUnlock().exists || element("secure-entry-passphrase").exists {
+                throw FlowStop.blocked("needs a freshly prepared app with no account; run this flow alone after `scripts/realrun.sh prepare`")
+            }
+            let suffix = String((0..<4).map { _ in "abcdefghjkmnpqrstuvwxyz".randomElement()! })
+            let nameA = "Twoa " + suffix, nameB = "Twob " + suffix
+            let codeA = RunSecrets.newCode()
+            var notes: [String] = []
+
+            // R1: account A, app lock On, Immediately.
+            _ = try createAccount(name: nameA, code: codeA)
+            try enableAppLock()
+            snap("23-r1-lock-on")
+            notes.append("R1: account A created, app lock on (Immediately)")
+
+            // R2: B created while A is open; it opens with no cover and no code.
+            _ = try createAccount(name: nameB, code: RunSecrets.newCode(), additional: true)
+            try expectOpen("after creating B from A")
+            guard !element("secure-entry-passphrase").exists else { throw FlowStop.fail("a code prompt is shown for the new account B") }
+            snap("23-r2-b-open")
+            notes.append("R2: B created from A and opened without a cover or a code prompt")
+
+            // R3 and R4: B -> A -> B -> A, each switch opens its target.
+            try pickAccount(named: nameA)
+            try expectOpen("after switching B to A")
+            let toggle = try openAppLockPage()
+            guard (toggle.value as? String) == "1" else { throw FlowStop.fail("A's app lock is not on (value \(toggle.value ?? "nil"))") }
+            snap("23-r3-a-lock-still-on")
+            notes.append("R3: A opened from B, app lock still on")
+            for (target, step) in [(nameB, "A to B"), (nameA, "B to A")] {
+                try pickAccount(named: target)
+                try expectOpen("after switching \(step)")
+            }
+            snap("23-r4-a-open")
+            notes.append("R4: B, then A: each switch opened its target")
+
+            // R5: on A, background and return: the cover asks for the code; the right code opens A.
+            try returnToTabs()
+            try lockNow()
+            snap("23-r5-cover")
+            try typeCode(codeA, into: "code of A")
+            try expectOpen("after the code of A on the cover")
+            notes.append("R5: background and return on A raised the cover; the code opened A")
+
+            // R6: background (A engages), terminate and relaunch: no code 16, no stuck cover.
+            try lockNow()
+            app.terminate(); app.launch()
+            guard eventually(90, every: 1, { self.element("tab-messages").exists || self.lockCoverUp() }) else {
+                throw FlowStop.fail("after the relaunch neither a shell nor a lock cover is shown: \(visibleFailure())")
+            }
+            guard !text(containing: "code 16").exists, !text(containing: "refused this request").exists else {
+                throw FlowStop.fail("an SDK refusal is shown after the relaunch: \(visibleFailure())")
+            }
+            let coverAfterRelaunch = lockCoverUp()
+            snap("23-r6-relaunch")
+            notes.append("R6: relaunch with A engaged showed \(coverAfterRelaunch ? "the lock cover" : "the shell")")
+
+            // R7: open A (cover code, or the picker and its unlock step), then B without a code.
+            if !coverAfterRelaunch { try pickAccount(named: nameA) }
+            try typeCode(codeA, into: "code of A after the relaunch")
+            if button("Continue").waitForExistence(timeout: 3), !element("tab-messages").isHittable { button("Continue").tap() }
+            try expectOpen("after the code of A after the relaunch")
+            snap("23-r7-a-open")
+            try pickAccount(named: nameB)
+            try expectOpen("after switching A to B")
+            guard !element("secure-entry-passphrase").exists else { throw FlowStop.fail("a code prompt is shown when opening B") }
+            snap("23-r7-b-open")
+            notes.append("R7: A opened with its code, then B without a code")
+            return notes.joined(separator: "; ")
+        }
+    }
+
     // MARK: Account
 
     /// Flow 1's creation path with this flow's own name and code. Returns the 24 words and the account id.
-    private func createAccount(name: String, code: String) throws -> ([String], String) {
-        try tap(element("shell-accounts"), "Accounts button on the empty shell", timeout: 60)
-        try tap(button("Add account"), "Add account")
-        try tap(element("s02-change-node"), "change node row", timeout: 30)
-        let field = try require(textField("onboarding-address"), "node address field")
-        field.tap(); field.typeText(config.origin)
-        try tap(button("Check address"), "Check address")
-        try tap(button("Connect to this origin"), "Connect to this origin", timeout: 30)
-        let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 40)
-        keyInput.tap(); keyInput.typeText(config.operatorKey)
-        try tap(button("Review fingerprint"), "Review fingerprint")
-        let print = try require(element("onboarding-node-fingerprint"), "node fingerprint", timeout: 30)
-        let shown = (print.label + " " + (print.value as? String ?? "")).lowercased().filter { $0.isHexDigit }
-        guard shown.contains(config.fingerprint) else { throw FlowStop.fail("fingerprint shown differs from node-facts") }
-        try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "fingerprint confirmation")
-        try tap(button("Create an account"), "Create an account (node saved)", timeout: 30)
+    /// With `additional`, another account is created while an account is open: the node is already saved, so the
+    /// flow goes from More > Accounts > Add account straight to the creation choice.
+    private func createAccount(name: String, code: String, additional: Bool = false) throws -> ([String], String) {
+        if additional {
+            try openAccountPicker()
+            try tap(button("Add account"), "Add account")
+            if element("s02-continue").waitForExistence(timeout: 8) { try tap(element("s02-continue"), "Continue on the node step") }
+            try tap(button("Create an account"), "Create an account (node already saved)", timeout: 30)
+        } else {
+            try tap(element("shell-accounts"), "Accounts button on the empty shell", timeout: 60)
+            try tap(button("Add account"), "Add account")
+            try tap(element("s02-change-node"), "change node row", timeout: 30)
+            let field = try require(textField("onboarding-address"), "node address field")
+            field.tap(); field.typeText(config.origin)
+            try tap(button("Check address"), "Check address")
+            try tap(button("Connect to this origin"), "Connect to this origin", timeout: 30)
+            let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 40)
+            keyInput.tap(); keyInput.typeText(config.operatorKey)
+            try tap(button("Review fingerprint"), "Review fingerprint")
+            let print = try require(element("onboarding-node-fingerprint"), "node fingerprint", timeout: 30)
+            let shown = (print.label + " " + (print.value as? String ?? "")).lowercased().filter { $0.isHexDigit }
+            guard shown.contains(config.fingerprint) else { throw FlowStop.fail("fingerprint shown differs from node-facts") }
+            try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "fingerprint confirmation")
+            try tap(button("Create an account"), "Create an account (node saved)", timeout: 30)
+        }
         let nameInput = try require(textField("n01-name"), "display name field")
         nameInput.tap(); nameInput.typeText(name)
         try tap(button("Create the account"), "Create the account")
@@ -300,6 +389,38 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
         guard eventually(60, { !self.element("secure-entry-phrase").exists }) else { throw FlowStop.fail("the recover form stayed after the submit") }
         // The secret fields are gone: screenshots are allowed again.
         Self.sensitive = false
+    }
+
+    // MARK: Several accounts
+
+    /// More > Accounts: the account picker.
+    private func openAccountPicker() throws {
+        try returnToTabs()
+        try openMore()
+        try tap(element("more-accounts"), "Accounts in More")
+    }
+
+    /// Backs out of pushed pages until the tab bar is reachable.
+    private func returnToTabs() throws {
+        for _ in 0..<8 where !element("tab-more").isHittable { back(); Thread.sleep(forTimeInterval: 0.5) }
+        guard element("tab-more").waitForExistence(timeout: 10) else { throw FlowStop.fail("the tab bar is not reachable: \(visibleFailure())") }
+    }
+
+    /// The account is open: the shell shows the tabs, no lock cover and no SDK refusal (code 16).
+    private func expectOpen(_ when: String) throws {
+        guard eventually(60, every: 0.5, { self.element("tab-messages").exists && !self.lockCoverUp() }) else {
+            throw FlowStop.fail("the account did not open \(when): \(visibleFailure())")
+        }
+        guard !text(containing: "code 16").exists, !text(containing: "refused this request").exists else {
+            throw FlowStop.fail("an SDK refusal is shown \(when): \(visibleFailure())")
+        }
+    }
+
+    /// Picks the account named `name` in the picker. A locked row opens its unlock step, so the caller types the code.
+    private func pickAccount(named name: String) throws {
+        try openAccountPicker()
+        let row = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'account-' AND label CONTAINS %@", name)).firstMatch
+        try tap(row, "the row of \(name) in Accounts", timeout: 20)
     }
 
     // MARK: Helpers
