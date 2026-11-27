@@ -113,7 +113,12 @@ private struct StateCoverContent: View {
     let composition: AppComposition
     var body: some View {
         let state = coordinator.viewModel.state
-        AppShellCover(state: state, onRetry: { coordinator.send(.retry) },
-                      lock: state.appLocked ? state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
+        // Restore on an exhausted lock opens the recovery flow inside this cover, in place of the lock form.
+        if state.appLocked, let recovery = composition.lockRecovery {
+            OnboardingHost(coordinator: recovery)
+        } else {
+            AppShellCover(state: state, onRetry: { coordinator.send(.retry) },
+                          lock: state.appLocked ? state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
+        }
     }
 }

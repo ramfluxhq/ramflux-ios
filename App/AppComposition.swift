@@ -54,8 +54,18 @@ import Push
     func appLock(account: String) -> AppLockModel {
         if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
         let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
-                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.shell.send(.open(.recoverAccount)) })
+                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock() })
         appLockScreen = (account, model); return model
+    }
+    /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock. It is drawn
+    /// inside the cover, so no shell route opens under it and no account content is reached. Back dismisses it.
+    private(set) var lockRecovery: OnboardingCoordinator?
+    func restoreFromLock() {
+        guard lockRecovery == nil else { return }
+        lockRecovery = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: OnboardingState(stage: .recover)) { [weak self] account in
+            self?.lockRecovery = nil
+            if account != nil { self?.shell.send(.retry) }
+        }
     }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {

@@ -47,7 +47,8 @@ import RFDesign
     private func apply(_ error: AppFailure) {
         switch error {
         case .accountCodeWait(_, let until): exhausted = false; startWait(until)
-        case .accountCode(.attemptsExhausted), .accountCode(.deviceUnlockUnavailable): exhausted = true; clearWait()
+        case .accountCode(.attemptsExhausted): exhausted = true; clearWait()
+        // A missing device unlock secret keeps the field and shows its own failure text; it is not the restore-only state.
         default: clearWait()
         }
     }
@@ -61,11 +62,18 @@ import RFDesign
         waitUntil = until; waitTimer?.cancel()
         waitTimer = Task { [weak self] in
             try? await Task.sleep(until: until, clock: .continuous)
-            guard !Task.isCancelled else { return }
-            self?.waitUntil = nil
+            guard !Task.isCancelled, let self else { return }
+            self.waitUntil = nil
+            // The "try again in" text describes the wait that has just ended; it goes with the countdown.
+            if Self.isWaitFailure(self.failure) { self.failure = nil }
         }
     }
     private func clearWait() { waitTimer?.cancel(); waitTimer = nil; waitUntil = nil }
+    private static func isWaitFailure(_ failure: AppFailure?) -> Bool {
+        guard let failure else { return false }
+        if case .accountCodeWait = failure { return true }
+        return failure == .accountCode(.retryLater)
+    }
 }
 
 /// The cover over the whole window while the privacy shield is up or the app lock is engaged: an opaque page with

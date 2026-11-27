@@ -32,7 +32,7 @@ public struct SettingsScreen: View {
                 NavigationStack { RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                     modalContent(modal)
                     if state.busy { ProgressView(FeatureSettingsStrings.text("settings.busy", locale: locale)) }
-                    if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+                    if let failure = state.failure, !state.codePrompt { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } } }.interactiveDismissDisabled(state.busy)
             }
 
@@ -173,6 +173,7 @@ public struct SettingsScreen: View {
                 onAction(.submitAccountCode(SensitiveSubmission(values: $0, accountCode: .existing)))
             }
             #endif
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelAccountCode) }, kind: .text, enabled: true, tag: "settings-app-lock-code-cancel")
         case .revoke(let device):
             Text(FeatureSettingsStrings.text("settings.devices.revoke.title", locale: locale)).rfFont(.page); KitIdentifierText(device.id).textSelection(.enabled)
@@ -270,7 +271,7 @@ public struct SettingsScreen: View {
         if record.enabled {
             Picker(copy("settings.appLock.timeout"), selection: Binding(get: { record.timeoutMilliseconds }, set: { onAction(.configureAppLock(enabled: true, timeoutMilliseconds: $0)) })) {
                 ForEach(AppLockTimeout.allCases) { Text(appLockTimeoutLabel($0)).tag($0.rawValue) }
-            }.disabled(controlsDisabled || weakeningBlocked)
+            }.disabled(controlsDisabled)
         }
             Text(copy("settings.appLock.explanation")).rfFont(.caption).foregroundStyle(theme.secondary)
             group(copy("settings.appLock.biometric.section"), [
