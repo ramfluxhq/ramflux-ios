@@ -89,6 +89,16 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.conceal); await model.settle()
         #expect(model.state.stage == .localUnlock && model.state.recoveryAccount == "account-a" && model.state.knownAccountName == "Ada")
     }
+    @Test func lockedAccountRecoveryIsPinnedToTheLockedAccount() async {
+        let fake = FlowFake(); var events: [OnboardingEvent] = []
+        let model = OnboardingViewModel(repository: fake, nodes: fake, state: .recoverLockedAccount("account-a"), emit: { events.append($0) })
+        #expect(model.state.stage == .recover && model.state.recoversLockedAccount && model.state.recoveryAccount == "account-a")
+        // No account picker and no backup entry inside the lock cover.
+        model.send(.recoveryAccountChanged("account-other")); #expect(model.state.recoveryAccount == "account-a")
+        model.send(.restoreBackup); #expect(!events.contains(.restoreBackup))
+        model.send(.beginRecovery); await model.settle()
+        #expect(model.state.recoveryAccount == "account-a")
+    }
     @Test func restoreFromBackupHandsOverToTheBackupScreenWithoutTouchingTheRepository() async {
         let fake = FlowFake(); var events: [OnboardingEvent] = []
         let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { events.append($0) })

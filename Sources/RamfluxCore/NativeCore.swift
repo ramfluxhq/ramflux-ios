@@ -9,6 +9,8 @@ import Darwin
 public final class NativeCore: CoreTransport {
     private struct State { var handle: UInt64 = 0; var closing = false; var opening = false; var lifecycleBusy = false; var streamOpened = false; var generation: UInt64 = 0 }
     private let state = Mutex(State())
+    /// One attended call at a time: a second `executeAttended` while one is armed is refused as busy.
+    private let attendedInFlight = Mutex(false)
     private let configuration: Data
     private let dataRoot: URL
     private let custody: HostCustodyProvider?
@@ -115,10 +117,17 @@ public final class NativeCore: CoreTransport {
     /// so `account.unlock` and the other calls never prompt through it. Core asks for the code only when it needs one.
     public func executeAttended(_ request: CoreRequest, cancellation: any CancellationHandle, credentials: @escaping CredentialAsk) throws -> JSONValue {
         guard request.method == SDKOperation.accountAppLockConfigure.rawValue else { throw BridgeError.invalidInput }
+        let claimed = attendedInFlight.withLock { inFlight -> Bool in
+            guard !inFlight else { return false }
+            inFlight = true; return true
+        }
+        guard claimed else { throw CoreFailure(code: CoreErrorCode.accountBusy.rawValue, effect: .none, operationID: request.operationID?.rawValue, reasonCode: "attended_busy") }
+        defer { attendedInFlight.withLock { $0 = false } }
         var data = try request.envelope().encodedRequest()
         defer { data.resetBytes(in: 0..<data.count) }
         let client = try currentHandle()
-        let exchange = Unmanaged.passRetained(CredentialExchange(ask: credentials))
+        // The prompt must name the account this configure was issued for; any other account is refused by the callback.
+        let exchange = Unmanaged.passRetained(CredentialExchange(accountID: request.accountID, ask: credentials))
         defer { exchange.release() }
         guard ramflux_v2_set_credential_provider(client, credentialProviderCallback, exchange.toOpaque()) == 0 else {
             throw CoreFailure(code: 16, effect: .none, operationID: request.operationID?.rawValue)
@@ -155,7 +164,7 @@ public final class NativeCore: CoreTransport {
         if status != 0 {
             let effect = terminal["effects"]?.string.flatMap(CoreFailure.Effect.init(rawValue:)) ?? .unknown
             throw CoreFailure(code: status, effect: effect, operationID: request.operationID?.rawValue,
-                reasonCode: terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer),
+                reasonCode: terminal["reason_code"]?.string ?? terminal["response"]?["error"]?["reason_code"]?.string, typedName: typedName(buffer),
                 statusName: CoreFailure.token(terminal["name"]), reason: CoreFailure.token(terminal["reason"]), response: terminal["response"])
         }
         guard let frame = terminal["response"] else { throw CoreFailure(code: 16, effect: .unknown, operationID: request.operationID?.rawValue, reasonCode: "missing_response") }

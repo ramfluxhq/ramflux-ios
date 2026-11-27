@@ -54,18 +54,30 @@ import Push
     func appLock(account: String) -> AppLockModel {
         if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
         let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
-                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock() })
+                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) })
         appLockScreen = (account, model); return model
     }
-    /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock. It is drawn
-    /// inside the cover, so no shell route opens under it and no account content is reached. Back dismisses it.
-    private(set) var lockRecovery: OnboardingCoordinator?
-    func restoreFromLock() {
+    /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock, keyed by the
+    /// locked account. It is drawn inside the cover, so no shell route opens under it and no account content is reached.
+    /// Back dismisses it. It is cleared when the app goes to the background and when the lock lifts.
+    private(set) var lockRecovery: (account: String, coordinator: OnboardingCoordinator)?
+    /// The recovery flow for `account` while the cover shows that account's lock; nil for any other account.
+    func lockRecovery(for account: String) -> OnboardingCoordinator? {
+        guard let lockRecovery, lockRecovery.account == account else { return nil }
+        return lockRecovery.coordinator
+    }
+    func restoreFromLock(account: String) {
         guard lockRecovery == nil else { return }
-        lockRecovery = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: OnboardingState(stage: .recover)) { [weak self] account in
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account)) { [weak self] recovered in
             self?.lockRecovery = nil
-            if account != nil { self?.shell.send(.retry) }
+            if recovered != nil { self?.shell.send(.retry) }
         }
+        lockRecovery = (account, coordinator)
+    }
+    /// Drops the lock's recovery flow so the next lock shows the code form, not the recovery page.
+    func clearLockRecovery() {
+        lockRecovery?.coordinator.send(.disappeared)
+        lockRecovery = nil
     }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {
@@ -237,7 +249,7 @@ import Push
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
         // The delivered notifications go with the lock; while it is on, posts carry only the generic "New message".
         guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); notifier.appLockEngaged(); lockWasEngaged = true; accountLocked(); return }
-        if lockWasEngaged { lockWasEngaged = false; reloadScreensAfterAppLock() }
+        if lockWasEngaged { lockWasEngaged = false; clearLockRecovery(); reloadScreensAfterAppLock() }
         notifier.follow(account: session.activeAccountID)
         bannerFeed.follow(account: session.activeAccountID)
         if banner?.account != session.activeAccountID { banner = nil }

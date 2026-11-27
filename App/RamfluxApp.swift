@@ -99,7 +99,7 @@ import RFDesign
                     switch phase {
                     case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive); composition.returnedToForeground()
                     case .inactive: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
-                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
+                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); composition.clearLockRecovery(); runtime.enterBackground(coordinator)
                     @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
@@ -114,7 +114,7 @@ private struct StateCoverContent: View {
     var body: some View {
         let state = coordinator.viewModel.state
         // Restore on an exhausted lock opens the recovery flow inside this cover, in place of the lock form.
-        if state.appLocked, let recovery = composition.lockRecovery {
+        if state.appLocked, let account = state.session.activeAccountID, let recovery = composition.lockRecovery(for: account) {
             OnboardingHost(coordinator: recovery)
         } else {
             AppShellCover(state: state, onRetry: { coordinator.send(.retry) },

@@ -227,6 +227,34 @@ struct BridgeTests {
             try await client.close()
         }
     }
+    @Test func jsonRefusalReadsTheTopLevelReasonBeforeTheNestedError() async throws {
+        let cases: [(terminal: String, reason: String?)] = [
+            ("{\"code\":16,\"reason_code\":\"unlock_retry_later\",\"response\":{\"error\":{\"reason_code\":\"vault_permission\"}}}", "unlock_retry_later"),
+            ("{\"code\":16,\"response\":{\"error\":{\"reason_code\":\"vault_permission\"}}}", "vault_permission"),
+        ]
+        for testCase in cases {
+            rf_fixture_reset()
+            rf_fixture_set_terminal(testCase.terminal)
+            let (_, client) = try await open()
+            do { _ = try await SDKProxy(client: client).accountAppLockState(context: context()); Issue.record("Expected a refusal") }
+            catch let failure as CoreFailure { #expect(failure.reasonCode == testCase.reason) }
+            #expect(rf_fixture_live_buffers() == 0)
+            try await client.close()
+        }
+    }
+    /// The attended prompt is answered only for the account the configure was issued for; no other account reaches the host.
+    @Test func attendedPromptNamesItsAccountAndOnlyTheUnlockAction() {
+        func account(_ metadata: String) -> String? {
+            let bytes = Array(metadata.utf8)
+            return bytes.withUnsafeBufferPointer { CredentialExchange.unlockAccount($0.baseAddress!, $0.count) }
+        }
+        #expect(account(#"{"action":"unlock","local_account_id":"account-a"}"#) == "account-a")
+        #expect(account(#"{"action":"unlock"}"#) == nil)
+        #expect(account(#"{"action":"sign_out","local_account_id":"account-a"}"#) == nil)
+        let exchange = CredentialExchange(accountID: "account-a", ask: { _ in nil })
+        #expect(exchange.request(account: "account-b") == nil)
+        #expect(CredentialExchange(accountID: nil, ask: { _ in nil }).request(account: "account-a") == nil)
+    }
     @Test func businessFailurePreservesSDKErrorFrame() async throws {
         rf_fixture_reset()
         rf_fixture_set_terminal("{\"code\":23,\"response\":{\"error\":{\"reason_code\":\"schema_reset_required\",\"details\":{\"generation\":\"18446744073709551615\"}}}}")

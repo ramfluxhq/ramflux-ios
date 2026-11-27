@@ -34,11 +34,20 @@ public struct OnboardingState: Equatable, Sendable {
     public var knownAccountName: String?
     /// The confirmation for removing that account from this phone (`account.remove_local`) is shown.
     public var confirmingForget = false
+    /// The recovery of the locked account is shown inside the app lock cover: `recoveryAccount` is that account and
+    /// cannot change, and the flow offers no other onboarding entry (no backup restore, no account picker).
+    public var recoversLockedAccount = false
     public init(stage: OnboardingStage = .connection) { self.stage = stage }
     /// The unlock step for an account this device knows: it asks only for the account code.
     public static func unlockKnown(account: String, name: String) -> OnboardingState {
         var state = OnboardingState(stage: .localUnlock)
         state.unlockingSavedAccount = true; state.recoveryAccount = account; state.knownAccountName = name
+        return state
+    }
+    /// The recovery step for the locked account `account`, bound to that account only.
+    public static func recoverLockedAccount(_ account: String) -> OnboardingState {
+        var state = OnboardingState(stage: .recover)
+        state.recoveryAccount = account; state.recoversLockedAccount = true
         return state
     }
 }

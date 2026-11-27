@@ -19,9 +19,13 @@ final class CredentialExchange: Sendable {
     static let codeCapacity = 1024
     private let state = Mutex(State())
     private let signal = DispatchSemaphore(value: 0)
+    /// The account the attended configure was issued for. A prompt for any other account is refused.
+    private let accountID: String?
     private let ask: CredentialAsk
-    init(ask: @escaping CredentialAsk) { self.ask = ask }
-    func request() -> SecretBytes? {
+    init(accountID: String?, ask: @escaping CredentialAsk) { self.accountID = accountID; self.ask = ask }
+    /// Asks the host for the code of `account` (the prompt's `local_account_id`). Nil when that is not the configured account.
+    func request(account: String) -> SecretBytes? {
+        guard let accountID, accountID == account else { return nil }
         Task.detached { [self] in deliver(await ask(.unlock)) }
         _ = signal.wait(timeout: .now() + Self.waitSeconds)
         return state.withLock { state in
@@ -40,10 +44,11 @@ final class CredentialExchange: Sendable {
         late?.erase()
         signal.signal()
     }
-    /// The `unlock` action only. Any other action, or metadata that does not parse, is refused.
-    static func isUnlock(_ metadata: UnsafePointer<UInt8>, _ count: Int) -> Bool {
-        guard count > 0, count <= 4096, let json = try? JSONValue.decode(Data(bytes: metadata, count: count)) else { return false }
-        return json["action"]?.string == CredentialAction.unlock.rawValue
+    /// The `local_account_id` of an `unlock` prompt. Any other action, or metadata that does not parse, yields nil.
+    static func unlockAccount(_ metadata: UnsafePointer<UInt8>, _ count: Int) -> String? {
+        guard count > 0, count <= 4096, let json = try? JSONValue.decode(Data(bytes: metadata, count: count)) else { return nil }
+        guard json["action"]?.string == CredentialAction.unlock.rawValue else { return nil }
+        return json["local_account_id"]?.string
     }
 }
 
@@ -51,10 +56,10 @@ final class CredentialExchange: Sendable {
 let credentialProviderCallback: CredentialProviderCallback = { metadata, metadataLength, output, capacity, length, confirmOutput, confirmCapacity, confirmLength, context in
     confirmLength?.pointee = 0
     length?.pointee = 0
-    guard let context, let metadata, let output, let length, CredentialExchange.isUnlock(metadata, metadataLength) else { return 1 }
+    guard let context, let metadata, let output, let length, let account = CredentialExchange.unlockAccount(metadata, metadataLength) else { return 1 }
     _ = confirmOutput; _ = confirmCapacity
     let exchange = Unmanaged<CredentialExchange>.fromOpaque(context).takeUnretainedValue()
-    guard let secret = exchange.request() else { return 1 }
+    guard let secret = exchange.request(account: account) else { return 1 }
     let copied = (try? secret.consume { bytes -> Bool in
         guard bytes.count > 0, bytes.count <= min(capacity, CredentialExchange.codeCapacity), let source = bytes.baseAddress else { return false }
         output.update(from: source.assumingMemoryBound(to: UInt8.self), count: bytes.count)
