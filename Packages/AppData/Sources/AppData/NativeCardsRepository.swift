@@ -67,6 +67,31 @@ public struct NativeCardsRepository: CardsRepository {
 
     public func retain(account: String, surfaceRefs: Set<String>) async {
         await registry.pool(account: account).retain(surfaceRefs: surfaceRefs)
+        await registry.images.retain(account: account, surfaceRefs: surfaceRefs)
+    }
+
+    public func image(account: String, surfaceRef: String, attachment: JSONValue?) async -> CardImageResult {
+        await registry.images.load(account: account, surfaceRef: surfaceRef, attachment: attachment)
+    }
+
+    /// `grant.approve` or `grant.deny` with the request reference, then `task.resolve` with the runtime's body exactly as it
+    /// came (never built, merged or edited here). Both calls take the secret transport, so no body is logged. A refusal that
+    /// says the request moved on is `cards.approval.changed`; nothing is retried.
+    public func finishApproval(account: String, outcome: String, requestRef: String, taskResolve: JSONValue) async -> RepositoryResult<Void> {
+        guard outcome == "confirm" || outcome == "deny", !requestRef.isEmpty, requestRef.utf8.count <= 256, case .object = taskResolve else { return .failure(.invalidInput) }
+        do {
+            _ = try await gateway.call(outcome == "confirm" ? .grantApprove : .grantDeny, account: account, body: .object(["approval_id": .string(requestRef)]), operationID: UUID().uuidString)
+            _ = try await gateway.call(.taskResolve, account: account, body: taskResolve, operationID: UUID().uuidString)
+            return .success(())
+        } catch { return .failure(Self.approvalFailure(error)) }
+    }
+
+    /// The task refusals that mean the request changed under the card.
+    private static let changedReasons: Set<String> = ["stale_revision", "decision_consumed", "decision_mismatch", "terminal", "not_found"]
+
+    static func approvalFailure(_ error: any Error) -> AppFailure {
+        if let failure = error as? CoreFailure, let reason = failure.reasonCode, changedReasons.contains(reason) { return .unavailableResource("cards.approval.changed") }
+        return AppFailure.map(error)
     }
 
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }

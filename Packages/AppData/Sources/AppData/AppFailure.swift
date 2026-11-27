@@ -249,6 +249,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "not_connected": "refusal.not_connected.title"
         case "internal": "refusal.internal.title"
         case "already_contact": "refusal.already_contact.title"
+        case "card_limit_exceeded": "refusal.card_limit_exceeded.title"
         default: "request.refusal.title"
         }
     }
@@ -271,6 +272,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case "not_connected": "refusal.not_connected"
         case "internal": "refusal.internal"
         case "already_contact": "refusal.already_contact"
+        case "card_limit_exceeded": "refusal.card_limit_exceeded"
         default: "request.localFailure"
         }
     }

@@ -80,6 +80,8 @@
 	<string>This passphrase does not open the archive.</string>
 	<key>calls.audioUnavailable</key>
 	<string>Voice audio is unavailable in this build. Starting or answering a call is not supported. You can review call history and end an existing call.</string>
+	<key>cards.approval.changed</key>
+	<string>This request changed. Review it again.</string>
 	<key>cards.unavailable</key>
 	<string>Interactive cards are not available on this device yet. You can continue using messages and your account.</string>
 	<key>chat.message.unsupported</key>
@@ -244,6 +246,10 @@
 	<string>This account is already one of your contacts. Its card was not applied.</string>
 	<key>refusal.already_contact.title</key>
 	<string>Already a contact</string>
+	<key>refusal.card_limit_exceeded</key>
+	<string>Too many cards are active. Try again in a moment.</string>
+	<key>refusal.card_limit_exceeded.title</key>
+	<string>Cards</string>
 	<key>refusal.crypto_failure</key>
 	<string>This message could not be protected.</string>
 	<key>refusal.crypto_failure.title</key>

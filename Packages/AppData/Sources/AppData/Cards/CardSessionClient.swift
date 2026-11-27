@@ -31,8 +31,9 @@ public enum CardSlotOutcome: String, Equatable, Sendable {
 public enum CardHostRequest: Equatable, Sendable {
     /// A link the author asked to open. Open the system browser only after the slot answers `opened`.
     case openURL(url: String, requestID: String, slotID: String, token: CardEventToken)
-    /// A verified intent of an approval. Only "Waiting for confirmation" until the signed update.
-    case approvalDecision(outcome: String, requestRef: String, taskBinding: JSONValue?)
+    /// A verified intent of an approval. For confirm and deny `taskResolve` is the complete `task.resolve` body the host
+    /// sends after `grant.approve` or `grant.deny`; it is passed on exactly as received, never built or edited here.
+    case approvalDecision(outcome: String, requestRef: String, taskBinding: JSONValue?, taskResolve: JSONValue?)
     case other(kind: String)
 }
 
@@ -59,10 +60,13 @@ public struct CardResponse: Equatable, Sendable {
     /// The card that replaced this one, when the runtime verified it (`superseded`).
     public let replacementRef: String?
 
-    static func decode(_ json: JSONValue) throws -> CardResponse {
+    /// `requiresBatch`: an `event` or `slot` reply that allows rendering always carries a batch (an empty one when nothing
+    /// changed); a reply without it is a protocol error, not a reason to read the tree again.
+    static func decode(_ json: JSONValue, requiresBatch: Bool = false) throws -> CardResponse {
         guard let result = json["result"]?.string, !result.isEmpty else { throw AppFailure.invalidData }
         let batch: CardMutationBatch?
         if case .object? = json["batch"] { batch = try CardMutationBatch.decode(json["batch"] ?? .null) } else { batch = nil }
+        if requiresBatch, json["render_allowed"] == .bool(true), batch == nil { throw AppFailure.invalidData }
         return CardResponse(result: result, session: CardJSON.uint(json["session"]), renderAllowed: json["render_allowed"] == .bool(true),
                             fallbackText: json["fallback_text"]?.string ?? "", reason: json["reason"]?.string, batch: batch,
                             hostRequest: try hostRequest(json["host_request"]), submit: submit(json["submit"]),
@@ -79,7 +83,9 @@ public struct CardResponse: Equatable, Sendable {
             return .openURL(url: url, requestID: requestID, slotID: slotID, token: token)
         case "approval_decision":
             guard let outcome = json["outcome"]?.string, let requestRef = json["request_ref"]?.string else { throw AppFailure.invalidData }
-            return .approvalDecision(outcome: outcome, requestRef: requestRef, taskBinding: json["task_binding"])
+            let resolve: JSONValue?
+            if case .object? = json["task_resolve"] { resolve = json["task_resolve"] } else { resolve = nil }
+            return .approvalDecision(outcome: outcome, requestRef: requestRef, taskBinding: json["task_binding"], taskResolve: resolve)
         default: return .other(kind: kind)
         }
     }
@@ -93,7 +99,7 @@ public struct CardResponse: Equatable, Sendable {
 
 /// Typed refusals of the card runtime. The SDK sets the status `InvalidArgument` and `reason_code` to the token; the
 /// match is exact and on `reasonCode` only. Anything else is an ordinary failure.
-enum CardSessionRefusal: String, Sendable {
+public enum CardSessionRefusal: String, Sendable {
     case expired = "card_session_expired"
     case inactive = "card_session_inactive"
     case limit = "card_session_limit"
@@ -101,6 +107,9 @@ enum CardSessionRefusal: String, Sendable {
     case stale = "card_session_stale"
     case busy = "card_session_busy"
     case limitExceeded = "card_limit_exceeded"
+
+    /// The name a card shows when it found no place for its session (`card_limit_exceeded`).
+    public static let overLimitReason = CardSessionRefusal.limitExceeded.rawValue
 
     static func of(_ error: any Error) -> CardSessionRefusal? {
         guard let failure = error as? CoreFailure, let reason = failure.reasonCode else { return nil }
@@ -123,11 +132,11 @@ struct CardSessionClient: Sendable {
         try await view(.cardSessionPresent, account: account, body: ["session": .unsigned(session), "locale": .string(locale), "dark": .bool(dark)])
     }
     func event(account: String, session: UInt64, token: CardEventToken, event: CardHostEvent) async throws -> CardResponse {
-        try await view(.cardSessionEvent, account: account, body: ["session": .unsigned(session), "token": token.json, "event": event.json])
+        try await view(.cardSessionEvent, account: account, body: ["session": .unsigned(session), "token": token.json, "event": event.json], requiresBatch: true)
     }
     func slot(account: String, session: UInt64, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async throws -> CardResponse {
         try await view(.cardSessionSlot, account: account, body: ["session": .unsigned(session), "token": token.json, "slot_id": .string(slotID),
-                                                                       "request_id": .string(requestID), "outcome": .string(outcome.rawValue)])
+                                                                       "request_id": .string(requestID), "outcome": .string(outcome.rawValue)], requiresBatch: true)
     }
     func submit(account: String, session: UInt64) async throws -> CardResponse {
         try await view(.cardSessionSubmit, account: account, body: ["session": .unsigned(session)])
@@ -142,8 +151,8 @@ struct CardSessionClient: Sendable {
         try await view(.cardSessionDispose, account: account, body: ["session": .unsigned(session)])
     }
 
-    private func view(_ operation: SDKOperation, account: String, body: [String: JSONValue]) async throws -> CardResponse {
+    private func view(_ operation: SDKOperation, account: String, body: [String: JSONValue], requiresBatch: Bool = false) async throws -> CardResponse {
         // `call` routes secret-input and secret-output operations through the secret transport itself.
-        try CardResponse.decode(try await gateway.call(operation, account: account, body: .object(body)))
+        try CardResponse.decode(try await gateway.call(operation, account: account, body: .object(body)), requiresBatch: requiresBatch)
     }
 }

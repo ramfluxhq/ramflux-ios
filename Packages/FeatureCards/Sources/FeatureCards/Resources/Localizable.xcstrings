@@ -864,6 +864,78 @@
           }
         }
       }
+    },
+    "cards.overLimit": {
+      "comment": "Line under a card that could not take a place because too many cards are active; the next tap tries again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many cards are active. Try again in a moment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活动的卡片过多。请稍后再试。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "cards.draftDiscarded": {
+      "comment": "Tip shown for a few seconds when a draft typed in a card was lost because the card session ended.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your edit was replaced by a newer version."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的修改已被较新的版本替换。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "cards.contentChanged": {
+      "comment": "Shown under a card when an edit was dropped because the card content changed; the field shows the current value.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This content changed. Check it and try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此内容已更改。请检查后重试。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "cards.image.view": {
+      "comment": "Accessibility hint of an image in a card: a tap opens the image full screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the image full screen"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全屏打开图片"
+          }
+        }
+      },
+      "extractionState": "manual"
     }
   }
 }

@@ -95,6 +95,8 @@ public struct SurfaceCardView: View {
     let onResync: () -> Void
 
     @State private var local = CardLocalState()
+    /// The discarded-draft tip is on screen for six seconds (spec 4.20).
+    @State private var discardNotice = false
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
 
@@ -108,8 +110,9 @@ public struct SurfaceCardView: View {
         VStack(alignment: .leading, spacing: theme.gap) {
             if isAgent || !(author ?? "").isEmpty { header }
             if let display = card.display, let tree, display.renderAllowed {
+                if discardNotice { KitTipBar(FeatureCardsStrings.text("cards.draftDiscarded", locale: locale), icon: "info", tag: "card-draft-discarded") }
                 CardLifecycleChrome(phase: display.phase, closed: card.surface.closed, lifecycle: display.lifecycle,
-                                    generating: display.generating, outOfSync: card.surface.outOfSync, onResync: onResync)
+                                    generating: display.generating, outOfSync: card.surface.outOfSync, contentChanged: display.contentChanged, onResync: onResync)
                 if let root = tree.root {
                     let context = CardContext(surfaceRef: card.surface.surfaceRef, tree: tree, phase: display.phase, closed: card.surface.closed,
                                               outOfSync: card.surface.outOfSync, sending: card.sending, local: local,
@@ -125,6 +128,9 @@ public struct SurfaceCardView: View {
                 }
             } else {
                 Text(fallback).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
+                    .contentShape(Rectangle())
+                    // A card that found no place for its session opens again on the next tap.
+                    .onTapGesture { if card.failure == .typedRefusal(CardSessionRefusal.overLimitReason) { onEvent("", .activate) } }
             }
             if let failure = card.failure { Text(failure.message(locale: locale)).rfFont(.caption).foregroundStyle(theme.danger) }
         }
@@ -136,6 +142,12 @@ public struct SurfaceCardView: View {
         .overlay { RoundedRectangle(cornerRadius: theme.radius_card).strokeBorder(theme.line, lineWidth: KitMetrics.stroke) }
         .accessibilityElement(children: .contain)
         .onChange(of: card.pending) { _, _ in local.linkAnswering = false }
+        .task(id: card.display?.draftDiscarded == true) {
+            guard card.display?.draftDiscarded == true else { discardNotice = false; return }
+            discardNotice = true
+            try? await Task.sleep(for: .seconds(6))
+            discardNotice = false
+        }
         .sheet(item: linkBinding) { item in
             // Spec 3.4: a closed, retired, superseded or generating card takes no action, so Open only cancels there.
             CardLinkSheet(item: item, author: author, onOpen: { answerLink(item, linkOpenAllowed ? .confirm : .cancel) },

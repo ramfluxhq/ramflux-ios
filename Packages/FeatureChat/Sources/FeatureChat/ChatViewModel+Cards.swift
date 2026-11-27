@@ -3,6 +3,7 @@
 import Foundation
 import AppData
 import FeatureCards
+import RamfluxCore
 
 /// Agent cards in the timeline: the cards of the conversation are listed through `surface.list` (following `next_cursor`,
 /// at most `cardPages` pages), each one is drawn from its runtime session (`card.session.*`, opened or refreshed here),
@@ -84,7 +85,7 @@ extension ChatViewModel {
         }
     }
 
-    func stopCards() { cardsTask?.cancel(); cardsTask = nil; cardsPending = false; cardEventsInFlight = [:]; state.cards = [:] }
+    func stopCards() { cardsTask?.cancel(); cardsTask = nil; cardsPending = false; cardEventsInFlight = [:]; cardsOpening = []; state.cards = [:] }
 
     private func cardKey(_ ref: String) -> String? { state.cards.first { $0.value.surface.surfaceRef == ref }?.key }
 
@@ -116,6 +117,8 @@ extension ChatViewModel {
     /// control), so nothing typed while an earlier event is in flight is dropped.
     private func sendEvent(_ ref: String, key: String, event: CardHostEvent) {
         guard let message = cardKey(ref) else { return }
+        // A card that found no place for its session has nothing to send an event to: the tap opens it again.
+        if state.cards[message]?.display == nil, let surface = state.cards[message]?.surface { reopen(message, surface: surface); return }
         cardEventsInFlight[ref, default: 0] += 1
         state.cards[message]?.sending = true
         state.cards[message]?.failure = nil
@@ -126,6 +129,22 @@ extension ChatViewModel {
             self.endCardEvent(ref)
             guard self.epoch == current else { return }
             self.finishCardStep(message, ref: ref, result)
+        }
+    }
+
+    private func reopen(_ message: String, surface: CardSurface) {
+        guard cardsOpening.insert(message).inserted else { return }
+        state.cards[message]?.failure = nil
+        let current = epoch, locale = cardLocale, dark = cardDark
+        Task { [weak self, cards, account] in
+            let result = await cards.open(account: account, surface: surface, locale: locale, dark: dark)
+            guard let self else { return }
+            self.cardsOpening.remove(message)
+            guard self.epoch == current else { return }
+            switch result {
+            case .success(let display): self.state.cards[message]?.display = display
+            case .failure(let error): self.state.cards[message]?.failure = error
+            }
         }
     }
 
@@ -154,8 +173,29 @@ extension ChatViewModel {
             self.endCardEvent(ref)
             guard self.epoch == current else { return }
             if case .success(let step) = result, step.slotResult == "opened", let link = answer.link { CardLinkOpener.open(link) }
-            if case .success(let step) = result, step.slotResult == "approval_decision" { self.state.cards[message]?.decided.insert(answer.requestID) }
+            if case .success(let step) = result, step.slotResult == "approval_decision" {
+                self.state.cards[message]?.decided.insert(answer.requestID)
+                // Confirm and deny carry the task.resolve body; cancel and unavailable carry none and only close the sheet.
+                if case .approvalDecision(let outcome, let requestRef, _, let resolve?)? = step.hostRequest {
+                    self.finishApproval(message, outcome: outcome, requestRef: requestRef, resolve: resolve)
+                }
+            }
             self.finishCardStep(message, ref: ref, result)
+        }
+    }
+
+    /// The decision the runtime accepted is finished through the SDK: `grant.approve` or `grant.deny`, then `task.resolve` with
+    /// the runtime's body unchanged. The card keeps "Waiting for confirmation" until the signed update or the task change. A
+    /// refusal shows one line ("This request changed. Review it again.") and the cards are read again; nothing is retried.
+    private func finishApproval(_ message: String, outcome: String, requestRef: String, resolve: JSONValue) {
+        let current = epoch
+        Task { [weak self, cards, account] in
+            let result = await cards.finishApproval(account: account, outcome: outcome, requestRef: requestRef, taskResolve: resolve)
+            guard let self, self.epoch == current else { return }
+            if case .failure(let error) = result {
+                self.state.cards[message]?.failure = error
+                self.loadCards()
+            }
         }
     }
 
