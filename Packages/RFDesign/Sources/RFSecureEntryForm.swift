@@ -21,12 +21,16 @@ public struct RFSecureEntryForm: UIViewRepresentable {
     @Environment(\.rfTheme) private var theme
     public let fields: [RFSecureEntryField]
     public let enabled: Bool
+    /// False turns the fields off as well as the button (an account-code retry wait); typing is refused until it is true.
+    public let fieldsEnabled: Bool
     public let submit: ([String: String]) -> Void
-    public init(fields: [RFSecureEntryField], enabled: Bool, submit: @escaping ([String: String]) -> Void) { self.fields = fields; self.enabled = enabled; self.submit = submit }
+    public init(fields: [RFSecureEntryField], enabled: Bool, fieldsEnabled: Bool = true, submit: @escaping ([String: String]) -> Void) {
+        self.fields = fields; self.enabled = enabled; self.fieldsEnabled = fieldsEnabled; self.submit = submit
+    }
     public func makeUIView(context: Context) -> RFSecureEntryFormView { RFSecureEntryFormView(fields: fields, submit: submit) }
     public func updateUIView(_ view: RFSecureEntryFormView, context: Context) {
         view.button.setTitle(RFDesignStrings.text("kit.secret.confirmOnce", locale: locale), for: .normal)
-        view.submit = submit; view.allowed = enabled; view.apply(theme)
+        view.submit = submit; view.allowed = enabled; view.fieldsAllowed = fieldsEnabled; view.apply(theme)
     }
     public static func dismantleUIView(_ view: RFSecureEntryFormView, coordinator: ()) { view.erase() }
 }
@@ -37,6 +41,13 @@ public struct RFSecureEntryForm: UIViewRepresentable {
     private var editors: [(RFSecureEntryField, UITextField)] = []
     var submit: ([String: String]) -> Void
     var allowed = true { didSet { refreshButton() } }
+    var fieldsAllowed = true {
+        didSet {
+            guard fieldsAllowed != oldValue else { return }
+            for (_, editor) in editors { editor.isEnabled = fieldsAllowed; if !fieldsAllowed { editor.text = ""; editor.resignFirstResponder() } }
+            refreshButton()
+        }
+    }
     init(fields: [RFSecureEntryField], submit: @escaping ([String: String]) -> Void) {
         self.submit = submit; super.init(frame: .zero)
         let stack = UIStackView(); stack.axis = .vertical; stack.spacing = 12; stack.translatesAutoresizingMaskIntoConstraints = false

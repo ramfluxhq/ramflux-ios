@@ -38,8 +38,9 @@ import RFDesign
             case .failure(let error):
                 self.failure = error
                 self.apply(error)
-                // A throttle that names no wait is read from the SDK's app-lock state, which carries it.
-                if error == .accountCode(.retryLater) { await self.readWait(settings) }
+                // A throttle that names no wait is read from the SDK's app-lock state, which carries it. A wrong code may be
+                // the one that starts the wait (or uses the checks up): the state is read then too, so the countdown shows at once.
+                if error == .accountCode(.retryLater) || error == .accountCode(.wrong) { await self.readWait(settings) }
             }
         }
     }
@@ -122,7 +123,7 @@ struct AppLockForm: View {
                 if !model.exhausted {
                     #if os(iOS)
                     RFSecureEntryForm(fields: [RFSecureEntryField(id: "passphrase", label: FeatureAppShellStrings.text("shell.appLock.code", locale: locale), kind: .accountCode)],
-                                      enabled: !model.busy && !model.waiting) { model.submit(SensitiveSubmission(values: $0, accountCode: .existing)) }
+                                      enabled: !model.busy && !model.waiting, fieldsEnabled: !model.waiting) { model.submit(SensitiveSubmission(values: $0, accountCode: .existing)) }
                         .frame(minHeight: theme.composer_min * 4)
                     #endif
                     // Only the countdown ticks; the field above is re-enabled by the model when the wait ends.

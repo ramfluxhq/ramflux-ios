@@ -196,14 +196,23 @@ import Push
     }
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?
-    @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?
+    /// One coordinator per Settings page on the navigation path, for one account. Settings pages stack (Settings, Account,
+    /// Privacy, App lock), and SwiftUI rebuilds every destination on the path when the shell changes: a single cached page
+    /// made each rebuild replace the others, so the page on top lost its state and its pending change.
+    @ObservationIgnored private var settingsPages: [AppRoute: SettingsCoordinator] = [:]
+    @ObservationIgnored private var settingsAccount: String?
     func settings(account: String?, route: AppRoute) -> SettingsCoordinator {
         // A nil account is the shell reporting none for a moment (a foreground still opening, a failed activation), not a
-        // different account: the open page keeps its account and its state. Only a real change replaces the coordinator.
-        if let currentSettings, currentSettings.1 == route, account == nil || currentSettings.0 == account { return currentSettings.2 }
-        currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared); currentSettings?.2.send(PairingAction.disappeared)
+        // different account: the open pages keep their account and their state. Only a real change replaces them.
+        if let account, account != settingsAccount {
+            settingsPages.values.forEach(retireSettings); settingsPages = [:]; settingsAccount = account
+        }
+        // Pages popped off the path are released; the rest keep their coordinator.
+        for (open, page) in settingsPages where open != route && !shell.path.contains(open) { retireSettings(page); settingsPages[open] = nil }
+        if let page = settingsPages[route] { return page }
+        let owner = account ?? settingsAccount
         let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, pairing: repositories.pairing, nodes: repositories.nodes,
-            preferences: repositories.preferences, account: account, route: route) { [weak self] event in
+            preferences: repositories.preferences, account: owner, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
@@ -213,7 +222,10 @@ import Push
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
         }
-        currentSettings = (account, route, coordinator); return coordinator
+        settingsPages[route] = coordinator; return coordinator
+    }
+    private func retireSettings(_ page: SettingsCoordinator) {
+        page.send(SettingsAction.disappeared); page.send(BackupAction.disappeared); page.send(PairingAction.disappeared)
     }
     /// Local message notifications while the app is not active (see docs/permissions.md).
     @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
@@ -276,7 +288,7 @@ import Push
         currentCalls?.2.send(.refresh)
         currentAgents?.1.send(.retry)
         currentTasks?.2.send(.refresh)
-        currentSettings?.2.send(SettingsAction.refresh)
+        for (route, page) in settingsPages where shell.path.contains(route) { page.send(SettingsAction.refresh) }
     }
     /// The account the composition last saw unlocked; calls and the outbox follow it.
     @ObservationIgnored private var unlockedAccount: String?
