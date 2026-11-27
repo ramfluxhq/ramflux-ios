@@ -240,6 +240,23 @@
         }
       }
     },
+    "cards.chip.generating": {
+      "comment": "Lifecycle chip: the author is still writing the card; its controls are disabled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generating"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "生成中"
+          }
+        }
+      }
+    },
     "cards.chip.submitting": {
       "localizations": {
         "en": {

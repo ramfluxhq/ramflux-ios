@@ -17,7 +17,7 @@ public enum CardFixtureDocument {
             nodes.append(nodeJSON(node))
             stack.append(contentsOf: node.children.reversed())
         }
-        return .object([
+        var document: [String: JSONValue] = [
             "schema": .string("ramflux.card.tree.v1"),
             "session": .unsigned(tree.session),
             "signed_version": .unsigned(tree.signedVersion),
@@ -30,7 +30,12 @@ public enum CardFixtureDocument {
             "locale": .string(tree.locale),
             "format_locale": .string(tree.formatLocale),
             "direction": .string(tree.direction),
-        ])
+        ]
+        // The runtime omits these when they hold their defaults (`generating` false, `lifecycle` open, no replacement).
+        if tree.generating { document["generating"] = .bool(true) }
+        if tree.lifecycle != .open { document["lifecycle"] = .string(tree.lifecycle.rawValue) }
+        if let replacement = tree.replacementRef { document["replacement_ref"] = .string(replacement) }
+        return .object(document)
     }
 
     /// The comparison form of a `ramflux.card.tree.v1` document whose live session is `live` (the committed trees use

@@ -255,7 +255,8 @@ struct CardModalView: View {
     private func closeModal() {
         guard context.local.openModals.contains(node.key) else { return }
         context.local.openModals.remove(node.key)
-        context.onEvent(node.key, .modalClose)
+        // A closed, retired, superseded or generating card takes no events: the sheet closes on the host only.
+        if context.editable { context.onEvent(node.key, .modalClose) }
     }
 }
 

@@ -31,7 +31,8 @@ struct CardGalleryPreview: View {
         ScrollView {
             if let root = tree.root {
                 let context = CardContext(surfaceRef: "fixture", tree: tree, phase: .live, closed: false, outOfSync: false, sending: false,
-                                          local: local, securitySheetOpen: local.approvalKey != nil, onEvent: onEvent, onAnswer: { _ in })
+                                          local: local, securitySheetOpen: local.approvalKey != nil, onEvent: onEvent, onAnswer: { _ in },
+                                          lifecycle: tree.lifecycle, generating: tree.generating)
                 CardRootView(node: root, context: context)
                     .modifier(CardApprovalSheetModifier(context: context))
                     .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)

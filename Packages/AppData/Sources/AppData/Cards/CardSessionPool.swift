@@ -13,6 +13,13 @@ public struct CardDisplay: Equatable, Sendable {
     /// The session holds a resident VM and takes events. False: draw `tree` read-only; the first tap resumes it.
     public let resident: Bool
     public let phase: CardPhase
+
+    /// The runtime lifecycle of the held tree (spec 3.4); `open` when there is no tree.
+    public var lifecycle: CardLifecycle { tree?.lifecycle ?? .open }
+    /// The author still has an open text stream on the card: controls stay disabled and a progress chip shows.
+    public var generating: Bool { tree?.generating ?? false }
+    /// The card that replaced this one, when the runtime verified it.
+    public var replacementRef: String? { tree?.replacementRef }
 }
 
 /// Lifecycle states of a card session (`docs/CARD-RENDER-SPEC-01.md` 3.4) as the runtime reports them.

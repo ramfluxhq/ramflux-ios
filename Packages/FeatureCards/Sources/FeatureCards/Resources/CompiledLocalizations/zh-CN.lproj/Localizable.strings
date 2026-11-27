@@ -30,6 +30,8 @@
 	<string>表格</string>
 	<key>cards.chip.closed</key>
 	<string>已关闭</string>
+	<key>cards.chip.generating</key>
+	<string>生成中</string>
 	<key>cards.chip.refused</key>
 	<string>发送失败</string>
 	<key>cards.chip.submitting</key>

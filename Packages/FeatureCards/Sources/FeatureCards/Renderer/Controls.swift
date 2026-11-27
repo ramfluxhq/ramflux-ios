@@ -219,6 +219,7 @@ struct CardChoicePickerView: View {
 
     private func choose(_ value: String, in options: [(label: String, value: String)], selected: Set<String>, exclusive: Bool,
                         node: CardNode, context: CardContext) {
+        guard context.editable else { return }
         context.local.touched.insert(node.key)
         let next: Set<String>
         if exclusive { next = [value] } else if selected.contains(value) { next = selected.subtracting([value]) } else { next = selected.union([value]) }
@@ -251,6 +252,7 @@ struct CardSliderView: View {
             }
             Slider(value: Binding(get: { dragging ?? value }, set: { dragging = $0 }), in: range, onEditingChanged: { editing in
                 guard !editing, let final = dragging else { return }
+                guard context.editable else { return }
                 context.onEvent(node.key, .input(.number(final)))
                 context.local.touched.insert(node.key)
             })

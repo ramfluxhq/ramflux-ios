@@ -10,6 +10,12 @@ public enum CardTreeError: Error, Equatable, Sendable {
     case limitExceeded
 }
 
+/// Runtime lifecycle of a card (spec 3.4), as `ramflux.card.tree.v1` and `ramflux.card.mutations.v1` report it.
+/// `open` is the default; the other states are read-only. Raw values are the runtime's snake_case names.
+public enum CardLifecycle: String, Equatable, Sendable {
+    case open, closed, retired, superseded
+}
+
 /// The fence a host event carries back to the runtime: the token session, the signed version and edit
 /// sequence of the tree it was drawn from, and the node key it targets.
 public struct CardEventToken: Equatable, Sendable {
@@ -109,6 +115,11 @@ public struct CardMutationBatch: Equatable, Sendable {
     public let locale: String
     public let formatLocale: String
     public let direction: String
+    /// The author still has an open text stream on this card.
+    public let generating: Bool
+    public let lifecycle: CardLifecycle
+    /// Client reference of the card that replaced this one, when the runtime verified it.
+    public let replacementRef: String?
 
     public static func decode(_ json: JSONValue) throws -> CardMutationBatch {
         guard json["schema"] == .string(schema), let session = CardJSON.uint(json["session"]),
@@ -119,9 +130,41 @@ public struct CardMutationBatch: Equatable, Sendable {
               let locale = json["locale"]?.string, let formatLocale = json["format_locale"]?.string, let direction = json["direction"]?.string
         else { throw CardTreeError.malformed }
         let mutations = try rows.map(CardMutationBatch.mutation)
+        let lifecycle = try CardMutationBatch.lifecycle(json["lifecycle"])
         return CardMutationBatch(session: session, previousVersion: previous, version: version, signedVersion: signed, signedHash: signedHash,
                                  editSeq: edit, mutations: mutations, hostSlots: try slots.map(CardHostSlot.init(json:)),
-                                 locale: locale, formatLocale: formatLocale, direction: direction)
+                                 locale: locale, formatLocale: formatLocale, direction: direction,
+                                 generating: try CardMutationBatch.generating(json["generating"]), lifecycle: lifecycle,
+                                 replacementRef: try CardMutationBatch.replacementRef(json["replacement_ref"]))
+    }
+
+    /// `generating` is omitted when false; a present value must be a boolean.
+    private static func generating(_ value: JSONValue?) throws -> Bool {
+        switch value {
+        case nil, .null?: return false
+        case .bool(let flag)?: return flag
+        default: throw CardTreeError.malformed
+        }
+    }
+
+    /// `lifecycle` is omitted when `open`; a present value must name a known state.
+    private static func lifecycle(_ value: JSONValue?) throws -> CardLifecycle {
+        switch value {
+        case nil, .null?: return .open
+        case .string(let name)?:
+            guard let lifecycle = CardLifecycle(rawValue: name) else { throw CardTreeError.malformed }
+            return lifecycle
+        default: throw CardTreeError.malformed
+        }
+    }
+
+    /// `replacement_ref` is omitted when absent; a present value must be a non-empty string.
+    private static func replacementRef(_ value: JSONValue?) throws -> String? {
+        switch value {
+        case nil, .null?: return nil
+        case .string(let ref)? where !ref.isEmpty: return ref
+        default: throw CardTreeError.malformed
+        }
     }
 
     private static func mutation(_ json: JSONValue) throws -> CardMutation {
@@ -160,10 +203,17 @@ public struct CardTree: Equatable, Sendable {
     public private(set) var locale: String
     public private(set) var formatLocale: String
     public private(set) var direction: String
+    /// The author still has an open text stream on this card (the batch's `generating`).
+    public private(set) var generating: Bool
+    /// The lifecycle the last applied batch reported.
+    public private(set) var lifecycle: CardLifecycle
+    /// The replacing card, when the runtime verified one.
+    public private(set) var replacementRef: String?
 
     public init() {
         session = 0; signedVersion = 0; signedHash = ""; editSeq = 0; treeVersion = 0; rootKey = nil
         nodes = [:]; hostSlots = []; locale = "en"; formatLocale = "en"; direction = "ltr"
+        generating = false; lifecycle = .open; replacementRef = nil
     }
 
     public var root: CardNode? { rootKey.flatMap { nodes[$0] } }
@@ -218,6 +268,7 @@ public struct CardTree: Equatable, Sendable {
         next.session = batch.session; next.signedVersion = batch.signedVersion; next.signedHash = batch.signedHash
         next.editSeq = batch.editSeq; next.treeVersion = batch.version; next.rootKey = root; next.nodes = nodes
         next.hostSlots = batch.hostSlots; next.locale = batch.locale; next.formatLocale = batch.formatLocale; next.direction = batch.direction
+        next.generating = batch.generating; next.lifecycle = batch.lifecycle; next.replacementRef = batch.replacementRef
         return next
     }
 

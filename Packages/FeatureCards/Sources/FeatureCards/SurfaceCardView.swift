@@ -61,13 +61,17 @@ struct CardContext {
     let onAnswer: (CardAnswer) -> Void
     /// Request ids of approvals the runtime accepted a decision for (see `CardMessageState.decided`).
     var decided: Set<String> = []
+    /// The runtime lifecycle of the tree (spec 3.4). Closed, retired and superseded cards take no events.
+    var lifecycle: CardLifecycle = .open
+    /// The author is still writing the card: its controls stay disabled until the final snapshot.
+    var generating = false
 
     var formatLocale: Locale { Locale(identifier: tree.formatLocale) }
 
     /// Inputs take events while the card is live, refused (a refusal keeps the card usable) or suspended (the first
-    /// event resumes it). Consumed, submitting, superseded and unavailable cards are read-only.
+    /// event resumes it). Consumed, submitting, superseded, closed, retired, generating and unavailable cards are read-only.
     var editable: Bool {
-        guard !closed, !outOfSync else { return false }
+        guard !closed, !outOfSync, !generating, lifecycle == .open else { return false }
         switch phase {
         case .live, .suspended, .refused: return true
         case .submitting, .consumed, .superseded, .unavailable: return false
@@ -104,12 +108,14 @@ public struct SurfaceCardView: View {
         VStack(alignment: .leading, spacing: theme.gap) {
             if isAgent || !(author ?? "").isEmpty { header }
             if let display = card.display, let tree, display.renderAllowed {
-                CardLifecycleChrome(phase: display.phase, closed: card.surface.closed, outOfSync: card.surface.outOfSync, onResync: onResync)
+                CardLifecycleChrome(phase: display.phase, closed: card.surface.closed, lifecycle: display.lifecycle,
+                                    generating: display.generating, outOfSync: card.surface.outOfSync, onResync: onResync)
                 if let root = tree.root {
                     let context = CardContext(surfaceRef: card.surface.surfaceRef, tree: tree, phase: display.phase, closed: card.surface.closed,
                                               outOfSync: card.surface.outOfSync, sending: card.sending, local: local,
                                               securitySheetOpen: local.approvalKey != nil || isLinkPending,
-                                              onEvent: onEvent, onAnswer: onAnswer, decided: card.decided)
+                                              onEvent: onEvent, onAnswer: onAnswer, decided: card.decided,
+                                              lifecycle: display.lifecycle, generating: display.generating)
                     CardRootView(node: root, context: context)
                         .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)
                         .modifier(CardApprovalSheetModifier(context: context))

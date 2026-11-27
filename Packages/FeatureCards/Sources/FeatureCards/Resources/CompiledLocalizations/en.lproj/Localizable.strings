@@ -30,6 +30,8 @@
 	<string>Table</string>
 	<key>cards.chip.closed</key>
 	<string>Closed</string>
+	<key>cards.chip.generating</key>
+	<string>Generating</string>
 	<key>cards.chip.refused</key>
 	<string>Could not send</string>
 	<key>cards.chip.submitting</key>
