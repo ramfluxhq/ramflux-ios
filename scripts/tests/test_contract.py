@@ -12,6 +12,15 @@ spec = importlib.util.spec_from_file_location("contract", source)
 contract = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(contract)
 
+def renderer_sources():
+    # The card runtime identity the contract records, read from the pinned SDK source.
+    return {
+        contract.CARD_HEADER_PATH: b"/* card header fixture */",
+        contract.CARD_ABI_PATH: b"pub const HOST_ABI: u32 = 5;",
+        contract.CARD_CATALOG_PATH: b"{}",
+        contract.CARD_TRUST_PATH: b"{}",
+    }
+
 def policy(*names):
     return dict(abi_major=2, policy_version=2, methods=[dict(name=n, capability="account", secret_input=True,
                                                         secret_output=True, show_once=False, key_export=False,
@@ -78,6 +87,7 @@ class PolicyTests(unittest.TestCase):
             recorded = root / "docs/sdk-contract.json"
             recorded.write_text(json.dumps(dict(sourceCommit=pin, operationCount=2)))
             sources = {
+                **renderer_sources(),
                 contract.HEADER_PATH: b"/* generated fixture header */",
                 contract.POLICY_PATH: json.dumps(policy("account.new_method")).encode(),
                 "crates/ramflux-sdk/src/c_abi/v2/method_policy.rs": b'policies! { "account.new_method" => ("account", true, true, false, false), }',
@@ -108,6 +118,7 @@ def cas_sources(row):
         'pub(super) const CONTACT_VERIFY_CAS_PRODUCT_PIN: &str = "%s";' % ("cd" * 20),
     ])
     return {
+        **renderer_sources(),
         contract.HEADER_PATH: b"/* generated fixture header */",
         contract.POLICY_PATH: json.dumps({"abi_major": 2, "policy_version": 2, "methods": [row]}).encode(),
         "crates/ramflux-sdk/src/c_abi/v2/method_policy.rs": rust.encode(),

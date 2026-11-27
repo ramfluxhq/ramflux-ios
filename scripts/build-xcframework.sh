@@ -19,7 +19,7 @@ mkdir -p "$output"
 # C ABI v2 refuses panic=abort. Keep --release output paths and unwind panics.
 export CARGO_PROFILE_RELEASE_PANIC=unwind
 for target in aarch64-apple-ios aarch64-apple-ios-sim aarch64-apple-darwin; do
-    (cd "$sdk_root" && cargo rustc --locked -p ramflux-sdk --lib --features c-abi \
+    (cd "$sdk_root" && cargo rustc --locked -p ramflux-sdk --lib --features card-runtime \
         --target "$target" --release --crate-type staticlib)
 done
 cmp "$CARGO_TARGET_DIR/include/ramflux_sdk.h" "$sdk_root/crates/ramflux-sdk/include/ramflux_sdk.h" || {
@@ -28,9 +28,15 @@ cmp "$CARGO_TARGET_DIR/include/ramflux_sdk.h" "$sdk_root/crates/ramflux-sdk/incl
 headers="$output/headers"
 mkdir -p "$headers"
 cp "$package_root/Sources/CRamflux/include/ramflux_sdk.h" "$headers/ramflux_sdk.h"
+# The renderer header comes from the pinned core checkout and must equal the committed copy.
+cp "$sdk_root/crates/ramflux-card/include/ramflux_card.h" "$headers/ramflux_card.h"
+cmp "$headers/ramflux_card.h" "$package_root/Sources/CRamflux/include/ramflux_card.h" || {
+    echo 'Card header differs from the committed renderer contract' >&2; exit 1
+}
 cat > "$headers/module.modulemap" <<'MODULE'
 module RamfluxSDKBinary {
     header "ramflux_sdk.h"
+    header "ramflux_card.h"
     export *
 }
 MODULE

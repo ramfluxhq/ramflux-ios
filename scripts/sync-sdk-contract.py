@@ -7,11 +7,16 @@ import hashlib
 import json
 import pathlib
 import re
+import struct
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POLICY_PATH = "crates/ramflux-sdk/include/ramflux_sdk_methods.json"
 HEADER_PATH = "crates/ramflux-sdk/include/ramflux_sdk.h"
+CARD_HEADER_PATH = "crates/ramflux-card/include/ramflux_card.h"
+CARD_ABI_PATH = "crates/ramflux-card/src/package.rs"
+CARD_CATALOG_PATH = "crates/ramflux-protocol/catalogs/rf-card-v1.json"
+CARD_TRUST_PATH = "crates/ramflux-sdk/include/card/trust.json"
 LICENSE = "// SPDX-License-Identifier: AGPL-3.0-or-later\n// Copyright (c) 2026 Span Brain\n"
 # A discovery namespace: one or more lowercase segments, including contact.verify.cas.
 CAPABILITY = r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*"
@@ -42,6 +47,85 @@ def project_policy(row, constants):
     elif extra:
         raise ValueError("unexpected method policy fields")
     return {field: row[field] for field in CORE_FIELDS}
+
+_BLAKE3_IV = (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19)
+_BLAKE3_PERMUTATION = (2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8)
+_BLAKE3_CHUNK_START, _BLAKE3_CHUNK_END, _BLAKE3_PARENT, _BLAKE3_ROOT = 1, 2, 4, 8
+_BLAKE3_CHUNK_LEN, _BLAKE3_BLOCK_LEN = 1024, 64
+
+def _rotr(value, count):
+    return ((value >> count) | (value << (32 - count))) & 0xFFFFFFFF
+
+def _g(state, a, b, c, d, mx, my):
+    state[a] = (state[a] + state[b] + mx) & 0xFFFFFFFF
+    state[d] = _rotr(state[d] ^ state[a], 16)
+    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
+    state[b] = _rotr(state[b] ^ state[c], 12)
+    state[a] = (state[a] + state[b] + my) & 0xFFFFFFFF
+    state[d] = _rotr(state[d] ^ state[a], 8)
+    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
+    state[b] = _rotr(state[b] ^ state[c], 7)
+
+def _compress(chaining, words, counter, block_len, flags):
+    state = list(chaining) + list(_BLAKE3_IV[:4]) + [counter & 0xFFFFFFFF, (counter >> 32) & 0xFFFFFFFF, block_len, flags]
+    message = list(words)
+    for _ in range(7):
+        _g(state, 0, 4, 8, 12, message[0], message[1]); _g(state, 1, 5, 9, 13, message[2], message[3])
+        _g(state, 2, 6, 10, 14, message[4], message[5]); _g(state, 3, 7, 11, 15, message[6], message[7])
+        _g(state, 0, 5, 10, 15, message[8], message[9]); _g(state, 1, 6, 11, 12, message[10], message[11])
+        _g(state, 2, 7, 8, 13, message[12], message[13]); _g(state, 3, 4, 9, 14, message[14], message[15])
+        message = [message[i] for i in _BLAKE3_PERMUTATION]
+    for i in range(8):
+        state[i] ^= state[i + 8]
+        state[i + 8] ^= chaining[i]
+    return state
+
+def _chunk(data, index, root):
+    blocks = [data[i:i + _BLAKE3_BLOCK_LEN] for i in range(0, len(data), _BLAKE3_BLOCK_LEN)] or [b""]
+    chaining = list(_BLAKE3_IV)
+    for position, block in enumerate(blocks):
+        flags = (_BLAKE3_CHUNK_START if position == 0 else 0) | (_BLAKE3_CHUNK_END if position == len(blocks) - 1 else 0)
+        if root and position == len(blocks) - 1:
+            flags |= _BLAKE3_ROOT
+        words = struct.unpack("<16I", block.ljust(_BLAKE3_BLOCK_LEN, b"\0"))
+        out = _compress(chaining, words, index, len(block), flags)
+        if root and position == len(blocks) - 1:
+            return struct.pack("<8I", *out[:8])
+        chaining = out[:8]
+    return chaining
+
+def _node(chunks, low, high, root):
+    if high - low == 1:
+        return _chunk(chunks[low], low, root)
+    split = 1
+    while split * 2 < high - low:
+        split *= 2
+    left = _node(chunks, low, low + split, False)
+    right = _node(chunks, low + split, high, False)
+    words = list(left) + list(right)
+    if root:
+        return struct.pack("<8I", *_compress(_BLAKE3_IV, words, 0, _BLAKE3_BLOCK_LEN, _BLAKE3_PARENT | _BLAKE3_ROOT)[:8])
+    return list(_compress(_BLAKE3_IV, words, 0, _BLAKE3_BLOCK_LEN, _BLAKE3_PARENT)[:8])
+
+def _blake3_digest(data):
+    chunks = [data[i:i + _BLAKE3_CHUNK_LEN] for i in range(0, len(data), _BLAKE3_CHUNK_LEN)] or [b""]
+    result = _node(chunks, 0, len(chunks), True)
+    if isinstance(result, list):
+        result = struct.pack("<8I", *result)
+    return result
+
+def blake3_hex(data):
+    # BLAKE3 (unkeyed, 32-byte output) in the standard library, so the contract check needs no extra package.
+    # Verified against the reference implementation for chunk and tree boundaries (0 to 100000 bytes).
+    return _blake3_digest(data).hex()
+
+def card_runtime(source):
+    # The renderer's negotiated identity, read from the pinned commit (never from the working tree).
+    abi = re.search(rb"pub const HOST_ABI: u32 = (\d+);", source(CARD_ABI_PATH))
+    if not abi:
+        raise ValueError("card host ABI not found in the SDK source")
+    return dict(abiMajor=int(abi.group(1)), catalogSHA256=hashlib.sha256(source(CARD_CATALOG_PATH)).hexdigest(),
+                trustManifestBLAKE3=blake3_hex(source(CARD_TRUST_PATH)))
 
 def git(sdk, *args):
     return subprocess.check_output(["git", "-C", str(sdk), *args])
@@ -86,6 +170,8 @@ def generate(sdk, commit, update_pin=False, check=False):
     def source(path):
         return git(sdk, "show", commit + ":" + path)
     header = source(HEADER_PATH)
+    card_header = source(CARD_HEADER_PATH)
+    renderer = card_runtime(source)
     policy_bytes = source(POLICY_PATH)
     policy = json.loads(policy_bytes)
     rows = validate_policy(policy)
@@ -151,11 +237,13 @@ def generate(sdk, commit, update_pin=False, check=False):
             proxies.append(f'    func {name}({params}) async throws -> {output} {{\n        try await {method}({args})\n    }}\n')
         proxies.append('}\n')
     manifest = dict(sourceCommit=commit, headerSHA256=hashlib.sha256(header).hexdigest(),
+                    cardHeaderSHA256=hashlib.sha256(card_header).hexdigest(), cardRuntime=renderer,
                     methodPolicySHA256=hashlib.sha256(policy_bytes).hexdigest(), operationCount=len(callable_rows))
     methods_json = json.dumps([row['name'] for row in callable_rows], separators=(',', ':'))
     fixture = LICENSE + '#ifndef RF_GENERATED_METHODS_H\n#define RF_GENERATED_METHODS_H\n#define RF_FIXTURE_METHODS_JSON ' + json.dumps(methods_json) + '\n#define RF_FIXTURE_POLICY_JSON ' + json.dumps(json.dumps(json.loads(policy_bytes), separators=(',', ':'))) + '\n#endif\n'
     outputs = {
         'Sources/CRamflux/include/ramflux_sdk.h': b'// SPDX-License-Identifier: BSD-3-Clause\n// Copyright (c) 2026 Span Brain\n' + header,
+        'Sources/CRamflux/include/ramflux_card.h': card_header,
         'Sources/RamfluxCore/SDKOperation.swift': ''.join(lines).encode(),
         'Sources/RamfluxCore/OperationProxies.swift': ''.join(proxies).encode(),
         'Tests/CABIFixture/include/generated_methods.h': fixture.encode(),
