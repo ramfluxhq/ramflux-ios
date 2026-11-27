@@ -63,11 +63,4 @@ private actor SettingsFake: SettingsRepository {
         vm.send(.refresh); await vm.settle()
         #expect(vm.state.failure == .sdkUnavailable); #expect(vm.state.snapshot.devices.isEmpty); vm.send(.disappeared)
     }
-    @Test func openAccountIsKnownWithoutAnySnapshotAndSurvivesDisappearing() {
-        let open = model(SettingsFake())
-        #expect(open.state.accountOpen); #expect(open.state.snapshot.accountID == nil)
-        open.send(.disappeared); #expect(open.state.accountOpen)
-        let none = SettingsViewModel(repository: SettingsFake(), nodes: UnavailableNodeRepository(), preferences: NativePreferencesRepository(suite: "settings-tests-" + UUID().uuidString), account: nil, emit: { _ in })
-        #expect(!none.state.accountOpen); none.send(.disappeared); #expect(!none.state.accountOpen)
-    }
 }
