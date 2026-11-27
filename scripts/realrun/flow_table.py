@@ -36,6 +36,7 @@ FLOWS = [
     ("12-calls", "12 Calls screen honest unavailable state"),
     ("15-privacy", "15 Privacy: request policy and open-account unavailable state"),
     ("15b-usernames", "15 Usernames: status in Settings, add a contact by @name"),
+    ("22-exhaust-recover-remove", "22 App lock exhausted: recover with phrase and code, then remove from this device (alone, about 45 min)"),
 ]
 
 
