@@ -29,6 +29,17 @@ public actor NativeSessionRepository: SessionRepository {
         let previous = cardSuspend
         cardSuspend = Task { await previous?.value; await registry.suspendAll() }
     }
+    /// Waits for the queued card suspends, at most `bound`: they must reach the SDK before the client suspends,
+    /// which refuses card calls afterwards, but a slow card call never holds up the background for long.
+    private func awaitCardSuspend(bound: Duration) async {
+        guard let task = cardSuspend else { return }
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await task.value }
+            group.addTask { try? await Task.sleep(for: bound) }
+            _ = await group.next()
+            group.cancelAll()
+        }
+    }
     /// Brings the card sessions back once the queued suspends have run.
     private func resumeCards() async {
         await cardSuspend?.value
@@ -158,12 +169,13 @@ public actor NativeSessionRepository: SessionRepository {
             }
         }
         guard epoch == revision else { return .failure(.busy) }
+        // Card sessions are suspended while the SDK still runs; the client suspend below refuses card calls.
+        suspendCards()
+        await awaitCardSuspend(bound: .milliseconds(1500))
         await updates?.suspendForBackground()
         let outcome: RepositoryResult<Void>
         do { try await lifecycle.background(); outcome = .success(()) }
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; outcome = .failure(failure) }
-        // Queued behind the card operations in flight and not awaited: the background is never held up by a card.
-        suspendCards()
         return outcome
     }
     /// The app lock of the active account was configured in Settings: the flag the shell reads follows at once.
