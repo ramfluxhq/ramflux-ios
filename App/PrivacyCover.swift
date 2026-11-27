@@ -108,7 +108,7 @@ import RFDesign
 
     /// Creates a cover window above alerts with the content as its only view; accessibility treats it as modal.
     private static func makeCover(in scene: UIWindowScene, level: UIWindow.Level, content: AnyView) -> CoverWindow {
-        let controller = UIHostingController(rootView: content)
+        let controller = UIHostingController(rootView: AnyView(CoverScenePhaseBridge(scene: scene) { content }))
         controller.view.backgroundColor = .systemBackground
         controller.view.isOpaque = true
         controller.view.accessibilityViewIsModal = true
@@ -129,4 +129,42 @@ import RFDesign
     }
 
     private static func hide() { dismiss(&covers) }
+}
+
+/// A cover is hosted in its own `UIWindow`, outside the SwiftUI app scene, so its views do not receive the
+/// scene's phase from SwiftUI (they read the default, never `.active`, and every view that is enabled only
+/// while the scene is active, such as a confirmation, stayed disabled). This view follows the activation state
+/// of the window scene that holds the cover and injects it as `scenePhase`.
+private struct CoverScenePhaseBridge<Content: View>: View {
+    let scene: UIWindowScene
+    @ViewBuilder let content: () -> Content
+    @State private var phase: ScenePhase
+
+    init(scene: UIWindowScene, @ViewBuilder content: @escaping () -> Content) {
+        self.scene = scene
+        self.content = content
+        _phase = State(initialValue: Self.phase(of: scene.activationState))
+    }
+
+    var body: some View {
+        content()
+            .environment(\.scenePhase, phase)
+            .onReceive(NotificationCenter.default.publisher(for: UIScene.didActivateNotification)) { note in
+                if (note.object as? UIScene) === scene { phase = .active }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIScene.willDeactivateNotification)) { note in
+                if (note.object as? UIScene) === scene { phase = .inactive }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIScene.didEnterBackgroundNotification)) { note in
+                if (note.object as? UIScene) === scene { phase = .background }
+            }
+    }
+
+    private static func phase(of state: UIScene.ActivationState) -> ScenePhase {
+        switch state {
+        case .foregroundActive: .active
+        case .foregroundInactive: .inactive
+        default: .background
+        }
+    }
 }
