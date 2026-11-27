@@ -41,7 +41,8 @@ import RamfluxCore
         switch action {
         case .appeared, .refresh:
             refresh(); observe()
-            if state.route == .appLock { readAppLock() }
+            // A configure in flight answers with its own record; a read started now could land after it with the old one.
+            if state.route == .appLock, !state.busy { readAppLock() }
             if state.route == .username { readUsername() }
         case .configureAppLock(let enabled, let timeout):
             guard let account, !state.busy, state.appLock?.state != .unavailable else { return }
