@@ -35,18 +35,8 @@ import AppData
         case .appeared:
             presenters += 1
             EventDiagnostics.note("inbox appeared presenters=\(presenters) observing=\(observer != nil)")
-            guard observer == nil else { return }; reload(search: false)
-            observationID &+= 1; let watchID = observationID
-            observer = Task { [weak self, repository, account] in
-                let observation = await repository.observe(account: account)
-                for await update in observation.stream {
-                    guard !Task.isCancelled, let self else { break }
-                    switch update { case .invalidated: EventDiagnostics.note("inbox invalidated loading=\(self.state.loading)"); self.state.failure = nil; if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
-                }
-                await observation.stop()
-                if let self, self.observationID == watchID { self.observer = nil }
-            }
-        case .refresh: if observer == nil { send(.appeared) } else { reload(search: false) }
+            guard observer == nil else { return }; startObserving()
+        case .refresh: if observer == nil { startObserving() } else { reload(search: false) }
         case .loadMore: loadMore()
         case .loadBefore: if window.evictedAbove, state.canLoadBefore, !state.loading, !state.loadingMore { reload(search: false) }
         case .localeChanged(let value): guard value.identifier != locale.identifier else { return }; locale = value; if !state.rows.isEmpty { reload(search: false) }
@@ -67,6 +57,20 @@ import AppData
             state = ConversationsState()
             state.accountID = account
             state.accountTitle = accountTitle
+        }
+    }
+    /// Starts one observation and its first read. A refresh after a terminal failure restarts it without counting a new presenter.
+    private func startObserving() {
+        reload(search: false)
+        observationID &+= 1; let watchID = observationID
+        observer = Task { [weak self, repository, account] in
+            let observation = await repository.observe(account: account)
+            for await update in observation.stream {
+                guard !Task.isCancelled, let self else { break }
+                switch update { case .invalidated: EventDiagnostics.note("inbox invalidated loading=\(self.state.loading)"); self.state.failure = nil; if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.reload(search: false) }; case .failed(let failure): self.state.failure = failure }
+            }
+            await observation.stop()
+            if let self, self.observationID == watchID { self.observer = nil }
         }
     }
     private func reload(search: Bool) {
