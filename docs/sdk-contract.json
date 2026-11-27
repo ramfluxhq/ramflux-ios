@@ -1,12 +1,12 @@
 {
-  "sourceCommit": "30d0f9a7cb4135c442d36c4aee4fcedc1a24ccbc",
-  "headerSHA256": "a6943e944c332dcfdb65762c7bb92e57c94c4c0a4f51a809ca7172875c4e7dd7",
+  "sourceCommit": "a897c4174d12dd47e34fa6179e2e495852b088ad",
+  "headerSHA256": "59095cee5a56604defa0572c070fdf6ce9c2defd39dfb92be3714585e2c6887a",
   "cardHeaderSHA256": "9d2d2894499423f2312cf2c8ca69a18ec79bc5dc6aa99a3841c7261f45b2c778",
   "cardRuntime": {
     "abiMajor": 5,
     "catalogSHA256": "1c0aad5a05bd59bd14faf0750b3bfb778d06fa10bdbba588ca9c0abb5bb35d1b",
     "trustManifestBLAKE3": "662c41227de98a0f166ea4e056a05feb9bb8f3b48eddaf7f20776f4b7341eb1a"
   },
-  "methodPolicySHA256": "96eee0724381be839b0ba380d3563cae29eca2d0d1c89edf5383edbf468b23cb",
-  "operationCount": 247
+  "methodPolicySHA256": "351b328fae6aa08452fc89e342cc80c6d4be787f422bb4c941124e1306a8366d",
+  "operationCount": 258
 }

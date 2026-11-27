@@ -147,6 +147,9 @@ public extension AgentProxy {
     func agentApprovalPublish(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentApprovalPublish, context: context, body: body)
     }
+    func agentCatalog(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentCatalog, context: context, body: body)
+    }
     func agentCreate(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentCreate, context: context, body: body)
     }
@@ -186,14 +189,23 @@ public extension AgentProxy {
     func agentOperationGet(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentOperationGet, context: context, body: body)
     }
+    func agentPause(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentPause, context: context, body: body)
+    }
     func agentPersonaEdit(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentPersonaEdit, context: context, body: body)
     }
     func agentProgress(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentProgress, context: context, body: body)
     }
+    func agentResume(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentResume, context: context, body: body)
+    }
     func agentRetire(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentRetire, context: context, body: body)
+    }
+    func agentUpdate(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
+        try await perform(.agentUpdate, context: context, body: body)
     }
     func agentWatch(context: RequestContext, body: JSONValue = .object([:])) async throws -> JSONValue {
         try await perform(.agentWatch, context: context, body: body)
@@ -426,8 +438,14 @@ public extension DaemonProxy {
 }
 public protocol DeviceProxy: SDKProxyProtocol {}
 public extension DeviceProxy {
+    func deviceActivityReport(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceActivityReport, context: context, body: body, secrets: secrets)
+    }
     func deviceList(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.deviceList, context: context, body: body)
+    }
+    func deviceNotificationsCleared(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.deviceNotificationsCleared, context: context, body: body, secrets: secrets)
     }
     func devicePairApprove(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.devicePairApprove, context: context, body: body, secrets: secrets)
@@ -447,8 +465,14 @@ public extension DeviceProxy {
     func devicePairStatus(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await performSecretResponse(.devicePairStatus, context: context, body: body)
     }
+    func devicePushPolicySet(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.devicePushPolicySet, context: context, body: body, secrets: secrets)
+    }
     func devicePushRouteSet(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.devicePushRouteSet, context: context, body: body, secrets: secrets)
+    }
+    func devicePushRouteTest(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
+        try await performSecretRequestResponse(.devicePushRouteTest, context: context, body: body, secrets: secrets)
     }
     func deviceRefresh(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.deviceRefresh, context: context, body: body, secrets: secrets)
@@ -486,8 +510,14 @@ public extension DeviceProxy {
 }
 public protocol DiagProxy: SDKProxyProtocol {}
 public extension DiagProxy {
+    func diagExport(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
+        try await performSecret(.diagExport, context: context, body: body, secrets: secrets)
+    }
     func diagResidue(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
         try await performSecret(.diagResidue, context: context, body: body, secrets: secrets)
+    }
+    func diagSnapshot(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
+        try await performSecret(.diagSnapshot, context: context, body: body, secrets: secrets)
     }
 }
 public protocol GrantProxy: SDKProxyProtocol {}
@@ -731,6 +761,12 @@ public protocol ProfileProxy: SDKProxyProtocol {}
 public extension ProfileProxy {
     func profileUpdate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
         try await performSecretRequestResponse(.profileUpdate, context: context, body: body, secrets: secrets)
+    }
+}
+public protocol PushProxy: SDKProxyProtocol {}
+public extension PushProxy {
+    func pushKeysetGet(context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
+        try await performSecretResponse(.pushKeysetGet, context: context, body: body)
     }
 }
 public protocol StreamProxy: SDKProxyProtocol {}
