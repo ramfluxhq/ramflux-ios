@@ -145,14 +145,14 @@ struct CardTaskView: View {
         let title = RFUntrustedText(node.attrs["title"]?.string ?? "", kind: .identity).text
         VStack(alignment: .leading, spacing: 8) {
             CardChip(text: FeatureCardsStrings.text("cards.task.status.\(status)", locale: locale), tone: taskTone(status))
-            Text(owner.isEmpty ? title : "\(owner) · \(title)").rfFont(.size(theme.size_subheading), weight: .semibold).foregroundStyle(theme.text)
+            Text(owner.isEmpty ? title : FeatureCardsStrings.format("cards.task.ownerTitle", owner, title, locale: locale)).rfFont(.size(theme.size_subheading), weight: .semibold).foregroundStyle(theme.text)
             if let requester = node.attrs["requester"]?.string, !requester.isEmpty {
                 Text(RFUntrustedText(requester, kind: .messageBody).text).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
             }
             if let progress {
                 HStack(spacing: 8) {
                     ProgressView(value: Double(min(max(progress, 0), 100)), total: 100).tint(theme.primary)
-                    Text("\(progress) %").rfFont(.caption).foregroundStyle(theme.secondary)
+                    Text(FeatureCardsStrings.format("cards.task.progress", progress, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
                 }
             } else if status == "running" {
                 ProgressView().progressViewStyle(.linear).tint(theme.primary)

@@ -258,6 +258,7 @@
       }
     },
     "cards.chip.submitting": {
+      "comment": "Chip on an agent card while the user action is being sent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -274,6 +275,7 @@
       }
     },
     "cards.chip.waiting": {
+      "comment": "Chip on an agent card that waits for a confirmation.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -290,6 +292,7 @@
       }
     },
     "cards.chip.waitingForYou": {
+      "comment": "Chip on an agent card that waits for the user to act.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -306,6 +309,7 @@
       }
     },
     "cards.chip.closed": {
+      "comment": "Chip on an agent card that no longer accepts actions.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -322,6 +326,7 @@
       }
     },
     "cards.chip.updated": {
+      "comment": "Chip on an agent card whose content was updated by the agent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -338,6 +343,7 @@
       }
     },
     "cards.chip.refused": {
+      "comment": "Chip on an agent card whose action the agent refused.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -354,6 +360,7 @@
       }
     },
     "cards.refused.body": {
+      "comment": "Body of an agent card whose action was refused.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -370,6 +377,7 @@
       }
     },
     "cards.superseded.title": {
+      "comment": "Title of an agent card replaced by a newer version.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -386,6 +394,7 @@
       }
     },
     "cards.superseded.body": {
+      "comment": "Body of an agent card replaced by a newer version.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -402,6 +411,7 @@
       }
     },
     "cards.resync": {
+      "comment": "Button that asks for a fresh copy of an out-of-sync agent card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -418,6 +428,7 @@
       }
     },
     "cards.list.empty": {
+      "comment": "Placeholder of an empty list inside an agent card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -434,6 +445,7 @@
       }
     },
     "cards.list.showAll": {
+      "comment": "Button that expands a truncated list inside an agent card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -450,6 +462,7 @@
       }
     },
     "cards.modal.close": {
+      "comment": "Button that closes a modal opened from an agent card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -466,6 +479,7 @@
       }
     },
     "cards.image.unavailable": {
+      "comment": "Placeholder for an image in an agent card that cannot be shown.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -482,6 +496,7 @@
       }
     },
     "cards.approval.title": {
+      "comment": "Title of an approval request card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -498,6 +513,7 @@
       }
     },
     "cards.approval.agentSays": {
+      "comment": "Label before the text an agent wrote in an approval request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -514,6 +530,7 @@
       }
     },
     "cards.approval.allow": {
+      "comment": "Button that approves the request in an approval card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -530,6 +547,7 @@
       }
     },
     "cards.approval.deny": {
+      "comment": "Button that denies the request in an approval card.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -546,6 +564,7 @@
       }
     },
     "cards.approval.confirm": {
+      "comment": "Button that confirms the choice in the approval confirmation sheet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -562,6 +581,7 @@
       }
     },
     "cards.approval.sheetTitle": {
+      "comment": "Title of the approval confirmation sheet.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -578,6 +598,7 @@
       }
     },
     "cards.approval.requester": {
+      "comment": "Label before the name of who made the approval request.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -594,6 +615,7 @@
       }
     },
     "cards.approval.risk": {
+      "comment": "Risk line of an approval card; the argument is the risk text.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -610,6 +632,7 @@
       }
     },
     "cards.link.from": {
+      "comment": "Caption of a link in an agent card; the argument is the source.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -626,6 +649,7 @@
       }
     },
     "cards.task.status.pending": {
+      "comment": "Status chip of an agent task that has not started.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -642,6 +666,7 @@
       }
     },
     "cards.task.status.delivered": {
+      "comment": "Status chip of an agent task that reached the agent.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -658,6 +683,7 @@
       }
     },
     "cards.task.status.running": {
+      "comment": "Status chip of an agent task in progress.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -674,6 +700,7 @@
       }
     },
     "cards.task.status.completed": {
+      "comment": "Status chip of a finished agent task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -690,6 +717,7 @@
       }
     },
     "cards.task.status.refused": {
+      "comment": "Status chip of an agent task the agent refused.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -706,6 +734,7 @@
       }
     },
     "cards.task.status.cancelled": {
+      "comment": "Status chip of a cancelled agent task.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -722,6 +751,7 @@
       }
     },
     "cards.task.steps": {
+      "comment": "Disclosure title of the steps of a task: completed steps, then total steps.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -738,6 +768,7 @@
       }
     },
     "cards.task.refusedNote": {
+      "comment": "Note under an agent task the agent refused.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -754,6 +785,7 @@
       }
     },
     "cards.chart.chart": {
+      "comment": "Toggle label that shows a data card as a chart.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -770,6 +802,7 @@
       }
     },
     "cards.chart.table": {
+      "comment": "Toggle label that shows a data card as a table.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -786,6 +819,7 @@
       }
     },
     "cards.chart.empty": {
+      "comment": "Placeholder of a chart without data.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -802,6 +836,7 @@
       }
     },
     "cards.table.empty": {
+      "comment": "Placeholder of a table without rows.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -818,6 +853,7 @@
       }
     },
     "cards.table.showing": {
+      "comment": "Row count under a truncated table: rows shown, then total rows.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -834,6 +870,7 @@
       }
     },
     "cards.table.yes": {
+      "comment": "Table cell for a true value.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -850,6 +887,7 @@
       }
     },
     "cards.table.no": {
+      "comment": "Table cell for a false value.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -936,6 +974,91 @@
         }
       },
       "extractionState": "manual"
+    },
+    "cards.task.progress": {
+      "comment": "Progress percentage of an agent task; the argument is the whole number of percent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %%"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld %%"
+          }
+        }
+      }
+    },
+    "cards.task.ownerTitle": {
+      "comment": "Heading of an agent task: owner name, then task title.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "cards.approval.scopeRow": {
+      "comment": "One scope row of an approval card: name, then value.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@：%2$@"
+          }
+        }
+      }
+    },
+    "cards.gallery.run": {
+      "comment": "Test-build gallery button that runs the card conformance check.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run conformance"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行一致性检查"
+          }
+        }
+      }
+    },
+    "cards.gallery.title": {
+      "comment": "Navigation title of the test-build card fixture gallery.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Card gallery"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡片样例库"
+          }
+        }
+      }
     }
   }
 }

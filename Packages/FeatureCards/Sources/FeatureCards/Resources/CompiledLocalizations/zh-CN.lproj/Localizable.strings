@@ -18,6 +18,8 @@
 	<string>请求人：%@</string>
 	<key>cards.approval.risk</key>
 	<string>风险：%@</string>
+	<key>cards.approval.scopeRow</key>
+	<string>%1$@：%2$@</string>
 	<key>cards.approval.sheetTitle</key>
 	<string>确认此审批</string>
 	<key>cards.approval.title</key>
@@ -50,6 +52,10 @@
 	<string>卡片内容不可用</string>
 	<key>cards.draftDiscarded</key>
 	<string>你的修改已被较新的版本替换。</string>
+	<key>cards.gallery.run</key>
+	<string>运行一致性检查</string>
+	<key>cards.gallery.title</key>
+	<string>卡片样例库</string>
 	<key>cards.image.unavailable</key>
 	<string>图片不可用</string>
 	<key>cards.image.view</key>
@@ -96,6 +102,10 @@
 	<string>显示 %1$lld / 共 %2$lld</string>
 	<key>cards.table.yes</key>
 	<string>是</string>
+	<key>cards.task.ownerTitle</key>
+	<string>%1$@ · %2$@</string>
+	<key>cards.task.progress</key>
+	<string>%lld %%</string>
 	<key>cards.task.refusedNote</key>
 	<string>任务已结束，步骤已保留。</string>
 	<key>cards.task.status.cancelled</key>
