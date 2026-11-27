@@ -120,6 +120,8 @@ public struct SurfaceCardView: View {
                         .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)
                         .modifier(CardApprovalSheetModifier(context: context))
                         .onChange(of: tree.signedVersion) { _, _ in local.openModals = []; local.approvalKey = nil }
+                        .onChange(of: display.lifecycle) { _, _ in local.openModals = []; local.approvalKey = nil }
+                        .onChange(of: display.generating) { _, _ in local.approvalKey = nil }
                 }
             } else {
                 Text(fallback).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
@@ -135,7 +137,9 @@ public struct SurfaceCardView: View {
         .accessibilityElement(children: .contain)
         .onChange(of: card.pending) { _, _ in local.linkAnswering = false }
         .sheet(item: linkBinding) { item in
-            CardLinkSheet(item: item, author: author, onOpen: { answerLink(item, .confirm) }, onCancel: { answerLink(item, .cancel) })
+            // Spec 3.4: a closed, retired, superseded or generating card takes no action, so Open only cancels there.
+            CardLinkSheet(item: item, author: author, onOpen: { answerLink(item, linkOpenAllowed ? .confirm : .cancel) },
+                          onCancel: { answerLink(item, .cancel) })
                 .presentationDetents([.medium])
         }
     }
@@ -172,6 +176,11 @@ public struct SurfaceCardView: View {
                 }
                 local.linkAnswering = false
             })
+    }
+
+    private var linkOpenAllowed: Bool {
+        guard let display = card.display, !card.surface.closed else { return false }
+        return display.lifecycle == .open && !display.generating
     }
 
     private func answerLink(_ item: CardLinkItem, _ outcome: CardSlotOutcome) {

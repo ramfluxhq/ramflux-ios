@@ -30,14 +30,16 @@ public actor NativeSessionRepository: SessionRepository {
         cardSuspend = Task { await previous?.value; await registry.suspendAll() }
     }
     /// Waits for the queued card suspends, at most `bound`: they must reach the SDK before the client suspends,
-    /// which refuses card calls afterwards, but a slow card call never holds up the background for long.
+    /// which refuses card calls afterwards, but a slow card call never holds up the background for long. When the
+    /// bound passes first, the suspends still queued reach the SDK after the client suspend and are refused there;
+    /// the core drops the sessions of a suspended client's locked account itself.
     private func awaitCardSuspend(bound: Duration) async {
         guard let task = cardSuspend else { return }
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { await task.value }
-            group.addTask { try? await Task.sleep(for: bound) }
-            _ = await group.next()
-            group.cancelAll()
+        // Neither waiter is joined: a task group would wait for the card suspend even after the bound passed.
+        let once = ResumeOnce()
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            Task { await task.value; once.resume(continuation) }
+            Task { try? await Task.sleep(for: bound); once.resume(continuation) }
         }
     }
     /// Brings the card sessions back once the queued suspends have run.
@@ -172,6 +174,8 @@ public actor NativeSessionRepository: SessionRepository {
         // Card sessions are suspended while the SDK still runs; the client suspend below refuses card calls.
         suspendCards()
         await awaitCardSuspend(bound: .milliseconds(1500))
+        // A newer activation or selection may have started during the wait: it owns the session now.
+        guard epoch == revision else { return .failure(.busy) }
         await updates?.suspendForBackground()
         let outcome: RepositoryResult<Void>
         do { try await lifecycle.background(); outcome = .success(()) }
@@ -229,4 +233,18 @@ public actor NativeSessionRepository: SessionRepository {
         }
     }
     deinit { observer?.finish() }
+}
+
+/// Resumes a continuation exactly once, whichever caller comes first.
+private final class ResumeOnce: @unchecked Sendable {
+    private let lock = NSLock()
+    private var done = false
+
+    func resume(_ continuation: CheckedContinuation<Void, Never>) {
+        lock.lock()
+        let first = !done
+        done = true
+        lock.unlock()
+        if first { continuation.resume() }
+    }
 }

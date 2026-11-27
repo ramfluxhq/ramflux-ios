@@ -105,6 +105,8 @@ struct CardApprovalSheetModifier: ViewModifier {
             if let target {
                 CardApprovalSheet(facts: CardApprovalFacts(target.slot.fields["facts"]), onConfirm: {
                     context.local.approvalKey = nil
+                    // The card may have closed or started generating while the sheet was up: no answer then.
+                    guard context.editable else { return }
                     context.onAnswer(CardAnswer(token: target.slot.token, slotID: target.slot.id, requestID: target.requestID, outcome: .confirm))
                 }, onCancel: { context.local.approvalKey = nil })
                 .presentationDetents([.medium, .large])

@@ -47,6 +47,8 @@ public enum CardFixtureDocument {
     /// - nodes are ordered by key (their structure is compared through `parent_key` and each `children` list).
     public static func comparable(_ document: JSONValue, live: UInt64) -> JSONValue {
         guard case .object(var fields) = rebased(document, name: "", live: live) else { return rebased(document, name: "", live: live) }
+        // Nodes are compared by key, not by array position: the held side is re-encoded in preorder. Structure and
+        // sibling order are still compared through each node's `parent_key` and `children`.
         if case .array(let nodes)? = fields["nodes"] {
             fields["nodes"] = .array(nodes.sorted { ($0["key"]?.string ?? "") < ($1["key"]?.string ?? "") })
         }
