@@ -141,7 +141,7 @@ struct CardApprovalSheet: View {
                     Text(RFUntrustedText(action, kind: .messageBody).text).rfFont(.body)
                 }
                 ForEach(Array(facts.scope.enumerated()), id: \.offset) { _, row in
-                    Text("\(RFUntrustedText(row.name, kind: .identity).text): \(RFUntrustedText(row.value, kind: .messageBody).text)")
+                    Text(FeatureCardsStrings.format("cards.approval.scopeRow", RFUntrustedText(row.name, kind: .identity).text, RFUntrustedText(row.value, kind: .messageBody).text, locale: locale))
                         .rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
                 }
                 if let risk = facts.risk {

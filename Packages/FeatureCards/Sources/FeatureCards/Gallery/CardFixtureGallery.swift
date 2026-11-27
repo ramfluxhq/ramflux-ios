@@ -74,7 +74,7 @@ public struct CardFixtureGalleryView: View {
     public var body: some View {
         List {
             Section {
-                Button("Run conformance") { Task { await model.runConformance() } }
+                Button(FeatureCardsStrings.text("cards.gallery.run")) { Task { await model.runConformance() } }
                     .disabled(model.running || model.rows.isEmpty)
                     .accessibilityIdentifier("card-gallery-run")
                 if let message = model.message {
@@ -102,13 +102,13 @@ public struct CardFixtureGalleryView: View {
             if !model.records.isEmpty {
                 Section("Results") {
                     ForEach(Array(model.records.enumerated()), id: \.offset) { _, record in
-                        Text("\(record.id) \(record.check) \(record.pass ? "PASS" : "FAIL")")
+                        Text(verbatim: "\(record.id) \(record.check) \(record.pass ? "PASS" : "FAIL")")
                             .font(.system(.footnote, design: .monospaced))
                     }
                 }
             }
         }
-        .navigationTitle("Card gallery")
+        .navigationTitle(FeatureCardsStrings.text("cards.gallery.title"))
         .task { model.load() }
     }
 }

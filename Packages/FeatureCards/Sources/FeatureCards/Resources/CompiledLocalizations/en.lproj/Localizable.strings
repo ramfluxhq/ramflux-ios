@@ -18,6 +18,8 @@
 	<string>Requested by %@</string>
 	<key>cards.approval.risk</key>
 	<string>Risk: %@</string>
+	<key>cards.approval.scopeRow</key>
+	<string>%1$@: %2$@</string>
 	<key>cards.approval.sheetTitle</key>
 	<string>Confirm this approval</string>
 	<key>cards.approval.title</key>
@@ -50,6 +52,10 @@
 	<string>Card content unavailable</string>
 	<key>cards.draftDiscarded</key>
 	<string>Your edit was replaced by a newer version.</string>
+	<key>cards.gallery.run</key>
+	<string>Run conformance</string>
+	<key>cards.gallery.title</key>
+	<string>Card gallery</string>
 	<key>cards.image.unavailable</key>
 	<string>Image unavailable</string>
 	<key>cards.image.view</key>
@@ -96,6 +102,10 @@
 	<string>Showing %1$lld of %2$lld</string>
 	<key>cards.table.yes</key>
 	<string>Yes</string>
+	<key>cards.task.ownerTitle</key>
+	<string>%1$@ · %2$@</string>
+	<key>cards.task.progress</key>
+	<string>%lld %%</string>
 	<key>cards.task.refusedNote</key>
 	<string>The task ended. Steps are kept.</string>
 	<key>cards.task.status.cancelled</key>
