@@ -14,5 +14,7 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case signOut, requestRemoveLocal, confirmRemoveLocal
     /// Username page: open the claim sheet, edit its name, continue to the recovery phrase, submit the phrase, cancel, re-read.
     case startClaimUsername, claimNameChanged(String), continueClaimUsername, submitClaimUsername(SensitiveSubmission), cancelClaimUsername, refreshUsername
+    /// The scene leaves `.active`: the claim sheet closes (its phrase field is erased) and a claim in flight is cancelled.
+    case conceal
     public var description: String { "SettingsAction" }
 }

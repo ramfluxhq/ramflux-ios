@@ -20,6 +20,7 @@ public struct SettingsHost: View {
                 .onChange(of: phase) { _, value in coordinator.send(PairingAction.covered(value != .active)) }
         } else {
             SettingsScreen(state: coordinator.viewModel.state, onAction: { coordinator.send($0) }).onAppear { coordinator.send(SettingsAction.appeared) }.onDisappear { coordinator.send(SettingsAction.disappeared) }
+                .onChange(of: phase) { _, value in if value != .active { coordinator.send(SettingsAction.conceal) } }
         }
     }
 }

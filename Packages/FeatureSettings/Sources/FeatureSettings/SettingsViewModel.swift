@@ -22,6 +22,9 @@ import AppData
     /// so a late reply for another or a locked account is dropped.
     @ObservationIgnored private var usernameEpoch: UInt64 = 0
     @ObservationIgnored private var claimTask: Task<Void, Never>?
+    @ObservationIgnored private var usernameRead: Task<Void, Never>?
+    /// Tags each status read; a read whose ticket is no longer current (a claim started or finished meanwhile) is dropped.
+    @ObservationIgnored private var usernameTicket: UInt64 = 0
     @ObservationIgnored private var lastUsernameRead: ContinuousClock.Instant?
     public init(repository: any SettingsRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
                 account: String?, state: SettingsState = SettingsState(), emit: @escaping (SettingsEvent) -> Void) {
@@ -109,14 +112,18 @@ import AppData
             state.failure = nil; claim.step = .phrase; state.claim = claim
         case .cancelClaimUsername:
             if !state.busy { state.claim = nil; state.failure = nil }
+        case .conceal:
+            // Leaving the active scene closes the claim sheet (dropping it erases the phrase field) and cancels a claim in flight, even while busy.
+            guard state.claim != nil else { return }
+            abandonClaim(); state.claim = nil; state.failure = nil
         case .submitClaimUsername(let input):
             guard let account, let claim = state.claim, claim.step == .phrase, !state.busy else { input.erase(); return }
-            state.busy = true; state.failure = nil
+            state.busy = true; state.failure = nil; supersedeUsernameRead()
             let name = claim.name, current = usernameEpoch
             claimTask = Task { [weak self, repository] in
                 let result = await repository.claimUsername(account: account, name: name, phrase: input, operationID: UUID().uuidString)
                 guard !Task.isCancelled, let self, self.usernameEpoch == current else { return }
-                self.state.busy = false
+                self.claimTask = nil; self.state.busy = false; self.supersedeUsernameRead()
                 switch result {
                 case .success(let status):
                     self.state.username = status; self.state.claim = nil
@@ -162,21 +169,32 @@ import AppData
         guard let account else { return }
         state.failure = nil; state.usernameLoading = true; lastUsernameRead = ContinuousClock.now
         let current = usernameEpoch
-        sideTask?.cancel()
-        sideTask = Task { [weak self, repository] in
+        usernameTicket &+= 1; let ticket = usernameTicket
+        usernameRead?.cancel()
+        usernameRead = Task { [weak self, repository] in
             let result = await repository.username(account: account, operationID: operationID)
-            guard let self, !Task.isCancelled, self.usernameEpoch == current else { return }
-            self.state.usernameLoading = false
+            guard let self, !Task.isCancelled, self.usernameEpoch == current, self.usernameTicket == ticket else { return }
+            self.usernameRead = nil; self.state.usernameLoading = false
             switch result {
             case .success(let status): self.state.username = status
             case .failure(let failure): self.state.failure = failure
             }
         }
     }
+    /// Drops any username status read in flight: its reply no longer describes the page.
+    private func supersedeUsernameRead() {
+        usernameTicket &+= 1; usernameRead?.cancel(); usernameRead = nil; state.usernameLoading = false
+    }
+    /// Cancels a claim in flight. Its reply is dropped by the epoch and cancellation guards, so the page must not stay busy for it.
+    private func abandonClaim() {
+        guard claimTask != nil else { return }
+        claimTask?.cancel(); claimTask = nil; state.busy = false
+    }
     /// Drops the claim sheet and the username status of the account being locked, signed out or removed.
+    /// A claim still running is cancelled and releases the busy state, so the lock, sign-out or removal that follows runs.
     private func clearUsername() {
-        usernameEpoch &+= 1; claimTask?.cancel(); sideTask?.cancel()
-        state.claim = nil; state.username = nil; state.usernameLoading = false
+        usernameEpoch &+= 1; abandonClaim(); sideTask?.cancel(); supersedeUsernameRead()
+        state.claim = nil; state.username = nil
     }
     private func dispatch(_ attempt: PendingSettingsMutation, reconciling: Bool = false) {
         guard !state.busy, reconciling || !state.unknownMutation else { return }

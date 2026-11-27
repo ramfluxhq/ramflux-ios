@@ -154,6 +154,7 @@ public struct NativeSettingsRepository: SettingsRepository {
         do {
             let prepared = try await prepareClaim(account: account, change: change, operationID: operationID)
             let draft = prepared.operation
+            // Backstop only: the draft is released as soon as authorization returns, and release is idempotent.
             defer { draft.release() }
             guard let drafted = prepared.response["draft"], drafted != .null else {
                 return .success(try UsernameStatus.parse(prepared.response["status"] ?? .null))
@@ -162,6 +163,7 @@ public struct NativeSettingsRepository: SettingsRepository {
             let publicRequest: JSONValue = .object(["account_id": .string(account), "request_id": .string(String(draft.requestID)),
                 "draft": drafted, "expected_change": change])
             let signed = try await gateway.proxy.client.authorizeUsername(draft, publicRequest: publicRequest, phrase: words)
+            draft.release()
             return try await submitClaim(account: account, signed: signed, operationID: operationID)
         } catch { EventDiagnostics.failed("username.mutate", error); return .failure(usernameFailure(error)) }
     }
