@@ -46,6 +46,11 @@ RF_UNAVAILABLE int32_t ramflux_v2_client_open_with_custody(const uint8_t *json, 
     (void)provider; return ramflux_v2_client_open(json,len,out);
 }
 
+// Gallery-only trust package (RAMFLUX_CARD_GALLERY test builds): absent in source-only builds.
+RF_UNAVAILABLE int32_t ramflux_v2_card_trust_package(struct RamfluxBuffer **out) {
+    if(out)*out=NULL; return 6;
+}
+
 // Renderer (card-runtime) refusals: every card call is inactive (status 6) and emits no callback.
 RF_UNAVAILABLE uint32_t ramflux_card_abi_version(void) { return 0; }
 RF_UNAVAILABLE int32_t ramflux_card_open(const RamfluxCardOpen *input, RamfluxCardCallback callback, void *user, uint64_t *out) {
