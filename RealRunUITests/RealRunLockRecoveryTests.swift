@@ -76,7 +76,7 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
             // 4. Phrase and the correct code: unlocked. The wait of the failed try may still apply: then the phrase is
             // accepted, the countdown shows and the one granted try is taken on the ordinary field after it.
             try recover(words: words, code: code)
-            if element("app-lock-screen").exists, eventually(30, { self.text(containing: "Recovery phrase accepted").exists }) {
+            if lockCoverUp(), eventually(30, { self.text(containing: "Recovery phrase accepted").exists }) {
                 let seconds = try countdownSeconds()
                 Self.sensitive = false
                 snap("22-phrase-accepted-countdown")
@@ -91,7 +91,7 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
             }
             Self.sensitive = false
             if button("Continue").waitForExistence(timeout: 3), !element("tab-messages").isHittable { button("Continue").tap() }
-            guard element("tab-messages").waitForExistence(timeout: 60), !element("app-lock-screen").exists else {
+            guard element("tab-messages").waitForExistence(timeout: 60), !lockCoverUp() else {
                 throw FlowStop.fail("the account did not open after recovery: \(visibleFailure())")
             }
             snap("22-recovered")
@@ -124,7 +124,7 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
             try tap(confirm, "Remove")
             try require(element("app-removed-notice"), "removed notice", timeout: 30)
             snap("22-removed")
-            guard eventually(30, { !self.element("app-lock-screen").exists && !self.element("tab-messages").exists }) else {
+            guard eventually(30, { !self.lockCoverUp() && !self.element("tab-messages").exists }) else {
                 throw FlowStop.fail("the lock cover or the account is still shown after the removal: \(visibleFailure())")
             }
             guard !text(containing: name).exists, !text(containing: accountID).exists else { throw FlowStop.fail("the removed account is still shown") }
@@ -237,7 +237,7 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
         XCUIDevice.shared.press(.home)
         Thread.sleep(forTimeInterval: 2)
         app.activate()
-        guard element("app-lock-screen").waitForExistence(timeout: 30) else { throw FlowStop.fail("the app lock did not engage after background and return: \(visibleFailure())") }
+        guard eventually(30, every: 0.5, { self.lockCoverUp() }) else { throw FlowStop.fail("the app lock did not engage after background and return: \(visibleFailure())") }
     }
 
     /// Ten wrong codes: five free, then the waits of 30, 60, 120, 240 and 480 s, each shown as a countdown with the
@@ -269,7 +269,7 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
     }
 
     private func expectExhaustedPage(_ when: String) throws {
-        try require(element("app-lock-screen"), "lock screen \(when)", timeout: 30)
+        guard eventually(30, every: 0.5, { self.lockCoverUp() }) else { throw FlowStop.fail("no lock cover \(when): \(visibleFailure())") }
         guard element("app-lock-restore").waitForExistence(timeout: 20), element("app-lock-remove").exists else {
             throw FlowStop.fail("the exhausted page does not offer recover and remove \(when): \(visibleFailure())")
         }
@@ -303,6 +303,16 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
     }
 
     // MARK: Helpers
+
+    /// Whether the lock cover is up. The cover is a separate window above the app; its page and container
+    /// identifiers ("app-lock-screen" on a scroll view, "app-lock-cover" on the container) are not always
+    /// exposed as their own elements, so any of its own controls or its instruction line also counts. The
+    /// recovery form replaces the lock page inside the cover, so its fields count too.
+    private func lockCoverUp() -> Bool {
+        let ids = ["app-lock-screen", "app-lock-cover", "secure-entry-passphrase", "app-lock-restore", "app-lock-remove", "app-lock-remove-ack"]
+        return ids.contains { element($0).exists } || text(containing: "Enter your account code to continue").exists
+            || text(containing: "Too many wrong account codes").exists
+    }
 
     private func typeCode(_ code: String, into what: String) throws {
         Self.sensitive = true
