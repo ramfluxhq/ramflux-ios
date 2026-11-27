@@ -77,7 +77,19 @@ public actor NativeOnboardingRepository: OnboardingRepository {
 
     public func beginRecovery(accountID: String) async -> RepositoryResult<CeremonyMetadata> {
         guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
+        // A recovery that was abandoned (background, back, close) is ended first, awaited, before another one starts.
+        if ceremony != nil, recovery { _ = await cancel() }
         guard ceremony == nil else { return .failure(.busy) }
+        let first = await startRecovery(accountID: accountID)
+        // A begin refused as busy right after a cancel (the SDK writer is still being released) is tried once more.
+        if case .failure(.busy) = first {
+            try? await Task.sleep(for: .milliseconds(600))
+            guard ceremony == nil else { return first }
+            return await startRecovery(accountID: accountID)
+        }
+        return first
+    }
+    private func startRecovery(accountID: String) async -> RepositoryResult<CeremonyMetadata> {
         let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true; recoveryAccountID = accountID
         // The envelope names the same account as the body: the SDK's app-lock fence admits recovery of a locked account only then.
         do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin, account: accountID), body: .object(["account_id": .string(accountID)]))))) }
@@ -138,8 +150,20 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         display?.erase(); display = nil
         if let confirmation { _ = await confirmation.value }
         guard let ceremony else { return .success(()) }
-        do { try await ceremony.cancel(context: gateway.context(recovery ? .accountRecoverCancel : .accountCreateCancel, account: recovery ? recoveryAccountID : nil)); self.ceremony = nil; return .success(()) }
-        catch { return .failure(Self.failure(error)) }
+        let recovering = recovery, account = recoveryAccountID, gateway = gateway
+        // The cancel runs in its own task: a caller that is cancelled (a form closed twice, the scene leaving) must not abort the
+        // request that ends the SDK ceremony.
+        let ended = await Task { () -> Result<Void, any Error> in
+            do { try await ceremony.cancel(context: gateway.context(recovering ? .accountRecoverCancel : .accountCreateCancel, account: recovering ? account : nil)); return .success(()) } catch { return .failure(error) }
+        }.value
+        switch ended {
+        case .success: self.ceremony = nil; if recovering { recoveryAccountID = nil }; return .success(())
+        case .failure(let error):
+            // The SDK drops a recovery ceremony at its next begin and with the connection, so a failed cancel must not keep
+            // this side busy for good; a creation ceremony stays held for the retry.
+            if recovering { self.ceremony = nil; recoveryAccountID = nil }
+            return .failure(Self.failure(error))
+        }
     }
     private static func failure(_ error: any Error) -> AppFailure {
         let failure = AppFailure.map(error)
