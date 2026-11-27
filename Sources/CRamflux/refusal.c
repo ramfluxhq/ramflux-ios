@@ -80,11 +80,19 @@ const char *rf_completion_refusal_reason(const struct RamfluxBuffer *buffer) {
     if (!skip(&whole, 0)) return NULL;
     ws(&whole); if (whole.i != whole.n) return NULL;
     struct span root = {buffer->ptr, buffer->len};
-    if (!field(root, "response", &response) || !field(response, "error", &error) || !field(error, "reason_code", &encoded)) return NULL;
+    // The nested `response.error.reason_code` wins; the completion root's own `reason_code` is the fallback (the SDK
+    // writes the resolved token there for every failed completion).
+    int have = field(root, "response", &response) && field(response, "error", &error) && field(error, "reason_code", &encoded);
+    if (!have && !field(root, "reason_code", &encoded)) return NULL;
     struct parser s = {encoded.p, encoded.n, 0};
     if (!string(&s, &reason) || s.i != s.n) return NULL;
     static const char *const allowed[] = {"vault_permission", "vault_locked", "vault_missing", "vault_corrupt", "vault_busy", "vault_primary_unavailable",
-        "not_six_digits", "trivial_code", "wrong_passphrase", "unlock_retry_later", "unlock_attempts_exhausted", "account_code_required", "device_unlock_unavailable"};
+        "not_six_digits", "trivial_code", "wrong_passphrase", "unlock_retry_later", "unlock_attempts_exhausted", "account_code_required", "device_unlock_unavailable",
+        "card_session_expired", "card_session_inactive", "card_session_limit", "card_session_refused", "card_session_stale", "card_session_busy",
+        "card_limit_exceeded", "app_locked", "reauth_required", "CustodyConfirmationFailed", "CustodySetupInvalid", "CustodyExpired",
+        "CustodyConfirmRejected", "operation_id",
+        // The task refusals a card approval answers (`task.resolve`, `grant.approve|deny` are sealed on the C ABI).
+        "stale_revision", "decision_consumed", "decision_mismatch", "terminal", "not_found"};
     for (size_t i = 0; i < sizeof(allowed) / sizeof(allowed[0]); ++i) if (equal(reason, allowed[i])) return allowed[i];
     return NULL;
 }
