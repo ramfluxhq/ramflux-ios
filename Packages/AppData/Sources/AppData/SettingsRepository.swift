@@ -13,11 +13,7 @@ public struct SettingsSnapshot: Equatable, Sendable {
         self.accountID = accountID; self.networking = networking; self.devices = devices; self.nodes = nodes; self.retentionSeconds = retentionSeconds; self.requestPolicy = requestPolicy
     }
 }
-public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport
-    /// Claiming a username needs the recovery-phrase ceremony (`ramflux_v2_username_authorize`), which this
-    /// build does not offer yet; the screen shows the directory's own status or refusal.
-    case username
-}
+public enum SettingsUnavailable: Sendable, Equatable { case openAccount, pairing, connectedServices, diagnosticExport }
 public protocol SettingsRepository: Sendable {
     func pending(account: String?) async -> PendingSettingsMutation?
     func mutate(account: String?, change: SettingsMutation, operationID: String) async -> RepositoryResult<Void>
@@ -31,15 +27,24 @@ public protocol SettingsRepository: Sendable {
     func changeCode(account: String, credentials: SensitiveSubmission, operationID: String) async -> RepositoryResult<Void>
     func observe(account: String) async -> RepositoryObservation
     func unavailable(_ capability: SettingsUnavailable) -> AppFailure
-    /// This account's username from the username directory (`username.status`); nil when none is claimed.
-    func username(account: String) async -> RepositoryResult<String?>
+    /// This account's username status from the username directory (`username.status`), or the status of one
+    /// publication when `operationID` names it (the reply of a claim that was still pending).
+    func username(account: String, operationID: String?) async -> RepositoryResult<UsernameStatus>
+    /// Claims or changes this account's username (`@name` with or without the `@`). The recovery phrase in `phrase`
+    /// authorizes the change and is erased on every path. Returns the status once it is committed or aborted, or
+    /// still pending when the poll window ends.
+    func claimUsername(account: String, name: String, phrase: SensitiveSubmission, operationID: String) async -> RepositoryResult<UsernameStatus>
     /// The app lock of the account (`account.app_lock.state`). Off by default.
     func appLock(account: String) async -> RepositoryResult<AppLockRecord>
     /// Turns the app lock on or off and sets its timeout (`account.app_lock.configure`); returns the state the SDK now reports.
     func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord>
 }
 public extension SettingsRepository {
-    func username(account: String) async -> RepositoryResult<String?> { .failure(unavailable(.username)) }
+    func username(account: String, operationID: String?) async -> RepositoryResult<UsernameStatus> { .failure(.unsupported) }
+    func username(account: String) async -> RepositoryResult<UsernameStatus> { await username(account: account, operationID: nil) }
+    func claimUsername(account: String, name: String, phrase: SensitiveSubmission, operationID: String) async -> RepositoryResult<UsernameStatus> {
+        phrase.erase(); return .failure(.unsupported)
+    }
     func appLock(account: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
     func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
 }
@@ -48,8 +53,17 @@ public struct NativeSettingsRepository: SettingsRepository {
     private let lifecycle: AccountLifecycleHooks
     private let nodes: any NodeRepository
     private let updates: NativeUpdateSource
+    /// Whether the build carries a username directory pin. Without one, a directory refusal means "not set up", not "unreachable".
+    private let usernameConfigured: Bool
     private let journal = RetainedMutation<SettingsMutation, Void>()
-    public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource, lifecycle: AccountLifecycleHooks = AccountLifecycleHooks()) { gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates; self.lifecycle = lifecycle }
+    public init(client: RamfluxClient, nodes: any NodeRepository, updates: NativeUpdateSource, lifecycle: AccountLifecycleHooks = AccountLifecycleHooks(), usernameConfigured: Bool = false) {
+        gateway = ProxyGateway(proxy: SDKProxy(client: client)); self.nodes = nodes; self.updates = updates; self.lifecycle = lifecycle; self.usernameConfigured = usernameConfigured
+    }
+    private func usernameFailure(_ error: any Error) -> AppFailure {
+        let failure = AppFailure.mapUsername(error)
+        if !usernameConfigured, case .unavailableResource("username.unavailable.directory") = failure { return .unavailableResource("username.unavailable.notConfigured") }
+        return failure
+    }
     public func appLock(account: String) async -> RepositoryResult<AppLockRecord> {
         do { return .success(try await AppLockService(gateway: gateway).state(account: account)) }
         catch { return .failure(AppFailure.map(error)) }
@@ -124,12 +138,63 @@ public struct NativeSettingsRepository: SettingsRepository {
         do { _ = try await gateway.call(.accountPassphraseRotate, account: account, operationID: operationID, secrets: ["old_passphrase": current, "new_passphrase": next]); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
     }
-    public func username(account: String) async -> RepositoryResult<String?> {
+    public func username(account: String, operationID: String?) async -> RepositoryResult<UsernameStatus> {
         do {
-            let body = try await gateway.call(.usernameStatus, account: account, body: .object([:]))
-            let name = (body["username"] ?? body["name"])?.string.flatMap { $0.isEmpty || $0.utf8.count > 256 ? nil : $0 }
-            return .success(name)
-        } catch { EventDiagnostics.failed("username.status", error); return .failure(AppFailure.mapUsername(error)) }
+            let body = try await gateway.call(.usernameStatus, account: account, body: operationID.map { .object(["operation_id": .string($0)]) } ?? .object([:]))
+            return .success(try UsernameStatus.parse(body))
+        } catch { EventDiagnostics.failed("username.status", error); return .failure(usernameFailure(error)) }
+    }
+    /// The claim: `username.mutate` prepare (the draft operation stays admitted), authorization with the recovery phrase
+    /// through the C ABI, release of the draft, then submit and a status poll (2 s steps, 30 s). The phrase is erased
+    /// on every path, including a claim cancelled before it runs.
+    public func claimUsername(account: String, name: String, phrase: SensitiveSubmission, operationID: String) async -> RepositoryResult<UsernameStatus> {
+        defer { phrase.erase() }
+        guard let query = UsernameInput.name(name) else { return .failure(.invalidInput) }
+        let change: JSONValue = .object(["change": .string("set"), "name": .string(query)])
+        do {
+            let prepared = try await prepareClaim(account: account, change: change, operationID: operationID)
+            let draft = prepared.operation
+            defer { draft.release() }
+            guard let drafted = prepared.response["draft"], drafted != .null else {
+                return .success(try UsernameStatus.parse(prepared.response["status"] ?? .null))
+            }
+            guard let fields = phrase.take(), case .text(let words)? = fields["phrase"] else { return .failure(.invalidInput) }
+            let publicRequest: JSONValue = .object(["account_id": .string(account), "request_id": .string(String(draft.requestID)),
+                "draft": drafted, "expected_change": change])
+            let signed = try await gateway.proxy.client.authorizeUsername(draft, publicRequest: publicRequest, phrase: words)
+            return try await submitClaim(account: account, signed: signed, operationID: operationID)
+        } catch { EventDiagnostics.failed("username.mutate", error); return .failure(usernameFailure(error)) }
+    }
+    private func prepareClaim(account: String, change: JSONValue, operationID: String) async throws -> (response: JSONValue, operation: UsernameDraftOperation) {
+        let context = try gateway.context(.usernameMutate, account: account, operationID: operationID)
+        let body: JSONValue = .object(["phase": .string("prepare"), "change": change])
+        let request = try CoreRequest(method: SDKOperation.usernameMutate.rawValue, sdkAPI: SDKOperation.usernameMutate.capability, accountID: account,
+            operationID: context.operationID, body: body, deadlineUnixMilliseconds: context.deadlineUnixMilliseconds)
+        return try await gateway.proxy.client.prepareUsername(request)
+    }
+    private func submitClaim(account: String, signed: JSONValue, operationID: String) async throws -> RepositoryResult<UsernameStatus> {
+        let operationNode: JSONValue? = signed["operation"]
+        let bodyNode: JSONValue? = operationNode?["body"]
+        let signedOperation: String? = bodyNode?["operation_id"]?.string
+        let submitBody: JSONValue = .object(["phase": .string("submit"), "signed": signed])
+        let submitted: JSONValue
+        do { submitted = try await gateway.call(.usernameMutate, account: account, body: submitBody, operationID: operationID) }
+        catch {
+            // A lost submit reply is reconciled with the publication's status before the failure is shown.
+            if let signedOperation, case .success(let status) = await username(account: account, operationID: signedOperation), status.state != .empty {
+                return .success(status)
+            }
+            throw error
+        }
+        var status = try UsernameStatus.parse(submitted)
+        guard let operation = signedOperation ?? status.operationID else { return .success(status) }
+        let deadline = Date().addingTimeInterval(30)
+        while status.state == .pending, Date() < deadline {
+            do { try await Task.sleep(nanoseconds: 2_000_000_000) } catch { return .success(status) }
+            let body = try await gateway.call(.usernameStatus, account: account, body: .object(["operation_id": .string(operation)]))
+            status = try UsernameStatus.parse(body)
+        }
+        return .success(UsernameStatus(state: status.state, name: status.name, operationID: operation))
     }
     public func lock(account: String) async -> RepositoryResult<Void> { await mutate(account: account, change: .lock, operationID: await pending(account: account)?.operationID ?? UUID().uuidString) }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
@@ -140,7 +205,6 @@ public struct NativeSettingsRepository: SettingsRepository {
         case .pairing: .unavailableResource("settings.unavailable.pairing")
         case .connectedServices: .unavailableResource("settings.unavailable.connectedServices")
         case .diagnosticExport: .unavailableResource("settings.unavailable.diagnosticExport")
-        case .username: .unavailableResource("username.unavailable.claim")
         }
     }
 }

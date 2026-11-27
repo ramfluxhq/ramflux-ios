@@ -1004,6 +1004,74 @@
           }
         }
       }
+    },
+    "contacts.username.found": {
+      "comment": "Add-contact result card: the directory found this @name. %@ is the name without the @.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found @%@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "找到 @%@"
+          }
+        }
+      }
+    },
+    "contacts.username.send": {
+      "comment": "Button that sends a contact request to the @name that was looked up.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send contact request"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "发送联系人请求"
+          }
+        }
+      }
+    },
+    "contacts.username.lookup": {
+      "comment": "Button that looks up an @name in the username directory before any request is sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look up"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查找"
+          }
+        }
+      }
+    },
+    "contacts.username.lookingUp": {
+      "comment": "Shown while an @name is being looked up.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking up…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在查找…"
+          }
+        }
+      }
     }
   }
 }

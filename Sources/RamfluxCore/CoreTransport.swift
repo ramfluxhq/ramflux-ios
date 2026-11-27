@@ -17,12 +17,21 @@ public protocol CoreTransport: Sendable {
     func executeSecret(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> JSONValue
     func executeSecretResponse(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> SecretBytes
     func executeSecretRequestResponse(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> SecretBytes
+    /// Admits `username.mutate` prepare and keeps its operation unreleased until the draft is released.
+    func prepareUsername(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> (response: JSONValue, operation: UsernameDraftOperation)
+    /// Authorizes the draft with the recovery phrase (borrowed; erased by the caller) and returns the signed change.
+    func authorizeUsername(_ draft: UsernameDraftOperation, publicRequest: JSONValue, phrase: SecretBytes) throws -> JSONValue
     func resetEvents() throws
     func subscribe(_ filter: SubscriptionFilter) throws -> any EventQueue
     func start() throws
     func suspend() throws -> JSONValue
     func resume() throws
     func close() throws
+}
+
+public extension CoreTransport {
+    func prepareUsername(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> (response: JSONValue, operation: UsernameDraftOperation) { throw BridgeError.invalidInput }
+    func authorizeUsername(_ draft: UsernameDraftOperation, publicRequest: JSONValue, phrase: SecretBytes) throws -> JSONValue { throw BridgeError.invalidInput }
 }
 
 /// Blocking C calls run on bounded worker queues, never the main actor or Swift executor.
@@ -98,6 +107,23 @@ public final class RamfluxClient: Sendable {
             if Task.isCancelled { cancellation.cancel() }
             return try await offload { [transport] in try transport.executeSecretRequestResponse(request, cancellation: cancellation) }
         } onCancel: { cancellation.cancel() }
+    }
+    /// The username prepare step: the draft operation stays admitted until the caller releases it.
+    public func prepareUsername(_ request: CoreRequest) async throws -> (response: JSONValue, operation: UsernameDraftOperation) {
+        let bytes = try request.body.encoded().count
+        try admit(bytes: bytes); defer { release(bytes: bytes) }
+        let cancellation = try transport.newCancellation()
+        return try await withTaskCancellationHandler {
+            if Task.isCancelled { cancellation.cancel() }
+            return try await offload { [transport] in try transport.prepareUsername(request, cancellation: cancellation) }
+        } onCancel: { cancellation.cancel() }
+    }
+    /// Authorizes a prepared username change. The phrase is erased on every path, including a task cancelled before it runs.
+    public func authorizeUsername(_ draft: UsernameDraftOperation, publicRequest: JSONValue, phrase: SecretBytes) async throws -> JSONValue {
+        defer { phrase.erase() }
+        let bytes = try publicRequest.encoded().count
+        try admit(bytes: bytes); defer { release(bytes: bytes) }
+        return try await offload { [transport] in try transport.authorizeUsername(draft, publicRequest: publicRequest, phrase: phrase) }
     }
     public func resetEvents() async throws {
         try await lifecycle { [transport] in try transport.resetEvents() }

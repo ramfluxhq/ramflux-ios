@@ -16,6 +16,8 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
+    @ObservationIgnored private var lookup: Task<Void, Never>?
+    @ObservationIgnored private var lookupTicket: UInt64 = 0
     /// The observation delivered its first update; `settle()` waits for it so the reload it causes is included.
     @ObservationIgnored private var live = false
     @ObservationIgnored private var liveWaiters: [CheckedContinuation<Void, Never>] = []
@@ -31,7 +33,12 @@ import AppData
         case .filter(let value):
             let query = String(value.prefix(256)); guard query != state.query else { return }
             state.query = query; if state.mode == .contacts { refresh() }
-        case .principal(let value): state.principal = String(value.prefix(64 * 1024))
+        case .principal(let value):
+            // The field is disabled while a send is in flight, so an approved send is never cancelled by typing.
+            guard !state.busy else { return }
+            let text = String(value.prefix(64 * 1024))
+            if text != state.principal { invalidateLookup() }
+            state.principal = text
         case .mode(let mode):
             switch mode {
             case .profile(let id): emit(.navigate(.contact(id)))
@@ -58,7 +65,13 @@ import AppData
             }
         case .add:
             guard !state.busy, !state.unknownMutation else { return }
-            let principal = state.principal; mutate { [repository, account] in await repository.add(account: account, principal: principal, operationID: UUID().uuidString) }
+            let principal = state.principal
+            if principal.hasPrefix("@") { lookUp(principal); return }
+            mutate { [repository, account] in await repository.add(account: account, principal: principal, operationID: UUID().uuidString) }
+        case .sendUsername:
+            guard !state.busy, !state.unknownMutation, let found = state.usernameLookup, found.text == state.principal else { return }
+            let principal = found.text
+            mutate { [repository, account] in await repository.add(account: account, principal: principal, operationID: UUID().uuidString) }
         case .requestDecision(let id, let decision):
             let candidates = state.requests + [state.selectedRequest].compactMap { $0 }
             guard !state.busy, !state.unknownMutation, let request = candidates.first(where: { $0.id == id && $0.direction == "inbound" && $0.state == "pending" }) else { return }
@@ -77,6 +90,7 @@ import AppData
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
+            invalidateLookup()
             markLive(); live = false
             let unknown = state.busy || state.unknownMutation; let mode = state.mode
             contactWindow = RowWindow(); requestWindow = RowWindow()
@@ -92,6 +106,28 @@ import AppData
         case .verify: contact.rootCommitment != nil && !stale && safety.map { !$0.verified && $0.root == contact.rootCommitment } == true
         }
     }
+    /// Resolves `@name` before any request is sent. A late answer is dropped unless the field still holds its text.
+    private func lookUp(_ text: String) {
+        guard let name = UsernameInput.name(text) else { state.failure = .invalidInput; return }
+        lookupTicket &+= 1
+        let ticket = lookupTicket, current = epoch
+        lookup?.cancel()
+        state.lookingUp = true; state.failure = nil; state.usernameLookup = nil
+        lookup = Task { [weak self, repository, account] in
+            let result = await repository.resolveUsername(account: account, name: name)
+            guard !Task.isCancelled, let self, self.epoch == current, self.lookupTicket == ticket, self.state.principal == text else { return }
+            self.state.lookingUp = false
+            switch result {
+            case .success(let resolution): self.state.usernameLookup = UsernameLookup(text: text, resolution: resolution)
+            case .failure(let failure): self.state.failure = failure
+            }
+        }
+    }
+    /// Drops a lookup and its answer when the field changes; a late reply for the old text is then ignored.
+    private func invalidateLookup() {
+        lookupTicket &+= 1; lookup?.cancel(); lookup = nil
+        state.lookingUp = false; state.usernameLookup = nil
+    }
     private func mutate(_ operation: @escaping @Sendable () async -> RepositoryResult<Void>) {
         let current = epoch; state.busy = true; state.failure = nil
         mutation = Task { [weak self, repository, account] in
@@ -103,6 +139,7 @@ import AppData
             case .success:
                 let removed = self.state.pendingChange?.change == .remove
                 self.state.unknownMutation = false; self.state.pendingMutation = nil; self.state.pending = nil; self.state.pendingChange = nil; self.state.principal = ""
+                self.state.usernameLookup = nil
                 if self.state.mode == .add { self.state.mode = .contacts }
                 if removed { self.emit(.navigate(.contacts)) }
                 self.refresh()

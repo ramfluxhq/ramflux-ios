@@ -18,6 +18,11 @@ import AppData
     @ObservationIgnored private var readID: UInt64 = 0
     @ObservationIgnored private var watchID: UInt64 = 0
     @ObservationIgnored private var pendingRefresh = false
+    /// The Username page's tasks. Bumped when the account is locked, signed out, removed or the page disappears,
+    /// so a late reply for another or a locked account is dropped.
+    @ObservationIgnored private var usernameEpoch: UInt64 = 0
+    @ObservationIgnored private var claimTask: Task<Void, Never>?
+    @ObservationIgnored private var lastUsernameRead: ContinuousClock.Instant?
     public init(repository: any SettingsRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
                 account: String?, state: SettingsState = SettingsState(), emit: @escaping (SettingsEvent) -> Void) {
         self.repository = repository; self.nodes = nodes; self.preferences = preferences; self.account = account; self.state = state; self.emit = emit
@@ -27,6 +32,7 @@ import AppData
         case .appeared, .refresh:
             refresh(); observe()
             if state.route == .appLock { readAppLock() }
+            if state.route == .username { readUsername() }
         case .configureAppLock(let enabled, let timeout):
             guard let account, !state.busy, state.appLock?.state != .unavailable else { return }
             state.busy = true; state.failure = nil; let current = epoch
@@ -76,25 +82,63 @@ import AppData
         case .cancelRevoke: if !state.busy { state.pendingRevoke = nil }
         case .lock:
             guard account != nil else { return }
+            clearUsername()
             dispatch(PendingSettingsMutation(change: .lock, operationID: UUID().uuidString))
         case .signOut:
             guard account != nil else { return }
+            clearUsername()
             dispatch(PendingSettingsMutation(change: .signOut, operationID: UUID().uuidString))
         case .requestRemoveLocal: if account != nil, !state.busy, !state.unknownMutation { state.failure = nil; state.confirmingRemoval = true }
         case .confirmRemoveLocal:
             guard account != nil, state.confirmingRemoval else { return }
+            clearUsername()
             dispatch(PendingSettingsMutation(change: .removeLocal, operationID: UUID().uuidString))
         case .setDefault(let id):
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
-        case .unavailable(.username): readUsername()
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false }
+        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false; state.claim = nil }
+        case .startClaimUsername:
+            guard account != nil, !state.busy else { return }
+            state.failure = nil; state.claim = UsernameClaim()
+        case .claimNameChanged(let name):
+            guard !state.busy, var claim = state.claim, claim.step == .name else { return }
+            claim.name = name; state.claim = claim
+        case .continueClaimUsername:
+            guard !state.busy, var claim = state.claim, claim.step == .name, UsernameInput.name(claim.name) != nil else { return }
+            state.failure = nil; claim.step = .phrase; state.claim = claim
+        case .cancelClaimUsername:
+            if !state.busy { state.claim = nil; state.failure = nil }
+        case .submitClaimUsername(let input):
+            guard let account, let claim = state.claim, claim.step == .phrase, !state.busy else { input.erase(); return }
+            state.busy = true; state.failure = nil
+            let name = claim.name, current = usernameEpoch
+            claimTask = Task { [weak self, repository] in
+                let result = await repository.claimUsername(account: account, name: name, phrase: input, operationID: UUID().uuidString)
+                guard !Task.isCancelled, let self, self.usernameEpoch == current else { return }
+                self.state.busy = false
+                switch result {
+                case .success(let status):
+                    self.state.username = status; self.state.claim = nil
+                case .failure(let failure):
+                    self.state.failure = failure
+                    // A name the directory refuses goes back to the name step; a wrong phrase stays on the phrase step.
+                    if case .unavailableResource(let key) = failure, key == "username.claim.taken" || key == "username.claim.invalid" {
+                        self.state.claim?.step = .name
+                    }
+                }
+            }
+        case .refreshUsername:
+            guard account != nil, !state.usernameLoading, !state.busy else { return }
+            let now = ContinuousClock.now
+            if let last = lastUsernameRead, now < last.advanced(by: .seconds(2)) { return }
+            readUsername(operationID: state.username?.state == .pending ? state.username?.operationID : nil)
         case .reconcileOriginal(let id):
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
             sideTask?.cancel()
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
+            clearUsername()
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
             state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown
         }
@@ -114,19 +158,25 @@ import AppData
     }
     /// The username row asks the username directory (`username.status`): the claimed name, or the
     /// directory's refusal as an honest unavailable state.
-    private func readUsername() {
-        guard let account else { state.failure = repository.unavailable(.username); return }
-        state.failure = nil
+    private func readUsername(operationID: String? = nil) {
+        guard let account else { return }
+        state.failure = nil; state.usernameLoading = true; lastUsernameRead = ContinuousClock.now
+        let current = usernameEpoch
         sideTask?.cancel()
         sideTask = Task { [weak self, repository] in
-            let result = await repository.username(account: account)
-            guard let self, !Task.isCancelled else { return }
+            let result = await repository.username(account: account, operationID: operationID)
+            guard let self, !Task.isCancelled, self.usernameEpoch == current else { return }
+            self.state.usernameLoading = false
             switch result {
-            case .success(let name?): self.state.username = name
-            case .success(nil): self.state.failure = repository.unavailable(.username)
+            case .success(let status): self.state.username = status
             case .failure(let failure): self.state.failure = failure
             }
         }
+    }
+    /// Drops the claim sheet and the username status of the account being locked, signed out or removed.
+    private func clearUsername() {
+        usernameEpoch &+= 1; claimTask?.cancel(); sideTask?.cancel()
+        state.claim = nil; state.username = nil; state.usernameLoading = false
     }
     private func dispatch(_ attempt: PendingSettingsMutation, reconciling: Bool = false) {
         guard !state.busy, reconciling || !state.unknownMutation else { return }

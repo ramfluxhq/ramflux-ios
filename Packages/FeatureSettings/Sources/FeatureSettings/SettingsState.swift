@@ -19,8 +19,12 @@ public struct SettingsState: Equatable, Sendable {
     /// The change-code sheet is open; `codeChanged` confirms a finished change.
     public var changingCode = false
     public var codeChanged = false
-    /// This account's username as the username directory reports it.
-    public var username: String?
+    /// This account's username status as the username directory reports it; nil until it has been read.
+    public var username: UsernameStatus?
+    /// The username status is being read.
+    public var usernameLoading = false
+    /// The claim sheet of the Username page; nil while it is closed.
+    public var claim: UsernameClaim?
     /// The account's app lock as the SDK reports it; nil until the App lock page has read it.
     public var appLock: AppLockRecord?
     public init(route: AppRoute = .settings) { self.route = route }

@@ -372,11 +372,21 @@
 	<string>Approving this request needs an app signature this phone cannot make yet. You can still deny it.</string>
 	<key>tasks.unavailable</key>
 	<string>Agent task creation and mobile approval/intervention decisions require additional verified context. Review these actions on a trusted client; no permission has been granted.</string>
-	<key>username.unavailable.claim</key>
-	<string>Claiming a username needs your recovery phrase, which this version of the app does not ask for yet.</string>
+	<key>username.claim.invalid</key>
+	<string>That username is not valid</string>
+	<key>username.claim.phraseMismatch</key>
+	<string>Recovery phrase does not match this account</string>
+	<key>username.claim.taken</key>
+	<string>That username is already taken</string>
+	<key>username.retryIn</key>
+	<string>Try again in %@ s</string>
 	<key>username.unavailable.directory</key>
-	<string>Usernames are not available on this server yet.</string>
+	<string>Username service unreachable; messaging still works</string>
+	<key>username.unavailable.notConfigured</key>
+	<string>Usernames are not set up for this build or computer</string>
 	<key>username.unavailable.notFound</key>
-	<string>No one has this username.</string>
+	<string>No one with that username</string>
+	<key>username.unavailable.retry</key>
+	<string>The username service is busy; try again later</string>
 </dict>
 </plist>

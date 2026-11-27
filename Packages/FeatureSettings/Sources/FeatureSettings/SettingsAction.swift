@@ -12,5 +12,7 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     case configureAppLock(enabled: Bool, timeoutMilliseconds: UInt64)
     /// `signOut` closes the account on this phone; removal asks for confirmation first.
     case signOut, requestRemoveLocal, confirmRemoveLocal
+    /// Username page: open the claim sheet, edit its name, continue to the recovery phrase, submit the phrase, cancel, re-read.
+    case startClaimUsername, claimNameChanged(String), continueClaimUsername, submitClaimUsername(SensitiveSubmission), cancelClaimUsername, refreshUsername
     public var description: String { "SettingsAction" }
 }

@@ -79,9 +79,19 @@ public struct ContactsScreen: View {
         case .myCard:
             if let card = state.ownCard { MyContactCardView(card: card) }
         case .add:
-            TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput().accessibilityIdentifier("contacts-add-address")
+            TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput().disabled(state.busy).accessibilityIdentifier("contacts-add-address")
             Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))
-            Button(FeatureContactsStrings.text("contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.principal.isEmpty).accessibilityIdentifier("contacts-add-send")
+            if state.lookingUp { ProgressView(FeatureContactsStrings.text("contacts.username.lookingUp", locale: locale)) }
+            if let found = state.usernameLookup, found.text == state.principal {
+                // The result card: what the directory holds for the name. Sending targets only this text.
+                VStack(alignment: .leading, spacing: theme.gap / 2) {
+                    Text(FeatureContactsStrings.format("contacts.username.found", found.text.hasPrefix("@") ? String(found.text.dropFirst()) : found.text, locale: locale)).rfFont(.body, weight: .semibold)
+                    if let name = found.resolution.displayName { Text(untrusted: name) }
+                    if let bio = found.resolution.bio { Text(untrusted: bio).rfFont(.caption) }
+                    Button(FeatureContactsStrings.text("contacts.username.send", locale: locale)) { onAction(.sendUsername) }.disabled(state.busy || state.unknownMutation).accessibilityIdentifier("contacts-username-send")
+                }
+            }
+            Button(FeatureContactsStrings.text(state.principal.hasPrefix("@") ? "contacts.username.lookup" : "contacts.add.send", locale: locale)) { onAction(.add) }.disabled(state.busy || state.unknownMutation || state.lookingUp || state.principal.isEmpty).accessibilityIdentifier("contacts-add-send")
         case .strangers, .sent:
             Text(FeatureContactsStrings.text("contacts.strangers.replyNote", locale: locale)).rfFont(.caption)
             if state.mode == .strangers { Button(FeatureContactsStrings.text("contacts.strangers.batch", locale: locale)) { onAction(.unavailable(.batch)) } }

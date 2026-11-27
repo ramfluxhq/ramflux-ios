@@ -19,6 +19,11 @@ public protocol ContactsRepository: Sendable {
     func unavailable(_ capability: ContactUnavailable) -> AppFailure
     /// This account's signed contact card (`contact.card.export`): the text form and the link form.
     func ownCard(account: String) async -> RepositoryResult<ContactCardExport>
+    /// Resolves `@name` in the username directory (`username.resolve`) before a contact request is sent to it.
+    func resolveUsername(account: String, name: String) async -> RepositoryResult<UsernameResolution>
+}
+public extension ContactsRepository {
+    func resolveUsername(account: String, name: String) async -> RepositoryResult<UsernameResolution> { .failure(.unsupported) }
 }
 /// A contact card of this account as the SDK exports it. Public: it names the account, its devices and its
 /// home node so a peer can add it and reach it; it carries no secret.
@@ -104,10 +109,9 @@ public struct NativeContactsRepository: ContactsRepository {
         // leaves the contact without a pinned home node, so attachments to it fail with authority_unavailable.
         let card = Self.isCard(value)
         guard !value.isEmpty, value.utf8.count <= (card ? 64 * 1024 : 2048) else { return .failure(.invalidInput) }
-        // "@name" adds by username through the username directory (`username.contact.add`).
+        // "@name" adds by username through the username directory (`username.contact.add`); the screen resolves it first.
         if !card, value.hasPrefix("@") {
-            let name = String(value.dropFirst())
-            guard !name.isEmpty, name.utf8.count <= 256 else { return .failure(.invalidInput) }
+            guard let name = UsernameInput.name(value) else { return .failure(.invalidInput) }
             return await mutations.run(scope: account, arguments: .add(value), operationID: operationID) { [gateway] in
                 do { _ = try await gateway.call(.usernameContactAdd, account: account, body: .object(["name": .string(name)]), operationID: operationID); return .success(()) }
                 catch { EventDiagnostics.failed("username.contact.add", error); return .failure(AppFailure.mapUsername(error)) }
@@ -118,6 +122,13 @@ public struct NativeContactsRepository: ContactsRepository {
         do { _ = try await gateway.call(.contactAdd, account: account, body: body, operationID: operationID); return .success(()) }
         catch { EventDiagnostics.failed("contact.add", error); return .failure(AppFailure.map(error)) }
         }
+    }
+    public func resolveUsername(account: String, name: String) async -> RepositoryResult<UsernameResolution> {
+        guard let query = UsernameInput.name(name) else { return .failure(.invalidInput) }
+        do {
+            let body = try await gateway.call(.usernameResolve, account: account, body: .object(["name": .string(query)]))
+            return .success(try UsernameResolution.parse(body, query: query))
+        } catch { EventDiagnostics.failed("username.resolve", error); return .failure(AppFailure.mapUsername(error)) }
     }
     /// Whether the add-contact input is a contact card (`ramflux-card:` text or a `ramflux://contact/` link).
     static func isCard(_ value: String) -> Bool { value.hasPrefix("ramflux-card:") || value.hasPrefix("ramflux://contact/") }
