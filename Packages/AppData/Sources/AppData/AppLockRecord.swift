@@ -48,17 +48,27 @@ public enum AppLockTimeout: UInt64, CaseIterable, Identifiable, Sendable {
 /// Calls of the app-lock methods. Only AppData talks to the SDK for them; the operation proxies already exist.
 struct AppLockService: Sendable {
     let gateway: ProxyGateway
+    /// The client's event hub: the SDK refuses app-lock calls for another account on a connection whose subscription is
+    /// attended for one, so each call runs with that subscription detached (see `NativeUpdateSource.unattended`).
+    var stream: NativeUpdateSource?
+    init(gateway: ProxyGateway, stream: NativeUpdateSource? = nil) { self.gateway = gateway; self.stream = stream }
+    private func leased<T: Sendable>(_ account: String, _ call: @Sendable () async throws -> T) async throws -> T {
+        guard let stream else { return try await call() }
+        return try await stream.unattended(for: account, call)
+    }
     func state(account: String) async throws -> AppLockRecord {
-        try AppLockRecord.decode(try await gateway.call(.accountAppLockState, account: account))
+        try await leased(account) { try AppLockRecord.decode(try await gateway.call(.accountAppLockState, account: account)) }
     }
     func configure(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async throws -> AppLockRecord {
-        _ = try await gateway.callAttended(.accountAppLockConfigure, account: account,
-                                           body: .object(["enabled": .bool(enabled), "timeout_ms": .number(Double(timeoutMilliseconds))]),
-                                           operationID: operationID, credentials: credentials)
-        return try await state(account: account)
+        try await leased(account) {
+            _ = try await gateway.callAttended(.accountAppLockConfigure, account: account,
+                                               body: .object(["enabled": .bool(enabled), "timeout_ms": .number(Double(timeoutMilliseconds))]),
+                                               operationID: operationID, credentials: credentials)
+            return try await state(account: account)
+        }
     }
     /// The reply is the lock as the core holds it after the call: the foreground may engage an expired lock at once.
     func lifecycle(account: String, _ phase: AppLockPhase) async throws -> AppLockRecord {
-        try AppLockRecord.decode(try await gateway.call(.accountAppLockLifecycle, account: account, body: .object(["state": .string(phase.rawValue)]), operationID: UUID().uuidString))
+        try await leased(account) { try AppLockRecord.decode(try await gateway.call(.accountAppLockLifecycle, account: account, body: .object(["state": .string(phase.rawValue)]), operationID: UUID().uuidString)) }
     }
 }

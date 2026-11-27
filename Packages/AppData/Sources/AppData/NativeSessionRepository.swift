@@ -20,7 +20,7 @@ public actor NativeSessionRepository: SessionRepository {
     private let appLock: AppLockService
     public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil, cards: CardSessionRegistry? = nil) {
         self.client = client; self.updates = updates; self.cards = cards; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
-        appLock = AppLockService(gateway: ProxyGateway(proxy: proxy))
+        appLock = AppLockService(gateway: ProxyGateway(proxy: proxy), stream: updates)
     }
     /// Queues the suspend of every card session without waiting for it: the card operations in flight finish first, and
     /// the caller (background, lock) is not held up by them.
@@ -127,8 +127,12 @@ public actor NativeSessionRepository: SessionRepository {
     /// the core holds it now, so a lock that expired at that call is reported as engaged.
     private func withAppLock(_ value: SessionSnapshot) async throws -> SessionSnapshot {
         guard let account = value.activeAccountID else { return await engagedAppLock(in: value) }
-        var record = try await appLock.state(account: account)
-        if record.state != .locked { record = try await appLock.lifecycle(account: account, .foreground) }
+        let service = appLock
+        let record = try await leased(for: account) {
+            var record = try await service.state(account: account)
+            if record.state != .locked { record = try await service.lifecycle(account: account, .foreground) }
+            return record
+        }
         return SessionSnapshot(phase: value.phase, accounts: value.accounts, activeAccountID: value.activeAccountID, appLocked: record.state == .locked, appLockEnabled: record.enabled)
     }
     /// An engaged app lock closes the account inside the SDK: `account.list` then lists it as locked (name redacted)
@@ -136,6 +140,14 @@ public actor NativeSessionRepository: SessionRepository {
     /// for, so the shell shows the app-lock form instead of the locked-accounts screen. Any other locked account
     /// (an explicit lock with the app lock off) keeps the ordinary account-unlock path.
     private func engagedAppLock(in value: SessionSnapshot) async -> SessionSnapshot {
+        do { return try await leased(for: nil) { await scanEngaged(in: value) } } catch { return value }
+    }
+    /// Runs `body` inside one lease of the event hub (none when the repository has no hub).
+    private func leased<T: Sendable>(for account: String?, _ body: @Sendable () async throws -> T) async throws -> T {
+        guard let updates else { return try await body() }
+        return try await updates.unattended(for: account, body)
+    }
+    private func scanEngaged(in value: SessionSnapshot) async -> SessionSnapshot {
         var candidates = value.accounts.filter(\.isLocked)
         if let last = lastActiveAccount, let index = candidates.firstIndex(where: { $0.id == last }) { candidates.insert(candidates.remove(at: index), at: 0) }
         for candidate in candidates.prefix(8) {
