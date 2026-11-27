@@ -172,6 +172,7 @@ public struct SettingsScreen: View {
             RFSecureEntryForm(fields: [RFSecureEntryField(id: "passphrase", label: copy("settings.appLock.code.field"), kind: .accountCode)], enabled: state.codePrompt) {
                 onAction(.submitAccountCode(SensitiveSubmission(values: $0, accountCode: .existing)))
             }
+            .frame(minHeight: theme.composer_min * 2)
             #endif
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
             KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelAccountCode) }, kind: .text, enabled: true, tag: "settings-app-lock-code-cancel")
