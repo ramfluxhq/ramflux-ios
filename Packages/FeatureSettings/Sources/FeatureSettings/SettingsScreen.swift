@@ -43,11 +43,12 @@ public struct SettingsScreen: View {
         if let device = state.pendingRevoke { return .revoke(device) }
         if state.changingCode { return .changeCode }
         if state.confirmingRemoval, let account = state.snapshot.accountID { return .removeLocal(account) }
+        if state.claim != nil { return .claimUsername }
         return nil
     }
     private var title: String {
         switch state.route { case .devices, .device: FeatureSettingsStrings.text("settings.devices.title", locale: locale); case .nodes, .node: FeatureSettingsStrings.text("settings.nodes.title", locale: locale); case .appearance: FeatureSettingsStrings.text("settings.appearance.title", locale: locale)
-        case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .appLock: FeatureSettingsStrings.text("settings.appLock.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .about: FeatureSettingsStrings.text("settings.about.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.title", locale: locale) }
+        case .privacy: FeatureSettingsStrings.text("settings.privacy.title", locale: locale); case .appLock: FeatureSettingsStrings.text("settings.appLock.title", locale: locale); case .backup: FeatureSettingsStrings.text("settings.backup.title", locale: locale); case .account: FeatureSettingsStrings.text("settings.account.title", locale: locale); case .username: FeatureSettingsStrings.text("settings.username.title", locale: locale); case .about: FeatureSettingsStrings.text("settings.about.title", locale: locale); case .systemPermissions: FeatureSettingsStrings.text("settings.systemPermissions", locale: locale); case .delivery: FeatureSettingsStrings.text("settings.delivery", locale: locale); case .permissions: FeatureSettingsStrings.text("settings.connectedServices.title", locale: locale); default: FeatureSettingsStrings.text("settings.title", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.route {
@@ -121,13 +122,15 @@ public struct SettingsScreen: View {
             Text(copy(automatic ? "settings.privacy.autoAccept.on" : "settings.privacy.autoAccept.off")).foregroundStyle(theme.secondary)
             group(copy("settings.privacy.openAccount.section"), [
                 KitRow(copy("settings.privacy.openAccount"), action: { onAction(.unavailable(.openAccount)) }, icon: "globe", tag: "settings-open-account"),
-                KitRow(copy("settings.privacy.username"), action: { onAction(.unavailable(.username)) }, icon: "at-sign", value: state.username.map { "@" + $0 }, tag: "settings-username"),
+                KitRow(copy("settings.privacy.username"), action: { onAction(.open(.username)) }, icon: "at-sign", value: state.username?.name.map { "@" + $0 }, tag: "settings-username"),
             ])
             group(copy("settings.appLock.section"), [
                 KitRow(copy("settings.appLock.title"), action: { onAction(.open(.appLock)) }, icon: "lock", value: appLockSummary, tag: "settings-app-lock"),
             ])
         case .appLock:
             appLockContent
+        case .username:
+            usernameContent
         case .permissions:
             Text(FeatureSettingsStrings.text("settings.connectedServices.explanation", locale: locale))
             Button(FeatureSettingsStrings.text("settings.connectedServices.manage", locale: locale)) { onAction(.unavailable(.connectedServices)) }
@@ -176,6 +179,23 @@ public struct SettingsScreen: View {
                 .frame(minHeight: theme.composer_min * 4)
             #endif
             KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelChangeCode) }, kind: .text, enabled: !state.busy)
+        case .claimUsername:
+            if let claim = state.claim {
+                Text(copy("settings.username.claim.title")).rfFont(.page)
+                if claim.step == .name {
+                    TextField(copy("settings.username.claim.name"), text: Binding(get: { claim.name }, set: { onAction(.claimNameChanged($0)) }))
+                        .textFieldStyle(.roundedBorder).rfAddressInput().disabled(state.busy).accessibilityIdentifier("username-claim-name")
+                    KitButton(copy("settings.username.claim.continue"), action: { onAction(.continueClaimUsername) }, kind: .primary, enabled: !state.busy && UsernameInput.name(claim.name) != nil, tag: "username-claim-continue")
+                } else {
+                    Text(copy("settings.username.claim.phrase")).rfFont(.body, weight: .semibold)
+                    Text(copy("settings.username.claim.phraseNote")).foregroundStyle(theme.secondary)
+                    #if os(iOS)
+                    RFSecureEntryForm(fields: [RFSecureEntryField(id: "phrase", label: copy("settings.username.claim.phraseField"))], enabled: !state.busy) { onAction(.submitClaimUsername(SensitiveSubmission(values: $0))) }
+                        .frame(minHeight: theme.composer_min * 2)
+                    #endif
+                }
+                KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelClaimUsername) }, kind: .text, enabled: !state.busy, tag: "username-claim-cancel")
+            }
         case .removeLocal(let account):
             Text(copy("settings.account.removeLocal.title")).rfFont(.page); KitIdentifierText(account).textSelection(.enabled)
             Text(copy("settings.account.removeLocal.fact"))
@@ -183,6 +203,31 @@ public struct SettingsScreen: View {
         }
     }
     private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }
+    /// The Username page: the directory's status of this account's name. Claiming or changing it opens the claim sheet.
+    @ViewBuilder private var usernameContent: some View {
+        if state.snapshot.accountID == nil {
+            Text(copy("settings.username.noAccount")).foregroundStyle(theme.secondary)
+        } else if state.usernameLoading {
+            ProgressView(copy("settings.loading"))
+        } else {
+            switch state.username?.state {
+            case .committed?:
+                Text(untrusted: "@" + (state.username?.name ?? "")).rfFont(.page).textSelection(.enabled)
+                Text(copy("settings.username.committed")).foregroundStyle(theme.secondary)
+                KitButton(copy("settings.username.change"), action: { onAction(.startClaimUsername) }, kind: .secondary, enabled: !state.busy, tag: "settings-username-change")
+            case .pending?:
+                Text(copy("settings.username.pending")).foregroundStyle(theme.secondary)
+                KitButton(copy("settings.username.refresh"), action: { onAction(.refreshUsername) }, kind: .secondary, enabled: !state.busy, tag: "settings-username-refresh")
+            case .aborted?:
+                Text(copy("settings.username.aborted")).foregroundStyle(theme.danger)
+                KitButton(copy("settings.username.claim"), action: { onAction(.startClaimUsername) }, kind: .primary, enabled: !state.busy, tag: "settings-username-claim")
+            case .empty?, nil:
+                Text(copy("settings.username.none"))
+                KitButton(copy("settings.username.claim"), action: { onAction(.startClaimUsername) }, kind: .primary, enabled: !state.busy, tag: "settings-username-claim")
+            }
+            Text(copy("settings.username.note")).rfFont(.caption).foregroundStyle(theme.secondary)
+        }
+    }
     private var appLockSummary: String? { state.appLock.map { copy($0.enabled ? "settings.appLock.on" : "settings.appLock.off") } }
     /// The App lock page (Settings > Privacy). Off by default. Unlock is by account code only: the biometric row
     /// stays disabled until the core offers presence unlock.

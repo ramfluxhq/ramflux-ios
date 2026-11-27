@@ -420,6 +420,38 @@
 	<string>System permissions</string>
 	<key>settings.title</key>
 	<string>Settings</string>
+	<key>settings.username.aborted</key>
+	<string>The last change was not published.</string>
+	<key>settings.username.change</key>
+	<string>Change username</string>
+	<key>settings.username.claim</key>
+	<string>Claim a username</string>
+	<key>settings.username.claim.continue</key>
+	<string>Continue</string>
+	<key>settings.username.claim.name</key>
+	<string>Username</string>
+	<key>settings.username.claim.phrase</key>
+	<string>Confirm with your recovery phrase</string>
+	<key>settings.username.claim.phraseField</key>
+	<string>Recovery phrase</string>
+	<key>settings.username.claim.phraseNote</key>
+	<string>Your recovery phrase authorizes this change. It is not stored.</string>
+	<key>settings.username.claim.title</key>
+	<string>Claim a username</string>
+	<key>settings.username.committed</key>
+	<string>Others can add you by this name.</string>
+	<key>settings.username.noAccount</key>
+	<string>Open or create an account to claim a username.</string>
+	<key>settings.username.none</key>
+	<string>No username</string>
+	<key>settings.username.note</key>
+	<string>Changing your username needs your recovery phrase. Messages are not affected.</string>
+	<key>settings.username.pending</key>
+	<string>Still publishing. Check back in a moment.</string>
+	<key>settings.username.refresh</key>
+	<string>Refresh</string>
+	<key>settings.username.title</key>
+	<string>Username</string>
 	<key>settings.version</key>
 	<string>Version %1$@ (build %2$@)</string>
 	<key>tasks.title</key>

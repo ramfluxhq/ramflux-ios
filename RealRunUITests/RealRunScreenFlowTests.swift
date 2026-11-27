@@ -125,14 +125,14 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             let row = try require(element("settings-username"), "username row", timeout: 30)
             scrollIntoView(row)
             try tap(row, "Username row")
-            let unavailable = text(containing: "Usernames are not available")
-            let claim = text(containing: "Claiming a username needs your recovery phrase")
+            let unavailable = text(containing: "Username service unreachable")
+            let claim = text(containing: "Claim a username")
             let unknown = text(containing: "Outcome not confirmed")
             _ = eventually(30, { unavailable.exists || claim.exists || unknown.exists })
             snap("15b-username-status")
             if unknown.exists { throw FlowStop.fail("the username row shows an unknown outcome instead of the directory's answer: \(visibleFailure())") }
             let status = unavailable.exists ? "username.status refused; the app shows: \(unavailable.label)"
-                : claim.exists ? "username.status answered; claiming needs the recovery phrase ceremony, shown as unavailable" : "username.status answered with a claimed name"
+                : claim.exists ? "username.status answered; the page offers the claim with the recovery phrase" : "username.status answered with a claimed name"
             for _ in 0..<4 where !element("tab-messages").isHittable { back(); Thread.sleep(forTimeInterval: 0.5) }
             // Add a contact by @name: the directory resolves it, or its refusal is shown.
             try openMore()
@@ -141,7 +141,7 @@ final class RealRunScreenFlowTests: RealRunTestCase {
             let address = try require(element("contacts-add-address"), "account address field")
             address.tap(); address.typeText("@rr" + String(UUID().uuidString.prefix(6)).lowercased())
             try tap(element("contacts-add-send"), "Add by @name")
-            let notFound = text(containing: "No one has this username")
+            let notFound = text(containing: "No one with that username")
             guard eventually(60, { unavailable.exists || notFound.exists || unknown.exists || self.text(containing: "could not").exists }) else {
                 throw FlowStop.fail("adding by @name showed no outcome: \(visibleFailure())")
             }

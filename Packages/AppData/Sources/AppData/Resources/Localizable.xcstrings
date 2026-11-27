@@ -3082,52 +3082,35 @@
       }
     },
     "username.unavailable.directory": {
-      "comment": "Shown when the username directory refuses with directory_unavailable (settings username row, or adding a contact by @name).",
+      "comment": "Shown when the username directory cannot be reached (a configured build). Messaging is unaffected.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usernames are not available on this server yet."
+            "value": "Username service unreachable; messaging still works"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此服务器暂不支持用户名。"
+            "value": "用户名服务暂时无法连接；消息功能不受影响"
           }
         }
       }
     },
     "username.unavailable.notFound": {
-      "comment": "Shown when adding a contact by @name and the directory knows no such name.",
+      "comment": "Shown when a username lookup finds no account with that name.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No one has this username."
+            "value": "No one with that username"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有人使用这个用户名。"
-          }
-        }
-      }
-    },
-    "username.unavailable.claim": {
-      "comment": "Shown on the username row when the directory answers but the app cannot run the claim with the recovery phrase.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Claiming a username needs your recovery phrase, which this version of the app does not ask for yet."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "认领用户名需要你的恢复短语，此版本的应用暂不支持输入。"
+            "value": "没有使用该用户名的人"
           }
         }
       }
@@ -3145,6 +3128,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "请求被拒绝：%@。未做任何更改；请先核对页面再决定是否重试。"
+          }
+        }
+      }
+    },
+    "username.unavailable.notConfigured": {
+      "comment": "Shown when this build or computer has no username directory pin, so usernames are not set up.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usernames are not set up for this build or computer"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本或此电脑未设置用户名服务"
+          }
+        }
+      }
+    },
+    "username.unavailable.retry": {
+      "comment": "Shown when the username directory is rate limiting or at capacity and names no wait.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The username service is busy; try again later"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用户名服务繁忙，请稍后再试"
+          }
+        }
+      }
+    },
+    "username.retryIn": {
+      "comment": "The wait before a retry of a username request. %@ is a whole number of seconds.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again in %@ s"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 秒后重试"
+          }
+        }
+      }
+    },
+    "username.claim.phraseMismatch": {
+      "comment": "Shown when the recovery phrase does not authorize the username change for this account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery phrase does not match this account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复短语与此账号不符"
+          }
+        }
+      }
+    },
+    "username.claim.taken": {
+      "comment": "Shown when the username is already held by another account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That username is already taken"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "该用户名已被占用"
+          }
+        }
+      }
+    },
+    "username.claim.invalid": {
+      "comment": "Shown when the directory refuses the username's form.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That username is not valid"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用户名格式不正确"
           }
         }
       }

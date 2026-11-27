@@ -372,11 +372,21 @@
 	<string>批准此请求需要本机暂时无法生成的应用签名。你仍可拒绝。</string>
 	<key>tasks.unavailable</key>
 	<string>智能体任务创建及移动端审批和干预决策需要额外的已验证上下文。请在受信任客户端审核；尚未授予任何权限。</string>
-	<key>username.unavailable.claim</key>
-	<string>认领用户名需要你的恢复短语，此版本的应用暂不支持输入。</string>
+	<key>username.claim.invalid</key>
+	<string>用户名格式不正确</string>
+	<key>username.claim.phraseMismatch</key>
+	<string>恢复短语与此账号不符</string>
+	<key>username.claim.taken</key>
+	<string>该用户名已被占用</string>
+	<key>username.retryIn</key>
+	<string>%@ 秒后重试</string>
 	<key>username.unavailable.directory</key>
-	<string>此服务器暂不支持用户名。</string>
+	<string>用户名服务暂时无法连接；消息功能不受影响</string>
+	<key>username.unavailable.notConfigured</key>
+	<string>此版本或此电脑未设置用户名服务</string>
 	<key>username.unavailable.notFound</key>
-	<string>没有人使用这个用户名。</string>
+	<string>没有使用该用户名的人</string>
+	<key>username.unavailable.retry</key>
+	<string>用户名服务繁忙，请稍后再试</string>
 </dict>
 </plist>

@@ -420,6 +420,38 @@
 	<string>系统权限</string>
 	<key>settings.title</key>
 	<string>设置</string>
+	<key>settings.username.aborted</key>
+	<string>上次更改未发布。</string>
+	<key>settings.username.change</key>
+	<string>更改用户名</string>
+	<key>settings.username.claim</key>
+	<string>设置用户名</string>
+	<key>settings.username.claim.continue</key>
+	<string>继续</string>
+	<key>settings.username.claim.name</key>
+	<string>用户名</string>
+	<key>settings.username.claim.phrase</key>
+	<string>用恢复短语确认</string>
+	<key>settings.username.claim.phraseField</key>
+	<string>恢复短语</string>
+	<key>settings.username.claim.phraseNote</key>
+	<string>恢复短语用于授权此次更改，不会被保存。</string>
+	<key>settings.username.claim.title</key>
+	<string>设置用户名</string>
+	<key>settings.username.committed</key>
+	<string>其他人可以通过此用户名添加你。</string>
+	<key>settings.username.noAccount</key>
+	<string>打开或创建账号后即可设置用户名。</string>
+	<key>settings.username.none</key>
+	<string>尚未设置用户名</string>
+	<key>settings.username.note</key>
+	<string>更改用户名需要恢复短语。消息不受影响。</string>
+	<key>settings.username.pending</key>
+	<string>仍在发布，请稍后再查看。</string>
+	<key>settings.username.refresh</key>
+	<string>刷新</string>
+	<key>settings.username.title</key>
+	<string>用户名</string>
 	<key>settings.version</key>
 	<string>版本 %1$@（构建 %2$@）</string>
 	<key>tasks.title</key>

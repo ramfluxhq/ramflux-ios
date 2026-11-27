@@ -12,6 +12,8 @@ public enum AppFailure: Error, Sendable, Equatable {
     case accountCode(AccountCodeIssue)
     /// Too many wrong account codes; the SDK names the wait (`retry_after_ms`), in whole seconds here.
     case accountCodeWait(seconds: Int)
+    /// The username directory is rate limiting or at capacity; it names the wait in whole seconds (`retry_after_ms`).
+    case usernameRetry(seconds: Int)
     case backup(BackupIssue)
     case pairing(PairingIssue)
     public var title: String { title(locale: .current) }
@@ -33,6 +35,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .failed, .sdkReason: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
         case .accountCode, .accountCodeWait: AppDataStrings.text("accountCode.failure.title", locale: locale)
+        case .usernameRetry: AppDataStrings.text("failure.unavailable.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
         case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
         }
@@ -70,6 +73,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
         case .accountCodeWait(let seconds):
             AppDataStrings.format("accountCode.failure.wait", Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale)), locale: locale)
+        case .usernameRetry(let seconds): AppDataStrings.format("username.retryIn", String(seconds), locale: locale)
         case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         }
@@ -93,8 +97,21 @@ public enum AppFailure: Error, Sendable, Equatable {
         switch failure.reasonCode ?? failure.reason ?? failure.response?["error"]?["code"]?.string {
         case "directory_unavailable": return .unavailableResource("username.unavailable.directory")
         case "name_not_found", "not_found": return .unavailableResource("username.unavailable.notFound")
+        case "authentication_required", "signature_invalid": return .unavailableResource("username.claim.phraseMismatch")
+        case "invalid_username": return .unavailableResource("username.claim.invalid")
+        case "username_taken": return .unavailableResource("username.claim.taken")
+        case "rate_limited", "capacity":
+            let retry = milliseconds(failure.response?["error"]?["retry_after_ms"]) ?? milliseconds(failure.response?["retry_after_ms"])
+            return retry.map { .usernameRetry(seconds: max(1, Int((Double($0) / 1000).rounded(.up)))) } ?? .unavailableResource("username.unavailable.retry")
         // Any other typed reason is shown as the SDK named it (`map` does that for codes 1, 16 and 25).
         default: return map(error)
+        }
+    }
+    private static func milliseconds(_ value: JSONValue?) -> Double? {
+        switch value {
+        case .number(let number)?: number >= 0 ? number : nil
+        case .unsigned(let number)?: Double(number)
+        default: nil
         }
     }
     /// The SDK refused the call because the account's app lock is engaged (`reason_code` `app_locked`). The

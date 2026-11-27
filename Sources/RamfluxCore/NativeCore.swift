@@ -307,6 +307,38 @@ public final class NativeCore: CoreTransport {
     func subscriptionEnded(client: UInt64) {
         state.withLock { if $0.handle == client { $0.streamOpened = false } }
     }
+    public func prepareUsername(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> (response: JSONValue, operation: UsernameDraftOperation) {
+        guard request.method == SDKOperation.usernameMutate.rawValue else { throw BridgeError.invalidInput }
+        let secret = try SecretRequest(request: request, fields: [:])
+        return try secret.json.consume {
+            let result = try requestResult($0, request: request, cancellation: cancellation, keepOperation: true) { try self.jsonCompletion($0, request: request) }
+            guard let operation = result.operation else { throw BridgeError.invalidResponse }
+            return (result.response, UsernameDraftOperation(native: operation))
+        }
+    }
+    /// `ramflux_v2_username_authorize` for a prepared draft. The phrase is borrowed for the call and erased by the caller;
+    /// the signed change is returned as JSON, and a refusal carries the core's `reason_code` (for example `authentication_required`).
+    public func authorizeUsername(_ draft: UsernameDraftOperation, publicRequest: JSONValue, phrase: SecretBytes) throws -> JSONValue {
+        let client = try currentHandle()
+        guard client == draft.native.client else { throw BridgeError.closed }
+        var signed: UnsafeMutablePointer<RamfluxBuffer>?
+        var refusal: UnsafeMutablePointer<RamfluxBuffer>?
+        defer { if let refusal { rf_buffer_wipe_free(refusal) } }
+        var publicBytes = try publicRequest.encoded()
+        defer { publicBytes.resetBytes(in: 0..<publicBytes.count) }
+        let code = try publicBytes.withUnsafeBytes { request in
+            try phrase.consume { bytes in
+                ramflux_v2_username_authorize(client, request.bindMemory(to: UInt8.self).baseAddress, request.count,
+                                              bytes.bindMemory(to: UInt8.self).baseAddress, bytes.count, &signed, &refusal)
+            }
+        }
+        guard code == 0, signed != nil else {
+            let failure = refusal.flatMap { try? JSONValue.decode(NativeBuffers.copy($0)) }
+            let reason = failure?["reason_code"]?.string ?? failure?["reason"]?.string
+            throw CoreFailure(code: code == 0 ? 16 : code, effect: .none, operationID: nil, reasonCode: reason, reason: reason)
+        }
+        return try JSONValue.decode(NativeBuffers.take(signed))
+    }
     public func resetEvents() throws {
         try state.withLock { state in
             guard !state.closing, state.handle != 0, !state.streamOpened else { throw BridgeError.invalidInput }

@@ -118,6 +118,14 @@
 	<string>Replying does not accept a request or add a contact.</string>
 	<key>contacts.strangers.title</key>
 	<string>Strangers</string>
+	<key>contacts.username.found</key>
+	<string>Found @%@</string>
+	<key>contacts.username.lookingUp</key>
+	<string>Looking up…</string>
+	<key>contacts.username.lookup</key>
+	<string>Look up</string>
+	<key>contacts.username.send</key>
+	<string>Send contact request</string>
 	<key>request.sentStatus</key>
 	<string>Sent request · %@</string>
 </dict>

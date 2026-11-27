@@ -3586,6 +3586,278 @@
           }
         }
       }
+    },
+    "settings.username.title": {
+      "comment": "Title of the Username page in Settings (privacy).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用户名"
+          }
+        }
+      }
+    },
+    "settings.username.noAccount": {
+      "comment": "Username page with no account open.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open or create an account to claim a username."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开或创建账号后即可设置用户名。"
+          }
+        }
+      }
+    },
+    "settings.username.none": {
+      "comment": "Username page: the account has no claimed username.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未设置用户名"
+          }
+        }
+      }
+    },
+    "settings.username.committed": {
+      "comment": "Username page: the claimed name is published.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Others can add you by this name."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他人可以通过此用户名添加你。"
+          }
+        }
+      }
+    },
+    "settings.username.change": {
+      "comment": "Button on the Username page to change a claimed name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改用户名"
+          }
+        }
+      }
+    },
+    "settings.username.claim": {
+      "comment": "Button on the Username page to claim a first name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claim a username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置用户名"
+          }
+        }
+      }
+    },
+    "settings.username.pending": {
+      "comment": "Username page: the change is still being published after the wait.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still publishing. Check back in a moment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仍在发布，请稍后再查看。"
+          }
+        }
+      }
+    },
+    "settings.username.refresh": {
+      "comment": "Button that re-reads the status of a pending username change.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
+    },
+    "settings.username.aborted": {
+      "comment": "Username page: the last change was not published.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last change was not published."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次更改未发布。"
+          }
+        }
+      }
+    },
+    "settings.username.note": {
+      "comment": "Username page footnote: claiming needs the recovery phrase; messaging is unaffected.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing your username needs your recovery phrase. Messages are not affected."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改用户名需要恢复短语。消息不受影响。"
+          }
+        }
+      }
+    },
+    "settings.username.claim.title": {
+      "comment": "Title of the claim sheet for a username.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claim a username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置用户名"
+          }
+        }
+      }
+    },
+    "settings.username.claim.name": {
+      "comment": "Placeholder of the username field in the claim sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用户名"
+          }
+        }
+      }
+    },
+    "settings.username.claim.continue": {
+      "comment": "Button that moves the claim sheet to the recovery phrase step.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        }
+      }
+    },
+    "settings.username.claim.phrase": {
+      "comment": "Claim sheet, recovery phrase step: heading.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm with your recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用恢复短语确认"
+          }
+        }
+      }
+    },
+    "settings.username.claim.phraseNote": {
+      "comment": "Claim sheet, recovery phrase step: the phrase authorizes the change and is not kept.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your recovery phrase authorizes this change. It is not stored."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复短语用于授权此次更改，不会被保存。"
+          }
+        }
+      }
+    },
+    "settings.username.claim.phraseField": {
+      "comment": "Label of the secure recovery phrase field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复短语"
+          }
+        }
+      }
     }
   }
 }

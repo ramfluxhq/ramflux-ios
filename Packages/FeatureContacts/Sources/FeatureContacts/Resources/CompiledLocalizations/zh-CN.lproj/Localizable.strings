@@ -118,6 +118,14 @@
 	<string>回复不会接受请求或添加联系人。</string>
 	<key>contacts.strangers.title</key>
 	<string>陌生人</string>
+	<key>contacts.username.found</key>
+	<string>找到 @%@</string>
+	<key>contacts.username.lookingUp</key>
+	<string>正在查找…</string>
+	<key>contacts.username.lookup</key>
+	<string>查找</string>
+	<key>contacts.username.send</key>
+	<string>发送联系人请求</string>
 	<key>request.sentStatus</key>
 	<string>已发送请求 · %@</string>
 </dict>
