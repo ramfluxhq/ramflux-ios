@@ -28,6 +28,13 @@ struct ProxyGateway: Sendable {
         }
         return body
     }
+    /// A call that may ask the host for the account code (`account.app_lock.configure` only). The frame is read as `call` reads it.
+    func callAttended(_ operation: SDKOperation, account: String, body: JSONValue, operationID: String, credentials: @escaping CredentialAsk) async throws -> JSONValue {
+        let ctx = try context(operation, account: account, operationID: operationID)
+        let frame = try await proxy.performAttended(operation, context: ctx, body: body, credentials: credentials)
+        guard frame["ok"] == .bool(true), let body = frame["body"] else { throw AppFailure.outcomeUnknown }
+        return body
+    }
     static func body(_ value: SecretBytes) throws -> JSONValue {
         try value.consume { bytes in
             let frame = try JSONDecoder().decode(JSONValue.self, from: Data(bytes))

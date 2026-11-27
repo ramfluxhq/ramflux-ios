@@ -52,6 +52,10 @@
 	<string>账户码</string>
 	<key>shell.appLock.instructions</key>
 	<string>输入账户码以继续。</string>
+	<key>shell.appLock.restore</key>
+	<string>用恢复短语恢复</string>
+	<key>shell.appLock.wait</key>
+	<string>错误的账户码次数过多。请在 %@ 后再试。</string>
 	<key>shell.loading.accountServices</key>
 	<string>正在打开账户服务</string>
 	<key>shell.locked.accessibility</key>

@@ -111,6 +111,24 @@ public final class NativeCore: CoreTransport {
             try requestResult($0, request: request.request, cancellation: cancellation) { try self.sealedCompletion($0, request: request.request) }.response
         }
     }
+    /// `account.app_lock.configure` only. The provider is registered for this one call and cleared once it is terminal,
+    /// so `account.unlock` and the other calls never prompt through it. Core asks for the code only when it needs one.
+    public func executeAttended(_ request: CoreRequest, cancellation: any CancellationHandle, credentials: @escaping CredentialAsk) throws -> JSONValue {
+        guard request.method == SDKOperation.accountAppLockConfigure.rawValue else { throw BridgeError.invalidInput }
+        var data = try request.envelope().encodedRequest()
+        defer { data.resetBytes(in: 0..<data.count) }
+        let client = try currentHandle()
+        let exchange = Unmanaged.passRetained(CredentialExchange(ask: credentials))
+        defer { exchange.release() }
+        guard ramflux_v2_set_credential_provider(client, credentialProviderCallback, exchange.toOpaque()) == 0 else {
+            throw CoreFailure(code: 16, effect: .none, operationID: request.operationID?.rawValue)
+        }
+        // Registered only for the call above: clearing waits for an active callback, which is bounded by its own wait.
+        defer { _ = ramflux_v2_set_credential_provider(client, nil, nil) }
+        return try data.withUnsafeBytes {
+            try requestResult($0, request: request, cancellation: cancellation) { try self.jsonCompletion($0, request: request) }.response
+        }
+    }
     private func sealedCompletion(_ buffer: UnsafeMutablePointer<RamfluxBuffer>, request: CoreRequest) throws -> SecretBytes {
         var code: Int32 = 0
         guard rf_completion_code(buffer, &code) == 1 else {

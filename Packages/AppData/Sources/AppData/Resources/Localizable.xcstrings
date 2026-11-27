@@ -3233,6 +3233,24 @@
           }
         }
       }
+    },
+    "accountCode.failure.reauthRequired": {
+      "comment": "Shown when a change that weakens the app lock was not made because no account code was given. Nothing changed.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App lock was not changed. The change needs your account code."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用锁未更改。此更改需要账户码。"
+          }
+        }
+      }
     }
   }
 }

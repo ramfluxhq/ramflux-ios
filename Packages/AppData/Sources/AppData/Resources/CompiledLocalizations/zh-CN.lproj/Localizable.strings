@@ -10,6 +10,8 @@
 	<string>两次输入的账户码不一致，请重新输入。</string>
 	<key>accountCode.failure.notSixDigits</key>
 	<string>账户码必须正好是 6 位数字（0–9）。</string>
+	<key>accountCode.failure.reauthRequired</key>
+	<string>应用锁未更改。此更改需要账户码。</string>
 	<key>accountCode.failure.required</key>
 	<string>此账户已锁定。请输入账户码。</string>
 	<key>accountCode.failure.retryLater</key>

@@ -170,6 +170,20 @@
 	<string>暂不可用</string>
 	<key>settings.appLock.biometric.section</key>
 	<string>生物识别解锁</string>
+	<key>settings.appLock.code.exhausted</key>
+	<string>错误的账户码次数过多。请用恢复短语恢复此账户。</string>
+	<key>settings.appLock.code.field</key>
+	<string>账户码</string>
+	<key>settings.appLock.code.longer</key>
+	<string>输入账户码以延长锁定时间。</string>
+	<key>settings.appLock.code.restore</key>
+	<string>用恢复短语恢复</string>
+	<key>settings.appLock.code.title</key>
+	<string>用账户码确认</string>
+	<key>settings.appLock.code.turnOff</key>
+	<string>输入账户码以关闭应用锁。</string>
+	<key>settings.appLock.code.wait</key>
+	<string>错误的账户码次数过多。请在 %@ 后再试。</string>
 	<key>settings.appLock.explanation</key>
 	<string>开启后，离开应用超过所选时间时，Ramflux 会要求输入账户码。</string>
 	<key>settings.appLock.noAccount</key>

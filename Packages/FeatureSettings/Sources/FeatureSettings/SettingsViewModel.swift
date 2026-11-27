@@ -3,6 +3,7 @@
 import Foundation
 import Observation
 import AppData
+import RamfluxCore
 @Observable @MainActor public final class SettingsViewModel {
     public private(set) var state: SettingsState
     private let account: String?
@@ -26,6 +27,11 @@ import AppData
     /// Tags each status read; a read whose ticket is no longer current (a claim started or finished meanwhile) is dropped.
     @ObservationIgnored private var usernameTicket: UInt64 = 0
     @ObservationIgnored private var lastUsernameRead: ContinuousClock.Instant?
+    /// The account-code request core opened for a weakening change; resumed once with the code, or nil.
+    @ObservationIgnored private var codeAnswer: CheckedContinuation<SecretBytes?, Never>?
+    @ObservationIgnored private var codeTimer: Task<Void, Never>?
+    /// The user closed the code sheet (or the screen left): a refusal that follows is not shown as an error.
+    @ObservationIgnored private var userDismissedCode = false
     public init(repository: any SettingsRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
                 account: String?, state: SettingsState = SettingsState(), emit: @escaping (SettingsEvent) -> Void) {
         self.repository = repository; self.nodes = nodes; self.preferences = preferences; self.account = account; self.state = state; self.emit = emit
@@ -38,16 +44,30 @@ import AppData
             if state.route == .username { readUsername() }
         case .configureAppLock(let enabled, let timeout):
             guard let account, !state.busy, state.appLock?.state != .unavailable else { return }
-            state.busy = true; state.failure = nil; let current = epoch
+            // While the code is throttled or used up, a weakening change cannot succeed: nothing is sent.
+            if weakensAppLock(enabled: enabled, timeout: timeout), appLockCodeBlocked { return }
+            state.busy = true; state.failure = nil; state.appLockTurningOff = !enabled; let current = epoch; userDismissedCode = false
             mutation = Task { [weak self, repository] in
-                let result = await repository.configureAppLock(account: account, enabled: enabled, timeoutMilliseconds: timeout, operationID: UUID().uuidString)
+                // Core asks for the account code only for a weakening change; the answer comes from the sheet below.
+                let result = await repository.configureAppLock(account: account, enabled: enabled, timeoutMilliseconds: timeout,
+                    credentials: { [weak self] action in await self?.answerAccountCode(action) }, operationID: UUID().uuidString)
                 guard !Task.isCancelled, let self, self.epoch == current else { return }
                 self.state.busy = false
                 switch result {
-                case .success(let record): self.state.appLock = record; self.emit(.appLockChanged(record.enabled))
-                case .failure(let failure): self.state.failure = failure
+                case .success(let record): self.apply(record); self.emit(.appLockChanged(record.enabled))
+                case .failure(let failure):
+                    // A dismissed sheet is a refusal the user chose: the stored state is shown again, with no error text.
+                    self.state.failure = failure == .accountCode(.reauthRequired) && self.userDismissedCode ? nil : failure
+                    self.readAppLock()
                 }
             }
+        case .submitAccountCode(let input):
+            guard state.codePrompt, codeAnswer != nil else { input.erase(); return }
+            if let issue = input.accountCodeIssue { input.erase(); state.failure = .accountCode(issue); return }
+            guard let code = input.takeAccountCode() else { input.erase(); return }
+            finishAccountCode(code)
+        case .cancelAccountCode:
+            userDismissedCode = true; finishAccountCode(nil)
         case .open(let route): emit(.navigate(route))
         case .appearance(let mode):
             guard !state.busy else { return }
@@ -100,7 +120,9 @@ import AppData
             guard let node = state.snapshot.nodes.first(where: { $0.id == id }) else { return }
             dispatch(PendingSettingsMutation(change: .setDefault(node), operationID: UUID().uuidString))
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
-        case .dismissModal: state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false; state.claim = nil }
+        case .dismissModal:
+            if state.codePrompt { userDismissedCode = true; finishAccountCode(nil) }
+            state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false; state.claim = nil }
         case .startClaimUsername:
             guard account != nil, !state.busy else { return }
             state.failure = nil; state.claim = UsernameClaim()
@@ -114,6 +136,7 @@ import AppData
             if !state.busy { state.claim = nil; state.failure = nil }
         case .conceal:
             // Leaving the active scene closes the claim sheet (dropping it erases the phrase field) and cancels a claim in flight, even while busy.
+            if state.codePrompt { userDismissedCode = true; finishAccountCode(nil) }
             guard state.claim != nil else { return }
             abandonClaim(); state.claim = nil; state.failure = nil
         case .submitClaimUsername(let input):
@@ -144,6 +167,7 @@ import AppData
             if let pending = state.pendingMutation, pending.operationID == id, !state.busy { dispatch(pending, reconciling: true) }
         case .disappeared:
             sideTask?.cancel()
+            userDismissedCode = true; finishAccountCode(nil)
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             clearUsername()
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
@@ -158,10 +182,48 @@ import AppData
             let result = await repository.appLock(account: account)
             guard let self, !Task.isCancelled else { return }
             switch result {
-            case .success(let record): self.state.appLock = record
+            case .success(let record): self.apply(record)
             case .failure(let failure): self.state.failure = failure
             }
         }
+    }
+    /// Stores the SDK's app-lock state and the monotonic moment its account-code wait ends. Nothing else is kept.
+    private func apply(_ record: AppLockRecord) {
+        state.appLock = record
+        state.codeRetryDeadline = record.codeRetryAfterMilliseconds.map { ContinuousClock.now.advanced(by: .milliseconds(Int(min($0, 86_400_000)))) }
+    }
+    /// A change that lowers the lock's strength: the lock is on and it is turned off, or its timeout gets longer.
+    private func weakensAppLock(enabled: Bool, timeout: UInt64) -> Bool {
+        guard let record = state.appLock, record.enabled else { return false }
+        return !enabled || timeout > record.timeoutMilliseconds
+    }
+    /// The account-code checks are throttled (the wait has not ended) or used up. Strengthening is never blocked.
+    private var appLockCodeBlocked: Bool {
+        if state.appLock?.codeAttemptsExhausted == true { return true }
+        guard let deadline = state.codeRetryDeadline else { return false }
+        return ContinuousClock.now < deadline
+    }
+    /// Core asked for the account code of a weakening change: the sheet opens and the answer is the code, or nil when
+    /// the sheet is closed, times out or the screen leaves. One request is open at a time; core never gets a second.
+    private func answerAccountCode(_ action: CredentialAction) async -> SecretBytes? {
+        guard action == .unlock, account != nil, codeAnswer == nil else { return nil }
+        return await withCheckedContinuation { continuation in
+            codeAnswer = continuation
+            state.codePrompt = true
+            codeTimer = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(60))
+                guard !Task.isCancelled else { return }
+                self?.finishAccountCode(nil)
+            }
+        }
+    }
+    /// Closes the code sheet and resumes the open request once. A secret that finds no request is erased.
+    private func finishAccountCode(_ secret: SecretBytes?) {
+        codeTimer?.cancel(); codeTimer = nil
+        state.codePrompt = false
+        guard let continuation = codeAnswer else { secret?.erase(); return }
+        codeAnswer = nil
+        continuation.resume(returning: secret)
     }
     /// The username row asks the username directory (`username.status`): the claimed name, or the
     /// directory's refusal as an honest unavailable state.

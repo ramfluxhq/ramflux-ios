@@ -170,6 +170,20 @@
 	<string>Not available yet</string>
 	<key>settings.appLock.biometric.section</key>
 	<string>Biometric unlock</string>
+	<key>settings.appLock.code.exhausted</key>
+	<string>Too many wrong account codes. Restore the account with its recovery phrase.</string>
+	<key>settings.appLock.code.field</key>
+	<string>Account code</string>
+	<key>settings.appLock.code.longer</key>
+	<string>Enter your account code to lock less often.</string>
+	<key>settings.appLock.code.restore</key>
+	<string>Restore with recovery phrase</string>
+	<key>settings.appLock.code.title</key>
+	<string>Confirm with your account code</string>
+	<key>settings.appLock.code.turnOff</key>
+	<string>Enter your account code to turn off app lock.</string>
+	<key>settings.appLock.code.wait</key>
+	<string>Too many wrong account codes. Try again in %@.</string>
 	<key>settings.appLock.explanation</key>
 	<string>When on, Ramflux asks for your account code after the chosen time away.</string>
 	<key>settings.appLock.noAccount</key>

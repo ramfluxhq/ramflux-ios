@@ -21,8 +21,10 @@ public enum AccountCodeIssue: String, Equatable, Sendable, CaseIterable {
     case required
     /// The platform vault holds no device unlock secret (`device_unlock_unavailable`).
     case deviceUnlockUnavailable
-    /// The code is well formed but not the account's code. The SDK refuses it as a plain invalid argument.
+    /// The code is well formed but not the account's code (SDK `wrong_passphrase`, on unlock and on a weakening change).
     case wrong
+    /// A weakening change was refused without a code (SDK `reauth_required`): nothing changed.
+    case reauthRequired
 
     /// SDK reason tokens; never peer text.
     static func sdk(_ reason: String?) -> Self? {
@@ -33,6 +35,8 @@ public enum AccountCodeIssue: String, Equatable, Sendable, CaseIterable {
         case "unlock_attempts_exhausted": .attemptsExhausted
         case "account_code_required": .required
         case "device_unlock_unavailable": .deviceUnlockUnavailable
+        case "wrong_passphrase": .wrong
+        case "reauth_required": .reauthRequired
         default: nil
         }
     }

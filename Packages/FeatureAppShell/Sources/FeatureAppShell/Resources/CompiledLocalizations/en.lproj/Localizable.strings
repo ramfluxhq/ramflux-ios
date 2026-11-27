@@ -52,6 +52,10 @@
 	<string>Account code</string>
 	<key>shell.appLock.instructions</key>
 	<string>Enter your account code to continue.</string>
+	<key>shell.appLock.restore</key>
+	<string>Restore with recovery phrase</string>
+	<key>shell.appLock.wait</key>
+	<string>Too many wrong account codes. Try again in %@.</string>
 	<key>shell.loading.accountServices</key>
 	<string>Opening account services</string>
 	<key>shell.locked.accessibility</key>

@@ -53,7 +53,8 @@ import Push
     @ObservationIgnored private var appLockScreen: (String, AppLockModel)?
     func appLock(account: String) -> AppLockModel {
         if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
-        let model = AppLockModel(repository: repositories.onboarding, account: account) { [weak self] in self?.shell.send(.retry) }
+        let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
+                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.shell.send(.open(.recoverAccount)) })
         appLockScreen = (account, model); return model
     }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.

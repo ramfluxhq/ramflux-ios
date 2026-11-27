@@ -849,6 +849,42 @@
           }
         }
       }
+    },
+    "shell.appLock.wait": {
+      "comment": "Shown on the app lock screen while the account-code checks are throttled. %@ is the remaining wait as minutes and seconds, for example 0:30.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Try again in %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请在 %@ 后再试。"
+          }
+        }
+      }
+    },
+    "shell.appLock.restore": {
+      "comment": "Button on the app lock screen that opens the restore of the account with its recovery phrase.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore with recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用恢复短语恢复"
+          }
+        }
+      }
     }
   }
 }

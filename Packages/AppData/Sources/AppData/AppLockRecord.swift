@@ -12,8 +12,14 @@ public struct AppLockRecord: Equatable, Sendable {
     public let timeoutMilliseconds: UInt64
     public let state: State
     public let remainingMilliseconds: UInt64?
-    public init(enabled: Bool, timeoutMilliseconds: UInt64, state: State, remainingMilliseconds: UInt64?) {
+    /// The wait before the next account-code check is allowed (`code_retry_after_ms`); nil when none applies.
+    public let codeRetryAfterMilliseconds: UInt64?
+    /// The account-code checks are used up; only the recovery phrase restores the account (`code_attempts_exhausted`).
+    public let codeAttemptsExhausted: Bool
+    public init(enabled: Bool, timeoutMilliseconds: UInt64, state: State, remainingMilliseconds: UInt64?,
+                codeRetryAfterMilliseconds: UInt64? = nil, codeAttemptsExhausted: Bool = false) {
         self.enabled = enabled; self.timeoutMilliseconds = timeoutMilliseconds; self.state = state; self.remainingMilliseconds = remainingMilliseconds
+        self.codeRetryAfterMilliseconds = codeRetryAfterMilliseconds; self.codeAttemptsExhausted = codeAttemptsExhausted
     }
     static func decode(_ body: JSONValue) throws -> AppLockRecord {
         guard let enabled = body["enabled"]?.bool, let name = body["state"]?.string,
@@ -24,7 +30,9 @@ public struct AppLockRecord: Equatable, Sendable {
         default: .locked
         }
         let remaining = ProxyGateway.integer(body["remaining_ms"]).flatMap { $0 >= 0 ? UInt64($0) : nil }
-        return AppLockRecord(enabled: enabled, timeoutMilliseconds: UInt64(timeout), state: state, remainingMilliseconds: remaining)
+        let retry = ProxyGateway.integer(body["code_retry_after_ms"]).flatMap { $0 > 0 ? UInt64($0) : nil }
+        return AppLockRecord(enabled: enabled, timeoutMilliseconds: UInt64(timeout), state: state, remainingMilliseconds: remaining,
+                             codeRetryAfterMilliseconds: retry, codeAttemptsExhausted: body["code_attempts_exhausted"]?.bool == true)
     }
 }
 
@@ -43,9 +51,10 @@ struct AppLockService: Sendable {
     func state(account: String) async throws -> AppLockRecord {
         try AppLockRecord.decode(try await gateway.call(.accountAppLockState, account: account))
     }
-    func configure(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async throws -> AppLockRecord {
-        _ = try await gateway.call(.accountAppLockConfigure, account: account,
-                                   body: .object(["enabled": .bool(enabled), "timeout_ms": .number(Double(timeoutMilliseconds))]), operationID: operationID)
+    func configure(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async throws -> AppLockRecord {
+        _ = try await gateway.callAttended(.accountAppLockConfigure, account: account,
+                                           body: .object(["enabled": .bool(enabled), "timeout_ms": .number(Double(timeoutMilliseconds))]),
+                                           operationID: operationID, credentials: credentials)
         return try await state(account: account)
     }
     /// The reply is the lock as the core holds it after the call: the foreground may engage an expired lock at once.
