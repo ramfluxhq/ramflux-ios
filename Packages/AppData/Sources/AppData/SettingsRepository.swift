@@ -37,7 +37,8 @@ public protocol SettingsRepository: Sendable {
     /// The app lock of the account (`account.app_lock.state`). Off by default.
     func appLock(account: String) async -> RepositoryResult<AppLockRecord>
     /// Turns the app lock on or off and sets its timeout (`account.app_lock.configure`); returns the state the SDK now reports.
-    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord>
+    /// Core asks for the account code through `credentials` only for a weakening change; a refusal is a typed `AppFailure`.
+    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async -> RepositoryResult<AppLockRecord>
 }
 public extension SettingsRepository {
     func username(account: String, operationID: String?) async -> RepositoryResult<UsernameStatus> { .failure(.unsupported) }
@@ -46,7 +47,7 @@ public extension SettingsRepository {
         phrase.erase(); return .failure(.unsupported)
     }
     func appLock(account: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
-    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
+    func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async -> RepositoryResult<AppLockRecord> { .failure(.unsupported) }
 }
 public struct NativeSettingsRepository: SettingsRepository {
     private let gateway: ProxyGateway
@@ -68,8 +69,8 @@ public struct NativeSettingsRepository: SettingsRepository {
         do { return .success(try await AppLockService(gateway: gateway).state(account: account)) }
         catch { return .failure(AppFailure.map(error)) }
     }
-    public func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, operationID: String) async -> RepositoryResult<AppLockRecord> {
-        do { return .success(try await AppLockService(gateway: gateway).configure(account: account, enabled: enabled, timeoutMilliseconds: timeoutMilliseconds, operationID: operationID)) }
+    public func configureAppLock(account: String, enabled: Bool, timeoutMilliseconds: UInt64, credentials: @escaping CredentialAsk, operationID: String) async -> RepositoryResult<AppLockRecord> {
+        do { return .success(try await AppLockService(gateway: gateway).configure(account: account, enabled: enabled, timeoutMilliseconds: timeoutMilliseconds, credentials: credentials, operationID: operationID)) }
         catch { return .failure(AppFailure.map(error)) }
     }
     public func snapshot(account: String?) async -> RepositoryResult<SettingsSnapshot> {

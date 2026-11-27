@@ -24,6 +24,12 @@ public extension SDKProxyProtocol {
         let request = try makeRequest(operation, context: context, body: body)
         return try await client.executeSecret(SecretRequest(request: request, fields: secrets))
     }
+    /// Only `account.app_lock.configure` may run attended; every other operation keeps the plain path.
+    func performAttended(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:]),
+                         credentials: @escaping CredentialAsk) async throws -> JSONValue {
+        guard operation == .accountAppLockConfigure else { throw BridgeError.invalidInput }
+        return try await client.executeAttended(makeRequest(operation, context: context, body: body), credentials: credentials)
+    }
     func performSecretResponse(_ operation: SDKOperation, context: RequestContext, body: JSONValue = .object([:])) async throws -> SecretBytes {
         try await client.executeSecretResponse(makeRequest(operation, context: context, body: body))
     }

@@ -17,6 +17,8 @@ public protocol CoreTransport: Sendable {
     func executeSecret(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> JSONValue
     func executeSecretResponse(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> SecretBytes
     func executeSecretRequestResponse(_ request: SecretRequest, cancellation: any CancellationHandle) throws -> SecretBytes
+    /// Runs `account.app_lock.configure` with the attended account-code provider registered for that call only.
+    func executeAttended(_ request: CoreRequest, cancellation: any CancellationHandle, credentials: @escaping CredentialAsk) throws -> JSONValue
     /// Admits `username.mutate` prepare and keeps its operation unreleased until the draft is released.
     func prepareUsername(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> (response: JSONValue, operation: UsernameDraftOperation)
     /// Authorizes the draft with the recovery phrase (borrowed; erased by the caller) and returns the signed change.
@@ -30,6 +32,7 @@ public protocol CoreTransport: Sendable {
 }
 
 public extension CoreTransport {
+    func executeAttended(_ request: CoreRequest, cancellation: any CancellationHandle, credentials: @escaping CredentialAsk) throws -> JSONValue { throw BridgeError.invalidInput }
     func prepareUsername(_ request: CoreRequest, cancellation: any CancellationHandle) throws -> (response: JSONValue, operation: UsernameDraftOperation) { throw BridgeError.invalidInput }
     func authorizeUsername(_ draft: UsernameDraftOperation, publicRequest: JSONValue, phrase: SecretBytes) throws -> JSONValue { throw BridgeError.invalidInput }
 }
@@ -106,6 +109,16 @@ public final class RamfluxClient: Sendable {
         return try await withTaskCancellationHandler {
             if Task.isCancelled { cancellation.cancel() }
             return try await offload { [transport] in try transport.executeSecretRequestResponse(request, cancellation: cancellation) }
+        } onCancel: { cancellation.cancel() }
+    }
+    /// The attended `account.app_lock.configure`: core asks for the account code through `credentials` only when it needs one.
+    public func executeAttended(_ request: CoreRequest, credentials: @escaping CredentialAsk) async throws -> JSONValue {
+        let bytes = try request.body.encoded().count
+        try admit(bytes: bytes); defer { release(bytes: bytes) }
+        let cancellation = try transport.newCancellation()
+        return try await withTaskCancellationHandler {
+            if Task.isCancelled { cancellation.cancel() }
+            return try await offload { [transport] in try transport.executeAttended(request, cancellation: cancellation, credentials: credentials) }
         } onCancel: { cancellation.cancel() }
     }
     /// The username prepare step: the draft operation stays admitted until the caller releases it.

@@ -33,7 +33,7 @@ import AppData
         case .nameChanged(let value): state.name = String(value.prefix(256))
         case .expectedNodeKeyChanged(let value): state.expectedNodeKey = value.trimmingCharacters(in: .whitespacesAndNewlines); state.reviewedNode = nil
         case .addressChanged(let value): state.address = String(value.prefix(2048)); state.candidate = nil; state.reviewedNode = nil; state.expectedNodeKey = ""
-        case .recoveryAccountChanged(let value): if state.knownAccountName == nil { state.recoveryAccount = String(value.prefix(256)) }
+        case .recoveryAccountChanged(let value): if state.knownAccountName == nil, !state.recoversLockedAccount { state.recoveryAccount = String(value.prefix(256)) }
         case .forgetKnownAccount: if state.knownAccountName != nil, !state.recoveryAccount.isEmpty { state.confirmingForget = true }
         case .confirmForget(let confirmed):
             state.confirmingForget = false
@@ -45,7 +45,7 @@ import AppData
         case .unlockInfo(let visible): state.showingUnlockInfo = visible
         case .create: state.creatingAccount = true; state.unlockingSavedAccount = false; state.stage = .create
         case .recover: state.creatingAccount = false; state.stage = .recover
-        case .restoreBackup: emit(.restoreBackup)
+        case .restoreBackup: if !state.recoversLockedAccount { emit(.restoreBackup) }
         case .link:
             state.stage = .link
             state.failure = .unavailableResource("onboarding.failure.pairingUnavailable")

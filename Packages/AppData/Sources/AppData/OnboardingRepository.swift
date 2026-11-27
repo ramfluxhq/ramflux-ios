@@ -107,7 +107,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         do {
             return .success(try Self.account(await gateway.call(.accountUnlock, account: accountID, secrets: fields)))
         } catch {
-            let failure = AppFailure.mapUnlock(error)
+            let failure = AppFailure.map(error)
             return .failure(failure == .failed || failure == .invalidData ? .onboardingProtocol : failure)
         }
     }

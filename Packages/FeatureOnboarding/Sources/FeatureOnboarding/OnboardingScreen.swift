@@ -407,9 +407,19 @@ public struct OnboardingScreen: View {
                 #endif
             } else {
                 Text(copy("onboarding.recover.scope")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
-                KitTextField(value: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) }), label: copy("onboarding.recover.accountID"), enabled: !state.busy, tag: "onboarding-recover-account")
-                card {
-                    KitRow(copy("onboarding.welcome.restoreBackup"), action: { onAction(.restoreBackup) }, icon: "database-backup", value: copy("onboarding.recover.newInstall"), enabled: !state.busy, tag: "onboarding-restore-backup")
+                if state.recoversLockedAccount {
+                    // Inside the lock cover the account is the locked one: shown, not editable, and no other entry.
+                    VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
+                        Text(copy("onboarding.recover.accountID")).rfFont(.size(theme.size_meta)).foregroundStyle(theme.secondary)
+                        KitIdentifierText(state.recoveryAccount, color: theme.secondary, tag: "onboarding-recover-locked-account")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityElement(children: .combine)
+                } else {
+                    KitTextField(value: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) }), label: copy("onboarding.recover.accountID"), enabled: !state.busy, tag: "onboarding-recover-account")
+                    card {
+                        KitRow(copy("onboarding.welcome.restoreBackup"), action: { onAction(.restoreBackup) }, icon: "database-backup", value: copy("onboarding.recover.newInstall"), enabled: !state.busy, tag: "onboarding-restore-backup")
+                    }
                 }
             }
         case .complete:

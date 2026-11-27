@@ -32,7 +32,7 @@ public struct SettingsScreen: View {
                 NavigationStack { RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
                     modalContent(modal)
                     if state.busy { ProgressView(FeatureSettingsStrings.text("settings.busy", locale: locale)) }
-                    if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+                    if let failure = state.failure, !state.codePrompt { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } } }.interactiveDismissDisabled(state.busy)
             }
 
@@ -41,6 +41,7 @@ public struct SettingsScreen: View {
     private static var appBuild: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "-" }
     private var modal: SettingsModal? {
         if let device = state.pendingRevoke { return .revoke(device) }
+        if state.codePrompt { return .appLockCode }
         if state.changingCode { return .changeCode }
         if state.confirmingRemoval, let account = state.snapshot.accountID { return .removeLocal(account) }
         if state.claim != nil { return .claimUsername }
@@ -163,6 +164,18 @@ public struct SettingsScreen: View {
     }
     @ViewBuilder private func modalContent(_ modal: SettingsModal) -> some View {
         switch modal {
+        case .appLockCode:
+            // The code is typed into the secure form only; the page keeps no copy of it. Cancel is the only way out while the request is open.
+            Text(copy("settings.appLock.code.title")).rfFont(.page)
+            Text(copy(state.appLockTurningOff ? "settings.appLock.code.turnOff" : "settings.appLock.code.longer")).foregroundStyle(theme.secondary)
+            #if os(iOS)
+            RFSecureEntryForm(fields: [RFSecureEntryField(id: "passphrase", label: copy("settings.appLock.code.field"), kind: .accountCode)], enabled: state.codePrompt) {
+                onAction(.submitAccountCode(SensitiveSubmission(values: $0, accountCode: .existing)))
+            }
+            .frame(minHeight: theme.composer_min * 2)
+            #endif
+            if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
+            KitButton(copy("settings.account.changeCode.cancel"), action: { onAction(.cancelAccountCode) }, kind: .text, enabled: true, tag: "settings-app-lock-code-cancel")
         case .revoke(let device):
             Text(FeatureSettingsStrings.text("settings.devices.revoke.title", locale: locale)).rfFont(.page); KitIdentifierText(device.id).textSelection(.enabled)
             if let origin = device.webOrigin { Text(untrusted: origin).textSelection(.enabled) }
@@ -232,25 +245,44 @@ public struct SettingsScreen: View {
     /// The App lock page (Settings > Privacy). Off by default. Unlock is by account code only: the biometric row
     /// stays disabled until the core offers presence unlock.
     @ViewBuilder private var appLockContent: some View {
-        if state.snapshot.accountID == nil {
+        if !state.accountOpen {
             Text(copy("settings.appLock.noAccount")).foregroundStyle(theme.secondary)
         } else if let record = state.appLock {
-            let controlsDisabled = state.busy || state.unknownMutation || record.state == .unavailable
-            if record.state == .unavailable { Text(copy("settings.appLock.unavailable")).foregroundStyle(theme.danger) }
-            Toggle(copy("settings.appLock.toggle"), isOn: Binding(get: { record.enabled }, set: { onAction(.configureAppLock(enabled: $0, timeoutMilliseconds: record.timeoutMilliseconds)) }))
-                .disabled(controlsDisabled)
-            if record.enabled {
-                Picker(copy("settings.appLock.timeout"), selection: Binding(get: { record.timeoutMilliseconds }, set: { onAction(.configureAppLock(enabled: true, timeoutMilliseconds: $0)) })) {
-                    ForEach(AppLockTimeout.allCases) { Text(appLockTimeoutLabel($0)).tag($0.rawValue) }
-                }.disabled(controlsDisabled)
-            }
+            // The clock ticks once a second so the wait countdown and the weakening controls follow the monotonic deadline.
+            TimelineView(.periodic(from: .now, by: 1)) { _ in appLockControls(record, now: ContinuousClock.now) }
+        } else {
+            ProgressView(copy("settings.loading"))
+        }
+    }
+    /// Weakening (turning off, or a longer timeout) waits for the account-code wait to end and is never offered when
+    /// the code is used up. Strengthening stays enabled: it needs no code.
+    @ViewBuilder private func appLockControls(_ record: AppLockRecord, now: ContinuousClock.Instant) -> some View {
+        let waiting = state.codeRetryDeadline.map { now < $0 } ?? false
+        let weakeningBlocked = waiting || record.codeAttemptsExhausted
+        let controlsDisabled = state.busy || state.unknownMutation || record.state == .unavailable
+        if record.state == .unavailable { Text(copy("settings.appLock.unavailable")).foregroundStyle(theme.danger) }
+        if record.codeAttemptsExhausted {
+            Text(copy("settings.appLock.code.exhausted")).foregroundStyle(theme.danger)
+            KitButton(copy("settings.appLock.code.restore"), action: { onAction(.open(.recoverAccount)) }, kind: .primary, enabled: !state.busy, tag: "settings-app-lock-restore")
+        } else if let deadline = state.codeRetryDeadline, now < deadline {
+            Text(FeatureSettingsStrings.format("settings.appLock.code.wait", Self.countdown(deadline - now), locale: locale)).foregroundStyle(theme.secondary)
+        }
+        Toggle(copy("settings.appLock.toggle"), isOn: Binding(get: { record.enabled }, set: { onAction(.configureAppLock(enabled: $0, timeoutMilliseconds: record.timeoutMilliseconds)) }))
+            .disabled(controlsDisabled || (record.enabled && weakeningBlocked))
+        if record.enabled {
+            Picker(copy("settings.appLock.timeout"), selection: Binding(get: { record.timeoutMilliseconds }, set: { onAction(.configureAppLock(enabled: true, timeoutMilliseconds: $0)) })) {
+                ForEach(AppLockTimeout.allCases) { Text(appLockTimeoutLabel($0)).tag($0.rawValue) }
+            }.disabled(controlsDisabled)
+        }
             Text(copy("settings.appLock.explanation")).rfFont(.caption).foregroundStyle(theme.secondary)
             group(copy("settings.appLock.biometric.section"), [
                 KitRow(copy("settings.appLock.biometric"), icon: "scan-face", value: copy("settings.appLock.biometric.detail"), enabled: false, tag: "settings-app-lock-biometric"),
             ])
-        } else {
-            ProgressView(copy("settings.loading"))
-        }
+    }
+    /// The remaining wait as `m:ss`, rounded up so the last second still shows.
+    private static func countdown(_ remaining: Duration) -> String {
+        let seconds = max(0, Int((remaining / .seconds(1)).rounded(.up)))
+        return "\(seconds / 60):\(seconds % 60 < 10 ? "0" : "")\(seconds % 60)"
     }
     private func appLockTimeoutLabel(_ timeout: AppLockTimeout) -> String {
         switch timeout {

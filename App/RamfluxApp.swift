@@ -72,7 +72,10 @@ import RFDesign
                         hidden: Binding(get: { coordinator.shortcutHidden }, set: { coordinator.shortcutHidden = $0 }),
                         onBack: { if !coordinator.path.isEmpty { coordinator.path.removeLast() } }
                     ))
-                default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
+                default:
+                    // A replaced coordinator is a new view: its identity makes SwiftUI run `appeared`, which reads the account again.
+                    let settings = composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)
+                    return AnyView(SettingsHost(coordinator: settings).id(ObjectIdentifier(settings)))
                 }
             }
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
@@ -99,7 +102,7 @@ import RFDesign
                     switch phase {
                     case .active: composition.notifier.setActive(true); composition.permissions.send(.foreground); composition.startPreferences(); coordinator.send(.sceneActive); composition.returnedToForeground()
                     case .inactive: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
-                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); runtime.enterBackground(coordinator)
+                    case .background: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); composition.clearLockRecovery(); runtime.enterBackground(coordinator)
                     @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
@@ -113,7 +116,12 @@ private struct StateCoverContent: View {
     let composition: AppComposition
     var body: some View {
         let state = coordinator.viewModel.state
-        AppShellCover(state: state, onRetry: { coordinator.send(.retry) },
-                      lock: state.appLocked ? state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
+        // Restore on an exhausted lock opens the recovery flow inside this cover, in place of the lock form.
+        if state.appLocked, let account = state.session.activeAccountID, let recovery = composition.lockRecovery(for: account) {
+            OnboardingHost(coordinator: recovery)
+        } else {
+            AppShellCover(state: state, onRetry: { coordinator.send(.retry) },
+                          lock: state.appLocked ? state.session.activeAccountID.map { composition.appLock(account: $0) } : nil)
+        }
     }
 }

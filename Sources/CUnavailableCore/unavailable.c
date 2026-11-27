@@ -31,6 +31,9 @@ RF_UNAVAILABLE int32_t ramflux_v2_execute(uint64_t h, const uint8_t *json, size_
 RF_UNAVAILABLE int32_t ramflux_v2_operation_poll(uint64_t h, uint64_t op, struct RamfluxBuffer **out) {
     (void)h; (void)op; if(out)*out=NULL; return 3;
 }
+RF_UNAVAILABLE int32_t ramflux_v2_set_credential_provider(uint64_t h, CredentialProviderCallback callback, void *user_data) {
+    (void)h; (void)callback; (void)user_data; return 3;
+}
 RF_UNAVAILABLE int32_t ramflux_v2_operation_cancel(uint64_t h, uint64_t op) { (void)h; (void)op; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_operation_release(uint64_t h, uint64_t op) { (void)h; (void)op; return 3; }
 RF_UNAVAILABLE int32_t ramflux_v2_event_poll(uint64_t h, struct RamfluxBuffer **out) { (void)h; if(out)*out=NULL; return 3; }

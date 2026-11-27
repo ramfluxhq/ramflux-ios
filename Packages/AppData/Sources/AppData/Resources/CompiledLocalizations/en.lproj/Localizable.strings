@@ -10,6 +10,8 @@
 	<string>The two account codes do not match. Enter them again.</string>
 	<key>accountCode.failure.notSixDigits</key>
 	<string>The account code must be exactly 6 digits (0–9).</string>
+	<key>accountCode.failure.reauthRequired</key>
+	<string>App lock was not changed. The change needs your account code.</string>
 	<key>accountCode.failure.required</key>
 	<string>This account is locked. Enter its account code.</string>
 	<key>accountCode.failure.retryLater</key>

@@ -68,6 +68,17 @@ public final class SensitiveSubmission: Sendable, Equatable, CustomStringConvert
     }
     private static func zero(_ bytes: inout [UInt8]) { bytes.withUnsafeMutableBytes { if let base = $0.baseAddress { _ = memset_s(base, $0.count, 0, $0.count) } } }
     func take() -> [String: SecretField]? { used.withLock { taken in guard !taken else { return nil }; taken = true; return fields } }
+    /// The six-digit account code this submission carries, handed over once as its own copy: the submission erases its
+    /// buffers on deinit, so the caller must not share them. Other fields are erased. Nil when absent or taken.
+    public func takeAccountCode() -> SecretBytes? {
+        guard var fields = take() else { return nil }
+        let code = fields.removeValue(forKey: "passphrase")
+        for field in fields.values {
+            switch field { case .text(let secret): secret.erase(); case .words(let words): words.forEach { $0.erase() } }
+        }
+        guard case .text(let secret)? = code, let copy = try? secret.consume({ try SecretBytes(copying: $0) }) else { return nil }
+        return copy
+    }
     public func erase() { buffers.forEach { $0.erase() }; used.withLock { $0 = true } }
     deinit { buffers.forEach { $0.erase() } }
 }

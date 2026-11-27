@@ -3858,6 +3858,132 @@
           }
         }
       }
+    },
+    "settings.appLock.code.title": {
+      "comment": "Title of the sheet that asks for the account code before the app lock is weakened.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm with your account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用账户码确认"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.turnOff": {
+      "comment": "Body of the account-code sheet when the change turns the app lock off.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your account code to turn off app lock."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入账户码以关闭应用锁。"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.longer": {
+      "comment": "Body of the account-code sheet when the change makes the app lock timeout longer.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your account code to lock less often."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入账户码以延长锁定时间。"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.field": {
+      "comment": "Label of the account-code field in the app lock settings.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.wait": {
+      "comment": "Shown while the account-code checks are throttled. %@ is the remaining wait as minutes and seconds, for example 0:30.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Try again in %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请在 %@ 后再试。"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.exhausted": {
+      "comment": "Shown when the account code was entered wrongly too many times. Only the recovery phrase restores the account.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes. Restore the account with its recovery phrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多。请用恢复短语恢复此账户。"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.restore": {
+      "comment": "Button that opens the recovery-phrase restore of the account.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore with recovery phrase"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用恢复短语恢复"
+          }
+        }
+      }
     }
   }
 }

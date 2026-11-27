@@ -11,7 +11,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     case sdkReason(String)
     case accountCode(AccountCodeIssue)
     /// Too many wrong account codes; the SDK names the wait (`retry_after_ms`), in whole seconds here.
-    case accountCodeWait(seconds: Int)
+    case accountCodeWait(seconds: Int, until: ContinuousClock.Instant)
     /// The username directory is rate limiting or at capacity; it names the wait in whole seconds (`retry_after_ms`).
     case usernameRetry(seconds: Int)
     case backup(BackupIssue)
@@ -71,7 +71,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .sdkReason(let reason): AppDataStrings.format("refusal.sdkReason", reason.replacingOccurrences(of: "_", with: " "), locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
-        case .accountCodeWait(let seconds):
+        case .accountCodeWait(let seconds, _):
             AppDataStrings.format("accountCode.failure.wait", Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale)), locale: locale)
         case .usernameRetry(let seconds): AppDataStrings.format("username.retryIn", String(seconds), locale: locale)
         case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
@@ -120,20 +120,16 @@ public enum AppFailure: Error, Sendable, Equatable {
         guard let failure = error as? CoreFailure else { return false }
         return failure.reasonCode == "app_locked" || failure.reason == "app_locked"
     }
-    /// The refusal of `account.unlock`: a plain invalid-argument refusal (no finer reason) means the code is not the
-    /// account's. The call changed nothing, so it is a definite refusal even though the bridge reports an unknown
-    /// effect; every other failure maps as usual.
-    public static func mapUnlock(_ error: any Error) -> Self {
-        if let failure = error as? CoreFailure, failure.code == .invalidArgument, failure.specificReason == nil,
-           AccountCodeIssue.sdk(failure.reasonCode) == nil { return .accountCode(.wrong) }
-        return map(error)
-    }
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
             if let issue = AccountCodeIssue.sdk(failure.reasonCode) {
-                if issue == .retryLater, let wait = Self.retryAfterMilliseconds(failure) { return .accountCodeWait(seconds: Int((wait + 999) / 1000)) }
+                // The wait is the SDK's `retry_after_ms`. A throttle that names no wait is shown without a countdown;
+                // the caller reads the wait from the account's app-lock state.
+                if issue == .retryLater, let wait = Self.retryAfterMilliseconds(failure) {
+                    return .accountCodeWait(seconds: Int((wait + 999) / 1000), until: ContinuousClock.now.advanced(by: .milliseconds(Int(min(wait, 86_400_000)))))
+                }
                 return .accountCode(issue)
             }
             // A definite refusal named by its reason, whatever effect the bridge reports.
@@ -204,6 +200,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .required: "accountCode.failure.required"
         case .deviceUnlockUnavailable: "accountCode.failure.deviceUnlockUnavailable"
         case .wrong: "accountCode.failure.wrong"
+        case .reauthRequired: "accountCode.failure.reauthRequired"
         }
     }
     private static func knownRefusal(_ name: String) -> AppFailure? {

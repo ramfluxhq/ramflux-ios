@@ -21,7 +21,7 @@ struct AccountCodeTests {
         #expect(SensitiveSubmission(values: ["passphrase": "free text"]).accountCodeIssue == nil)
     }
     @Test func sdkRefusalReasonsMapToTypedCodeFailures() {
-        let rows: [(String, AccountCodeIssue)] = [("not_six_digits", .notSixDigits), ("trivial_code", .trivial), ("unlock_retry_later", .retryLater), ("unlock_attempts_exhausted", .attemptsExhausted), ("account_code_required", .required), ("device_unlock_unavailable", .deviceUnlockUnavailable)]
+        let rows: [(String, AccountCodeIssue)] = [("not_six_digits", .notSixDigits), ("trivial_code", .trivial), ("wrong_passphrase", .wrong), ("reauth_required", .reauthRequired), ("unlock_retry_later", .retryLater), ("unlock_attempts_exhausted", .attemptsExhausted), ("account_code_required", .required), ("device_unlock_unavailable", .deviceUnlockUnavailable)]
         for (reason, issue) in rows {
             #expect(AppFailure.map(CoreFailure(code: 1, operationID: "op", reasonCode: reason)) == .accountCode(issue))
         }

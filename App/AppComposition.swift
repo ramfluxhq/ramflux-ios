@@ -53,8 +53,31 @@ import Push
     @ObservationIgnored private var appLockScreen: (String, AppLockModel)?
     func appLock(account: String) -> AppLockModel {
         if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
-        let model = AppLockModel(repository: repositories.onboarding, account: account) { [weak self] in self?.shell.send(.retry) }
+        let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
+                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) })
         appLockScreen = (account, model); return model
+    }
+    /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock, keyed by the
+    /// locked account. It is drawn inside the cover, so no shell route opens under it and no account content is reached.
+    /// Back dismisses it. It is cleared when the app goes to the background and when the lock lifts.
+    private(set) var lockRecovery: (account: String, coordinator: OnboardingCoordinator)?
+    /// The recovery flow for `account` while the cover shows that account's lock; nil for any other account.
+    func lockRecovery(for account: String) -> OnboardingCoordinator? {
+        guard let lockRecovery, lockRecovery.account == account else { return nil }
+        return lockRecovery.coordinator
+    }
+    func restoreFromLock(account: String) {
+        guard lockRecovery == nil else { return }
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account)) { [weak self] recovered in
+            self?.lockRecovery = nil
+            if recovered != nil { self?.shell.send(.retry) }
+        }
+        lockRecovery = (account, coordinator)
+    }
+    /// Drops the lock's recovery flow so the next lock shows the code form, not the recovery page.
+    func clearLockRecovery() {
+        lockRecovery?.coordinator.send(.disappeared)
+        lockRecovery = nil
     }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {
@@ -173,12 +196,23 @@ import Push
     }
     var appearance: AppearanceMode = .system
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?
-    @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?
+    /// One coordinator per Settings page on the navigation path, for one account. Settings pages stack (Settings, Account,
+    /// Privacy, App lock), and SwiftUI rebuilds every destination on the path when the shell changes: a single cached page
+    /// made each rebuild replace the others, so the page on top lost its state and its pending change.
+    @ObservationIgnored private var settingsPages: [AppRoute: SettingsCoordinator] = [:]
+    @ObservationIgnored private var settingsAccount: String?
     func settings(account: String?, route: AppRoute) -> SettingsCoordinator {
-        if let currentSettings, currentSettings.0 == account, currentSettings.1 == route { return currentSettings.2 }
-        currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared); currentSettings?.2.send(PairingAction.disappeared)
+        // A nil account is the shell reporting none for a moment (a foreground still opening, a failed activation), not a
+        // different account: the open pages keep their account and their state. Only a real change replaces them.
+        if let account, account != settingsAccount {
+            settingsPages.values.forEach(retireSettings); settingsPages = [:]; settingsAccount = account
+        }
+        // Pages popped off the path are released; the rest keep their coordinator.
+        for (open, page) in settingsPages where open != route && !shell.path.contains(open) { retireSettings(page); settingsPages[open] = nil }
+        if let page = settingsPages[route] { return page }
+        let owner = account ?? settingsAccount
         let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, pairing: repositories.pairing, nodes: repositories.nodes,
-            preferences: repositories.preferences, account: account, route: route) { [weak self] event in
+            preferences: repositories.preferences, account: owner, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
@@ -188,7 +222,10 @@ import Push
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
         }
-        currentSettings = (account, route, coordinator); return coordinator
+        settingsPages[route] = coordinator; return coordinator
+    }
+    private func retireSettings(_ page: SettingsCoordinator) {
+        page.send(SettingsAction.disappeared); page.send(BackupAction.disappeared); page.send(PairingAction.disappeared)
     }
     /// Local message notifications while the app is not active (see docs/permissions.md).
     @ObservationIgnored lazy var notifier = MessageNotifier(conversations: repositories.conversations, center: NativeMessageNotificationCenter())
@@ -226,7 +263,7 @@ import Push
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.
         // The delivered notifications go with the lock; while it is on, posts carry only the generic "New message".
         guard !session.appLocked else { notifier.follow(account: nil); bannerFeed.follow(account: nil); notifier.appLockEngaged(); lockWasEngaged = true; accountLocked(); return }
-        if lockWasEngaged { lockWasEngaged = false; reloadScreensAfterAppLock() }
+        if lockWasEngaged { lockWasEngaged = false; clearLockRecovery(); reloadScreensAfterAppLock() }
         notifier.follow(account: session.activeAccountID)
         bannerFeed.follow(account: session.activeAccountID)
         if banner?.account != session.activeAccountID { banner = nil }
@@ -251,6 +288,7 @@ import Push
         currentCalls?.2.send(.refresh)
         currentAgents?.1.send(.retry)
         currentTasks?.2.send(.refresh)
+        for (route, page) in settingsPages where shell.path.contains(route) { page.send(SettingsAction.refresh) }
     }
     /// The account the composition last saw unlocked; calls and the outbox follow it.
     @ObservationIgnored private var unlockedAccount: String?
