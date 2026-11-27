@@ -16,6 +16,7 @@ extension ChatViewModel {
         case .cardEvent(let ref, let key, let event): sendEvent(ref, key: key, event: event)
         case .cardAnswer(let ref, let answer): sendAnswer(ref, answer)
         case .cardResync(let ref): resync(ref)
+        case .appearance(let dark, let locale): updateAppearance(dark: dark, locale: locale)
         default: break
         }
     }
@@ -23,7 +24,7 @@ extension ChatViewModel {
     func loadCards() {
         guard cardsTask == nil else { cardsPending = true; return }
         let current = epoch
-        let locale = Locale.current.identifier(.bcp47)
+        let locale = cardLocale, dark = cardDark
         cardsTask = Task { [weak self, cards, account, conversation] in
             var found: [CardSurface] = [], cursor: String?, failure: AppFailure?
             for _ in 0..<Self.cardPages {
@@ -41,14 +42,22 @@ extension ChatViewModel {
                 for surface in found {
                     guard let message = surface.messageID, next[message] == nil else { continue }
                     let previous = self.state.cards[message]
-                    var card = CardMessageState(surface: surface, display: previous?.display, sending: previous?.sending ?? false, failure: previous?.failure)
+                    var card = CardMessageState(surface: surface, display: previous?.display, sending: previous?.sending ?? false, failure: previous?.failure,
+                                                pending: previous?.pending, decided: previous?.decided ?? [])
                     // Only the newest cards of the window hold sessions; older ones wait for the list to reach them.
                     if next.count < CardSessionPool.maximumOpen {
                         // The pool opens the session, or brings it to the listed version (an update only when it moved).
-                        switch await cards.refresh(account: account, surface: surface, locale: locale, dark: false) {
+                        switch await cards.refresh(account: account, surface: surface, locale: locale, dark: dark) {
                         case .success(let display): card.display = display; card.failure = nil
                         case .failure(let error): card.failure = error
                         }
+                    }
+                    // A pending link stays while the runtime still lists its slot; a link whose request has left the tree is
+                    // cancelled, so the runtime does not keep waiting for an answer the sheet no longer shows.
+                    if case .openURL(_, let requestID, let slotID, let token)? = card.pending,
+                       !(card.display?.tree?.hostSlots.contains { $0.id == slotID && $0.requestID == requestID } ?? false) {
+                        card.pending = nil
+                        Task { _ = await cards.answer(account: account, surfaceRef: surface.surfaceRef, token: token, slotID: slotID, requestID: requestID, outcome: .cancel) }
                     }
                     next[message] = card
                 }
@@ -63,6 +72,30 @@ extension ChatViewModel {
 
     private func cardKey(_ ref: String) -> String? { state.cards.first { $0.value.surface.surfaceRef == ref }?.key }
 
+    /// The host's colour scheme and locale. A change re-presents the resident cards in them; the next open takes them too.
+    private func updateAppearance(dark: Bool, locale: String) {
+        guard dark != cardDark || locale != cardLocale else { return }
+        cardDark = dark; cardLocale = locale
+        let current = epoch
+        for (message, card) in state.cards where card.display?.resident == true {
+            let ref = card.surface.surfaceRef
+            Task { [weak self, cards, account] in
+                let result = await cards.present(account: account, surfaceRef: ref, locale: locale, dark: dark)
+                guard let self, self.epoch == current else { return }
+                switch result {
+                case .success(let display): self.state.cards[message]?.display = display
+                case .failure(let error): self.state.cards[message]?.failure = error
+                }
+            }
+        }
+    }
+
+    /// Ends one host event or answer of a card. The count never goes below zero: `stopCards` clears it while requests run.
+    private func endCardEvent(_ ref: String) {
+        let left = (cardEventsInFlight[ref] ?? 0) - 1
+        cardEventsInFlight[ref] = left > 0 ? left : nil
+    }
+
     /// Every host event is sent: the card's queue applies them in order (an input merges into a queued input of the same
     /// control), so nothing typed while an earlier event is in flight is dropped.
     private func sendEvent(_ ref: String, key: String, event: CardHostEvent) {
@@ -74,7 +107,7 @@ extension ChatViewModel {
         Task { [weak self, cards, account] in
             let result = await cards.event(account: account, surfaceRef: ref, key: key, event: event)
             guard let self else { return }
-            self.cardEventsInFlight[ref, default: 1] -= 1
+            self.endCardEvent(ref)
             guard self.epoch == current else { return }
             self.finishCardStep(message, ref: ref, result)
         }
@@ -90,7 +123,8 @@ extension ChatViewModel {
     }
 
     /// Sends a host slot answer. The pending link leaves the sheet at once; the browser opens only when the runtime answers
-    /// `opened`. Nothing is retried: a refused answer shows the failure.
+    /// `opened`. An approval decision counts as made only when the runtime accepts it; a refused one shows the failure and
+    /// leaves the buttons for another try. Nothing is retried automatically.
     private func sendAnswer(_ ref: String, _ answer: CardAnswer) {
         guard let message = cardKey(ref) else { return }
         state.cards[message]?.pending = nil
@@ -101,9 +135,10 @@ extension ChatViewModel {
         Task { [weak self, cards, account] in
             let result = await cards.answer(account: account, surfaceRef: ref, token: answer.token, slotID: answer.slotID, requestID: answer.requestID, outcome: answer.outcome)
             guard let self else { return }
-            self.cardEventsInFlight[ref, default: 1] -= 1
+            self.endCardEvent(ref)
             guard self.epoch == current else { return }
             if case .success(let step) = result, step.slotResult == "opened", let link = answer.link { CardLinkOpener.open(link) }
+            if case .success(let step) = result, step.slotResult == "approval_decision" { self.state.cards[message]?.decided.insert(answer.requestID) }
             self.finishCardStep(message, ref: ref, result)
         }
     }

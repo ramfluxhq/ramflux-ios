@@ -41,7 +41,7 @@ struct CardApprovalView: View {
     var body: some View {
         let slot = context.slot(for: node.key)
         let facts = CardApprovalFacts(slot?.fields["facts"])
-        let decided = context.local.decided.contains(node.key)
+        let decided = slot?.requestID.map { context.decided.contains($0) } ?? false
         let explanation = RFUntrustedText(node.attrs["explanation"]?.string ?? "", kind: .messageBody).text
         let canDecide = facts != nil && slot?.requestID != nil && context.actionable && !decided
         VStack(alignment: .leading, spacing: 12) {
@@ -84,7 +84,6 @@ struct CardApprovalView: View {
                 HStack(spacing: 8) {
                     Spacer(minLength: 0)
                     CardActionButton(title: FeatureCardsStrings.text("cards.approval.deny", locale: locale), primary: false) {
-                        context.local.decided.insert(node.key)
                         context.onAnswer(CardAnswer(token: slot.token, slotID: slot.id, requestID: requestID, outcome: .deny))
                     }
                     CardActionButton(title: FeatureCardsStrings.text("cards.approval.allow", locale: locale), primary: true) {
@@ -106,7 +105,6 @@ struct CardApprovalSheetModifier: ViewModifier {
             if let target {
                 CardApprovalSheet(facts: CardApprovalFacts(target.slot.fields["facts"]), onConfirm: {
                     context.local.approvalKey = nil
-                    context.local.decided.insert(target.key)
                     context.onAnswer(CardAnswer(token: target.slot.token, slotID: target.slot.id, requestID: target.requestID, outcome: .confirm))
                 }, onCancel: { context.local.approvalKey = nil })
                 .presentationDetents([.medium, .large])

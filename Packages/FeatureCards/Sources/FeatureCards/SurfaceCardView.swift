@@ -7,15 +7,17 @@ import RFDesign
 import RFLocalization
 
 /// What the chat timeline knows about one card: the listed surface, its session display, the state of the last action,
-/// and the host request the user has to answer (a link to confirm).
+/// the host request the user has to answer (a link to confirm), and the approval requests the runtime accepted a decision
+/// for (by request id; they show "Waiting for confirmation" until the signed update replaces them).
 public struct CardMessageState: Equatable, Sendable {
     public let surface: CardSurface
     public var display: CardDisplay?
     public var sending: Bool
     public var failure: AppFailure?
     public var pending: CardHostRequest?
-    public init(surface: CardSurface, display: CardDisplay? = nil, sending: Bool = false, failure: AppFailure? = nil, pending: CardHostRequest? = nil) {
-        self.surface = surface; self.display = display; self.sending = sending; self.failure = failure; self.pending = pending
+    public var decided: Set<String>
+    public init(surface: CardSurface, display: CardDisplay? = nil, sending: Bool = false, failure: AppFailure? = nil, pending: CardHostRequest? = nil, decided: Set<String> = []) {
+        self.surface = surface; self.display = display; self.sending = sending; self.failure = failure; self.pending = pending; self.decided = decided
     }
 }
 
@@ -37,7 +39,6 @@ public struct CardAnswer: Equatable, Sendable {
     var selectedTabs: [String: Int] = [:]
     var openModals: Set<String> = []
     var approvalKey: String?
-    var decided: Set<String> = []
     var pressedKey: String?
     var expanded: Set<String> = []
     var touched: Set<String> = []
@@ -58,6 +59,8 @@ struct CardContext {
     let securitySheetOpen: Bool
     let onEvent: (String, CardHostEvent) -> Void
     let onAnswer: (CardAnswer) -> Void
+    /// Request ids of approvals the runtime accepted a decision for (see `CardMessageState.decided`).
+    var decided: Set<String> = []
 
     var formatLocale: Locale { Locale(identifier: tree.formatLocale) }
 
@@ -106,11 +109,11 @@ public struct SurfaceCardView: View {
                     let context = CardContext(surfaceRef: card.surface.surfaceRef, tree: tree, phase: display.phase, closed: card.surface.closed,
                                               outOfSync: card.surface.outOfSync, sending: card.sending, local: local,
                                               securitySheetOpen: local.approvalKey != nil || isLinkPending,
-                                              onEvent: onEvent, onAnswer: onAnswer)
+                                              onEvent: onEvent, onAnswer: onAnswer, decided: card.decided)
                     CardRootView(node: root, context: context)
                         .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)
                         .modifier(CardApprovalSheetModifier(context: context))
-                        .onChange(of: tree.signedVersion) { _, _ in local.openModals = []; local.approvalKey = nil; local.decided = [] }
+                        .onChange(of: tree.signedVersion) { _, _ in local.openModals = []; local.approvalKey = nil }
                 }
             } else {
                 Text(fallback).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)

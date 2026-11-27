@@ -43,7 +43,6 @@ public actor NativeSessionRepository: SessionRepository {
         do {
             try await lifecycle.foreground()
             await updates?.resumeAfterBackground()
-            await cards?.resumeAll()
             var snapshot = try await accounts()
             // The silent reopen runs inside the SDK after open; wait for it boundedly before showing a
             // locked account that is about to open by itself.
@@ -54,6 +53,8 @@ public actor NativeSessionRepository: SessionRepository {
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             let value = try await withAppLock(snapshot.value)
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
+            // Card sessions come back only once the app-lock decision is known: an engaged lock keeps them suspended.
+            if value.appLocked { await cards?.suspendAll() } else { await cards?.resumeAll() }
             publish(value); return .success(value)
         } catch where AppFailure.isAppLocked(error) {
             // The SDK refused a call because the app lock is engaged: the records stay covered and the code is asked.

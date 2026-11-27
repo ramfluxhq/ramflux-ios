@@ -76,6 +76,11 @@ public actor CardSessionPool {
         case submit
         case refresh(version: UInt64, locale: String, dark: Bool)
         case present(locale: String, dark: Bool)
+        /// Background or app lock: a resident session is suspended and remembered for `resumeAll`.
+        case suspendForBackground
+        case dispose
+
+        var isDisposal: Bool { if case .dispose = self { true } else { false } }
     }
 
     /// A queued operation and every caller waiting for its answer. An `input` for the same control at the tail of the
@@ -92,6 +97,8 @@ public actor CardSessionPool {
     private var queues: [String: [Queued]] = [:]
     /// Cards with a consumer running (at most one per card).
     private var draining: Set<String> = []
+    /// Set by `disposeAll`: no new operation is accepted, only the disposals already queued run.
+    private var closed = false
 
     init(client: CardSessionClient, account: String) {
         self.client = client; self.account = account
@@ -135,25 +142,29 @@ public actor CardSessionPool {
         try await ordered(surfaceRef, .present(locale: locale, dark: dark)).display
     }
 
-    /// Keeps the sessions of the cards in the loaded window; disposes the others and any beyond the open limit.
+    /// Keeps the sessions of the cards in the loaded window; disposes the others and any beyond the open limit. Each
+    /// disposal runs in the card's queue, so an operation already in flight finishes first.
     public func retain(surfaceRefs: Set<String>) async {
-        for ref in entries.keys where !surfaceRefs.contains(ref) { await dispose(ref) }
-        while entries.count > Self.maximumOpen { try? await disposeLeastRecent(except: nil) }
+        for ref in knownRefs() where !surfaceRefs.contains(ref) { await serialized(ref, .dispose) }
+        let excess = entries.count - Self.maximumOpen
+        guard excess > 0 else { return }
+        let victims = entries.sorted { $0.value.touched < $1.value.touched }.prefix(excess).map(\.key)
+        for ref in victims { await serialized(ref, .dispose) }
     }
 
-    public func dispose(surfaceRef: String) async { await dispose(surfaceRef) }
+    public func dispose(surfaceRef: String) async { await serialized(surfaceRef, .dispose) }
 
-    /// Sign-out or removal of the account: every session of the account is disposed.
+    /// Sign-out or removal of the account: no further operation is accepted and every session of the account is disposed
+    /// behind the operations already queued on it.
     public func disposeAll() async {
-        for ref in Array(entries.keys) { await dispose(ref) }
+        closed = true
+        for ref in knownRefs() { await serialized(ref, .dispose) }
     }
 
-    /// The app goes to the background or the account is locked: every resident session is suspended; the trees stay.
+    /// The app goes to the background or the account is locked: every resident session is suspended behind the card's
+    /// queue, so an open in flight is suspended too; the trees stay.
     public func suspendAll() async {
-        for ref in entries.keys where entries[ref]?.resident == true {
-            entries[ref]?.residentAtBackground = true
-            await suspend(ref)
-        }
+        for ref in knownRefs() { await serialized(ref, .suspendForBackground) }
     }
 
     /// The app returns to the foreground: the sessions that were resident at the background come back, with fresh tokens.
@@ -169,7 +180,8 @@ public actor CardSessionPool {
     /// Queues `operation` behind what was already made on this card and waits for its answer. An `input` for the same
     /// control at the tail is merged instead of queued, so typing never fills the queue.
     private func ordered(_ ref: String, _ operation: Operation) async throws -> CardStep {
-        try await withCheckedThrowingContinuation { continuation in
+        guard !closed || operation.isDisposal else { throw AppFailure.busy }
+        return try await withCheckedThrowingContinuation { continuation in
             var queue = queues[ref] ?? []
             if case .event(let key, .input(_)) = operation, let last = queue.indices.last,
                case .event(let tailKey, .input(_)) = queue[last].operation, tailKey == key {
@@ -182,6 +194,14 @@ public actor CardSessionPool {
             if draining.insert(ref).inserted { Task { await self.drain(ref) } }
         }
     }
+
+    /// Queues an operation whose answer is not needed (disposal, background suspend).
+    private func serialized(_ ref: String, _ operation: Operation) async {
+        _ = try? await ordered(ref, operation)
+    }
+
+    /// Every card with a session, or with an operation running: the cards an account-wide operation must reach.
+    private func knownRefs() -> Set<String> { Set(entries.keys).union(draining) }
 
     /// The one consumer of a card's queue: applies the operations in order and answers every waiter, then stops.
     private func drain(_ ref: String) async {
@@ -210,6 +230,8 @@ public actor CardSessionPool {
         case .submit: return try await submitNow(ref)
         case .refresh(let version, let locale, let dark): return try await refreshNow(ref, version: version, locale: locale, dark: dark)
         case .present(let locale, let dark): return try await presentNow(ref, locale: locale, dark: dark)
+        case .suspendForBackground: await suspendForBackgroundNow(ref); return plain(snapshot(ref))
+        case .dispose: await disposeNow(ref); return plain(snapshot(ref))
         }
     }
 
@@ -339,12 +361,20 @@ public actor CardSessionPool {
         if entries[ref]?.phase == .live { entries[ref]?.phase = .suspended }
     }
 
+    /// Evicts the least recently used card to make room for an open. Only the open of another card calls this, so the
+    /// eviction is direct rather than queued (two opens waiting on each other's queues would deadlock).
     private func disposeLeastRecent(except ref: String?) async throws {
         guard let victim = entries.filter({ $0.key != ref }).min(by: { $0.value.touched < $1.value.touched })?.key else { return }
-        await dispose(victim)
+        await disposeNow(victim)
     }
 
-    private func dispose(_ ref: String) async {
+    private func suspendForBackgroundNow(_ ref: String) async {
+        guard entries[ref]?.resident == true else { return }
+        entries[ref]?.residentAtBackground = true
+        await suspend(ref)
+    }
+
+    private func disposeNow(_ ref: String) async {
         if let session = entries[ref]?.session { _ = try? await client.dispose(account: account, session: session) }
         entries[ref] = nil
     }
@@ -416,6 +446,14 @@ public actor CardSessionPool {
         CardDisplay(surfaceRef: ref, tree: entry.tree, renderAllowed: entry.renderAllowed, fallbackText: entry.fallbackText,
                     resident: entry.resident, phase: entry.phase)
     }
+
+    /// The display of a card now, or an unavailable display when it has no session.
+    private func snapshot(_ ref: String) -> CardDisplay {
+        guard let entry = entries[ref] else {
+            return CardDisplay(surfaceRef: ref, tree: nil, renderAllowed: false, fallbackText: "", resident: false, phase: .unavailable)
+        }
+        return display(ref, entry)
+    }
 }
 
 /// One pool per account, shared by the repositories and the lifecycle hooks of the process.
@@ -438,6 +476,11 @@ public actor CardSessionRegistry {
     public func disposeAccount(_ account: String) async {
         guard let pool = pools.removeValue(forKey: account) else { return }
         await pool.disposeAll()
+    }
+
+    /// The account's app lock is about to engage: its resident sessions are suspended; the sessions stay open.
+    public func suspendAccount(_ account: String) async {
+        await pools[account]?.suspendAll()
     }
 
     /// Background, or the app lock engaged: every account's resident sessions are suspended.

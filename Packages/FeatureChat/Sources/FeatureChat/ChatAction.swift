@@ -21,6 +21,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case cardEvent(surfaceRef: String, key: String, event: CardHostEvent), cardResync(surfaceRef: String)
     /// The user's answer to a host slot of a card: a link confirmed or cancelled, an approval decided.
     case cardAnswer(surfaceRef: String, answer: CardAnswer)
+    /// The host's colour scheme and locale (BCP 47); a change re-presents the visible cards.
+    case appearance(dark: Bool, locale: String)
     case shareMedia(String), shareFinished, forwardRequested(String), forwardTo(messageID: String, conversation: String, groupID: String?)
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
     public var description: String { "ChatAction" }
