@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import SwiftUI
 import AppData
+import FeatureCards
 import RFDesign
 public struct ChatHost: View {
     @Environment(\.locale) private var locale
@@ -9,6 +10,7 @@ public struct ChatHost: View {
     public let coordinator: ChatCoordinator
     public init(coordinator: ChatCoordinator) { self.coordinator = coordinator }
     public var body: some View { ChatScreen(state: coordinator.viewModel.state, onAction: coordinator.send)
+        .environment(\.cardImageProvider, coordinator.cardImages)
         .onAppear { sendAppearance(); coordinator.send(.appeared) }.onDisappear { coordinator.send(.disappeared) }
         .onChange(of: colorScheme) { _, _ in sendAppearance() }
         .onChange(of: locale) { _, _ in sendAppearance() }

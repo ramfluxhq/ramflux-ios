@@ -80,6 +80,8 @@
 	<string>此密码无法打开该归档。</string>
 	<key>calls.audioUnavailable</key>
 	<string>此版本暂不支持语音音频，无法发起或接听通话。你可以查看通话记录并结束现有通话。</string>
+	<key>cards.approval.changed</key>
+	<string>此请求已变更。请重新查看。</string>
 	<key>cards.unavailable</key>
 	<string>此设备暂不支持交互卡片。您可以继续使用消息和账户功能。</string>
 	<key>chat.message.unsupported</key>
@@ -244,6 +246,10 @@
 	<string>此账户已是您的联系人，未应用其名片。</string>
 	<key>refusal.already_contact.title</key>
 	<string>已是联系人</string>
+	<key>refusal.card_limit_exceeded</key>
+	<string>活动的卡片过多。请稍后再试。</string>
+	<key>refusal.card_limit_exceeded.title</key>
+	<string>卡片</string>
 	<key>refusal.crypto_failure</key>
 	<string>无法保护这条消息。</string>
 	<key>refusal.crypto_failure.title</key>

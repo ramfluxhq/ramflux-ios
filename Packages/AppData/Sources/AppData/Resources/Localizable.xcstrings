@@ -3305,6 +3305,60 @@
         }
       },
       "extractionState": "manual"
+    },
+    "cards.approval.changed": {
+      "comment": "Shown when an approval decision could not be applied because the request changed or ended meanwhile.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This request changed. Review it again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此请求已变更。请重新查看。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "refusal.card_limit_exceeded.title": {
+      "comment": "Title of the failure when no card can be opened because too many cards are active.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cards"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "卡片"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "refusal.card_limit_exceeded": {
+      "comment": "Shown when a card cannot take a place because too many cards are active; the next tap tries again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many cards are active. Try again in a moment."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活动的卡片过多。请稍后再试。"
+          }
+        }
+      },
+      "extractionState": "manual"
     }
   }
 }

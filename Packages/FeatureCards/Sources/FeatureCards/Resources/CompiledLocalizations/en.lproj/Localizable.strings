@@ -44,10 +44,16 @@
 	<string>Waiting for you</string>
 	<key>cards.closed</key>
 	<string>This card is closed</string>
+	<key>cards.contentChanged</key>
+	<string>This content changed. Check it and try again.</string>
 	<key>cards.contentUnavailable</key>
 	<string>Card content unavailable</string>
+	<key>cards.draftDiscarded</key>
+	<string>Your edit was replaced by a newer version.</string>
 	<key>cards.image.unavailable</key>
 	<string>Image unavailable</string>
+	<key>cards.image.view</key>
+	<string>Opens the image full screen</string>
 	<key>cards.link</key>
 	<string>This link cannot be opened</string>
 	<key>cards.link.cancel</key>
@@ -68,6 +74,8 @@
 	<string>Close</string>
 	<key>cards.outOfSync</key>
 	<string>This card is out of sync; actions are paused</string>
+	<key>cards.overLimit</key>
+	<string>Too many cards are active. Try again in a moment.</string>
 	<key>cards.refused.body</key>
 	<string>Could not send. Your input is kept.</string>
 	<key>cards.resync</key>

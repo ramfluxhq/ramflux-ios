@@ -16,10 +16,10 @@ public enum AppDataFactory {
             let updates = NativeUpdateSource(client: client)
             let cardSessions = CardSessionRegistry(client: client)
             let nodes = NativeNodeRepository(client: client), lifecycle = AccountLifecycleHooks()
-            // Sign-out and removal dispose the account's card sessions before the SDK closes the account.
-            lifecycle.register { event in if case .willLeave(let account) = event { await cardSessions.disposeAccount(account) } }
-            // An account lock (or the sign-out's lock step) suspends the account's card sessions before the SDK closes it.
-            lifecycle.register { event in if case .willLock(let account) = event { await cardSessions.suspendAccount(account) } }
+            // Sign-out and removal: the SDK drops the account's card sessions itself, so the handles are forgotten here with no
+            // bus call and the pool is released. A lock forgets them too; the cards keep their last tree until the next tap.
+            lifecycle.register { event in if case .willLeave(let account) = event { await cardSessions.closeAccount(account) } }
+            lifecycle.register { event in if case .willLock(let account) = event { await cardSessions.forgetAccount(account) } }
             let contacts = NativeContactsRepository(client: client, updates: updates)
             return AppRepositories(session: NativeSessionRepository(client: client, dataRoot: root, updates: updates, cards: cardSessions), nodes: nodes, onboarding: NativeOnboardingRepository(client: client), conversations: NativeConversationsRepository(client: client, updates: updates, contacts: contacts), chat: NativeChatRepository(client: client, updates: updates, transients: UpdateSourceChatTransients(updates: updates)), contacts: contacts, settings: NativeSettingsRepository(client: client, nodes: nodes, updates: updates, lifecycle: lifecycle, usernameConfigured: AppOpenConfiguration.usernameDirectory(info: Bundle.main.infoDictionary) != nil), backup: NativeBackupRepository(client: client, directory: root.appendingPathComponent("backups", isDirectory: true), updates: updates), pairing: NativePairingRepository(client: client), groups: NativeGroupsRepository(client: client, updates: updates, contacts: contacts), calls: NativeCallsRepository(client: client, updates: updates), agents: NativeAgentsRepository(client: client, updates: updates), tasks: NativeTasksRepository(client: client, updates: updates), cards: NativeCardsRepository(client: client, updates: updates, registry: cardSessions), lifecycle: lifecycle, pushRoutes: NativePushRouteRepository(client: client))
         } catch { return unavailable() }

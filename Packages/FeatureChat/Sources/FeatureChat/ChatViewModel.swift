@@ -35,6 +35,8 @@ import FeatureCards
     @ObservationIgnored var cardLocale = Locale.current.identifier(.bcp47)
     /// Host events sent per card and not yet answered; a card is busy while any is in flight.
     @ObservationIgnored var cardEventsInFlight: [String: Int] = [:]
+    /// Cards whose session is being opened again after a tap.
+    @ObservationIgnored var cardsOpening: Set<String> = []
     @ObservationIgnored var typingExpiry: Task<Void, Never>?
     @ObservationIgnored var typingPeers: [String: Int64] = [:]
     @ObservationIgnored var galleryCursor: MessageCursor?

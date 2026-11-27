@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import Foundation
 import RamfluxCore
+import Synchronization
 
 /// What the timeline draws for one card: the last known tree (read-only while the session is suspended), whether the
 /// runtime allows content, the fallback text, and where the session stands.
@@ -13,6 +14,10 @@ public struct CardDisplay: Equatable, Sendable {
     /// The session holds a resident VM and takes events. False: draw `tree` read-only; the first tap resumes it.
     public let resident: Bool
     public let phase: CardPhase
+    /// A draft was visible when the session was dropped (lock, expiry): the host shows the spec 4.20 notice once.
+    public let draftDiscarded: Bool
+    /// The last event or answer came back `stale_dropped`: its batch reverted the field and the host shows the spec 5.3 line.
+    public let contentChanged: Bool
 
     /// The runtime lifecycle of the held tree (spec 3.4); `open` when there is no tree.
     public var lifecycle: CardLifecycle { tree?.lifecycle ?? .open }
@@ -51,10 +56,13 @@ public struct CardStep: Equatable, Sendable {
     public var slotResult: String? = nil
 }
 
-/// Card sessions of one account. The runtime keeps at most two resident VMs per process and 32 sessions per account;
-/// this pool keeps at most two resumed sessions (the most recently touched), at most 24 open, suspends the rest and
-/// disposes the sessions whose cards left the loaded window. A `card_session_limit` refusal suspends the least
-/// recently used session and retries once.
+/// Card sessions of one account. The runtime keeps at most two resident VMs per process and 32 sessions per account.
+/// The resident budget is the process's, shared with the pools of the other accounts (`CardResidency`); this pool keeps
+/// at most 24 sessions open, suspends the least recently used resumed card of any account to make room, and disposes the
+/// sessions whose cards left the loaded window. `card_limit_exceeded` (open, resume) suspends the least recently used
+/// resumed card and retries once; `card_session_limit` disposes this account's least recently used card and retries
+/// once. A dropped session (`card_session_expired`, `card_session_inactive`, lock, sign-out) is forgotten and its last
+/// tree stays drawn read-only; the next tap opens the card again.
 ///
 /// The operations of one card run in the order they were made, one at a time (see `ordered`); a card never waits for
 /// another card's operation. Every operation answers its caller, success or failure, so a card never stays busy.
@@ -72,6 +80,10 @@ public actor CardSessionPool {
         var phase: CardPhase
         /// Resident before `suspendAll`, so `resumeAll` brings back exactly those sessions.
         var residentAtBackground: Bool
+        /// An input was accepted and not yet submitted: a dropped session loses it.
+        var hasDraft = false
+        var draftDiscarded = false
+        var contentChanged = false
     }
 
     /// One operation of a card's queue.
@@ -99,8 +111,8 @@ public actor CardSessionPool {
 
     private let client: CardSessionClient
     private let account: String
+    private let residency: CardResidency
     private var entries: [String: Entry] = [:]
-    private var clock: UInt64 = 0
     private var queues: [String: [Queued]] = [:]
     /// Cards with a consumer running (at most one per card).
     private var draining: Set<String> = []
@@ -112,8 +124,8 @@ public actor CardSessionPool {
     /// The host's colour scheme and locale as the pool last received them; a resumed session is presented in them.
     private var appearance: (locale: String, dark: Bool)?
 
-    init(client: CardSessionClient, account: String, suspended: Bool = false) {
-        self.client = client; self.account = account; self.suspended = suspended
+    init(client: CardSessionClient, account: String, residency: CardResidency, suspended: Bool = false) {
+        self.client = client; self.account = account; self.residency = residency; self.suspended = suspended
     }
 
     public func display(surfaceRef: String) -> CardDisplay? { entries[surfaceRef].map { display(surfaceRef, $0) } }
@@ -169,11 +181,29 @@ public actor CardSessionPool {
 
     public func dispose(surfaceRef: String) async { await serialized(surfaceRef, .dispose) }
 
-    /// Sign-out or removal of the account: no further operation is accepted and every session of the account is disposed
-    /// behind the operations already queued on it.
-    public func disposeAll() async {
-        closed = true
-        for ref in knownRefs() { await serialized(ref, .dispose) }
+    /// The account locked, signed out or was removed: the SDK dropped every session itself and later calls would only fail.
+    /// Every handle is forgotten here with no bus call; the trees stay for drawing. `close` accepts no further operation.
+    public func forgetAll(close: Bool) {
+        if close { closed = true }
+        for ref in Array(entries.keys) { forget(ref) }
+    }
+
+    /// The resumed cards of this pool with their last touch, least recent first, for the process-wide budget.
+    func residentTouches() -> [(ref: String, touched: UInt64)] {
+        entries.filter { $0.value.resident }.map { ($0.key, $0.value.touched) }.sorted { $0.touched < $1.touched }
+    }
+
+    /// The least recently used resumed card that is not busy with an operation; `ref` is never offered.
+    func leastRecentResident(excluding ref: String?) -> (ref: String, touched: UInt64)? {
+        entries.filter { $0.key != ref && $0.value.resident && !draining.contains($0.key) }
+            .min { $0.value.touched < $1.value.touched }.map { ($0.key, $0.value.touched) }
+    }
+
+    /// Suspends one resumed card to free a slot of the process budget. A card that began an operation meanwhile stays.
+    func suspendResident(_ ref: String) async -> Bool {
+        guard entries[ref]?.resident == true, !draining.contains(ref) else { return false }
+        await suspend(ref)
+        return true
     }
 
     /// The app goes to the background or the account is locked: the pool is marked suspended at once, then every resident
@@ -238,7 +268,24 @@ public actor CardSessionPool {
         return next
     }
 
+    /// One operation. A dropped session (`card_session_expired` or `card_session_inactive`, as an error or as the refused
+    /// result of a card with no tree) forgets the handle and answers with the card's last tree, read-only: the next tap
+    /// opens the card again, never automatically.
     private func run(_ ref: String, _ operation: Operation) async throws -> CardStep {
+        let step: CardStep
+        do { step = try await runNow(ref, operation) } catch {
+            guard !operation.isDisposal, let refusal = CardSessionRefusal.of(error), refusal == .expired || refusal == .inactive else { throw error }
+            forget(ref)
+            return plain(snapshot(ref))
+        }
+        if case .refused(let reason) = step.display.phase, reason == CardSessionRefusal.inactive.rawValue || reason == CardSessionRefusal.expired.rawValue {
+            forget(ref)
+            return plain(snapshot(ref))
+        }
+        return step
+    }
+
+    private func runNow(_ ref: String, _ operation: Operation) async throws -> CardStep {
         switch operation {
         case .open(let locale, let dark): return plain(try await openNow(ref, locale: locale, dark: dark))
         case .resume: return plain(try await resumeNow(ref))
@@ -257,8 +304,8 @@ public actor CardSessionPool {
 
     private func openNow(_ ref: String, locale: String, dark: Bool) async throws -> CardDisplay {
         if let entry = entries[ref], entry.session != nil { touch(ref); return display(ref, entry) }
-        if entries[ref] == nil, entries.count >= Self.maximumOpen { try await disposeLeastRecent(except: nil) }
-        let response = try await perform(keeping: ref) {
+        if entries[ref] == nil, entries.count >= Self.maximumOpen { _ = await disposeLeastRecent(except: nil) }
+        let response = try await perform(keeping: ref, kind: .open) {
             try await self.client.open(account: self.account, surfaceRef: ref, locale: locale, dark: dark)
         }
         var entry = Entry(session: response.session, tree: nil, renderAllowed: false, fallbackText: "", resident: false, touched: 0,
@@ -274,9 +321,21 @@ public actor CardSessionPool {
             await suspend(ref)
             entries[ref]?.phase = .suspended
         } else {
-            try await enforceResidency(keeping: ref)
+            await enforceResidency(keeping: ref)
         }
         return display(ref, entries[ref] ?? entry)
+    }
+
+    /// The tap on a card whose session was dropped (lock, sign-out, expiry): opens it again in the host's current
+    /// presentation. The tap only reopens; the event it carried is not sent, because its token belongs to the dropped session.
+    private func reopenNow(_ ref: String) async throws -> CardDisplay {
+        let old = entries[ref]
+        entries[ref] = nil
+        let presentation = appearance ?? (locale: "en", dark: false)
+        do { return try await openNow(ref, locale: presentation.locale, dark: presentation.dark) } catch {
+            entries[ref] = old
+            throw error
+        }
     }
 
     private func resumeNow(_ ref: String) async throws -> CardDisplay {
@@ -288,8 +347,15 @@ public actor CardSessionPool {
                 entries[ref]?.phase = .suspended
                 return display(ref, entries[ref] ?? entry)
             }
-            try await enforceResidency(keeping: ref)
-            let response = try await perform(keeping: ref) { try await self.client.resume(account: self.account, session: session) }
+            await enforceResidency(keeping: ref)
+            let response: CardResponse
+            do { response = try await perform(keeping: ref, kind: .resume) { try await self.client.resume(account: self.account, session: session) } }
+            catch where Self.isOverLimit(error) {
+                // No slot after one retry: the card stays read-only with the over-limit line and the next tap tries again.
+                entries[ref]?.resident = false
+                entries[ref]?.phase = .refused(CardSessionRefusal.limitExceeded.rawValue)
+                return display(ref, entries[ref] ?? entry)
+            }
             try applyWithoutStep(response, to: ref)
             entries[ref]?.resident = response.result == "resumed"
             entries[ref]?.phase = response.result == "resumed" ? .live : .refused(response.reason ?? "card_session_refused")
@@ -308,13 +374,15 @@ public actor CardSessionPool {
     }
 
     private func eventNow(_ ref: String, key: String, event: CardHostEvent) async throws -> CardStep {
-        guard let entry = entries[ref], let session = entry.session, let tree = entry.tree else { throw AppFailure.invalidInput }
+        guard let entry = entries[ref], let tree = entry.tree else { throw AppFailure.invalidInput }
+        guard let session = entry.session else { return plain(try await reopenNow(ref)) }
         guard entry.resident else { return plain(try await resumeNow(ref)) }
         guard let token = tree.token(for: key) else { throw AppFailure.invalidInput }
         touch(ref)
         let response = try await perform(keeping: ref) {
             try await self.client.event(account: self.account, session: session, token: token, event: event)
         }
+        if case .input = event, response.result == "edited" || response.result == "validation" { entries[ref]?.hasDraft = true }
         let step = try await applyOrReload(response, to: ref)
         if response.result == "pending_submit" {
             // The runtime holds a resolved action: the host now asks the SDK to sign and submit it.
@@ -324,7 +392,9 @@ public actor CardSessionPool {
     }
 
     private func answerNow(_ ref: String, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async throws -> CardStep {
-        guard let entry = entries[ref], let session = entry.session, entry.resident else { throw AppFailure.invalidInput }
+        guard let entry = entries[ref] else { throw AppFailure.invalidInput }
+        guard let session = entry.session else { return plain(try await reopenNow(ref)) }
+        guard entry.resident else { throw AppFailure.invalidInput }
         touch(ref)
         let response = try await perform(keeping: ref) {
             try await self.client.slot(account: self.account, session: session, token: token, slotID: slotID, requestID: requestID, outcome: outcome)
@@ -348,12 +418,15 @@ public actor CardSessionPool {
         let step = try await applyOrReload(response, to: ref)
         guard response.result == "submitted", let current = entries[ref] else { return step }
         entries[ref]?.phase = .consumed
+        entries[ref]?.hasDraft = false
         return CardStep(display: display(ref, current), hostRequest: nil, draftConflict: false, submit: response.submit)
     }
 
     private func refreshNow(_ ref: String, version: UInt64, locale: String, dark: Bool) async throws -> CardStep {
         guard let entry = entries[ref] else { return plain(try await openNow(ref, locale: locale, dark: dark)) }
         guard let session = entry.session else {
+            // A dropped session with a tree waits for the next tap; a card that never got a session is opened now.
+            if entry.tree != nil { return plain(display(ref, entry)) }
             entries[ref] = nil
             return plain(try await openNow(ref, locale: locale, dark: dark))
         }
@@ -370,27 +443,50 @@ public actor CardSessionPool {
 
     // MARK: residency
 
-    /// Runs one bus call; a `card_session_limit` refusal suspends the least recently used resident session and retries once.
-    private func perform(keeping ref: String, _ call: () async throws -> CardResponse) async throws -> CardResponse {
-        do { return try await call() } catch where CardSessionRefusal.of(error) == .limit {
-            guard try await suspendLeastRecent(except: ref) else { throw error }
+    private enum CallKind { case open, resume, other }
+    private enum Recovery { case none, disposeOldest, suspendOldest }
+
+    /// An open that the process budget refused, or a resume that failed as invalid (core leaves the resume cap untyped at
+    /// this pin): both mean "no slot" and take the same one retry.
+    private static func isOverLimit(_ error: any Error) -> Bool {
+        let refusal = CardSessionRefusal.of(error)
+        if refusal == .limitExceeded { return true }
+        guard refusal == nil, let failure = error as? CoreFailure else { return false }
+        return failure.code == .invalidArgument
+    }
+
+    private static func recovery(for error: any Error, kind: CallKind) -> Recovery {
+        if CardSessionRefusal.of(error) == .limit { return .disposeOldest }
+        switch kind {
+        case .open: return CardSessionRefusal.of(error) == .limitExceeded ? .suspendOldest : .none
+        case .resume: return isOverLimit(error) ? .suspendOldest : .none
+        case .other: return .none
+        }
+    }
+
+    /// Runs one bus call with one retry. `card_session_limit` (32 sessions of the account) disposes this account's least
+    /// recently used card; `card_limit_exceeded` on open, or an invalid-argument failure on resume, suspends the least
+    /// recently used resumed card of any account (the cap is the process's). A second failure is the caller's.
+    private func perform(keeping ref: String, kind: CallKind = .other, _ call: () async throws -> CardResponse) async throws -> CardResponse {
+        do { return try await call() } catch {
+            switch Self.recovery(for: error, kind: kind) {
+            case .none: throw error
+            case .disposeOldest:
+                guard await disposeLeastRecent(except: ref) else { throw error }
+            case .suspendOldest:
+                guard await residency.suspendLeastRecent(ResidentKey(account: account, ref: ref)) else { throw error }
+            }
             return try await call()
         }
     }
 
-    private func enforceResidency(keeping ref: String) async throws {
-        while residentCount(excluding: ref) >= Self.maximumResident {
-            guard try await suspendLeastRecent(except: ref) else { return }
+    /// Makes room before a card takes a resident slot: while the process holds the maximum of resumed cards, the least
+    /// recently used one (of any account) is suspended.
+    private func enforceResidency(keeping ref: String) async {
+        let key = ResidentKey(account: account, ref: ref)
+        while await residency.residentCount(key) >= Self.maximumResident {
+            guard await residency.suspendLeastRecent(key) else { return }
         }
-    }
-
-    private func residentCount(excluding ref: String) -> Int { entries.filter { $0.key != ref && $0.value.resident }.count }
-
-    @discardableResult
-    private func suspendLeastRecent(except ref: String) async throws -> Bool {
-        guard let victim = entries.filter({ $0.key != ref && $0.value.resident }).min(by: { $0.value.touched < $1.value.touched }) else { return false }
-        await suspend(victim.key)
-        return true
     }
 
     private func suspend(_ ref: String) async {
@@ -401,13 +497,15 @@ public actor CardSessionPool {
         if entries[ref]?.phase == .live { entries[ref]?.phase = .suspended }
     }
 
-    /// Evicts the least recently used card to make room for an open. Only the open of another card calls this, so the
+    /// Evicts the least recently used card of this account to make room. Only the open of another card calls this, so the
     /// eviction is direct rather than queued (two opens waiting on each other's queues would deadlock). A card with an
     /// operation in flight is never evicted: when every candidate is draining, nothing is evicted and the pool overshoots
     /// the open limit until `retain` trims it.
-    private func disposeLeastRecent(except ref: String?) async throws {
-        guard let victim = entries.filter({ $0.key != ref && !draining.contains($0.key) }).min(by: { $0.value.touched < $1.value.touched })?.key else { return }
+    @discardableResult
+    private func disposeLeastRecent(except ref: String?) async -> Bool {
+        guard let victim = entries.filter({ $0.key != ref && !draining.contains($0.key) }).min(by: { $0.value.touched < $1.value.touched })?.key else { return false }
         await disposeNow(victim)
+        return true
     }
 
     private func suspendForBackgroundNow(_ ref: String) async {
@@ -424,13 +522,26 @@ public actor CardSessionPool {
     // MARK: state
 
     private func touch(_ ref: String) {
-        clock &+= 1
-        entries[ref]?.touched = clock
+        entries[ref]?.touched = residency.tick()
     }
 
     private func touch(_ ref: String, into entry: inout Entry) {
-        clock &+= 1
-        entry.touched = clock
+        entry.touched = residency.tick()
+    }
+
+    /// Drops the handle of a card whose session the SDK dropped. The last tree stays drawn read-only (a card that was
+    /// never drawn is forgotten whole, so the next list refresh opens it); a draft that was visible is reported once.
+    private func forget(_ ref: String) {
+        guard var entry = entries[ref] else { return }
+        guard entry.tree != nil else { entries[ref] = nil; return }
+        entry.draftDiscarded = entry.hasDraft
+        entry.hasDraft = false; entry.contentChanged = false
+        entry.session = nil; entry.resident = false; entry.residentAtBackground = false
+        switch entry.phase {
+        case .consumed, .superseded: break
+        default: entry.phase = .suspended
+        }
+        entries[ref] = entry
     }
 
     private func plain(_ display: CardDisplay) -> CardStep {
@@ -458,11 +569,14 @@ public actor CardSessionPool {
                 throw AppFailure.invalidData
             }
         }
+        entry.contentChanged = response.result == "stale_dropped"
         switch response.result {
         case "pending_submit": entry.phase = .submitting
         case "submitted": entry.phase = .consumed
         case "superseded": entry.phase = .superseded(replacement: response.replacementRef)
-        case "refused", "stale_dropped": entry.phase = .refused(response.reason ?? response.result)
+        case "refused": entry.phase = .refused(response.reason ?? response.result)
+        // A stale event or answer: its batch reverted the field; the card stays as it was.
+        case "stale_dropped": if entry.resident, entry.phase != .consumed { entry.phase = .live }
         default: if entry.resident { entry.phase = .live }
         }
         entries[ref] = entry
@@ -486,48 +600,100 @@ public actor CardSessionPool {
 
     private func display(_ ref: String, _ entry: Entry) -> CardDisplay {
         CardDisplay(surfaceRef: ref, tree: entry.tree, renderAllowed: entry.renderAllowed, fallbackText: entry.fallbackText,
-                    resident: entry.resident, phase: entry.phase)
+                    resident: entry.resident, phase: entry.phase, draftDiscarded: entry.draftDiscarded, contentChanged: entry.contentChanged)
     }
 
     /// The display of a card now, or an unavailable display when it has no session.
     private func snapshot(_ ref: String) -> CardDisplay {
         guard let entry = entries[ref] else {
-            return CardDisplay(surfaceRef: ref, tree: nil, renderAllowed: false, fallbackText: "", resident: false, phase: .unavailable)
+            return CardDisplay(surfaceRef: ref, tree: nil, renderAllowed: false, fallbackText: "", resident: false, phase: .unavailable, draftDiscarded: false, contentChanged: false)
         }
         return display(ref, entry)
     }
 }
 
-/// One pool per account, shared by the repositories and the lifecycle hooks of the process.
+/// A card of an account, as the process-wide resident budget names it.
+struct ResidentKey: Hashable, Sendable {
+    let account: String
+    let ref: String
+}
+
+/// The resident budget the pools of one process share (core allows two resident card VMs per process, whatever the
+/// account). `tick` is one clock for every pool, so "least recently used" compares across accounts.
+struct CardResidency: Sendable {
+    let tick: @Sendable () -> UInt64
+    /// How many cards of any account are resumed, not counting `key`.
+    let residentCount: @Sendable (_ excluding: ResidentKey) async -> Int
+    /// Suspends the least recently used resumed card of any account except `key`; false when there is none to suspend.
+    let suspendLeastRecent: @Sendable (_ excluding: ResidentKey) async -> Bool
+}
+
+private final class CardTicker: Sendable {
+    private let value = Mutex<UInt64>(0)
+    func next() -> UInt64 { value.withLock { $0 &+= 1; return $0 } }
+}
+
+/// One pool per account, shared by the repositories and the lifecycle hooks of the process. The registry owns the
+/// process's resident budget of two.
 public actor CardSessionRegistry {
     private let client: CardSessionClient
     private var pools: [String: CardSessionPool] = [:]
     /// Set by `suspendAll` and cleared by `resumeAll`: a pool created in between starts suspended.
     private var suspended = false
+    private let ticker = CardTicker()
+    /// The images of the cards, released with their sessions and with the account's lock.
+    public let images: CardImageLoader
 
     public init(client: RamfluxClient) {
-        self.client = CardSessionClient(gateway: ProxyGateway(proxy: SDKProxy(client: client)))
+        let gateway = ProxyGateway(proxy: SDKProxy(client: client))
+        self.client = CardSessionClient(gateway: gateway)
+        images = CardImageLoader(gateway: gateway)
     }
 
     public func pool(account: String) -> CardSessionPool {
         if let pool = pools[account] { return pool }
-        let pool = CardSessionPool(client: client, account: account, suspended: suspended)
+        let ticker = self.ticker
+        let residency = CardResidency(tick: { ticker.next() },
+                                      residentCount: { [weak self] key in await self?.residentCount(excluding: key) ?? 0 },
+                                      suspendLeastRecent: { [weak self] key in await self?.suspendLeastRecent(excluding: key) ?? false })
+        let pool = CardSessionPool(client: client, account: account, residency: residency, suspended: suspended)
         pools[account] = pool
         return pool
     }
 
-    /// Sign-out or removal: the account's sessions are disposed and its pool is forgotten.
-    public func disposeAccount(_ account: String) async {
+    private func residentCount(excluding key: ResidentKey) async -> Int {
+        var count = 0
+        for (account, pool) in pools {
+            count += await pool.residentTouches().filter { !(account == key.account && $0.ref == key.ref) }.count
+        }
+        return count
+    }
+
+    private func suspendLeastRecent(excluding key: ResidentKey) async -> Bool {
+        var best: (pool: CardSessionPool, ref: String, touched: UInt64)?
+        for (account, pool) in pools {
+            guard let candidate = await pool.leastRecentResident(excluding: account == key.account ? key.ref : nil) else { continue }
+            if best == nil || candidate.touched < (best?.touched ?? .max) { best = (pool, candidate.ref, candidate.touched) }
+        }
+        guard let best else { return false }
+        return await best.pool.suspendResident(best.ref)
+    }
+
+    /// The account locked or is about to: the SDK dropped its sessions, so every handle is forgotten here with no bus call
+    /// (a call on a locked account would only fail). The trees stay for drawing.
+    public func forgetAccount(_ account: String) async {
+        await pools[account]?.forgetAll(close: false)
+        await images.releaseAccount(account)
+    }
+
+    /// Sign-out or removal: the handles are forgotten as for a lock and the pool is closed and released.
+    public func closeAccount(_ account: String) async {
+        await images.releaseAccount(account)
         guard let pool = pools.removeValue(forKey: account) else { return }
-        await pool.disposeAll()
+        await pool.forgetAll(close: true)
     }
 
-    /// The account's app lock is about to engage: its resident sessions are suspended; the sessions stay open.
-    public func suspendAccount(_ account: String) async {
-        await pools[account]?.suspendAll()
-    }
-
-    /// Background, or the app lock engaged: every account's resident sessions are suspended.
+    /// Background: every account's resident sessions are suspended.
     public func suspendAll() async {
         suspended = true
         for pool in pools.values { await pool.suspendAll() }

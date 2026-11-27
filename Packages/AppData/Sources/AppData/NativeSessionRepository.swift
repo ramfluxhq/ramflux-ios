@@ -29,6 +29,14 @@ public actor NativeSessionRepository: SessionRepository {
         let previous = cardSuspend
         cardSuspend = Task { await previous?.value; await registry.suspendAll() }
     }
+    /// The app lock engaged for `account`: the SDK dropped its card sessions, so their handles are forgotten here with no bus
+    /// call (the cards keep their last tree and the next tap opens them again). Queued behind earlier suspends.
+    private func forgetCards(account: String?) {
+        guard let registry = cards else { return }
+        guard let account else { suspendCards(); return }
+        let previous = cardSuspend
+        cardSuspend = Task { await previous?.value; await registry.forgetAccount(account) }
+    }
     /// Waits for the queued card suspends, at most `bound`: they must reach the SDK before the client suspends,
     /// which refuses card calls afterwards, but a slow card call never holds up the background for long. When the
     /// bound passes first, the suspends still queued reach the SDK after the client suspend and are refused there;
@@ -83,7 +91,7 @@ public actor NativeSessionRepository: SessionRepository {
             let value = try await withAppLock(snapshot.value)
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             // Card sessions come back only once the app-lock decision is known: an engaged lock keeps them suspended.
-            if value.appLocked { suspendCards() } else { await resumeCards() }
+            if value.appLocked { forgetCards(account: value.activeAccountID) } else { await resumeCards() }
             publish(value); return .success(value)
         } catch where AppFailure.isAppLocked(error) {
             // The SDK refused a call because the app lock is engaged: the records stay covered and the code is asked.
@@ -102,7 +110,7 @@ public actor NativeSessionRepository: SessionRepository {
     private func raiseAppLock(account: String?, epoch: UInt64) async -> RepositoryResult<SessionSnapshot> {
         // The lock closes the SDK's unlocked state for the card sessions too: none stays resident behind the lock. The
         // suspend is queued, not awaited, so the lock snapshot below is published without waiting for card operations.
-        suspendCards()
+        forgetCards(account: account)
         guard let account else {
             guard epoch == revision else { return .failure(.busy) }
             publish(SessionSnapshot(phase: .failed(.locked), appLockEnabled: true))

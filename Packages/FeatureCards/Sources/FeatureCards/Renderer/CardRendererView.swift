@@ -30,7 +30,7 @@ struct CardNodeView: View {
         case "ChoicePicker": CardChoicePickerView(node: node, context: context)
         case "Slider": CardSliderView(node: node, context: context)
         case "DateTimeInput": CardDateTimeView(node: node, context: context)
-        case "Image": CardImageView(node: node)
+        case "Image": CardImageView(node: node, context: context)
         case "Approval": CardApprovalView(node: node, context: context)
         case "Task": CardTaskView(node: node)
         case "Chart": CardChartView(node: node, context: context)

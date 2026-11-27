@@ -6,31 +6,113 @@ import AppData
 import RFDesign
 import RFLocalization
 
-/// An image node. The runtime has no byte delivery path yet, so the box shows its size and the unavailable state, with the
-/// description as its accessible name. Attachment and URL attributes are never loaded.
+/// An image node. The pixels come from the Image host slot of the node: the SDK resolved the card's attachment selector to
+/// an object, and the host reads it through the object API (checked and decoded within the limits). Until they arrive the
+/// box shows the photo icon; a slot with no object, a failed read or a refused decode shows "Image unavailable". A URL,
+/// a path or a data URI in the tree is never loaded. The description is the accessible name; a tap opens the full view.
 struct CardImageView: View {
     let node: CardNode
+    let context: CardContext
     @Environment(\.rfTheme) private var theme
     @Environment(\.locale) private var locale
+    @Environment(\.cardImageProvider) private var provider
+    @State private var loaded: CardImageResult?
+    @State private var fullScreen = false
 
     var body: some View {
         let variant = node.attrs["variant"]?.string ?? "mediumFeature"
         let description = RFUntrustedText(node.attrs["description"]?.string ?? "", kind: .identity).text
+        let attachment = context.slot(for: node.key)?.fields["attachment"]
         let box = RoundedRectangle(cornerRadius: variant == "avatar" ? theme.radius_full : theme.radius_md)
         ZStack {
             box.fill(theme.surface)
-            if variant == "icon" || variant == "avatar" {
-                Image(systemName: "photo").foregroundStyle(theme.control)
-            } else {
-                VStack(spacing: 6) {
-                    Image(systemName: "photo").font(.system(size: 24)).foregroundStyle(theme.control)
-                    Text(FeatureCardsStrings.text("cards.image.unavailable", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
+            switch loaded {
+            case .image(let image)?:
+                CardPixels(image: image, fit: node.attrs["fit"]?.string ?? "fill")
+            case .unavailable?:
+                if variant == "icon" || variant == "avatar" {
+                    Image(systemName: "photo").foregroundStyle(theme.control)
+                } else {
+                    VStack(spacing: 6) {
+                        Image(systemName: "photo").font(.system(size: 24)).foregroundStyle(theme.control)
+                        Text(FeatureCardsStrings.text("cards.image.unavailable", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
+                    }
                 }
+            case nil:
+                Image(systemName: "photo").font(.system(size: variant == "icon" || variant == "avatar" ? 14 : 24)).foregroundStyle(theme.control)
             }
         }
         .modifier(CardImageGeometry(variant: variant))
         .clipShape(box)
+        .contentShape(box)
+        .onTapGesture { if case .image? = loaded { fullScreen = true } }
         .accessibilityLabel(Text(verbatim: description))
+        .accessibilityAddTraits(isLoaded ? .isButton : .isImage)
+        .accessibilityHint(isLoaded ? Text(FeatureCardsStrings.text("cards.image.view", locale: locale)) : Text(verbatim: ""))
+        .task(id: identity(attachment)) {
+            loaded = nil
+            loaded = await provider.load(context.surfaceRef, attachment)
+        }
+        .sheet(isPresented: $fullScreen) {
+            if case .image(let image)? = loaded {
+                CardImageFullView(image: image, description: description, onClose: { fullScreen = false })
+                    .presentationDetents([.large])
+            }
+        }
+    }
+
+    private var isLoaded: Bool { if case .image? = loaded { true } else { false } }
+
+    /// The object and digest the slot names: a signed update that selects another object loads again.
+    private func identity(_ attachment: JSONValue?) -> String {
+        guard case .object(let selector) = CardImageSource.parse(attachment) else { return "unavailable" }
+        return selector.objectID + "|" + selector.manifestDigest
+    }
+}
+
+/// The decoded pixels in the node's box, placed by the `fit` attribute (object-fit: fill, contain, cover, none, scale-down).
+private struct CardPixels: View {
+    let image: CardImage
+    let fit: String
+
+    var body: some View {
+        let picture = Image(decorative: image.cgImage, scale: 1)
+        switch fit {
+        case "contain": picture.resizable().scaledToFit()
+        case "cover": picture.resizable().scaledToFill()
+        case "none": picture
+        case "scale-down": picture.resizable().scaledToFit().frame(maxWidth: CGFloat(image.cgImage.width), maxHeight: CGFloat(image.cgImage.height))
+        default: picture.resizable()
+        }
+    }
+}
+
+/// The full-screen view of a card image (spec 4.15): on the page background, image fitted with contain, the description
+/// below in the secondary colour, closed by the button or a swipe down.
+private struct CardImageFullView: View {
+    let image: CardImage
+    let description: String
+    let onClose: () -> Void
+    @Environment(\.rfTheme) private var theme
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        VStack(spacing: theme.gap) {
+            HStack {
+                Spacer(minLength: 0)
+                Button(action: onClose) { Image(systemName: "xmark").padding(theme.gap) }
+                    .accessibilityLabel(Text(FeatureCardsStrings.text("cards.modal.close", locale: locale)))
+                    .accessibilityIdentifier("card-image-close")
+            }
+            Image(decorative: image.cgImage, scale: 1).resizable().scaledToFit().frame(maxWidth: .infinity, maxHeight: .infinity)
+            if !description.isEmpty { Text(verbatim: description).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary).multilineTextAlignment(.center) }
+        }
+        .padding(theme.gap)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(theme.bg.ignoresSafeArea())
+        .gesture(DragGesture(minimumDistance: 24).onEnded { if $0.translation.height > 80 { onClose() } })
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("card-image-full")
     }
 }
 

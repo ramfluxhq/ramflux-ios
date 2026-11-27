@@ -46,6 +46,11 @@ public protocol CardsRepository: Sendable {
     func answer(account: String, surfaceRef: String, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async -> RepositoryResult<CardStep>
     /// Asks the SDK to re-read the surface after an out-of-sync signal.
     func requestResync(account: String, surfaceRef: String) async -> RepositoryResult<Void>
+    /// Finishes an approval decision the runtime accepted: `grant.approve` (confirm) or `grant.deny` (deny) with the request
+    /// reference, then `task.resolve` with the runtime's body unchanged. Nothing is retried.
+    func finishApproval(account: String, outcome: String, requestRef: String, taskResolve: JSONValue) async -> RepositoryResult<Void>
+    /// The image of an Image host slot (`attachment` of the slot), read through the object API within the decoder limits.
+    func image(account: String, surfaceRef: String, attachment: JSONValue?) async -> CardImageResult
     /// Disposes the sessions of cards that left the loaded window; the pool keeps at most 24 open.
     func retain(account: String, surfaceRefs: Set<String>) async
     func observe(account: String) async -> RepositoryObservation
@@ -61,6 +66,8 @@ public extension CardsRepository {
     func event(account: String, surfaceRef: String, key: String, event: CardHostEvent) async -> RepositoryResult<CardStep> { .failure(Self.unavailable) }
     func answer(account: String, surfaceRef: String, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async -> RepositoryResult<CardStep> { .failure(Self.unavailable) }
     func requestResync(account: String, surfaceRef: String) async -> RepositoryResult<Void> { .failure(Self.unavailable) }
+    func finishApproval(account: String, outcome: String, requestRef: String, taskResolve: JSONValue) async -> RepositoryResult<Void> { .failure(Self.unavailable) }
+    func image(account: String, surfaceRef: String, attachment: JSONValue?) async -> CardImageResult { .unavailable }
     func retain(account: String, surfaceRefs: Set<String>) async {}
     func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: Self.unavailable) }
 }

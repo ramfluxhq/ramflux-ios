@@ -39,6 +39,8 @@ struct CardLifecycleChrome: View {
     let lifecycle: CardLifecycle
     let generating: Bool
     let outOfSync: Bool
+    /// The last event or answer was dropped as stale: the field shows the current value (spec 5.3).
+    var contentChanged = false
     let onResync: () -> Void
     @Environment(\.rfTheme) private var theme
     @Environment(\.locale) private var locale
@@ -75,9 +77,19 @@ struct CardLifecycleChrome: View {
                     .foregroundStyle(theme.text)
                 Text(FeatureCardsStrings.text("cards.superseded.body", locale: locale)).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
             }
-            if case .refused = phase {
-                CardChip(text: FeatureCardsStrings.text("cards.chip.refused", locale: locale), tone: .danger)
-                Text(FeatureCardsStrings.text("cards.refused.body", locale: locale)).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.danger)
+            if case .refused(let reason) = phase {
+                if reason == CardSessionRefusal.overLimitReason {
+                    // No place for the card's session: it stays read-only and the next tap tries again.
+                    Text(FeatureCardsStrings.text("cards.overLimit", locale: locale)).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
+                        .accessibilityIdentifier("card-over-limit")
+                } else {
+                    CardChip(text: FeatureCardsStrings.text("cards.chip.refused", locale: locale), tone: .danger)
+                    Text(FeatureCardsStrings.text("cards.refused.body", locale: locale)).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.danger)
+                }
+            }
+            if contentChanged {
+                Text(FeatureCardsStrings.text("cards.contentChanged", locale: locale)).rfFont(.size(theme.size_meta)).foregroundStyle(theme.danger)
+                    .accessibilityIdentifier("card-content-changed")
             }
             if outOfSync {
                 Text(FeatureCardsStrings.text("cards.outOfSync", locale: locale)).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
