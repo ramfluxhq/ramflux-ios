@@ -39,30 +39,46 @@ extension ChatViewModel {
             // A cards repository that is not connected leaves the timeline as it is.
             if failure == nil {
                 var next: [String: CardMessageState] = [:]
+                // A refreshed card's failure when its refresh started, and the refresh's own outcome.
+                var refreshes: [String: (before: AppFailure?, error: AppFailure?)] = [:]
                 for surface in found {
                     guard let message = surface.messageID, next[message] == nil else { continue }
-                    let previous = self.state.cards[message]
-                    var card = CardMessageState(surface: surface, display: previous?.display, sending: previous?.sending ?? false, failure: previous?.failure,
-                                                pending: previous?.pending, decided: previous?.decided ?? [])
+                    var card = CardMessageState(surface: surface, display: self.state.cards[message]?.display)
                     // Only the newest cards of the window hold sessions; older ones wait for the list to reach them.
                     if next.count < CardSessionPool.maximumOpen {
+                        let before = self.state.cards[message]?.failure
                         // The pool opens the session, or brings it to the listed version (an update only when it moved).
                         switch await cards.refresh(account: account, surface: surface, locale: locale, dark: dark) {
-                        case .success(let display): card.display = display; card.failure = nil
-                        case .failure(let error): card.failure = error
+                        case .success(let display): card.display = display; refreshes[message] = (before, nil)
+                        case .failure(let error): refreshes[message] = (before, error)
                         }
                     }
+                    next[message] = card
+                }
+                await cards.retain(account: account, surfaceRefs: Set(found.map(\.surfaceRef)))
+                // Written last, from the live state: the awaits above let host events, answers and submits of these cards
+                // change their pending link, decisions, sending flag and failure, and a copy taken before them would undo
+                // that. A card that was not refreshed keeps its live display too.
+                var settled: [String: CardMessageState] = [:]
+                for (message, staleCard) in next {
+                    var card = staleCard
+                    let live = self.state.cards[message]
+                    card.sending = live?.sending ?? false
+                    card.pending = live?.pending
+                    card.decided = live?.decided ?? []
+                    if refreshes[message] == nil { card.display = live?.display }
+                    // A refresh outcome stands unless the card's failure changed while the refresh ran.
+                    if let refresh = refreshes[message], live?.failure == refresh.before { card.failure = refresh.error } else { card.failure = live?.failure }
                     // A pending link stays while the runtime still lists its slot; a link whose request has left the tree is
                     // cancelled, so the runtime does not keep waiting for an answer the sheet no longer shows.
                     if case .openURL(_, let requestID, let slotID, let token)? = card.pending,
                        !(card.display?.tree?.hostSlots.contains { $0.id == slotID && $0.requestID == requestID } ?? false) {
                         card.pending = nil
-                        Task { _ = await cards.answer(account: account, surfaceRef: surface.surfaceRef, token: token, slotID: slotID, requestID: requestID, outcome: .cancel) }
+                        Task { _ = await cards.answer(account: account, surfaceRef: card.surface.surfaceRef, token: token, slotID: slotID, requestID: requestID, outcome: .cancel) }
                     }
-                    next[message] = card
+                    settled[message] = card
                 }
-                await cards.retain(account: account, surfaceRefs: Set(found.map(\.surfaceRef)))
-                self.state.cards = next
+                self.state.cards = settled
             }
             if self.cardsPending { self.cardsPending = false; self.loadCards() }
         }

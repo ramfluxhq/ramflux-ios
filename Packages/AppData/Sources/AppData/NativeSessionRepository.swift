@@ -14,10 +14,26 @@ public actor NativeSessionRepository: SessionRepository {
     private let updates: NativeUpdateSource?
     /// Card sessions are suspended with the SDK at background and app lock, and resumed at foreground.
     private let cards: CardSessionRegistry?
+    /// The queued card suspends, newest last. Each is chained behind the previous one, and a foreground resume waits for
+    /// the chain, so no suspend can land after the resume that brings the cards back.
+    private var cardSuspend: Task<Void, Never>?
     private let appLock: AppLockService
     public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil, cards: CardSessionRegistry? = nil) {
         self.client = client; self.updates = updates; self.cards = cards; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
         appLock = AppLockService(gateway: ProxyGateway(proxy: proxy))
+    }
+    /// Queues the suspend of every card session without waiting for it: the card operations in flight finish first, and
+    /// the caller (background, lock) is not held up by them.
+    private func suspendCards() {
+        guard let registry = cards else { return }
+        let previous = cardSuspend
+        cardSuspend = Task { await previous?.value; await registry.suspendAll() }
+    }
+    /// Brings the card sessions back once the queued suspends have run.
+    private func resumeCards() async {
+        await cardSuspend?.value
+        cardSuspend = nil
+        await cards?.resumeAll()
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
         observer?.finish()
@@ -54,7 +70,7 @@ public actor NativeSessionRepository: SessionRepository {
             let value = try await withAppLock(snapshot.value)
             guard epoch == revision, !Task.isCancelled else { return .failure(.busy) }
             // Card sessions come back only once the app-lock decision is known: an engaged lock keeps them suspended.
-            if value.appLocked { await cards?.suspendAll() } else { await cards?.resumeAll() }
+            if value.appLocked { suspendCards() } else { await resumeCards() }
             publish(value); return .success(value)
         } catch where AppFailure.isAppLocked(error) {
             // The SDK refused a call because the app lock is engaged: the records stay covered and the code is asked.
@@ -71,8 +87,9 @@ public actor NativeSessionRepository: SessionRepository {
     /// the flag on (fail closed). With no account there is nothing to unlock, so the failure is kept covered with a
     /// retry. Nothing is published once a newer operation has started.
     private func raiseAppLock(account: String?, epoch: UInt64) async -> RepositoryResult<SessionSnapshot> {
-        // The lock closes the SDK's unlocked state for the card sessions too: none stays resident behind the lock.
-        await cards?.suspendAll()
+        // The lock closes the SDK's unlocked state for the card sessions too: none stays resident behind the lock. The
+        // suspend is queued, not awaited, so the lock snapshot below is published without waiting for card operations.
+        suspendCards()
         guard let account else {
             guard epoch == revision else { return .failure(.busy) }
             publish(SessionSnapshot(phase: .failed(.locked), appLockEnabled: true))
@@ -141,10 +158,13 @@ public actor NativeSessionRepository: SessionRepository {
             }
         }
         guard epoch == revision else { return .failure(.busy) }
-        await cards?.suspendAll()
         await updates?.suspendForBackground()
-        do { try await lifecycle.background(); return .success(()) }
-        catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
+        let outcome: RepositoryResult<Void>
+        do { try await lifecycle.background(); outcome = .success(()) }
+        catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; outcome = .failure(failure) }
+        // Queued behind the card operations in flight and not awaited: the background is never held up by a card.
+        suspendCards()
+        return outcome
     }
     /// The app lock of the active account was configured in Settings: the flag the shell reads follows at once.
     public func appLockConfigured(enabled: Bool) async {

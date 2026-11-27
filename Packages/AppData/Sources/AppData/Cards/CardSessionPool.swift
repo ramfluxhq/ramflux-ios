@@ -99,16 +99,22 @@ public actor CardSessionPool {
     private var draining: Set<String> = []
     /// Set by `disposeAll`: no new operation is accepted, only the disposals already queued run.
     private var closed = false
+    /// Set by `suspendAll` before its suspends are queued, cleared by `resumeAll`. While set, no session becomes resident:
+    /// an open or a tap parks the card instead.
+    private var suspended: Bool
+    /// The host's colour scheme and locale as the pool last received them; a resumed session is presented in them.
+    private var appearance: (locale: String, dark: Bool)?
 
-    init(client: CardSessionClient, account: String) {
-        self.client = client; self.account = account
+    init(client: CardSessionClient, account: String, suspended: Bool = false) {
+        self.client = client; self.account = account; self.suspended = suspended
     }
 
     public func display(surfaceRef: String) -> CardDisplay? { entries[surfaceRef].map { display(surfaceRef, $0) } }
 
     /// Opens the card unless it is already open. Opening takes a resident slot; older cards are suspended to make room.
     public func open(surfaceRef: String, locale: String, dark: Bool) async throws -> CardDisplay {
-        try await ordered(surfaceRef, .open(locale: locale, dark: dark)).display
+        appearance = (locale, dark)
+        return try await ordered(surfaceRef, .open(locale: locale, dark: dark)).display
     }
 
     /// The first tap on a suspended card: resumes it with a fresh token session and the full tree.
@@ -134,12 +140,14 @@ public actor CardSessionPool {
     /// Brings the session up to the surface version the list shows: an update when it moved, a fresh open when the card
     /// had no session before.
     public func refresh(surfaceRef: String, version: UInt64, locale: String, dark: Bool) async throws -> CardDisplay {
-        try await ordered(surfaceRef, .refresh(version: version, locale: locale, dark: dark)).display
+        appearance = (locale, dark)
+        return try await ordered(surfaceRef, .refresh(version: version, locale: locale, dark: dark)).display
     }
 
     /// Re-presents the held session in a new locale or theme; no peer update.
     public func present(surfaceRef: String, locale: String, dark: Bool) async throws -> CardDisplay {
-        try await ordered(surfaceRef, .present(locale: locale, dark: dark)).display
+        appearance = (locale, dark)
+        return try await ordered(surfaceRef, .present(locale: locale, dark: dark)).display
     }
 
     /// Keeps the sessions of the cards in the loaded window; disposes the others and any beyond the open limit. Each
@@ -161,14 +169,17 @@ public actor CardSessionPool {
         for ref in knownRefs() { await serialized(ref, .dispose) }
     }
 
-    /// The app goes to the background or the account is locked: every resident session is suspended behind the card's
-    /// queue, so an open in flight is suspended too; the trees stay.
+    /// The app goes to the background or the account is locked: the pool is marked suspended at once, then every resident
+    /// session is suspended behind the card's queue, so an open in flight is suspended too; the trees stay.
     public func suspendAll() async {
+        suspended = true
         for ref in knownRefs() { await serialized(ref, .suspendForBackground) }
     }
 
-    /// The app returns to the foreground: the sessions that were resident at the background come back, with fresh tokens.
+    /// The app returns to the foreground: the pool is no longer suspended and the sessions that were resident at the
+    /// background come back, with fresh tokens.
     public func resumeAll() async {
+        suspended = false
         for ref in entries.keys where entries[ref]?.residentAtBackground == true {
             entries[ref]?.residentAtBackground = false
             _ = try? await resume(surfaceRef: ref)
@@ -250,21 +261,43 @@ public actor CardSessionPool {
         try applyWithoutStep(response, to: ref)
         if response.session != nil { entries[ref]?.resident = response.result == "opened" }
         if response.result == "refused" { entries[ref]?.phase = .refused(response.reason ?? "card_session_refused") }
-        try await enforceResidency(keeping: ref)
+        if suspended, entries[ref]?.resident == true {
+            // Opened while the app is backgrounded or locked: the session is parked at once and comes back at the foreground.
+            entries[ref]?.residentAtBackground = true
+            await suspend(ref)
+            entries[ref]?.phase = .suspended
+        } else {
+            try await enforceResidency(keeping: ref)
+        }
         return display(ref, entries[ref] ?? entry)
     }
 
     private func resumeNow(_ ref: String) async throws -> CardDisplay {
         guard let entry = entries[ref], let session = entry.session else { throw AppFailure.invalidInput }
         if !entry.resident {
+            // Backgrounded or locked: the tap only shows the card; it comes back with `resumeAll` at the foreground.
+            guard !suspended else {
+                entries[ref]?.residentAtBackground = true
+                entries[ref]?.phase = .suspended
+                return display(ref, entries[ref] ?? entry)
+            }
             try await enforceResidency(keeping: ref)
             let response = try await perform(keeping: ref) { try await self.client.resume(account: self.account, session: session) }
             try applyWithoutStep(response, to: ref)
             entries[ref]?.resident = response.result == "resumed"
             entries[ref]?.phase = response.result == "resumed" ? .live : .refused(response.reason ?? "card_session_refused")
+            if entries[ref]?.resident == true { await presentAppearance(ref, session: session) }
         }
         touch(ref)
         return display(ref, entries[ref] ?? entry)
+    }
+
+    /// A resumed session takes the host's current colour scheme and locale, which may have changed while it was suspended.
+    /// A failed present keeps the resumed card as it is; the next present or open brings it up to date.
+    private func presentAppearance(_ ref: String, session: UInt64) async {
+        guard let appearance else { return }
+        guard let response = try? await perform(keeping: ref, { try await self.client.present(account: self.account, session: session, locale: appearance.locale, dark: appearance.dark) }) else { return }
+        try? applyWithoutStep(response, to: ref)
     }
 
     private func eventNow(_ ref: String, key: String, event: CardHostEvent) async throws -> CardStep {
@@ -362,9 +395,11 @@ public actor CardSessionPool {
     }
 
     /// Evicts the least recently used card to make room for an open. Only the open of another card calls this, so the
-    /// eviction is direct rather than queued (two opens waiting on each other's queues would deadlock).
+    /// eviction is direct rather than queued (two opens waiting on each other's queues would deadlock). A card with an
+    /// operation in flight is never evicted: when every candidate is draining, nothing is evicted and the pool overshoots
+    /// the open limit until `retain` trims it.
     private func disposeLeastRecent(except ref: String?) async throws {
-        guard let victim = entries.filter({ $0.key != ref }).min(by: { $0.value.touched < $1.value.touched })?.key else { return }
+        guard let victim = entries.filter({ $0.key != ref && !draining.contains($0.key) }).min(by: { $0.value.touched < $1.value.touched })?.key else { return }
         await disposeNow(victim)
     }
 
@@ -460,6 +495,8 @@ public actor CardSessionPool {
 public actor CardSessionRegistry {
     private let client: CardSessionClient
     private var pools: [String: CardSessionPool] = [:]
+    /// Set by `suspendAll` and cleared by `resumeAll`: a pool created in between starts suspended.
+    private var suspended = false
 
     public init(client: RamfluxClient) {
         self.client = CardSessionClient(gateway: ProxyGateway(proxy: SDKProxy(client: client)))
@@ -467,7 +504,7 @@ public actor CardSessionRegistry {
 
     public func pool(account: String) -> CardSessionPool {
         if let pool = pools[account] { return pool }
-        let pool = CardSessionPool(client: client, account: account)
+        let pool = CardSessionPool(client: client, account: account, suspended: suspended)
         pools[account] = pool
         return pool
     }
@@ -485,11 +522,13 @@ public actor CardSessionRegistry {
 
     /// Background, or the app lock engaged: every account's resident sessions are suspended.
     public func suspendAll() async {
+        suspended = true
         for pool in pools.values { await pool.suspendAll() }
     }
 
     /// Foreground: the sessions that were resident at the background come back.
     public func resumeAll() async {
+        suspended = false
         for pool in pools.values { await pool.resumeAll() }
     }
 }
