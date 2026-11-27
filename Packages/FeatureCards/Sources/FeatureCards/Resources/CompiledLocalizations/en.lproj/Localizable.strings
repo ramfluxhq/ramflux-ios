@@ -2,14 +2,50 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>cards.approval.agentSays</key>
+	<string>The agent says:</string>
+	<key>cards.approval.allow</key>
+	<string>Allow</string>
+	<key>cards.approval.confirm</key>
+	<string>Confirm</string>
+	<key>cards.approval.deny</key>
+	<string>Deny</string>
 	<key>cards.approval.pending</key>
 	<string>Decide in tasks</string>
 	<key>cards.approval.request</key>
 	<string>Request</string>
+	<key>cards.approval.requester</key>
+	<string>Requested by %@</string>
+	<key>cards.approval.risk</key>
+	<string>Risk: %@</string>
+	<key>cards.approval.sheetTitle</key>
+	<string>Confirm this approval</string>
+	<key>cards.approval.title</key>
+	<string>Approval request</string>
+	<key>cards.chart.chart</key>
+	<string>Chart</string>
+	<key>cards.chart.empty</key>
+	<string>No data for this period</string>
+	<key>cards.chart.table</key>
+	<string>Table</string>
+	<key>cards.chip.closed</key>
+	<string>Closed</string>
+	<key>cards.chip.refused</key>
+	<string>Could not send</string>
+	<key>cards.chip.submitting</key>
+	<string>Submitting...</string>
+	<key>cards.chip.updated</key>
+	<string>Updated</string>
+	<key>cards.chip.waiting</key>
+	<string>Waiting for confirmation</string>
+	<key>cards.chip.waitingForYou</key>
+	<string>Waiting for you</string>
 	<key>cards.closed</key>
 	<string>This card is closed</string>
 	<key>cards.contentUnavailable</key>
 	<string>Card content unavailable</string>
+	<key>cards.image.unavailable</key>
+	<string>Image unavailable</string>
 	<key>cards.link</key>
 	<string>This link cannot be opened</string>
 	<key>cards.link.cancel</key>
@@ -18,14 +54,54 @@
 	<string>The agent chose this link. It opens in your browser; check the address before you continue.</string>
 	<key>cards.link.confirm.title</key>
 	<string>Open a page on %@?</string>
+	<key>cards.link.from</key>
+	<string>From %@</string>
 	<key>cards.link.open</key>
 	<string>Open</string>
+	<key>cards.list.empty</key>
+	<string>Nothing to show</string>
+	<key>cards.list.showAll</key>
+	<string>Show all (%lld)</string>
+	<key>cards.modal.close</key>
+	<string>Close</string>
 	<key>cards.outOfSync</key>
 	<string>This card is out of sync; actions are paused</string>
+	<key>cards.refused.body</key>
+	<string>Could not send. Your input is kept.</string>
+	<key>cards.resync</key>
+	<string>Resync</string>
 	<key>cards.sending</key>
 	<string>Sending…</string>
 	<key>cards.streaming</key>
 	<string>Still writing</string>
+	<key>cards.superseded.body</key>
+	<string>The version you saw has changed. Review the new version before deciding.</string>
+	<key>cards.superseded.title</key>
+	<string>Content updated</string>
+	<key>cards.table.empty</key>
+	<string>No rows</string>
+	<key>cards.table.no</key>
+	<string>No</string>
+	<key>cards.table.showing</key>
+	<string>Showing %1$lld of %2$lld</string>
+	<key>cards.table.yes</key>
+	<string>Yes</string>
+	<key>cards.task.refusedNote</key>
+	<string>The task ended. Steps are kept.</string>
+	<key>cards.task.status.cancelled</key>
+	<string>Cancelled</string>
+	<key>cards.task.status.completed</key>
+	<string>Completed</string>
+	<key>cards.task.status.delivered</key>
+	<string>Delivered</string>
+	<key>cards.task.status.pending</key>
+	<string>Waiting to start</string>
+	<key>cards.task.status.refused</key>
+	<string>Refused</string>
+	<key>cards.task.status.running</key>
+	<string>Running</string>
+	<key>cards.task.steps</key>
+	<string>Steps (%1$lld of %2$lld)</string>
 	<key>cards.unsupported</key>
 	<string>This part of the card is not supported in this app</string>
 	<key>cards.unsupportedValue</key>

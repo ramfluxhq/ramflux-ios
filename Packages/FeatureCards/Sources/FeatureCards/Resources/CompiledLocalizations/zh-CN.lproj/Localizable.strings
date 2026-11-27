@@ -2,14 +2,50 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>cards.approval.agentSays</key>
+	<string>智能体说：</string>
+	<key>cards.approval.allow</key>
+	<string>允许</string>
+	<key>cards.approval.confirm</key>
+	<string>确认</string>
+	<key>cards.approval.deny</key>
+	<string>拒绝</string>
 	<key>cards.approval.pending</key>
 	<string>请在任务中决定</string>
 	<key>cards.approval.request</key>
 	<string>请求</string>
+	<key>cards.approval.requester</key>
+	<string>请求人：%@</string>
+	<key>cards.approval.risk</key>
+	<string>风险：%@</string>
+	<key>cards.approval.sheetTitle</key>
+	<string>确认此审批</string>
+	<key>cards.approval.title</key>
+	<string>审批请求</string>
+	<key>cards.chart.chart</key>
+	<string>图表</string>
+	<key>cards.chart.empty</key>
+	<string>此时段没有数据</string>
+	<key>cards.chart.table</key>
+	<string>表格</string>
+	<key>cards.chip.closed</key>
+	<string>已关闭</string>
+	<key>cards.chip.refused</key>
+	<string>发送失败</string>
+	<key>cards.chip.submitting</key>
+	<string>提交中...</string>
+	<key>cards.chip.updated</key>
+	<string>已更新</string>
+	<key>cards.chip.waiting</key>
+	<string>等待确认</string>
+	<key>cards.chip.waitingForYou</key>
+	<string>等待你处理</string>
 	<key>cards.closed</key>
 	<string>此卡片已关闭</string>
 	<key>cards.contentUnavailable</key>
 	<string>卡片内容不可用</string>
+	<key>cards.image.unavailable</key>
+	<string>图片不可用</string>
 	<key>cards.link</key>
 	<string>无法打开此链接</string>
 	<key>cards.link.cancel</key>
@@ -18,14 +54,54 @@
 	<string>此链接由智能体提供，将在浏览器中打开。继续前请核对网址。</string>
 	<key>cards.link.confirm.title</key>
 	<string>要打开 %@ 上的网页吗？</string>
+	<key>cards.link.from</key>
+	<string>来自 %@</string>
 	<key>cards.link.open</key>
 	<string>打开</string>
+	<key>cards.list.empty</key>
+	<string>没有内容</string>
+	<key>cards.list.showAll</key>
+	<string>显示全部（%lld）</string>
+	<key>cards.modal.close</key>
+	<string>关闭</string>
 	<key>cards.outOfSync</key>
 	<string>此卡片未同步，操作已暂停</string>
+	<key>cards.refused.body</key>
+	<string>发送失败，你的输入已保留。</string>
+	<key>cards.resync</key>
+	<string>重新同步</string>
 	<key>cards.sending</key>
 	<string>正在发送…</string>
 	<key>cards.streaming</key>
 	<string>仍在输入</string>
+	<key>cards.superseded.body</key>
+	<string>你看到的版本已变化。请先查看新版本再做决定。</string>
+	<key>cards.superseded.title</key>
+	<string>内容已更新</string>
+	<key>cards.table.empty</key>
+	<string>没有行</string>
+	<key>cards.table.no</key>
+	<string>否</string>
+	<key>cards.table.showing</key>
+	<string>显示 %1$lld / 共 %2$lld</string>
+	<key>cards.table.yes</key>
+	<string>是</string>
+	<key>cards.task.refusedNote</key>
+	<string>任务已结束，步骤已保留。</string>
+	<key>cards.task.status.cancelled</key>
+	<string>已取消</string>
+	<key>cards.task.status.completed</key>
+	<string>已完成</string>
+	<key>cards.task.status.delivered</key>
+	<string>已送达</string>
+	<key>cards.task.status.pending</key>
+	<string>等待开始</string>
+	<key>cards.task.status.refused</key>
+	<string>已拒绝</string>
+	<key>cards.task.status.running</key>
+	<string>运行中</string>
+	<key>cards.task.steps</key>
+	<string>步骤（%1$lld / %2$lld）</string>
 	<key>cards.unsupported</key>
 	<string>此应用不支持卡片的这一部分</string>
 	<key>cards.unsupportedValue</key>

@@ -100,7 +100,7 @@ import FeatureCards
         case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo, .removeDraftItem, .draftCaptionChanged, .sendMediaDraft, .cancelMediaDraft, .openAlbum, .closeAlbum:
             handleMedia(action)
         case .openGallery, .closeGallery, .galleryTab, .galleryMore: handleGallery(action)
-        case .cardEvent, .cardResync: handleCards(action)
+        case .cardEvent, .cardResync, .cardAnswer: handleCards(action)
         case .clearMediaRequested: state.details?.confirmClear = true
         case .clearMediaCancelled: state.details?.confirmClear = false
         case .clearMediaConfirmed: clearConversationMedia()

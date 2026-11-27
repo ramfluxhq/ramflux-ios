@@ -40,6 +40,8 @@ public struct CardStep: Equatable, Sendable {
     public let hostRequest: CardHostRequest?
     public let draftConflict: Bool
     public let submit: CardSubmitHandle?
+    /// The runtime's result name for a host slot answer (`opened`, `cancelled`, `unavailable`, `approval_decision`).
+    public var slotResult: String? = nil
 }
 
 /// Card sessions of one account. The runtime keeps at most two resident VMs per process and 32 sessions per account;
@@ -265,7 +267,9 @@ public actor CardSessionPool {
         let response = try await perform(keeping: ref) {
             try await self.client.slot(account: self.account, session: session, token: token, slotID: slotID, requestID: requestID, outcome: outcome)
         }
-        return try await applyOrReload(response, to: ref)
+        var step = try await applyOrReload(response, to: ref)
+        step.slotResult = response.result
+        return step
     }
 
     private func submitNow(_ ref: String) async throws -> CardStep {

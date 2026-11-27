@@ -14,6 +14,7 @@ extension ChatViewModel {
     func handleCards(_ action: ChatAction) {
         switch action {
         case .cardEvent(let ref, let key, let event): sendEvent(ref, key: key, event: event)
+        case .cardAnswer(let ref, let answer): sendAnswer(ref, answer)
         case .cardResync(let ref): resync(ref)
         default: break
         }
@@ -88,26 +89,34 @@ extension ChatViewModel {
         }
     }
 
+    /// Sends a host slot answer. The pending link leaves the sheet at once; the browser opens only when the runtime answers
+    /// `opened`. Nothing is retried: a refused answer shows the failure.
+    private func sendAnswer(_ ref: String, _ answer: CardAnswer) {
+        guard let message = cardKey(ref) else { return }
+        state.cards[message]?.pending = nil
+        cardEventsInFlight[ref, default: 0] += 1
+        state.cards[message]?.sending = true
+        state.cards[message]?.failure = nil
+        let current = epoch
+        Task { [weak self, cards, account] in
+            let result = await cards.answer(account: account, surfaceRef: ref, token: answer.token, slotID: answer.slotID, requestID: answer.requestID, outcome: answer.outcome)
+            guard let self else { return }
+            self.cardEventsInFlight[ref, default: 1] -= 1
+            guard self.epoch == current else { return }
+            if case .success(let step) = result, step.slotResult == "opened", let link = answer.link { CardLinkOpener.open(link) }
+            self.finishCardStep(message, ref: ref, result)
+        }
+    }
+
     private func finishCardStep(_ message: String, ref: String, _ result: RepositoryResult<CardStep>) {
         state.cards[message]?.sending = (cardEventsInFlight[ref] ?? 0) > 0
         switch result {
         case .success(let step):
             state.cards[message]?.display = step.display
-            if let request = step.hostRequest { decline(request, ref: ref, message: message) }
+            // A link the author asked to open waits for the user's answer in the link sheet.
+            if case .openURL? = step.hostRequest { state.cards[message]?.pending = step.hostRequest }
         case .failure(let error):
             state.cards[message]?.failure = error
-        }
-    }
-
-    /// Until the renderer shows the link and approval sheets, every host request is answered `cancel`: nothing opens
-    /// and nothing is confirmed. The answer is sent once per request.
-    private func decline(_ request: CardHostRequest, ref: String, message: String) {
-        guard case .openURL(_, let requestID, let slotID, let token) = request else { return }
-        let current = epoch
-        Task { [weak self, cards, account] in
-            let result = await cards.answer(account: account, surfaceRef: ref, token: token, slotID: slotID, requestID: requestID, outcome: .cancel)
-            guard let self, self.epoch == current else { return }
-            self.finishCardStep(message, ref: ref, result)
         }
     }
 }
