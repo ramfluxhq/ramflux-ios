@@ -35,6 +35,7 @@ import RamfluxCore
     public init(repository: any SettingsRepository, nodes: any NodeRepository, preferences: any PreferencesRepository,
                 account: String?, state: SettingsState = SettingsState(), emit: @escaping (SettingsEvent) -> Void) {
         self.repository = repository; self.nodes = nodes; self.preferences = preferences; self.account = account; self.state = state; self.emit = emit
+        self.state.accountOpen = account != nil
     }
     public func send(_ action: SettingsAction) {
         switch action {
@@ -171,7 +172,7 @@ import RamfluxCore
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             clearUsername()
             let unknown = state.unknownMutation || state.busy, route = state.route, appearance = state.appearance
-            state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown
+            state = SettingsState(route: route); state.appearance = appearance; state.unknownMutation = unknown; state.accountOpen = account != nil
         }
     }
     /// The App lock page reads the SDK's state of the active account (none is read without an open account).

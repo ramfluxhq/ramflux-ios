@@ -72,7 +72,10 @@ import RFDesign
                         hidden: Binding(get: { coordinator.shortcutHidden }, set: { coordinator.shortcutHidden = $0 }),
                         onBack: { if !coordinator.path.isEmpty { coordinator.path.removeLast() } }
                     ))
-                default: return AnyView(SettingsHost(coordinator: composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)))
+                default:
+                    // A replaced coordinator is a new view: its identity makes SwiftUI run `appeared`, which reads the account again.
+                    let settings = composition.settings(account: coordinator.viewModel.state.session.activeAccountID, route: route)
+                    return AnyView(SettingsHost(coordinator: settings).id(ObjectIdentifier(settings)))
                 }
             }
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,

@@ -245,7 +245,7 @@ public struct SettingsScreen: View {
     /// The App lock page (Settings > Privacy). Off by default. Unlock is by account code only: the biometric row
     /// stays disabled until the core offers presence unlock.
     @ViewBuilder private var appLockContent: some View {
-        if state.snapshot.accountID == nil {
+        if !state.accountOpen {
             Text(copy("settings.appLock.noAccount")).foregroundStyle(theme.secondary)
         } else if let record = state.appLock {
             // The clock ticks once a second so the wait countdown and the weakening controls follow the monotonic deadline.

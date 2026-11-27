@@ -198,7 +198,9 @@ import Push
     @ObservationIgnored private var preferenceTask: Task<Void, Never>?
     @ObservationIgnored private var currentSettings: (String?, AppRoute, SettingsCoordinator)?
     func settings(account: String?, route: AppRoute) -> SettingsCoordinator {
-        if let currentSettings, currentSettings.0 == account, currentSettings.1 == route { return currentSettings.2 }
+        // A nil account is the shell reporting none for a moment (a foreground still opening, a failed activation), not a
+        // different account: the open page keeps its account and its state. Only a real change replaces the coordinator.
+        if let currentSettings, currentSettings.1 == route, account == nil || currentSettings.0 == account { return currentSettings.2 }
         currentSettings?.2.send(SettingsAction.disappeared); currentSettings?.2.send(BackupAction.disappeared); currentSettings?.2.send(PairingAction.disappeared)
         let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, pairing: repositories.pairing, nodes: repositories.nodes,
             preferences: repositories.preferences, account: account, route: route) { [weak self] event in
@@ -274,6 +276,7 @@ import Push
         currentCalls?.2.send(.refresh)
         currentAgents?.1.send(.retry)
         currentTasks?.2.send(.refresh)
+        currentSettings?.2.send(SettingsAction.refresh)
     }
     /// The account the composition last saw unlocked; calls and the outbox follow it.
     @ObservationIgnored private var unlockedAccount: String?

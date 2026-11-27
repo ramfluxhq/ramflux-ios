@@ -33,5 +33,7 @@ public struct SettingsState: Equatable, Sendable {
     public var codeRetryDeadline: ContinuousClock.Instant?
     /// The change that opened or is waiting for the code turns the lock off (otherwise it only lengthens the timeout).
     public var appLockTurningOff = false
+    /// An account is open for this page (the view model was given one). Not the snapshot: a snapshot is empty until it is read.
+    public var accountOpen = false
     public init(route: AppRoute = .settings) { self.route = route }
 }
