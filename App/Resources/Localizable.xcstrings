@@ -103,6 +103,24 @@
           }
         }
       }
+    },
+    "app.removed.notice": {
+      "comment": "Notice shown after a locked account was removed from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account removed from this device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已从本设备移除此账户。"
+          }
+        }
+      },
+      "extractionState": "manual"
     }
   }
 }

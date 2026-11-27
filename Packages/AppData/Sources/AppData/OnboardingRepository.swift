@@ -29,6 +29,8 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     private let gateway: ProxyGateway
     private var ceremony: AccountCeremony?
     private var recovery = false
+    /// The account a recovery ceremony targets; it goes in the envelope of begin, confirm and cancel.
+    private var recoveryAccountID: String?
     private var unresolvedConfirmation = false
     private var confirmation: Task<RepositoryResult<AccountRecord>, Never>?
     public func confirmationUnresolved() async -> Bool { unresolvedConfirmation }
@@ -70,34 +72,48 @@ public actor NativeOnboardingRepository: OnboardingRepository {
     public func confirm(_ submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let ceremony, !recovery, let fields = submission.take(), fields["words"] != nil, fields["passphrase"] != nil else { return .failure(.invalidInput) }
-        return await dispatchConfirmation(ceremony: ceremony, operation: .accountCreateConfirm, body: .object([:]), fields: fields)
+        return await dispatchConfirmation(ceremony: ceremony, operation: .accountCreateConfirm, account: nil, body: .object([:]), fields: fields)
     }
 
     public func beginRecovery(accountID: String) async -> RepositoryResult<CeremonyMetadata> {
         guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         guard ceremony == nil else { return .failure(.busy) }
-        let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true
-        do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin), body: .object(["account_id": .string(accountID)]))))) }
-        catch { return .failure(Self.failure(error)) }
+        let ceremony = AccountCeremony(proxy: proxy, kind: .recovery); self.ceremony = ceremony; recovery = true; recoveryAccountID = accountID
+        // The envelope names the same account as the body: the SDK's app-lock fence admits recovery of a locked account only then.
+        do { return .success(try Self.metadata(ProxyGateway.body(await ceremony.begin(context: gateway.context(.accountRecoverBegin, account: accountID), body: .object(["account_id": .string(accountID)]))))) }
+        catch {
+            // A refused begin leaves no ceremony in the SDK; the next attempt starts again.
+            self.ceremony = nil; recoveryAccountID = nil
+            return .failure(AppFailure.recoveryRefusal(error) ?? Self.failure(error))
+        }
     }
     public func confirmRecovery(anchor: String, submission: SensitiveSubmission) async -> RepositoryResult<AccountRecord> {
         defer { submission.erase() }
         guard let ceremony, recovery, let fields = submission.take(), fields["phrase"] != nil, fields["passphrase"] != nil else { return .failure(.invalidInput) }
-        return await dispatchConfirmation(ceremony: ceremony, operation: .accountRecoverConfirm, body: .object(["confirmed_anchor": .string(anchor)]), fields: fields)
+        return await dispatchConfirmation(ceremony: ceremony, operation: .accountRecoverConfirm, account: recoveryAccountID, body: .object(["confirmed_anchor": .string(anchor)]), fields: fields)
     }
-    private func dispatchConfirmation(ceremony: AccountCeremony, operation: SDKOperation, body: JSONValue, fields: [String: SecretField]) async -> RepositoryResult<AccountRecord> {
+    private func dispatchConfirmation(ceremony: AccountCeremony, operation: SDKOperation, account: String?, body: JSONValue, fields: [String: SecretField]) async -> RepositoryResult<AccountRecord> {
         guard !unresolvedConfirmation else { return .failure(.outcomeUnknown) }
         unresolvedConfirmation = true
+        let recovering = recovery
         let task = Task { [gateway] () -> RepositoryResult<AccountRecord> in
             do {
-                let result = try await ceremony.confirm(context: gateway.context(operation), body: body, fields: fields)
+                let result = try await ceremony.confirm(context: gateway.context(operation, account: account), body: body, fields: fields)
                 guard case .sealed(let frame) = result else { return .failure(.outcomeUnknown) }
                 return .success(try Self.account(ProxyGateway.body(frame)))
-            } catch { return .failure(.outcomeUnknown) }
+            } catch {
+                // A recovery refusal the SDK named is definite: it consumed the ceremony, so the next attempt starts at `begin`.
+                if recovering, let refusal = AppFailure.recoveryRefusal(error) { return .failure(refusal) }
+                return .failure(.outcomeUnknown)
+            }
         }
         confirmation = task
         let result = await task.value
-        if case .success = result { unresolvedConfirmation = false; self.ceremony = nil }
+        switch result {
+        case .success: unresolvedConfirmation = false; self.ceremony = nil
+        case .failure(let failure):
+            if failure != .outcomeUnknown { unresolvedConfirmation = false; self.ceremony = nil; if recovering { recoveryAccountID = nil } }
+        }
         return result
     }
 
@@ -122,7 +138,7 @@ public actor NativeOnboardingRepository: OnboardingRepository {
         display?.erase(); display = nil
         if let confirmation { _ = await confirmation.value }
         guard let ceremony else { return .success(()) }
-        do { try await ceremony.cancel(context: gateway.context(recovery ? .accountRecoverCancel : .accountCreateCancel)); self.ceremony = nil; return .success(()) }
+        do { try await ceremony.cancel(context: gateway.context(recovery ? .accountRecoverCancel : .accountCreateCancel, account: recovery ? recoveryAccountID : nil)); self.ceremony = nil; return .success(()) }
         catch { return .failure(Self.failure(error)) }
     }
     private static func failure(_ error: any Error) -> AppFailure {

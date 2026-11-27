@@ -23,7 +23,7 @@
 	<key>accountCode.failure.wait</key>
 	<string>Too many wrong account codes. Try again in %@.</string>
 	<key>accountCode.failure.wrong</key>
-	<string>That code is not right. Check it and try again.</string>
+	<string>That account code is not right.</string>
 	<key>agents.unavailable.access</key>
 	<string>Changing who can reach this agent is not available on this phone yet.</string>
 	<key>agents.unavailable.chat</key>
@@ -234,6 +234,12 @@
 	<string>Linking stopped for a reason this app does not recognise.</string>
 	<key>pairing.failure.title</key>
 	<string>Linking did not complete</string>
+	<key>recovery.failure.expired</key>
+	<string>The recovery took too long. Start again.</string>
+	<key>recovery.failure.phraseMismatch</key>
+	<string>The recovery phrase does not match this account.</string>
+	<key>recovery.failure.title</key>
+	<string>Recover this account</string>
 	<key>refusal.already_contact</key>
 	<string>This account is already one of your contacts. Its card was not applied.</string>
 	<key>refusal.already_contact.title</key>

@@ -207,7 +207,7 @@
 	<key>onboarding.stage.offline</key>
 	<string>You are offline</string>
 	<key>onboarding.stage.recover</key>
-	<string>Recover your account</string>
+	<string>Recover this account</string>
 	<key>onboarding.stage.restoring</key>
 	<string>Restoring your connection</string>
 	<key>onboarding.stage.saveFailed</key>

@@ -50,8 +50,24 @@
 	<string>账户</string>
 	<key>shell.appLock.code</key>
 	<string>账户码</string>
+	<key>shell.appLock.exhausted.body</key>
+	<string>此账户已在本设备上锁定。请用恢复短语和账户码恢复，或将其从本设备移除。</string>
+	<key>shell.appLock.exhausted.title</key>
+	<string>错误的账户码次数过多</string>
 	<key>shell.appLock.instructions</key>
 	<string>输入账户码以继续。</string>
+	<key>shell.appLock.phraseAccepted</key>
+	<string>恢复短语已确认。请在 %@ 后输入账户码。</string>
+	<key>shell.appLock.remove</key>
+	<string>从本设备移除</string>
+	<key>shell.appLock.remove.ack</key>
+	<string>我已了解</string>
+	<key>shell.appLock.remove.body</key>
+	<string>未备份的本地记录将丢失，且无法撤销。之后可以用备份和恢复短语恢复此账户。</string>
+	<key>shell.appLock.remove.confirm</key>
+	<string>移除</string>
+	<key>shell.appLock.remove.title</key>
+	<string>要从本设备移除此账户吗？</string>
 	<key>shell.appLock.restore</key>
 	<string>用恢复短语恢复</string>
 	<key>shell.appLock.wait</key>

@@ -10,6 +10,10 @@ public enum AppFailure: Error, Sendable, Equatable {
     /// A refusal the SDK named with a typed reason that has no screen of its own (a token of letters, digits and underscores).
     case sdkReason(String)
     case accountCode(AccountCodeIssue)
+    /// The recovery phrase is not the account's (`CustodyConfirmationFailed`); no counter changed.
+    case recoveryPhraseMismatch
+    /// The recovery ceremony ran out before it was confirmed (`CustodyExpired`).
+    case recoveryExpired
     /// Too many wrong account codes; the SDK names the wait (`retry_after_ms`), in whole seconds here.
     case accountCodeWait(seconds: Int, until: ContinuousClock.Instant)
     /// The username directory is rate limiting or at capacity; it names the wait in whole seconds (`retry_after_ms`).
@@ -35,6 +39,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .failed, .sdkReason: AppDataStrings.text("request.refusal.title", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalTitle(name), locale: locale)
         case .accountCode, .accountCodeWait: AppDataStrings.text("accountCode.failure.title", locale: locale)
+        case .recoveryPhraseMismatch, .recoveryExpired: AppDataStrings.text("recovery.failure.title", locale: locale)
         case .usernameRetry: AppDataStrings.text("failure.unavailable.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
         case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
@@ -71,6 +76,8 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .sdkReason(let reason): AppDataStrings.format("refusal.sdkReason", reason.replacingOccurrences(of: "_", with: " "), locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
+        case .recoveryPhraseMismatch: AppDataStrings.text("recovery.failure.phraseMismatch", locale: locale)
+        case .recoveryExpired: AppDataStrings.text("recovery.failure.expired", locale: locale)
         case .accountCodeWait(let seconds, _):
             AppDataStrings.format("accountCode.failure.wait", Duration.seconds(seconds).formatted(.units(allowed: [.hours, .minutes, .seconds], width: .wide).locale(locale)), locale: locale)
         case .usernameRetry(let seconds): AppDataStrings.format("username.retryIn", String(seconds), locale: locale)
@@ -112,6 +119,19 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .number(let number)?: number >= 0 ? number : nil
         case .unsigned(let number)?: Double(number)
         default: nil
+        }
+    }
+    /// A refusal of `account.recover.begin` or `account.recover.confirm` that the SDK named by its reason token; nil for
+    /// anything else, which leaves the outcome of a confirmation unknown. The ceremony is consumed by every `confirm`.
+    public static func recoveryRefusal(_ error: any Error) -> Self? {
+        guard let failure = error as? CoreFailure, let reason = failure.reasonCode else { return nil }
+        switch reason {
+        case "CustodyConfirmationFailed": return .recoveryPhraseMismatch
+        case "CustodyExpired": return .recoveryExpired
+        // A header or operation id the client should never have sent: a programming error, shown as the generic failure.
+        case "CustodySetupInvalid", "CustodyConfirmRejected", "operation_id", "app_locked": return .onboardingProtocol
+        case "wrong_passphrase", "unlock_retry_later", "unlock_attempts_exhausted": return map(error)
+        default: return nil
         }
     }
     /// The SDK refused the call because the account's app lock is engaged (`reason_code` `app_locked`). The
