@@ -7,10 +7,13 @@ import Foundation
 // The source package can be compiled without Rust. Applications must supply the matching
 // binary artifact; tests without it link only the isolated ABI fixture target.
 let artifact = ProcessInfo.processInfo.environment["RAMFLUX_CORE_XCFRAMEWORK"]
+// The realrun card gallery is compiled only in Debug (SwiftPM targets do not inherit the app target condition).
+let cardGallery: [SwiftSetting] = [.define("RAMFLUX_CARD_GALLERY", .when(configuration: .debug))]
 var targets: [Target] = [
     .target(name: "CUnavailableCore", publicHeadersPath: "include"),
     .target(name: "CRamflux", publicHeadersPath: "include"),
     .target(name: "RamfluxCore", dependencies: ["CRamflux"] + (artifact == nil ? ["CUnavailableCore"] : ["RamfluxSDKBinary"]),
+            swiftSettings: cardGallery,
             linkerSettings: [.linkedFramework("Security"), .linkedFramework("SystemConfiguration"),
                              .linkedFramework("CoreFoundation"), .linkedLibrary("resolv"), .linkedLibrary("z"), .linkedLibrary("iconv"), .linkedLibrary("c++")]),
 ]

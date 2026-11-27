@@ -3,6 +3,9 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import AppData
+#if RAMFLUX_CARD_GALLERY
+import FeatureCards
+#endif
 import RFDesign
 import RFLocalization
 public struct SettingsScreen: View {
@@ -133,6 +136,9 @@ public struct SettingsScreen: View {
             Text(FeatureSettingsStrings.text("settings.about.notificationPrivacy", locale: locale))
             Text(FeatureSettingsStrings.format("settings.version", Self.appVersion, Self.appBuild, locale: locale)).rfFont(.caption).accessibilityIdentifier("about-version")
             Button(FeatureSettingsStrings.text("settings.about.exportDiagnostics", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
+#if RAMFLUX_CARD_GALLERY
+            NavigationLink("Card gallery") { CardFixtureGalleryView() }.accessibilityIdentifier("about-card-gallery")
+#endif
         default:
             group(copy("settings.section.accountDevices"), [
                 indexRow(.account, icon: "user-round", detail: "settings.index.account.detail"),
