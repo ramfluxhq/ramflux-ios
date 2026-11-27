@@ -30,7 +30,8 @@ import FeatureCards
     @ObservationIgnored var typingTask: Task<Void, Never>?
     @ObservationIgnored var cardsTask: Task<Void, Never>?
     @ObservationIgnored var cardsPending = false
-    @ObservationIgnored var cardActions: [String: String] = [:]
+    /// Host events sent per card and not yet answered; a card is busy while any is in flight.
+    @ObservationIgnored var cardEventsInFlight: [String: Int] = [:]
     @ObservationIgnored var typingExpiry: Task<Void, Never>?
     @ObservationIgnored var typingPeers: [String: Int64] = [:]
     @ObservationIgnored var galleryCursor: MessageCursor?
@@ -99,7 +100,7 @@ import FeatureCards
         case .mediaTapped, .revealMedia, .cancelMedia, .closePreview, .saveToPhotos, .attachRequested, .closeAttach, .cameraRequested, .attachPicked, .permissionResolved, .photoSaved, .shareMedia, .shareFinished, .forwardRequested, .forwardTo, .removeDraftItem, .draftCaptionChanged, .sendMediaDraft, .cancelMediaDraft, .openAlbum, .closeAlbum:
             handleMedia(action)
         case .openGallery, .closeGallery, .galleryTab, .galleryMore: handleGallery(action)
-        case .surfaceInput, .surfaceButton: handleCards(action)
+        case .cardEvent, .cardResync: handleCards(action)
         case .clearMediaRequested: state.details?.confirmClear = true
         case .clearMediaCancelled: state.details?.confirmClear = false
         case .clearMediaConfirmed: clearConversationMedia()

@@ -4,19 +4,17 @@ import Foundation
 import AppData
 import FeatureCards
 
-/// Agent surfaces in the timeline: read through `surface.list` (following `next_cursor`, at most
-/// `cardPages` pages, so the in-memory set stays bounded) when the chat appears and when the
-/// account changes, drawn under the message that carried them, and acted on with the shown
-/// version and hash. A retry of the same button reuses its action message id.
+/// Agent cards in the timeline: the cards of the conversation are listed through `surface.list` (following `next_cursor`,
+/// at most `cardPages` pages), each one is drawn from its runtime session (`card.session.*`, opened or refreshed here),
+/// and host events and slot answers go back through the same session. The sessions of cards that left the window are
+/// disposed; the pool keeps the rest within its residency and open limits.
 extension ChatViewModel {
     static let cardPages = 5
 
     func handleCards(_ action: ChatAction) {
         switch action {
-        case .surfaceInput(let ref, let pointer, let value):
-            guard let key = cardKey(ref), state.cards[key]?.surface.actionable == true, pointer.hasPrefix("/") || pointer.isEmpty else { return }
-            state.cards[key]?.drafts[pointer] = value
-        case .surfaceButton(let ref, let button): act(ref, button: button)
+        case .cardEvent(let ref, let key, let event): sendEvent(ref, key: key, event: event)
+        case .cardResync(let ref): resync(ref)
         default: break
         }
     }
@@ -24,8 +22,9 @@ extension ChatViewModel {
     func loadCards() {
         guard cardsTask == nil else { cardsPending = true; return }
         let current = epoch
+        let locale = Locale.current.identifier(.bcp47)
         cardsTask = Task { [weak self, cards, account, conversation] in
-            var found: [SurfaceRecord] = [], cursor: String?, failure: AppFailure?
+            var found: [CardSurface] = [], cursor: String?, failure: AppFailure?
             for _ in 0..<Self.cardPages {
                 switch await cards.surfaces(account: account, conversation: conversation, cursor: cursor) {
                 case .success(let page): found += page.surfaces; cursor = page.nextCursor
@@ -37,45 +36,78 @@ extension ChatViewModel {
             self.cardsTask = nil
             // A cards repository that is not connected leaves the timeline as it is.
             if failure == nil {
-                var next: [String: SurfaceCardState] = [:]
+                var next: [String: CardMessageState] = [:]
                 for surface in found {
-                    guard let message = surface.messageID else { continue }
+                    guard let message = surface.messageID, next[message] == nil else { continue }
                     let previous = self.state.cards[message]
-                    // Drafts survive a refresh only while the surface is the same version.
-                    let drafts = previous?.surface.version == surface.version ? previous?.drafts ?? [:] : [:]
-                    next[message] = SurfaceCardState(surface: surface, drafts: drafts, sending: previous?.sending ?? false, failure: previous?.failure)
+                    var card = CardMessageState(surface: surface, display: previous?.display, sending: previous?.sending ?? false, failure: previous?.failure)
+                    // Only the newest cards of the window hold sessions; older ones wait for the list to reach them.
+                    if next.count < CardSessionPool.maximumOpen {
+                        // The pool opens the session, or brings it to the listed version (an update only when it moved).
+                        switch await cards.refresh(account: account, surface: surface, locale: locale, dark: false) {
+                        case .success(let display): card.display = display; card.failure = nil
+                        case .failure(let error): card.failure = error
+                        }
+                    }
+                    next[message] = card
                 }
+                await cards.retain(account: account, surfaceRefs: Set(found.map(\.surfaceRef)))
                 self.state.cards = next
             }
             if self.cardsPending { self.cardsPending = false; self.loadCards() }
         }
     }
 
-    func stopCards() { cardsTask?.cancel(); cardsTask = nil; cardsPending = false; cardActions = [:]; state.cards = [:] }
+    func stopCards() { cardsTask?.cancel(); cardsTask = nil; cardsPending = false; cardEventsInFlight = [:]; state.cards = [:] }
 
     private func cardKey(_ ref: String) -> String? { state.cards.first { $0.value.surface.surfaceRef == ref }?.key }
 
-    private func act(_ ref: String, button: String) {
-        guard let key = cardKey(ref), let card = state.cards[key], card.surface.actionable, !card.sending else { return }
-        let attempt = ref + "\u{0}" + button + "\u{0}" + String(card.surface.version)
-        let messageID = cardActions[attempt] ?? NativeCardsRepository.newActionMessageID()
-        cardActions[attempt] = messageID
-        state.cards[key]?.sending = true; state.cards[key]?.failure = nil
+    /// Every host event is sent: the card's queue applies them in order (an input merges into a queued input of the same
+    /// control), so nothing typed while an earlier event is in flight is dropped.
+    private func sendEvent(_ ref: String, key: String, event: CardHostEvent) {
+        guard let message = cardKey(ref) else { return }
+        cardEventsInFlight[ref, default: 0] += 1
+        state.cards[message]?.sending = true
+        state.cards[message]?.failure = nil
         let current = epoch
         Task { [weak self, cards, account] in
-            let result = await cards.act(account: account, shown: card.surface, buttonID: button, drafts: card.drafts, messageID: messageID)
+            let result = await cards.event(account: account, surfaceRef: ref, key: key, event: event)
+            guard let self else { return }
+            self.cardEventsInFlight[ref, default: 1] -= 1
+            guard self.epoch == current else { return }
+            self.finishCardStep(message, ref: ref, result)
+        }
+    }
+
+    private func resync(_ ref: String) {
+        let current = epoch
+        Task { [weak self, cards, account] in
+            _ = await cards.requestResync(account: account, surfaceRef: ref)
             guard let self, self.epoch == current else { return }
-            self.state.cards[key]?.sending = false
-            switch result {
-            case .success(let outcome) where outcome.accepted || outcome.queued:
-                self.cardActions[attempt] = nil; self.state.cards[key]?.drafts = [:]
-            case .success(let outcome): self.state.cards[key]?.failure = .typedRefusal(outcome.reasonCode ?? "not_permitted"); self.cardActions[attempt] = nil
-            case .failure(let error):
-                self.state.cards[key]?.failure = error
-                // A refusal tied to this version cannot succeed again with the same id.
-                if case .typedRefusal = error { self.cardActions[attempt] = nil }
-            }
             self.loadCards()
+        }
+    }
+
+    private func finishCardStep(_ message: String, ref: String, _ result: RepositoryResult<CardStep>) {
+        state.cards[message]?.sending = (cardEventsInFlight[ref] ?? 0) > 0
+        switch result {
+        case .success(let step):
+            state.cards[message]?.display = step.display
+            if let request = step.hostRequest { decline(request, ref: ref, message: message) }
+        case .failure(let error):
+            state.cards[message]?.failure = error
+        }
+    }
+
+    /// Until the renderer shows the link and approval sheets, every host request is answered `cancel`: nothing opens
+    /// and nothing is confirmed. The answer is sent once per request.
+    private func decline(_ request: CardHostRequest, ref: String, message: String) {
+        guard case .openURL(_, let requestID, let slotID, let token) = request else { return }
+        let current = epoch
+        Task { [weak self, cards, account] in
+            let result = await cards.answer(account: account, surfaceRef: ref, token: token, slotID: slotID, requestID: requestID, outcome: .cancel)
+            guard let self, self.epoch == current else { return }
+            self.finishCardStep(message, ref: ref, result)
         }
     }
 }

@@ -16,7 +16,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia])
     case removeDraftItem(Int), draftCaptionChanged(String), sendMediaDraft, cancelMediaDraft, openAlbum(String), closeAlbum
     case openGallery, closeGallery, galleryTab(ChatGalleryState.Tab), galleryMore, clearMediaRequested, clearMediaConfirmed, clearMediaCancelled
-    case surfaceInput(surfaceRef: String, pointer: String, value: SurfaceInput), surfaceButton(surfaceRef: String, buttonID: String)
+    /// A host event on a node of a card's held tree, or the user's request to resync an out-of-sync card.
+    case cardEvent(surfaceRef: String, key: String, event: CardHostEvent), cardResync(surfaceRef: String)
     case shareMedia(String), shareFinished, forwardRequested(String), forwardTo(messageID: String, conversation: String, groupID: String?)
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
     public var description: String { "ChatAction" }

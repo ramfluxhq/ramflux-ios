@@ -1,44 +1,66 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import Foundation
+import RamfluxCore
 
-/// One page of a conversation's surfaces, newest first.
-public struct SurfacePage: Equatable, Sendable {
-    public let surfaces: [SurfaceRecord]
+/// One card of a conversation as `surface.list` reports it: metadata only. Content comes from a card session.
+public struct CardSurface: Equatable, Identifiable, Sendable {
+    public var id: String { surfaceRef }
+    public let surfaceRef: String
+    public let conversationID: String
+    /// The message that carried the card; the timeline draws the card under it.
+    public let messageID: String?
+    public let authorPrincipalID: String?
+    /// The published surface version the list shows.
+    public let version: UInt64
+    public let closed: Bool
+    public let outOfSync: Bool
+
+    public init(surfaceRef: String, conversationID: String, messageID: String?, authorPrincipalID: String?, version: UInt64, closed: Bool, outOfSync: Bool) {
+        self.surfaceRef = surfaceRef; self.conversationID = conversationID; self.messageID = messageID; self.authorPrincipalID = authorPrincipalID
+        self.version = version; self.closed = closed; self.outOfSync = outOfSync
+    }
+}
+
+/// One page of a conversation's cards, newest first.
+public struct CardSurfacePage: Equatable, Sendable {
+    public let surfaces: [CardSurface]
     public let nextCursor: String?
-    public init(surfaces: [SurfaceRecord], nextCursor: String?) { self.surfaces = surfaces; self.nextCursor = nextCursor }
+    public init(surfaces: [CardSurface], nextCursor: String?) { self.surfaces = surfaces; self.nextCursor = nextCursor }
 }
 
-/// The outcome of a surface action as the daemon reports it.
-public struct SurfaceActionOutcome: Equatable, Sendable {
-    public let accepted: Bool
-    public let queued: Bool
-    /// The refusal code of a non-accepted action (for example `stale_version`, `closed`).
-    public let reasonCode: String?
-    public init(accepted: Bool, queued: Bool, reasonCode: String?) { self.accepted = accepted; self.queued = queued; self.reasonCode = reasonCode }
-}
-
-/// Agent surfaces (cards) in conversations: `surface.list` and `surface.get` to read, and
-/// `surface.action` to act on a shown surface, bound to its version and hash.
+/// Agent cards in conversations. The list comes from `surface.list`; every card is drawn from its runtime session
+/// (`card.session.*`), which owns the signed content, the authority and the drafts. Nothing here parses card content.
 public protocol CardsRepository: Sendable {
-    func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<SurfacePage>
-    func surface(account: String, surfaceRef: String) async -> RepositoryResult<SurfaceRecord?>
-    /// Sends the button's event. The surface is read again first; a changed version or hash
-    /// refuses with `stale_version` without sending. `messageID` is kept by the caller and reused
-    /// on retries so the daemon can recognise a replay.
-    func act(account: String, shown: SurfaceRecord, buttonID: String, drafts: [String: SurfaceInput], messageID: String) async -> RepositoryResult<SurfaceActionOutcome>
+    func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<CardSurfacePage>
+    /// Opens the card's session, or returns the open one. `dark` and `locale` are the presentation of the open.
+    func open(account: String, surface: CardSurface, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay>
+    /// Brings the session to the surface version the list shows (an update when it moved).
+    func refresh(account: String, surface: CardSurface, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay>
+    /// The first tap on a suspended card: resumes its session with fresh tokens.
+    func resume(account: String, surfaceRef: String) async -> RepositoryResult<CardDisplay>
+    func present(account: String, surfaceRef: String, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay>
+    /// A host event on a node of the held tree. A submit that the event starts is sent in the same step.
+    func event(account: String, surfaceRef: String, key: String, event: CardHostEvent) async -> RepositoryResult<CardStep>
+    /// The host's answer to a host slot (a link the user confirmed or cancelled, an approval decision).
+    func answer(account: String, surfaceRef: String, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async -> RepositoryResult<CardStep>
+    /// Asks the SDK to re-read the surface after an out-of-sync signal.
+    func requestResync(account: String, surfaceRef: String) async -> RepositoryResult<Void>
+    /// Disposes the sessions of cards that left the loaded window; the pool keeps at most 24 open.
+    func retain(account: String, surfaceRefs: Set<String>) async
     func observe(account: String) async -> RepositoryObservation
 }
 
 public extension CardsRepository {
-    func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<SurfacePage> { .failure(.unavailableResource("cards.unavailable")) }
-    func surface(account: String, surfaceRef: String) async -> RepositoryResult<SurfaceRecord?> { .failure(.unavailableResource("cards.unavailable")) }
-    func act(account: String, shown: SurfaceRecord, buttonID: String, drafts: [String: SurfaceInput], messageID: String) async -> RepositoryResult<SurfaceActionOutcome> { .failure(.unavailableResource("cards.unavailable")) }
-    func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .unavailableResource("cards.unavailable")) }
-    /// A fresh action message id: 128 random bits, base64url.
-    static func newActionMessageID() -> String {
-        var generator = SystemRandomNumberGenerator()
-        let bytes = (0..<16).map { _ in UInt8.random(in: 0...255, using: &generator) }
-        return CanonicalJSON.base64URL(Data(bytes))
-    }
+    private static var unavailable: AppFailure { .unavailableResource("cards.unavailable") }
+    func surfaces(account: String, conversation: String, cursor: String?) async -> RepositoryResult<CardSurfacePage> { .failure(Self.unavailable) }
+    func open(account: String, surface: CardSurface, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay> { .failure(Self.unavailable) }
+    func refresh(account: String, surface: CardSurface, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay> { .failure(Self.unavailable) }
+    func resume(account: String, surfaceRef: String) async -> RepositoryResult<CardDisplay> { .failure(Self.unavailable) }
+    func present(account: String, surfaceRef: String, locale: String, dark: Bool) async -> RepositoryResult<CardDisplay> { .failure(Self.unavailable) }
+    func event(account: String, surfaceRef: String, key: String, event: CardHostEvent) async -> RepositoryResult<CardStep> { .failure(Self.unavailable) }
+    func answer(account: String, surfaceRef: String, token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome) async -> RepositoryResult<CardStep> { .failure(Self.unavailable) }
+    func requestResync(account: String, surfaceRef: String) async -> RepositoryResult<Void> { .failure(Self.unavailable) }
+    func retain(account: String, surfaceRefs: Set<String>) async {}
+    func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: Self.unavailable) }
 }

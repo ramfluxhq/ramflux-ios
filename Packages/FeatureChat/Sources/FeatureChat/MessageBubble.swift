@@ -52,7 +52,7 @@ public struct MessageBubble: View {
                     }
                 }
                 if let card = media.card {
-                    SurfaceCardView(card: card, onInput: { onAction(.surfaceInput(surfaceRef: card.surface.surfaceRef, pointer: $0, value: $1)) }, onButton: { onAction(.surfaceButton(surfaceRef: card.surface.surfaceRef, buttonID: $0)) })
+                    SurfaceCardView(card: card)
                 }
                 if showsTextBubble && media.card == nil {
                     KitBubble(text, kind: own ? .own : .incoming, time: clock, edited: message.edited ? FeatureChatStrings.text("chat.edited", locale: locale) : nil, sender: isGroup && !own ? message.sender : nil,

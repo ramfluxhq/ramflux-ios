@@ -12,9 +12,11 @@ public actor NativeSessionRepository: SessionRepository {
     private var current = SessionSnapshot(phase: .stopped)
     private var revision: UInt64 = 0
     private let updates: NativeUpdateSource?
+    /// Card sessions are suspended with the SDK at background and app lock, and resumed at foreground.
+    private let cards: CardSessionRegistry?
     private let appLock: AppLockService
-    public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil) {
-        self.client = client; self.updates = updates; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
+    public init(client: RamfluxClient, dataRoot: URL, updates: NativeUpdateSource? = nil, cards: CardSessionRegistry? = nil) {
+        self.client = client; self.updates = updates; self.cards = cards; proxy = SDKProxy(client: client); lifecycle = PhoneLifecycle(client: client, dataRoot: dataRoot)
         appLock = AppLockService(gateway: ProxyGateway(proxy: proxy))
     }
     public func snapshots() -> AsyncStream<SessionSnapshot> {
@@ -41,6 +43,7 @@ public actor NativeSessionRepository: SessionRepository {
         do {
             try await lifecycle.foreground()
             await updates?.resumeAfterBackground()
+            await cards?.resumeAll()
             var snapshot = try await accounts()
             // The silent reopen runs inside the SDK after open; wait for it boundedly before showing a
             // locked account that is about to open by itself.
@@ -67,6 +70,8 @@ public actor NativeSessionRepository: SessionRepository {
     /// the flag on (fail closed). With no account there is nothing to unlock, so the failure is kept covered with a
     /// retry. Nothing is published once a newer operation has started.
     private func raiseAppLock(account: String?, epoch: UInt64) async -> RepositoryResult<SessionSnapshot> {
+        // The lock closes the SDK's unlocked state for the card sessions too: none stays resident behind the lock.
+        await cards?.suspendAll()
         guard let account else {
             guard epoch == revision else { return .failure(.busy) }
             publish(SessionSnapshot(phase: .failed(.locked), appLockEnabled: true))
@@ -135,6 +140,7 @@ public actor NativeSessionRepository: SessionRepository {
             }
         }
         guard epoch == revision else { return .failure(.busy) }
+        await cards?.suspendAll()
         await updates?.suspendForBackground()
         do { try await lifecycle.background(); return .success(()) }
         catch { let failure = AppFailure.map(error); if epoch == revision { publish(SessionSnapshot(phase: .failed(failure))) }; return .failure(failure) }
