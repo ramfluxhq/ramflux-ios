@@ -157,11 +157,12 @@ public actor NativeOnboardingRepository: OnboardingRepository {
             do { try await ceremony.cancel(context: gateway.context(recovering ? .accountRecoverCancel : .accountCreateCancel, account: recovering ? account : nil)); return .success(()) } catch { return .failure(error) }
         }.value
         switch ended {
-        case .success: self.ceremony = nil; if recovering { recoveryAccountID = nil }; return .success(())
+        // Clear only the ceremony this call ended: a begin may have replaced it while the cancel was in flight.
+        case .success: if self.ceremony === ceremony { self.ceremony = nil; if recovering { recoveryAccountID = nil } }; return .success(())
         case .failure(let error):
             // The SDK drops a recovery ceremony at its next begin and with the connection, so a failed cancel must not keep
             // this side busy for good; a creation ceremony stays held for the retry.
-            if recovering { self.ceremony = nil; recoveryAccountID = nil }
+            if recovering, self.ceremony === ceremony { self.ceremony = nil; recoveryAccountID = nil }
             return .failure(Self.failure(error))
         }
     }
