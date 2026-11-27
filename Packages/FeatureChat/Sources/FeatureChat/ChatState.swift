@@ -107,7 +107,7 @@ public struct ChatState: Equatable, Sendable {
     public var mediaDraft: MediaDraft?
     public var gallery: ChatGalleryState?
     /// Agent surfaces of the conversation by the id of the message that carried them.
-    public var cards: [String: SurfaceCardState] = [:]
+    public var cards: [String: CardMessageState] = [:]
     /// The message whose whole album is open.
     public var album: String?
     /// A temporary copy under the original file name while the share sheet is open.

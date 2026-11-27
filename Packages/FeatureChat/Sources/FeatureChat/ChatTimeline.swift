@@ -19,9 +19,9 @@ public struct ChatTimeline: UIViewControllerRepresentable {
     public let loadingOlder: Bool
     public let media: [String: MediaTransferState]
     public let revealed: Set<String>
-    let cards: [String: SurfaceCardState]
+    let cards: [String: CardMessageState]
     let agentAuthors: Set<String>
-    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: SurfaceCardState] = [:], agentAuthors: Set<String> = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
+    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
         self.agentAuthors = agentAuthors
         self.media = media; self.revealed = revealed; self.cards = cards
         self.isGroup = isGroup; self.messages = messages; self.outbox = outbox; self.unreadAnchorID = unreadAnchorID; self.olderAvailable = olderAvailable; self.loadingOlder = loadingOlder; self.onAction = onAction

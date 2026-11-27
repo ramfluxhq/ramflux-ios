@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 // No database, transport, accounts or fixtures. Absent Rust is always UnsupportedVersion.
 #include "../CRamflux/include/ramflux_sdk.h"
+#include "../CRamflux/include/ramflux_card.h"
 #include <stdlib.h>
 // Tests supply strong fixture definitions; shipped source builds only have this refusing provider.
 #define RF_UNAVAILABLE __attribute__((weak))
@@ -44,3 +45,33 @@ RF_UNAVAILABLE void ramflux_v2_buffer_free(struct RamfluxBuffer *buffer) {
 RF_UNAVAILABLE int32_t ramflux_v2_client_open_with_custody(const uint8_t *json, size_t len, const struct RamfluxV2CustodyProvider *provider, uint64_t *out) {
     (void)provider; return ramflux_v2_client_open(json,len,out);
 }
+
+// Gallery-only trust package (RAMFLUX_CARD_GALLERY test builds): absent in source-only builds.
+RF_UNAVAILABLE int32_t ramflux_v2_card_trust_package(struct RamfluxBuffer **out) {
+    if(out)*out=NULL; return 6;
+}
+
+// Renderer (card-runtime) refusals: every card call is inactive (status 6) and emits no callback.
+RF_UNAVAILABLE uint32_t ramflux_card_abi_version(void) { return 0; }
+RF_UNAVAILABLE int32_t ramflux_card_open(const RamfluxCardOpen *input, RamfluxCardCallback callback, void *user, uint64_t *out) {
+    (void)input; (void)callback; (void)user; if(out)*out=0; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_tree(uint64_t session, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_update(uint64_t session, RamfluxCardBytes input, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)input; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_present(uint64_t session, RamfluxCardBytes input, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)input; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_event(uint64_t session, RamfluxCardBytes input, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)input; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_suspend(uint64_t session, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_resume(uint64_t session, RamfluxCardCallback callback, void *user) {
+    (void)session; (void)callback; (void)user; return 6;
+}
+RF_UNAVAILABLE int32_t ramflux_card_dispose(uint64_t session) { (void)session; return 6; }

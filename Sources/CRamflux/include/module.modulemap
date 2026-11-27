@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 module CRamflux {
     header "ramflux_sdk.h"
+    header "ramflux_card.h"
     header "secure_buffer.h"
     export *
 }

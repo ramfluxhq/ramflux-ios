@@ -80,6 +80,14 @@ targets:
             echo "error: Device and archive builds require RAMFLUX_DEVELOPMENT_TEAM=<Apple team ID>."
             exit 1
           fi
+    postBuildScripts:
+      - name: Bundle card fixtures for the Debug gallery
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "$CONFIGURATION" = "Debug" ]; then
+            rm -rf "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/card-fixtures"
+            cp -R "$SRCROOT/card-fixtures" "$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/card-fixtures"
+          fi
     dependencies:
       - target: RamfluxNotificationService
       - package: Push
@@ -103,6 +111,7 @@ targets:
     settings:
       configs:
         Debug:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) RAMFLUX_CARD_GALLERY
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES

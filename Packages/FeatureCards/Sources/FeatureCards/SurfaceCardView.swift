@@ -1,155 +1,214 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
+import Observation
 import SwiftUI
 import AppData
 import RFDesign
 import RFLocalization
 
-/// What the chat timeline knows about one surface: the record, edited inputs, and the state of
-/// the last action.
-public struct SurfaceCardState: Equatable, Sendable {
-    public let surface: SurfaceRecord
-    public var drafts: [String: SurfaceInput]
+/// What the chat timeline knows about one card: the listed surface, its session display, the state of the last action,
+/// the host request the user has to answer (a link to confirm), and the approval requests the runtime accepted a decision
+/// for (by request id; they show "Waiting for confirmation" until the signed update replaces them).
+public struct CardMessageState: Equatable, Sendable {
+    public let surface: CardSurface
+    public var display: CardDisplay?
     public var sending: Bool
     public var failure: AppFailure?
-    public init(surface: SurfaceRecord, drafts: [String: SurfaceInput] = [:], sending: Bool = false, failure: AppFailure? = nil) {
-        self.surface = surface; self.drafts = drafts; self.sending = sending; self.failure = failure
+    public var pending: CardHostRequest?
+    public var decided: Set<String>
+    public init(surface: CardSurface, display: CardDisplay? = nil, sending: Bool = false, failure: AppFailure? = nil, pending: CardHostRequest? = nil, decided: Set<String> = []) {
+        self.surface = surface; self.display = display; self.sending = sending; self.failure = failure; self.pending = pending; self.decided = decided
     }
 }
 
-/// An agent surface in the timeline (no mobile board yet; built from the Kit card surfaces).
-/// Content renders only when the surface is renderable; otherwise the fallback text is shown.
-/// Controls are enabled only while it is actionable and no action is in flight. Unsupported
-/// components show a placeholder; agent text is untrusted and streaming text
-/// is marked while the agent is still appending. A link button shows its destination host and
-/// opens only after the user confirms that host.
+/// A host slot answer the chat sends through the card session. `link` is the validated https URL a confirmed link opens
+/// once the runtime answers `opened`; nothing else is opened by the client.
+public struct CardAnswer: Equatable, Sendable {
+    public let token: CardEventToken
+    public let slotID: String
+    public let requestID: String
+    public let outcome: CardSlotOutcome
+    public let link: URL?
+    public init(token: CardEventToken, slotID: String, requestID: String, outcome: CardSlotOutcome, link: URL? = nil) {
+        self.token = token; self.slotID = slotID; self.requestID = requestID; self.outcome = outcome; self.link = link
+    }
+}
+
+/// Host-owned presentation state of one card: selected tabs, open modals and sheets. It survives signed updates by key.
+@MainActor @Observable final class CardLocalState {
+    var selectedTabs: [String: Int] = [:]
+    var openModals: Set<String> = []
+    var approvalKey: String?
+    var pressedKey: String?
+    var expanded: Set<String> = []
+    var touched: Set<String> = []
+    var tableMode: Set<String> = []
+    var linkAnswering = false
+}
+
+/// Everything a node needs from its card: the held tree, the phase and the send functions.
+struct CardContext {
+    let surfaceRef: String
+    let tree: CardTree
+    let phase: CardPhase
+    let closed: Bool
+    let outOfSync: Bool
+    let sending: Bool
+    let local: CardLocalState
+    /// True while an approval or link sheet is presented: a Modal may not open and an open one is deferred.
+    let securitySheetOpen: Bool
+    let onEvent: (String, CardHostEvent) -> Void
+    let onAnswer: (CardAnswer) -> Void
+    /// Request ids of approvals the runtime accepted a decision for (see `CardMessageState.decided`).
+    var decided: Set<String> = []
+    /// The runtime lifecycle of the tree (spec 3.4). Closed, retired and superseded cards take no events.
+    var lifecycle: CardLifecycle = .open
+    /// The author is still writing the card: its controls stay disabled until the final snapshot.
+    var generating = false
+
+    var formatLocale: Locale { Locale(identifier: tree.formatLocale) }
+
+    /// Inputs take events while the card is live, refused (a refusal keeps the card usable) or suspended (the first
+    /// event resumes it). Consumed, submitting, superseded, closed, retired, generating and unavailable cards are read-only.
+    var editable: Bool {
+        guard !closed, !outOfSync, !generating, lifecycle == .open else { return false }
+        switch phase {
+        case .live, .suspended, .refused: return true
+        case .submitting, .consumed, .superseded, .unavailable: return false
+        }
+    }
+
+    /// Buttons send only when the card is editable and no event is in flight.
+    var actionable: Bool { editable && !sending }
+
+    func slot(for key: String) -> CardHostSlot? { tree.hostSlots.first { $0.key == key } }
+}
+
+/// An agent card in the timeline. The card is drawn from the runtime's native tree; the host owns the header, the lifecycle
+/// chrome and the link and approval sheets.
 public struct SurfaceCardView: View {
-    let card: SurfaceCardState
-    let onInput: (String, SurfaceInput) -> Void
-    let onButton: (String) -> Void
+    let card: CardMessageState
+    let author: String?
+    let isAgent: Bool
+    let onEvent: (String, CardHostEvent) -> Void
+    let onAnswer: (CardAnswer) -> Void
+    let onResync: () -> Void
+
+    @State private var local = CardLocalState()
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
-    @Environment(\.openURL) private var openURL
-    @State private var pendingLink: URL?
-    public init(card: SurfaceCardState, onInput: @escaping (String, SurfaceInput) -> Void, onButton: @escaping (String) -> Void) { self.card = card; self.onInput = onInput; self.onButton = onButton }
-    private var surface: SurfaceRecord { card.surface }
-    private var enabled: Bool { surface.actionable && !card.sending }
+
+    public init(card: CardMessageState, author: String? = nil, isAgent: Bool = false, onEvent: @escaping (String, CardHostEvent) -> Void = { _, _ in },
+                onAnswer: @escaping (CardAnswer) -> Void = { _ in }, onResync: @escaping () -> Void = {}) {
+        self.card = card; self.author = author; self.isAgent = isAgent; self.onEvent = onEvent; self.onAnswer = onAnswer; self.onResync = onResync
+    }
+
     public var body: some View {
+        let tree = card.display?.renderAllowed == true ? card.display?.tree : nil
         VStack(alignment: .leading, spacing: theme.gap) {
-            if surface.renderable, let root = surface.components["root"] {
-                node(root, depth: 0)
+            if isAgent || !(author ?? "").isEmpty { header }
+            if let display = card.display, let tree, display.renderAllowed {
+                CardLifecycleChrome(phase: display.phase, closed: card.surface.closed, lifecycle: display.lifecycle,
+                                    generating: display.generating, outOfSync: card.surface.outOfSync, onResync: onResync)
+                if let root = tree.root {
+                    let context = CardContext(surfaceRef: card.surface.surfaceRef, tree: tree, phase: display.phase, closed: card.surface.closed,
+                                              outOfSync: card.surface.outOfSync, sending: card.sending, local: local,
+                                              securitySheetOpen: local.approvalKey != nil || isLinkPending,
+                                              onEvent: onEvent, onAnswer: onAnswer, decided: card.decided,
+                                              lifecycle: display.lifecycle, generating: display.generating)
+                    CardRootView(node: root, context: context)
+                        .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)
+                        .modifier(CardApprovalSheetModifier(context: context))
+                        .onChange(of: tree.signedVersion) { _, _ in local.openModals = []; local.approvalKey = nil }
+                        .onChange(of: display.lifecycle) { _, _ in local.openModals = []; local.approvalKey = nil }
+                        .onChange(of: display.generating) { _, _ in local.approvalKey = nil }
+                }
             } else {
-                Text(untrusted: surface.fallbackText.isEmpty ? FeatureCardsStrings.text("cards.contentUnavailable", locale: locale) : surface.fallbackText).rfFont(.body)
+                Text(fallback).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
             }
-            if surface.closed { note("cards.closed") } else if surface.outOfSync { note("cards.outOfSync") }
-            if card.sending { ProgressView(FeatureCardsStrings.text("cards.sending", locale: locale)).rfFont(.caption) }
             if let failure = card.failure { Text(failure.message(locale: locale)).rfFont(.caption).foregroundStyle(theme.danger) }
         }
         .padding(theme.gap)
-        .frame(maxWidth: 320, alignment: .leading)
-        .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_bubble))
+        .frame(maxWidth: 640, alignment: .leading)
+        .opacity(card.display?.phase == .submitting ? 0.6 : 1)
+        .animation(.easeInOut(duration: 0.12), value: card.display?.phase == .submitting)
+        .background(theme.surface_white, in: RoundedRectangle(cornerRadius: theme.radius_card))
+        .overlay { RoundedRectangle(cornerRadius: theme.radius_card).strokeBorder(theme.line, lineWidth: KitMetrics.stroke) }
         .accessibilityElement(children: .contain)
-        .confirmationDialog(pendingLink.map { FeatureCardsStrings.sentence("cards.link.confirm.title", [.identifier(SurfaceLink.host($0))], locale: locale) } ?? "",
-                            isPresented: Binding(get: { pendingLink != nil }, set: { if !$0 { pendingLink = nil } }), titleVisibility: .visible, presenting: pendingLink) { url in
-            Button(FeatureCardsStrings.text("cards.link.open", locale: locale)) { pendingLink = nil; openURL(url) }
-            Button(FeatureCardsStrings.text("cards.link.cancel", locale: locale), role: .cancel) { pendingLink = nil }
-        } message: { _ in
-            Text(FeatureCardsStrings.text("cards.link.confirm.message", locale: locale))
+        .onChange(of: card.pending) { _, _ in local.linkAnswering = false }
+        .sheet(item: linkBinding) { item in
+            // Spec 3.4: a closed, retired, superseded or generating card takes no action, so Open only cancels there.
+            CardLinkSheet(item: item, author: author, onOpen: { answerLink(item, linkOpenAllowed ? .confirm : .cancel) },
+                          onCancel: { answerLink(item, .cancel) })
+                .presentationDetents([.medium])
         }
     }
-    private func note(_ key: String) -> some View { Text(FeatureCardsStrings.text(key, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary) }
 
-    private func node(_ component: SurfaceComponent, depth: Int) -> AnyView {
-        guard depth < 16 else { return AnyView(unsupported("depth")) }
-        switch component.kind {
-        case .text(let value, let caption):
-            if let text = surface.text(value) {
-                return AnyView(HStack(alignment: .firstTextBaseline, spacing: theme.gap / 2) {
-                    Text(untrusted: text).rfFont(caption ? .caption : .body)
-                    if surface.streaming(value) { ProgressView().controlSize(.mini).accessibilityLabel(Text(FeatureCardsStrings.text("cards.streaming", locale: locale))) }
-                })
-            }
-            return AnyView(placeholder("cards.unsupportedValue"))
-        case .stack(let children, let horizontal):
-            let views = children.compactMap { surface.components[$0] }.map { node($0, depth: depth + 1) }
-            return horizontal
-                ? AnyView(HStack(spacing: theme.gap) { ForEach(views.indices, id: \.self) { views[$0] } })
-                : AnyView(VStack(alignment: .leading, spacing: theme.gap) { ForEach(views.indices, id: \.self) { views[$0] } })
-        case .card(let child):
-            return surface.components[child].map { node($0, depth: depth + 1) } ?? AnyView(placeholder("cards.unsupportedValue"))
-        case .divider: return AnyView(Divider())
-        case .button(let child, let primary, let action):
-            let label = surface.components[child].flatMap { if case .text(let value, _) = $0.kind { surface.text(value) } else { nil } } ?? ""
-            switch action {
-            case .event:
-                return AnyView(KitButton(label, action: { onButton(component.id) }, kind: primary ? .primary : .secondary, size: .compact, enabled: enabled, loading: card.sending, tag: "surface-" + component.id))
-            case .link(let target):
-                // Opening a page changes nothing in the conversation, so a closed card may still link.
-                guard let url = surface.linkURL(target) else { return AnyView(placeholder("cards.link")) }
-                return AnyView(VStack(alignment: .leading, spacing: theme.gap / 2) {
-                    KitButton(label, action: { pendingLink = url }, kind: primary ? .primary : .secondary, size: .compact, enabled: surface.renderable, tag: "surface-" + component.id)
-                    HStack(spacing: theme.gap / 2) {
-                        KitIcon(name: "link", size: KitMetrics.iconInfo, tint: theme.secondary)
-                        KitIdentifierText(SurfaceLink.host(url), color: theme.secondary)
-                    }
-                })
-            case .unsupported:
-                return AnyView(placeholder("cards.unsupportedValue"))
-            }
-        case .textField(let label, let path, let placeholder, let multiline, let obscured):
-            guard let path else { return AnyView(self.placeholder("cards.unsupportedValue")) }
-            let binding = Binding<String>(get: { if case .text(let text)? = card.drafts[path] ?? surface.input(at: path) { text } else { "" } }, set: { onInput(path, .text(String($0.prefix(4_096)))) })
-            return AnyView(VStack(alignment: .leading, spacing: theme.gap / 2) {
-                if let label = surface.text(label) { Text(untrusted: label).rfFont(.caption) }
-                Group {
-                    if obscured { SecureField(surface.text(placeholder) ?? "", text: binding) } else { TextField(surface.text(placeholder) ?? "", text: binding, axis: multiline ? .vertical : .horizontal) }
-                }
-                .rfFont(.body).padding(theme.gap / 2).background(theme.bg, in: RoundedRectangle(cornerRadius: theme.radius_sm)).disabled(!enabled)
-            })
-        case .checkBox(let label, let path):
-            guard let path else { return AnyView(placeholder("cards.unsupportedValue")) }
-            let checked = if case .flag(let flag)? = card.drafts[path] ?? surface.input(at: path) { flag } else { false }
-            return AnyView(HStack(spacing: theme.gap) {
-                Text(untrusted: surface.text(label) ?? "").rfFont(.body).frame(maxWidth: .infinity, alignment: .leading)
-                KitSwitch(checked: checked, onChecked: { onInput(path, .flag($0)) }, enabled: enabled, label: surface.text(label) ?? "", tag: "surface-" + component.id)
-            })
-        case .choice(let label, let options, let path, let multiple):
-            guard let path else { return AnyView(placeholder("cards.unsupportedValue")) }
-            let selected = if case .choices(let values)? = card.drafts[path] ?? surface.input(at: path) { values } else { [String]() }
-            return AnyView(VStack(alignment: .leading, spacing: theme.gap / 2) {
-                if let label = surface.text(label) { Text(untrusted: label).rfFont(.caption) }
-                ForEach(options, id: \.value) { option in
-                    let on = selected.contains(option.value)
-                    Button {
-                        let next = multiple ? (on ? selected.filter { $0 != option.value } : selected + [option.value]) : [option.value]
-                        onInput(path, .choices(next))
-                    } label: {
-                        HStack(spacing: theme.gap) {
-                            KitIcon(name: on ? "square-check" : "square", size: KitMetrics.iconInfo, tint: on ? theme.accent : theme.secondary)
-                            Text(untrusted: surface.text(option.label) ?? option.value).rfFont(.body)
-                        }
-                    }
-                    .buttonStyle(.plain).disabled(!enabled)
-                    .accessibilityAddTraits(on ? .isSelected : [])
-                }
-            })
-        case .approval(let requestRef, let explanation):
-            // The catalogue defines no decision event for Approval; decisions are made in the
-            // task or approval flow, so the card is shown without actions.
-            return AnyView(KitApprovalCard(requester: "", status: FeatureCardsStrings.text(surface.closed ? "cards.closed" : "cards.approval.pending", locale: locale),
-                                           title: surface.text(explanation) ?? surface.fallbackText, scopeLabel: FeatureCardsStrings.text("cards.approval.request", locale: locale),
-                                           scopeDetail: requestRef, decline: "", approve: "", actions: false, tag: "surface-approval-" + component.id))
-        case .unsupported(let kind): return AnyView(unsupported(kind))
+    private var header: some View {
+        HStack(spacing: 8) {
+            if let author, !author.isEmpty { Text(untrusted: author).rfFont(.size(theme.size_secondary), weight: .semibold).foregroundStyle(theme.text) }
+            if isAgent { KitAIMarker() }
+            Spacer(minLength: 0)
         }
     }
-    private func placeholder(_ key: String) -> some View {
-        Text(FeatureCardsStrings.text(key, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
-            .padding(theme.gap / 2).overlay(RoundedRectangle(cornerRadius: theme.radius_sm).stroke(theme.line, style: StrokeStyle(lineWidth: 1, dash: [4])))
+
+    private var fallback: String {
+        let text = card.display?.fallbackText ?? ""
+        return text.isEmpty ? FeatureCardsStrings.text("cards.contentUnavailable", locale: locale) : text
     }
-    private func unsupported(_ kind: String) -> some View {
-        VStack(alignment: .leading, spacing: theme.gap / 2) {
-            placeholder("cards.unsupported")
-            Text(untrusted: surface.fallbackText).rfFont(.caption)
+
+    private var isLinkPending: Bool {
+        if case .openURL? = card.pending { return true }
+        return false
+    }
+
+    /// The link sheet is shown for the pending `open_url` request; dismissing it by swipe answers cancel once.
+    private var linkBinding: Binding<CardLinkItem?> {
+        Binding(
+            get: {
+                guard case .openURL(let url, let requestID, let slotID, let token)? = card.pending else { return nil }
+                return CardLinkItem(url: url, requestID: requestID, slotID: slotID, token: token)
+            },
+            set: { value in
+                guard value == nil, let pending = card.pending, case .openURL(_, let requestID, let slotID, let token) = pending else { return }
+                if !local.linkAnswering {
+                    onAnswer(CardAnswer(token: token, slotID: slotID, requestID: requestID, outcome: .cancel))
+                }
+                local.linkAnswering = false
+            })
+    }
+
+    private var linkOpenAllowed: Bool {
+        guard let display = card.display, !card.surface.closed else { return false }
+        return display.lifecycle == .open && !display.generating
+    }
+
+    private func answerLink(_ item: CardLinkItem, _ outcome: CardSlotOutcome) {
+        local.linkAnswering = true
+        let link = outcome == .confirm ? SurfaceLink.validate(item.url) : nil
+        onAnswer(CardAnswer(token: item.token, slotID: item.slotID, requestID: item.requestID, outcome: outcome, link: link))
+    }
+}
+
+/// One pending link confirmation, identified by its request.
+struct CardLinkItem: Identifiable {
+    let url: String
+    let requestID: String
+    let slotID: String
+    let token: CardEventToken
+    var id: String { requestID }
+}
+
+/// Renders the root node. A root Card is the card itself, so its children draw without an inset.
+struct CardRootView: View {
+    let node: CardNode
+    let context: CardContext
+
+    var body: some View {
+        if node.kind == "Card" {
+            CardChildren(node: node, context: context)
+        } else {
+            CardNodeView(node: node, context: context)
         }
     }
 }
