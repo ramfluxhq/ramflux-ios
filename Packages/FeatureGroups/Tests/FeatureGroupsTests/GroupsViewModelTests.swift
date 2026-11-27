@@ -28,7 +28,10 @@ private actor GroupsFake: GroupsRepository {
     var invitationFailure: AppFailure?
     func setInvitationFailure(_ value: AppFailure?) { invitationFailure = value }
     func invitations(account: String) -> RepositoryResult<[GroupInvitation]> { invitationFailure.map { .failure($0) } ?? .success([]) }
-    func requests(account: String, group: String) -> RepositoryResult<[GroupRequestRecord]> { .success([]) }
+    // Like the SDK, keep the request that a retained mutation created waiting for the owner, so its acknowledgement survives the refresh.
+    func requests(account: String, group: String) -> RepositoryResult<[GroupRequestRecord]> {
+        .success(attempts.contains { if case .create = $0.mutation { false } else { true } } ? [GroupRequestRecord(id: "request", groupID: group, status: "waiting_for_owner", waitingForOwner: true, expiresAt: 4_102_444_800)] : [])
+    }
     func pending(account: String) async -> PendingGroupMutation? {
         guard let entry = await journal.snapshot(scope: account), entry.unresolved else { return nil }
         return PendingGroupMutation(mutation: entry.arguments, operationID: entry.operationID)
