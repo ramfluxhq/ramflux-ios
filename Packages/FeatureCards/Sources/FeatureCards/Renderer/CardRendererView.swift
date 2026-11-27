@@ -42,6 +42,16 @@ struct CardNodeView: View {
     }
 }
 
+/// What the renderer draws: the node kinds `CardNodeView` handles and the host slot kinds the host answers. The gallery's
+/// check B reads these against each fixture tree, so a kind added to the switch must be added here as well.
+enum CardRenderCoverage {
+    static let nodeKinds: Set<String> = [
+        "Text", "Icon", "Row", "Column", "List", "Card", "Tabs", "Modal", "Divider", "Button", "TextField", "CheckBox",
+        "ChoicePicker", "Slider", "DateTimeInput", "Image", "Approval", "Task", "Chart", "Table",
+    ]
+    static let slotKinds: Set<String> = ["approval", "modal", "image", "link"]
+}
+
 /// The children of a node in document order.
 struct CardChildren: View {
     let node: CardNode
@@ -213,17 +223,19 @@ struct CardModalView: View {
         VStack(alignment: .leading, spacing: 8) {
             if let trigger {
                 Button {
-                    guard context.actionable else { return }
+                    guard context.actionable, !context.securitySheetOpen else { return }
                     context.local.openModals.insert(node.key)
                     context.onEvent(node.key, .modalOpen)
                 } label: { CardNodeView(node: trigger, context: context) }
                 .buttonStyle(.plain)
             }
         }
+        // One security sheet at a time: while an approval or link sheet is presented the Modal is deferred (its sheet is
+        // hidden but it stays open in the host state) and re-presents when the security sheet closes.
         .sheet(isPresented: Binding(
-            get: { context.local.openModals.contains(node.key) },
+            get: { context.local.openModals.contains(node.key) && !context.securitySheetOpen },
             set: { open in
-                guard !open, context.local.openModals.contains(node.key) else { return }
+                guard !open, !context.securitySheetOpen, context.local.openModals.contains(node.key) else { return }
                 closeModal()
             })) {
             NavigationStack {

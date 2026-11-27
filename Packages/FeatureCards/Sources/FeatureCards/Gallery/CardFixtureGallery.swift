@@ -21,7 +21,7 @@ public final class CardFixtureGalleryModel {
     public private(set) var message: String?
 
     public let runtime = CardFixtureRuntime()
-    public let drawing = CardGalleryJSONDrawing()
+    public let drawing = CardRendererDrawing()
 
     public init() {}
 
@@ -113,25 +113,29 @@ public struct CardFixtureGalleryView: View {
     }
 }
 
-/// One fixture or scenario: its open status and the tree the drawing draws (or the refusal).
+/// One fixture or scenario: the session stays open while the view is shown, its tree is drawn by the renderer and every
+/// event goes to the standalone runtime. Leaving the view disposes the session.
 struct CardFixtureDetailView: View {
     let model: CardFixtureGalleryModel
     let title: String
     let fixture: String
     let scenario: Bool
     @State private var status: String = "opening"
+    @State private var session: UInt64?
     @State private var tree: CardTree?
+    @State private var busy = false
 
     var body: some View {
         Group {
             if let tree {
-                model.drawing.view(for: tree)
+                model.drawing.view(for: tree) { key, event in send(key, event, to: tree) }
             } else {
                 Text(status).font(.footnote).padding()
             }
         }
         .navigationTitle(title)
         .task { await open() }
+        .onDisappear { close() }
     }
 
     private func open() async {
@@ -149,11 +153,37 @@ struct CardFixtureDetailView: View {
                 if call.ok { _ = await model.runtime.dispose(call.session) }
                 return
             }
-            _ = await model.runtime.dispose(call.session)
+            if Task.isCancelled {
+                _ = await model.runtime.dispose(call.session)
+                return
+            }
+            session = call.session
             tree = opened
         } catch {
             status = "open failed: \(error)"
         }
+    }
+
+    /// One event on the held tree: `{token, event}` to the runtime, then the returned batch applies to the held tree.
+    private func send(_ key: String, _ event: CardHostEvent, to held: CardTree) {
+        guard !busy, let session, let token = held.token(for: key) else { return }
+        busy = true
+        let input: JSONValue = .object(["token": token.json, "event": event.json])
+        Task {
+            let reply = await model.runtime.event(session, input: input)
+            busy = false
+            guard reply.ok, let answer = reply.payload else { return }
+            if let batchJSON = answer["batch"], let batch = try? CardMutationBatch.decode(batchJSON),
+               let next = try? held.applying(batch) {
+                tree = next
+            }
+        }
+    }
+
+    private func close() {
+        guard let session else { return }
+        self.session = nil
+        Task { _ = await model.runtime.dispose(session) }
     }
 }
 #endif

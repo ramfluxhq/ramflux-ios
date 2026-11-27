@@ -21,7 +21,7 @@ public struct CardEventToken: Equatable, Sendable {
     public init(session: UInt64, signedVersion: UInt64, editSeq: UInt64, treeVersion: UInt64, key: String) {
         self.session = session; self.signedVersion = signedVersion; self.editSeq = editSeq; self.treeVersion = treeVersion; self.key = key
     }
-    var json: JSONValue {
+    public var json: JSONValue {
         .object(["session": .unsigned(session), "signedVersion": .unsigned(signedVersion), "editSeq": .unsigned(editSeq),
                  "treeVersion": .unsigned(treeVersion), "key": .string(key)])
     }

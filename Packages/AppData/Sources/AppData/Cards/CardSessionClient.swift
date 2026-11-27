@@ -11,7 +11,7 @@ public enum CardHostEvent: Equatable, Sendable {
     case modalOpen
     case modalClose
 
-    var json: JSONValue {
+    public var json: JSONValue {
         switch self {
         case .input(let value): .object(["kind": .string("input"), "value": value])
         case .activate: .object(["kind": .string("activate")])

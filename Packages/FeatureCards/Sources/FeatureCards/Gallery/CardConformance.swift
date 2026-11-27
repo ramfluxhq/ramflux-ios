@@ -33,36 +33,13 @@ public struct CardFixtureRow: Equatable, Sendable {
     public let expected: String
 }
 
-/// The renderer's answers to checks B and the gallery view. The default draws the tree as JSON and reports only
-/// catalog-level placeholders; the production renderer plugs in here to report what it actually cannot draw.
+/// The renderer's answers to check B and the gallery view. The production renderer draws each fixture tree; `undrawn`
+/// reports the nodes it cannot draw (placeholders) and the host-slot kinds it has no draw path for.
 public protocol CardGalleryDrawing: Sendable {
     /// Keys of the nodes this renderer cannot draw (placeholders) and the host-slot kinds it has no draw path for.
     func undrawn(_ tree: CardTree) -> [String]
-    /// The gallery detail for one tree.
-    @MainActor func view(for tree: CardTree) -> AnyView
-}
-
-public struct CardGalleryJSONDrawing: CardGalleryDrawing {
-    /// The 20 kinds of `ramflux.card.tree.v1`; any other kind is a placeholder for the renderer.
-    public static let catalogKinds: Set<String> = [
-        "Text", "Icon", "Row", "Column", "List", "Card", "Tabs", "Modal", "Divider", "Button", "TextField", "CheckBox",
-        "ChoicePicker", "Slider", "DateTimeInput", "Image", "Approval", "Task", "Chart", "Table",
-    ]
-    /// The host slots a client draws (approval, link, modal and image are answered by the host).
-    public static let drawnSlotKinds: Set<String> = ["approval", "modal", "image", "link"]
-
-    public init() {}
-
-    public func undrawn(_ tree: CardTree) -> [String] {
-        let placeholders = tree.nodes.values.filter { !Self.catalogKinds.contains($0.kind) }.map(\.key)
-        let slots = tree.hostSlots.filter { !Self.drawnSlotKinds.contains($0.kind) }.map { "slot:\($0.kind)" }
-        return (placeholders + slots).sorted()
-    }
-
-    @MainActor public func view(for tree: CardTree) -> AnyView {
-        let json = (try? JSONEncoder.sortedPretty.encode(CardFixtureDocument.treeJSON(tree))).flatMap { String(data: $0, encoding: .utf8) }
-        return AnyView(ScrollView { Text(json ?? "").font(.system(.footnote, design: .monospaced)).frame(maxWidth: .infinity, alignment: .leading).padding() })
-    }
+    /// The gallery detail for one tree; events the drawing sends go to `onEvent` (the standalone runtime, not a chat).
+    @MainActor func view(for tree: CardTree, onEvent: @escaping (String, CardHostEvent) -> Void) -> AnyView
 }
 
 /// Checks A-C of the common brief, run on the standalone runtime for every row of `host-fixtures/index.json`.
@@ -71,7 +48,7 @@ public struct CardConformance: Sendable {
     public let root: URL
     public let drawing: CardGalleryDrawing
 
-    public init(runtime: CardFixtureRuntime, root: URL, drawing: CardGalleryDrawing = CardGalleryJSONDrawing()) {
+    public init(runtime: CardFixtureRuntime, root: URL, drawing: CardGalleryDrawing = CardRendererDrawing()) {
         self.runtime = runtime; self.root = root; self.drawing = drawing
     }
 

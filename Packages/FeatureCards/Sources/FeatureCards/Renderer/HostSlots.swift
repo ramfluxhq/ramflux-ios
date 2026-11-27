@@ -93,16 +93,31 @@ struct CardApprovalView: View {
                 }
             }
         }
-        .sheet(isPresented: Binding(get: { context.local.approvalKey == node.key }, set: { if !$0 { context.local.approvalKey = nil } })) {
-            if let slot, let requestID = slot.requestID {
-                CardApprovalSheet(facts: facts, onConfirm: {
+    }
+}
+
+/// The approval confirmation sheet, presented by the card rather than by the Approval node: an Approval inside a Modal
+/// lives in the modal's sheet, and the security sheet must outlive the modal being deferred under it.
+struct CardApprovalSheetModifier: ViewModifier {
+    let context: CardContext
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: Binding(get: { target != nil }, set: { if !$0 { context.local.approvalKey = nil } })) {
+            if let target {
+                CardApprovalSheet(facts: CardApprovalFacts(target.slot.fields["facts"]), onConfirm: {
                     context.local.approvalKey = nil
-                    context.local.decided.insert(node.key)
-                    context.onAnswer(CardAnswer(token: slot.token, slotID: slot.id, requestID: requestID, outcome: .confirm))
+                    context.local.decided.insert(target.key)
+                    context.onAnswer(CardAnswer(token: target.slot.token, slotID: target.slot.id, requestID: target.requestID, outcome: .confirm))
                 }, onCancel: { context.local.approvalKey = nil })
                 .presentationDetents([.medium, .large])
             }
         }
+    }
+
+    /// The Approval node the host is confirming, with its slot and request. Nil when there is none to answer.
+    private var target: (key: String, slot: CardHostSlot, requestID: String)? {
+        guard let key = context.local.approvalKey, let slot = context.slot(for: key), let requestID = slot.requestID else { return nil }
+        return (key, slot, requestID)
     }
 }
 

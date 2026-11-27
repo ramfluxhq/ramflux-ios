@@ -54,6 +54,8 @@ struct CardContext {
     let outOfSync: Bool
     let sending: Bool
     let local: CardLocalState
+    /// True while an approval or link sheet is presented: a Modal may not open and an open one is deferred.
+    let securitySheetOpen: Bool
     let onEvent: (String, CardHostEvent) -> Void
     let onAnswer: (CardAnswer) -> Void
 
@@ -102,9 +104,12 @@ public struct SurfaceCardView: View {
                 CardLifecycleChrome(phase: display.phase, closed: card.surface.closed, outOfSync: card.surface.outOfSync, onResync: onResync)
                 if let root = tree.root {
                     let context = CardContext(surfaceRef: card.surface.surfaceRef, tree: tree, phase: display.phase, closed: card.surface.closed,
-                                              outOfSync: card.surface.outOfSync, sending: card.sending, local: local, onEvent: onEvent, onAnswer: onAnswer)
+                                              outOfSync: card.surface.outOfSync, sending: card.sending, local: local,
+                                              securitySheetOpen: local.approvalKey != nil || isLinkPending,
+                                              onEvent: onEvent, onAnswer: onAnswer)
                     CardRootView(node: root, context: context)
                         .environment(\.layoutDirection, tree.direction == "rtl" ? .rightToLeft : .leftToRight)
+                        .modifier(CardApprovalSheetModifier(context: context))
                         .onChange(of: tree.signedVersion) { _, _ in local.openModals = []; local.approvalKey = nil; local.decided = [] }
                 }
             } else {
@@ -137,6 +142,11 @@ public struct SurfaceCardView: View {
     private var fallback: String {
         let text = card.display?.fallbackText ?? ""
         return text.isEmpty ? FeatureCardsStrings.text("cards.contentUnavailable", locale: locale) : text
+    }
+
+    private var isLinkPending: Bool {
+        if case .openURL? = card.pending { return true }
+        return false
     }
 
     /// The link sheet is shown for the pending `open_url` request; dismissing it by swipe answers cancel once.
