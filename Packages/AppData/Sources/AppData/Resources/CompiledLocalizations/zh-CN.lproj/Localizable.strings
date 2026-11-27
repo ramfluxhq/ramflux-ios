@@ -23,7 +23,7 @@
 	<key>accountCode.failure.wait</key>
 	<string>错误的账户码次数过多。请在 %@ 后再试。</string>
 	<key>accountCode.failure.wrong</key>
-	<string>账户码不正确。请检查后重试。</string>
+	<string>账户码不正确。</string>
 	<key>agents.unavailable.access</key>
 	<string>此手机暂不支持更改谁可以联系此智能体。</string>
 	<key>agents.unavailable.chat</key>
@@ -234,6 +234,12 @@
 	<string>关联因本应用无法识别的原因而停止。</string>
 	<key>pairing.failure.title</key>
 	<string>关联未完成</string>
+	<key>recovery.failure.expired</key>
+	<string>恢复超时，请重新开始。</string>
+	<key>recovery.failure.phraseMismatch</key>
+	<string>恢复短语与此账户不匹配。</string>
+	<key>recovery.failure.title</key>
+	<string>恢复此账户</string>
 	<key>refusal.already_contact</key>
 	<string>此账户已是您的联系人，未应用其名片。</string>
 	<key>refusal.already_contact.title</key>

@@ -50,10 +50,26 @@
 	<string>Accounts</string>
 	<key>shell.appLock.code</key>
 	<string>Account code</string>
+	<key>shell.appLock.exhausted.body</key>
+	<string>This account is locked on this device. Recover it with its recovery phrase and account code, or remove it from this device.</string>
+	<key>shell.appLock.exhausted.title</key>
+	<string>Too many wrong account codes</string>
 	<key>shell.appLock.instructions</key>
 	<string>Enter your account code to continue.</string>
+	<key>shell.appLock.phraseAccepted</key>
+	<string>Recovery phrase accepted. You can enter your account code in %@.</string>
+	<key>shell.appLock.remove</key>
+	<string>Remove from this device</string>
+	<key>shell.appLock.remove.ack</key>
+	<string>I understand</string>
+	<key>shell.appLock.remove.body</key>
+	<string>Local history that is not in a backup is lost. This cannot be undone. You can restore the account later from a backup and its recovery phrase.</string>
+	<key>shell.appLock.remove.confirm</key>
+	<string>Remove</string>
+	<key>shell.appLock.remove.title</key>
+	<string>Remove this account from this device?</string>
 	<key>shell.appLock.restore</key>
-	<string>Restore with recovery phrase</string>
+	<string>Recover with recovery phrase</string>
 	<key>shell.appLock.wait</key>
 	<string>Too many wrong account codes. Try again in %@.</string>
 	<key>shell.loading.accountServices</key>

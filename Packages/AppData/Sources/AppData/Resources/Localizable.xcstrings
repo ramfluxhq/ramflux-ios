@@ -2152,13 +2152,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "That code is not right. Check it and try again."
+            "value": "That account code is not right."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户码不正确。请检查后重试。"
+            "value": "账户码不正确。"
           }
         }
       }
@@ -3251,6 +3251,60 @@
           }
         }
       }
+    },
+    "recovery.failure.title": {
+      "comment": "Title of the failure shown when the recovery of an account was refused.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recover this account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复此账户"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "recovery.failure.phraseMismatch": {
+      "comment": "Shown when the recovery phrase does not belong to the account being recovered. Nothing changed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The recovery phrase does not match this account."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复短语与此账户不匹配。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "recovery.failure.expired": {
+      "comment": "Shown when the recovery ceremony ran out of time before it was confirmed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The recovery took too long. Start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复超时，请重新开始。"
+          }
+        }
+      },
+      "extractionState": "manual"
     }
   }
 }

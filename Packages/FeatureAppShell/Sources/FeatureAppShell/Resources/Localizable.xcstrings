@@ -869,13 +869,13 @@
       }
     },
     "shell.appLock.restore": {
-      "comment": "Button on the app lock screen that opens the restore of the account with its recovery phrase.",
+      "comment": "Primary button on the exhausted app lock page that starts recovery with the recovery phrase and the account code.",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restore with recovery phrase"
+            "value": "Recover with recovery phrase"
           }
         },
         "zh-CN": {
@@ -885,6 +885,150 @@
           }
         }
       }
+    },
+    "shell.appLock.exhausted.title": {
+      "comment": "Title of the app lock page once the ten account-code checks are used up.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many wrong account codes"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误的账户码次数过多"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.exhausted.body": {
+      "comment": "Body of the app lock page once the account-code checks are used up; it names the two ways out.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This account is locked on this device. Recover it with its recovery phrase and account code, or remove it from this device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此账户已在本设备上锁定。请用恢复短语和账户码恢复，或将其从本设备移除。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.remove": {
+      "comment": "Destructive button on the exhausted app lock page that opens the confirmation to remove the account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从本设备移除"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.phraseAccepted": {
+      "comment": "Shown on the app lock screen after the recovery phrase was accepted while the account-code wait still runs. %@ is the remaining wait as minutes and seconds, for example 0:30.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery phrase accepted. You can enter your account code in %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复短语已确认。请在 %@ 后输入账户码。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.remove.title": {
+      "comment": "Title of the confirmation to remove a locked account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove this account from this device?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要从本设备移除此账户吗？"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.remove.body": {
+      "comment": "Consequence text of the confirmation to remove a locked account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local history that is not in a backup is lost. This cannot be undone. You can restore the account later from a backup and its recovery phrase."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未备份的本地记录将丢失，且无法撤销。之后可以用备份和恢复短语恢复此账户。"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.remove.ack": {
+      "comment": "Switch that must be on before the removal can be confirmed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I understand"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我已了解"
+          }
+        }
+      },
+      "extractionState": "manual"
+    },
+    "shell.appLock.remove.confirm": {
+      "comment": "Destructive confirm button of the removal of a locked account from this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除"
+          }
+        }
+      },
+      "extractionState": "manual"
     }
   }
 }

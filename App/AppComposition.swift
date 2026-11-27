@@ -54,8 +54,30 @@ import Push
     func appLock(account: String) -> AppLockModel {
         if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
         let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
-                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) })
+                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) },
+                                 onRemoved: { [weak self] in self?.lockedAccountRemoved(account) })
         appLockScreen = (account, model); return model
+    }
+    /// Shown after the locked account was removed from this device; clears itself.
+    private(set) var removedNotice = false
+    @ObservationIgnored private var removedNoticeTask: Task<Void, Never>?
+    /// The SDK erased the locked account (`account.remove_local`). Drop what the client holds for it, forget the cover's
+    /// state and go where the app goes when an account disappears: the shell reads the accounts again and shows the
+    /// account picker when others exist, onboarding otherwise.
+    private func lockedAccountRemoved(_ account: String) {
+        clearLockRecovery()
+        appLockScreen = nil
+        if currentUnlock?.0 == account { currentUnlock = nil }
+        accountLocked()
+        shell.path = []
+        shell.send(.retry)
+        removedNotice = true
+        removedNoticeTask?.cancel()
+        removedNoticeTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(6))
+            guard !Task.isCancelled else { return }
+            self?.removedNotice = false
+        }
     }
     /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock, keyed by the
     /// locked account. It is drawn inside the cover, so no shell route opens under it and no account content is reached.
@@ -68,7 +90,13 @@ import Push
     }
     func restoreFromLock(account: String) {
         guard lockRecovery == nil else { return }
-        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account)) { [weak self] recovered in
+        // A refusal that moves the lock screen closes the recovery; the cover reads the app-lock state again and shows the
+        // lock form with the countdown or the exhausted page. A success keeps the cover until the state says unlocked.
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account),
+            lockRecoveryEnded: { [weak self] failure in
+                self?.lockRecovery = nil
+                if let model = self?.appLockScreen, model.0 == account { model.1.recoveryEnded(failure) }
+            }) { [weak self] recovered in
             self?.lockRecovery = nil
             if recovered != nil { self?.shell.send(.retry) }
         }
@@ -78,6 +106,7 @@ import Push
     func clearLockRecovery() {
         lockRecovery?.coordinator.send(.disappeared)
         lockRecovery = nil
+        appLockScreen?.1.conceal()
     }
     /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
     func unlock(account: String) -> OnboardingCoordinator {
@@ -258,6 +287,8 @@ import Push
     private func sceneResigning() { banner = nil; bannerFeed.setForeground(false) }
     /// Follows the active unlocked account; a locked session stops notifications, a concealed one keeps them.
     func sessionChanged(_ session: SessionSnapshot) {
+        // The lock-recovery state is keyed by the locked account: a change of account drops it (G05f audit F4).
+        if let lockRecovery, lockRecovery.account != session.activeAccountID { clearLockRecovery() }
         // Not ready (opening, failed, stopped): nothing of the account is followed for banners or notifications.
         guard session.phase == .ready else { notifier.follow(account: nil); bannerFeed.follow(account: nil); banner = nil; return }
         // An engaged app lock: nothing of the account runs (notifications, banners, calls, sends) until the code is entered.

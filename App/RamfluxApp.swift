@@ -81,6 +81,17 @@ import RFDesign
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
                                               onOpen: { composition.openBanner($0) }, onDismiss: { composition.dismissBanner($0) }) }
             }
+                .overlay(alignment: .bottom) {
+                    // Shown once after a locked account was removed from this device.
+                    if composition.removedNotice {
+                        Text(RamfluxAppStrings.text("app.removed.notice"))
+                            .padding(KitMetrics.gutter)
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                            .padding(KitMetrics.gutter)
+                            .accessibilityIdentifier("app-removed-notice")
+                            .transition(.opacity)
+                    }
+                }
                 .background(CaptureStateProbe(captured: $captured).frame(width: 0, height: 0).allowsHitTesting(false))
                 .background(PermissionsPresentationHost(coordinator: composition.permissions))
                 .sheet(item: Binding(get: { composition.forwarding }, set: { if $0 == nil { composition.forwardChosen(nil) } })) { request in

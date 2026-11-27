@@ -207,7 +207,7 @@
 	<key>onboarding.stage.offline</key>
 	<string>当前离线</string>
 	<key>onboarding.stage.recover</key>
-	<string>恢复账户</string>
+	<string>恢复此账户</string>
 	<key>onboarding.stage.restoring</key>
 	<string>正在恢复连接</string>
 	<key>onboarding.stage.saveFailed</key>

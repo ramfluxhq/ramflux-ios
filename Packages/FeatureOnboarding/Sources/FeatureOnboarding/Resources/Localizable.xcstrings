@@ -515,13 +515,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recover your account"
+            "value": "Recover this account"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢复账户"
+            "value": "恢复此账户"
           }
         }
       }

@@ -146,10 +146,25 @@ import AppData
         case .confirmed(.success(let account)):
             expiry?.cancel(); state.completedAccount = account; state.stage = .complete
             if account.networking != .live { watchNetwork(account) }
+        case .confirmed(.failure(let error)) where state.stage == .recover && error != .outcomeUnknown:
+            recoveryRefused(error)
         case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error)), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
             state.failure = (error == .failed || error == .invalidData) ? .onboardingProtocol : error
             if state.stage == .verifying { state.stage = .connectionFailed }
             if state.stage == .saving { state.stage = .saveFailed }
+        }
+    }
+    /// A recovery confirmation the SDK refused with a named reason. The ceremony is gone, so the flow starts again at
+    /// step 1 with the reason shown. In the lock cover, the refusals that move the lock screen (the code wait after an
+    /// accepted phrase, a wrong code, exhausted checks) hand over to the host, which closes the recovery and reads the state.
+    private func recoveryRefused(_ error: AppFailure) {
+        expiry?.cancel(); expiry = nil
+        state.confirmationConsumed = false; state.metadata = nil; state.anchorChecked = false
+        state.failure = error
+        guard state.recoversLockedAccount else { return }
+        switch error {
+        case .accountCodeWait, .accountCode(.retryLater), .accountCode(.wrong), .accountCode(.attemptsExhausted): emit(.lockRecoveryEnded(error))
+        default: break
         }
     }
     private func scheduleExpiry(_ metadata: CeremonyMetadata) {
