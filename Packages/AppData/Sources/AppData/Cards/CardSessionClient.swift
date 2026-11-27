@@ -91,20 +91,20 @@ public struct CardResponse: Equatable, Sendable {
     }
 }
 
-/// Refusals the runtime names through the bus error (`card_session_*`). Anything else is an ordinary failure.
+/// Typed refusals of the card runtime. The SDK sets the status `InvalidArgument` and `reason_code` to the token; the
+/// match is exact and on `reasonCode` only. Anything else is an ordinary failure.
 enum CardSessionRefusal: String, Sendable {
+    case expired = "card_session_expired"
+    case inactive = "card_session_inactive"
     case limit = "card_session_limit"
     case refused = "card_session_refused"
-    case inactive = "card_session_inactive"
     case stale = "card_session_stale"
-    case imageNative = "card_session_image_native"
+    case busy = "card_session_busy"
+    case limitExceeded = "card_limit_exceeded"
 
     static func of(_ error: any Error) -> CardSessionRefusal? {
-        guard let failure = error as? CoreFailure else { return nil }
-        let names = [failure.reasonCode, failure.typedName, failure.response?["error"]?["message"]?.string].compactMap { $0 }
-        for name in names { if let refusal = CardSessionRefusal(rawValue: name) { return refusal } }
-        for name in names { for refusal in [limit, refused, inactive, stale, imageNative] where name.contains(refusal.rawValue) { return refusal } }
-        return nil
+        guard let failure = error as? CoreFailure, let reason = failure.reasonCode else { return nil }
+        return CardSessionRefusal(rawValue: reason)
     }
 }
 
