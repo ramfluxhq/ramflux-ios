@@ -30,11 +30,16 @@ struct ProxyGateway: Sendable {
     }
     /// A call that may ask the host for the account code (`account.app_lock.configure` only). The frame is read as `call` reads it.
     func callAttended(_ operation: SDKOperation, account: String, body: JSONValue, operationID: String, credentials: @escaping CredentialAsk) async throws -> JSONValue {
-        let ctx = try context(operation, account: account, operationID: operationID)
+        // The core waits up to 60 s for the account code inside this call: the deadline must outlast that wait.
+        let base = try context(operation, account: account, operationID: operationID)
+        let ctx = RequestContext(accountID: base.accountID, operationID: base.operationID,
+                                 deadlineUnixMilliseconds: UInt64(Date().timeIntervalSince1970 * 1000) + Self.attendedDeadlineMilliseconds)
         let frame = try await proxy.performAttended(operation, context: ctx, body: body, credentials: credentials)
         guard frame["ok"] == .bool(true), let body = frame["body"] else { throw AppFailure.outcomeUnknown }
         return body
     }
+    /// 60 s for the account code plus the configure itself.
+    static let attendedDeadlineMilliseconds: UInt64 = 90_000
     static func body(_ value: SecretBytes) throws -> JSONValue {
         try value.consume { bytes in
             let frame = try JSONDecoder().decode(JSONValue.self, from: Data(bytes))
