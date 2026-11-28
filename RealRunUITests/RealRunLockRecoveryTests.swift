@@ -235,11 +235,14 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
             try tap(element("s02-change-node"), "change node row", timeout: 30)
             let field = try require(textField("onboarding-address"), "node address field")
             field.tap(); field.typeText(config.origin)
-            try tap(button("Check address"), "Check address")
-            try tap(button("Connect to this origin"), "Connect to this origin", timeout: 30)
-            let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 40)
+            try tap(button("Continue"), "Continue (check address)")
+            Thread.sleep(forTimeInterval: 1)
+            try tap(button("Continue"), "Continue (connect to the origin)", timeout: 30)
+            // Trust this node: the details hold the operator key entry and the key fingerprint.
+            try tap(element("onboarding-node-details"), "node details", timeout: 40)
+            try tap(element("onboarding-operator-key-action"), "Enter operator key")
+            let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 20)
             keyInput.tap(); keyInput.typeText(config.operatorKey)
-            try tap(button("Review fingerprint"), "Review fingerprint")
             let print = try require(element("onboarding-node-fingerprint"), "node fingerprint", timeout: 30)
             let shown = (print.label + " " + (print.value as? String ?? "")).lowercased().filter { $0.isHexDigit }
             guard shown.contains(config.fingerprint) else { throw FlowStop.fail("fingerprint shown differs from node-facts") }
@@ -276,26 +279,27 @@ final class RealRunLockRecoveryTests: RealRunTestCase {
         var seen = Set<Int>(); let ordered = positions.filter { seen.insert($0).inserted }
         guard !ordered.isEmpty, ordered.allSatisfy({ (1...24).contains($0) }) else { throw FlowStop.fail("unexpected word positions \(ordered)") }
         try tap(button("Set account code"), "Set account code")
-        for (index, position) in ordered.enumerated() {
-            let wordField = try require(element("secure-entry-word\(index + 1)"), "word field \(index + 1)")
-            wordField.tap(); wordField.typeText(words[position - 1])
-        }
         let first = try require(element("secure-entry-passphrase"), "new account code")
         first.tap(); first.typeText(code)
         let repeatCode = try require(element("secure-entry-passphraseRepeat"), "repeat account code")
         repeatCode.tap(); repeatCode.typeText(code)
-        try tap(element("secure-entry-submit"), "Confirm once")
+        try tap(element("secure-entry-submit"), "Continue to the recovery words")
+        for (index, position) in ordered.enumerated() {
+            let wordField = try require(element("secure-entry-word\(index + 1)"), "word field \(index + 1)")
+            wordField.tap(); wordField.typeText(words[position - 1])
+        }
+        try tap(element("secure-entry-submit"), "Create account")
         let connected = text(containing: "Connected")
         let pending = text(containing: "Network connection has not been confirmed")
         let connecting = text(containing: "Connecting to the network")
         guard eventually(90, { connected.exists || pending.exists || connecting.exists }) else { throw FlowStop.fail("account completion did not appear: \(visibleFailure())") }
         Self.sensitive = false
-        let shownID = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'account-'")).firstMatch.label
-        let accountID = String(shownID.filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") })
-        guard !accountID.isEmpty else { throw FlowStop.fail("the completion step shows no account id") }
         snap("22-account-created")
         try tap(button("Continue"), "Continue after completion")
         try require(element("app-shell"), "app shell", timeout: 30)
+        // The completion step no longer shows the id; Settings > Account > Details does.
+        let accountID = try readAccountID()
+        guard !accountID.isEmpty else { throw FlowStop.fail("Settings > Account > Details shows no account id") }
         return (words, accountID)
     }
 

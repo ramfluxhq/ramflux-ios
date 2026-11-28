@@ -179,22 +179,18 @@ class RealRunTestCase: XCTestCase {
 
     // MARK: Session helpers
 
-    /// The "Unlock <name>" action the locked Messages tab offers for this run's account (from `account.list`).
-    func knownAccountUnlock() -> XCUIElement {
-        // A Kit button's hit target carries the tag with "-hit"; its label holds the isolated display name.
-        app.buttons.matching(NSPredicate(format: "identifier == 'shell-unlock-account-hit' AND label CONTAINS %@", RunSecrets.displayName)).firstMatch
-    }
-    /// Unlocks the run account: the locked Messages tab offers it by display name (`account.list` lists
-    /// locked accounts); the unlock step shows the name and asks only for the six-digit code.
+    /// The account row of the lock page ("<name>" with "Locked" under it): present while a locked account shows its lock page
+    /// (the app-lock cover and the locked-account page draw the same row).
+    func knownAccountUnlock() -> XCUIElement { element("app-lock-account") }
+    /// Unlocks the run account: a locked account shows its lock page in place of the tabs, naming the account and asking only
+    /// for the six-digit code.
     func unlockIfNeeded() throws {
         let code = element("secure-entry-passphrase")
         if !code.waitForExistence(timeout: 3) {
-            if element("tab-messages").exists && !knownAccountUnlock().exists { element("tab-messages").tap() }
-            guard element("shell-accounts").waitForExistence(timeout: 3) else { return }
-            try tap(knownAccountUnlock(), "Unlock \(RunSecrets.displayName) on the locked Messages tab", timeout: 10)
-            let shown = try require(element("a02-known-account"), "known account name on the unlock step", timeout: 15)
-            guard shown.label.contains(RunSecrets.displayName), !textField("a02-account").exists else {
-                throw FlowStop.fail("unlock step does not show the account by name only (label: \(shown.label))")
+            guard knownAccountUnlock().waitForExistence(timeout: 3) else { return }
+            let shown = knownAccountUnlock()
+            guard shown.label.contains(RunSecrets.displayName), shown.label.contains("Locked") else {
+                throw FlowStop.fail("the lock page does not name the account with Locked (label: \(shown.label))")
             }
             guard code.waitForExistence(timeout: 15) else { throw FlowStop.fail("no unlock form: \(visibleFailure())") }
         }
@@ -204,6 +200,17 @@ class RealRunTestCase: XCTestCase {
         // A completion page may follow the unlock.
         let done = button("Continue")
         if done.waitForExistence(timeout: 5) && !element("tab-messages").isHittable { done.tap() }
+    }
+    /// The account id from Settings > Account > Details, the one place it is shown (with a Copy action).
+    func readAccountID() throws -> String {
+        try openMore()
+        try tap(element("more-settings"), "Settings in More")
+        try tap(element("settings-account"), "Account and security")
+        try tap(element("settings-account-details"), "Account details")
+        let id = try require(element("settings-account-id"), "account id on the details page", timeout: 15)
+        let shown = String(id.label.filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") })
+        for _ in 0..<3 { back(); Thread.sleep(forTimeInterval: 0.6) }
+        return shown
     }
 
     func openMore() throws { try openTab("more") }

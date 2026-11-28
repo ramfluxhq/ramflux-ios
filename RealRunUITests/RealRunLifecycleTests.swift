@@ -29,7 +29,7 @@ final class RealRunLifecycleTests: RealRunTestCase {
             app.activate()
             var notes = [arrivedInBackground ? "the in-flight send reached alice while the app was in the background" : "the in-flight send was held while the app was suspended"]
             // The SDK suspends in the background and resumes on return: nothing is asked.
-            if element("secure-entry-passphrase").waitForExistence(timeout: 5) || element("shell-accounts").exists || element("a02-known-account").exists {
+            if element("secure-entry-passphrase").waitForExistence(timeout: 5) || knownAccountUnlock().exists {
                 snap("04c-asked")
                 throw FlowStop.fail("returning from the background asked for the account code: \(visibleFailure())")
             }
@@ -67,7 +67,7 @@ final class RealRunLifecycleTests: RealRunTestCase {
             app.launch()
             var notes: [String] = []
             // A cold start opens the account with its device-bound key; the code is not asked.
-            if element("secure-entry-passphrase").waitForExistence(timeout: 8) || knownAccountUnlock().exists || element("a02-known-account").exists {
+            if element("secure-entry-passphrase").waitForExistence(timeout: 8) || knownAccountUnlock().exists {
                 snap("04d-asked")
                 throw FlowStop.fail("relaunching asked for the account code: \(visibleFailure())")
             }

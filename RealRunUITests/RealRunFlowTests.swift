@@ -16,11 +16,14 @@ final class RealRunFlowTests: RealRunTestCase {
             let field = try require(textField("onboarding-address"), "node address field")
             field.tap(); field.typeText(config.origin)
             snap("01-address-typed")
-            try tap(button("Check address"), "Check address")
-            try tap(button("Connect to this origin"), "Connect to this origin", timeout: 30)
-            let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 40)
+            try tap(button("Continue"), "Continue (check address)")
+            Thread.sleep(forTimeInterval: 1)
+            try tap(button("Continue"), "Continue (connect to the origin)", timeout: 30)
+            // Trust this node: the details hold the operator key entry and the key fingerprint.
+            try tap(element("onboarding-node-details"), "node details", timeout: 40)
+            try tap(element("onboarding-operator-key-action"), "Enter operator key")
+            let keyInput = try require(textField("onboarding-operator-key"), "operator key field", timeout: 20)
             keyInput.tap(); keyInput.typeText(config.operatorKey)
-            try tap(button("Review fingerprint"), "Review fingerprint")
             let print = try require(element("onboarding-node-fingerprint"), "node fingerprint", timeout: 30)
             let shown = (print.label + " " + (print.value as? String ?? "")).lowercased().filter { $0.isHexDigit }
             snap("01-fingerprint")
@@ -56,20 +59,24 @@ final class RealRunFlowTests: RealRunTestCase {
             guard !ordered.isEmpty, ordered.allSatisfy({ (1...24).contains($0) }) else { throw FlowStop.fail("unexpected word positions \(ordered)") }
             snap("01-confirm-positions")
             try tap(button("Set account code"), "Set account code")
-            for (index, position) in ordered.enumerated() {
-                let wordField = try require(element("secure-entry-word\(index + 1)"), "word field \(index + 1)")
-                wordField.tap(); wordField.typeText(words[position - 1])
-            }
+            // Step 1: the account code and its repeat. Step 2: the requested recovery words, then Create account.
             let code = try require(element("secure-entry-passphrase"), "new account code")
-            // Secret fields present as secure text fields to accessibility and automation, without their text.
-            guard app.secureTextFields.matching(identifier: "secure-entry-passphrase").firstMatch.exists,
-                  app.secureTextFields.matching(identifier: "secure-entry-word1").firstMatch.exists else {
-                throw FlowStop.fail("the account code or recovery word fields are not exposed as secure text fields")
+            guard app.secureTextFields.matching(identifier: "secure-entry-passphrase").firstMatch.exists else {
+                throw FlowStop.fail("the account code field is not exposed as a secure text field")
             }
             code.tap(); code.typeText(RunSecrets.accountCode)
             let repeatCode = try require(element("secure-entry-passphraseRepeat"), "repeat account code")
             repeatCode.tap(); repeatCode.typeText(RunSecrets.accountCode)
-            try tap(element("secure-entry-submit"), "Confirm once")
+            try tap(element("secure-entry-submit"), "Continue to the recovery words")
+            for (index, position) in ordered.enumerated() {
+                let wordField = try require(element("secure-entry-word\(index + 1)"), "word field \(index + 1)")
+                wordField.tap(); wordField.typeText(words[position - 1])
+            }
+            // Secret fields present as secure text fields to accessibility and automation, without their text.
+            guard app.secureTextFields.matching(identifier: "secure-entry-word1").firstMatch.exists else {
+                throw FlowStop.fail("the recovery word fields are not exposed as secure text fields")
+            }
+            try tap(element("secure-entry-submit"), "Create account")
             let connected = text(containing: "Connected")
             let pending = text(containing: "Network connection has not been confirmed")
             let connecting = text(containing: "Connecting to the network")
@@ -78,20 +85,16 @@ final class RealRunFlowTests: RealRunTestCase {
             // The completion step follows the SDK's networking state and turns to Connected when it is live.
             _ = eventually(90, { connected.exists || pending.exists })
             let networking = connected.exists ? "completion showed \(firstShown), then Connected (SDK networking live)" : "completion showed \(firstShown) and ended not confirmed after 90 s"
-            let shownID = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'account-'")).firstMatch.label
-            RunSecrets.accountID = String(shownID.filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "-" || $0 == "_") })
-            control.log("phone account \(RunSecrets.accountID ?? "?") named \(RunSecrets.displayName)")
             snap("01-complete")
+            // The completion step shows the name and the network line only; the id is read from Settings > Account > Details.
             try tap(button("Continue"), "Continue after completion")
             try require(element("app-shell"), "app shell", timeout: 30)
+            RunSecrets.accountID = try readAccountID()
+            control.log("phone account \(RunSecrets.accountID ?? "?") named \(RunSecrets.displayName)")
             // Lock through Settings: the locked Messages tab offers the account by name; unlock asks only for the code.
             try lockAccount()
-            guard knownAccountUnlock().waitForExistence(timeout: 20) else { throw FlowStop.fail("after lock the account is not offered by name: \(visibleFailure())") }
+            guard knownAccountUnlock().waitForExistence(timeout: 20) else { throw FlowStop.fail("after lock the lock page does not name the account: \(visibleFailure())") }
             snap("01-locked")
-            // Accounts sheet: tapping the locked account's row opens its unlock step.
-            try tap(element("shell-accounts"), "Accounts on the locked Messages tab")
-            try tap(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'account-account-'")).firstMatch, "the locked account's row in Accounts")
-            try require(element("a02-known-account"), "unlock step after tapping the locked account's row", timeout: 15)
             try unlockIfNeeded()
             try require(element("tab-messages"), "Messages tab after unlock", timeout: 30)
             guard !element("secure-entry-passphrase").waitForExistence(timeout: 3) else { throw FlowStop.fail("unlock form still visible after submit: \(visibleFailure())") }
@@ -823,6 +826,6 @@ final class RealRunFlowTests: RealRunTestCase {
         try tap(element("settings-lock"), "Lock account")
         // A locked account is no longer active: Messages offers the account chooser instead of content.
         try openTab("messages")
-        try require(element("shell-accounts"), "account chooser on Messages after lock", timeout: 20)
+        try require(knownAccountUnlock(), "lock page of the account after lock", timeout: 20)
     }
 }
