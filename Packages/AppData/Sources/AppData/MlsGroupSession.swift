@@ -106,6 +106,12 @@ public actor MlsGroupSession {
     private var lastInfoRead: [String: Date] = [:]
     private var infoQueued: Set<String> = []
     private var markedRead: [String: Int64] = [:]
+    /// Send records of a group whose timeline was evicted (S4): not-sent bubbles and sends still in flight survive until
+    /// lock or removal, so a reopened group still shows them and a late reply still lands on its record.
+    private struct EvictedSend { var pending: [MlsPendingPost]; var composerOffUntil: Int64? }
+    private var evictedSend: [String: EvictedSend] = [:]
+    private var wakeTask: Task<Void, Never>?
+    private var wakeAt: Int64?
     static let recentGroups = 3
     static let refreshWindow: TimeInterval = 5
 
@@ -123,7 +129,30 @@ public actor MlsGroupSession {
         return stream
     }
     private func removeObserver(_ id: UUID) { observers[id] = nil }
-    private func changed() { for continuation in observers.values { continuation.yield(()) } }
+    private func changed() { for continuation in observers.values { continuation.yield(()) }; scheduleWake() }
+    /// One timer at the earliest future time a snapshot changes by the clock alone (a rate-limit reset or a pending join
+    /// that expires). It only publishes a change so the screen re-reads its snapshot; it never sends anything.
+    private func scheduleWake() {
+        guard admitted else { wakeTask?.cancel(); wakeTask = nil; wakeAt = nil; return }
+        let current = nowMillis
+        var times: [Int64] = timelines.values.compactMap(\.composerOffUntil) + evictedSend.values.compactMap(\.composerOffUntil)
+        times += pendingJoins.values.map(\.expiresAt)
+        let next = times.filter { $0 > current }.min()
+        guard next != wakeAt else { return }
+        wakeTask?.cancel(); wakeTask = nil; wakeAt = next
+        guard let next else { return }
+        let token = epoch
+        wakeTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(next - current + 5))
+            guard !Task.isCancelled else { return }
+            await self?.wake(token)
+        }
+    }
+    private func wake(_ token: Int) {
+        guard live(token) else { return }
+        wakeTask = nil; wakeAt = nil
+        changed()
+    }
     public var isAdmitted: Bool { admitted }
 
     /// Starts the `group.event` consumer once. The native repository feeds it from the hub.
@@ -142,7 +171,8 @@ public actor MlsGroupSession {
         groups = [:]; eventNewer = []; listCursor = nil; listPhase = .loading; listLoading = false; listLoadingMore = false; pendingJoins = [:]; openGroup = nil
         joinAttempt = 0; joinInFlight = nil; joinOutcome = nil; requestAttempts = [:]; creating = false
         timelines = [:]; recent = []; invites = [:]; members = [:]; memberCursor = [:]; aiAnchors = [:]; myAnchor = nil
-        lastRefresh = [:]; lastInfoRead = [:]; infoQueued = []; markedRead = [:]
+        lastRefresh = [:]; lastInfoRead = [:]; infoQueued = []; markedRead = [:]; evictedSend = [:]
+        wakeTask?.cancel(); wakeTask = nil; wakeAt = nil
         changed()
     }
     /// The account is unlocked again: writes are accepted and the event consumer restarts.
@@ -161,7 +191,7 @@ public actor MlsGroupSession {
     }
     public func joinSnapshot() -> MlsJoinSnapshot {
         var snapshot = MlsJoinSnapshot()
-        snapshot.attempt = joinAttempt; snapshot.joining = joinInFlight != nil && joinInFlight == joinAttempt; snapshot.outcome = joinOutcome
+        snapshot.attempt = joinAttempt; snapshot.joining = joinInFlight != nil; snapshot.outcome = joinOutcome
         return snapshot
     }
     public func group(_ id: String) -> MlsGroupInfo? { groups[id] }
@@ -288,10 +318,10 @@ public actor MlsGroupSession {
 
     // MARK: Join owner (common 3.1)
     /// One call per explicit tap. Returns the attempt number, or nil when the tap was ignored (a call of the sheet's
-    /// current attempt is in flight).
+    /// join of this account is in flight).
     @discardableResult public func join(link raw: String) async -> Int? {
         guard admitted else { return nil }
-        if let flying = joinInFlight, flying == joinAttempt { return nil }
+        if joinInFlight != nil { return nil }   // one join per account at a time, even after the sheet was closed
         joinAttempt += 1
         let attempt = joinAttempt
         guard let link = MlsLinkCheck.trimmed(raw) else {
@@ -466,14 +496,37 @@ public actor MlsGroupSession {
         guard admitted else { return }
         openGroup = group
         recent.removeAll { $0 == group }; recent.insert(group, at: 0)
-        while recent.count > Self.recentGroups { let dropped = recent.removeLast(); timelines[dropped] = nil; invites[dropped] = nil; members[dropped] = nil; if openGroup == dropped { openGroup = nil } }
-        if timelines[group] == nil { var store = MlsTimelineStore(); store.groupID = group; timelines[group] = store }
+        while recent.count > Self.recentGroups { let dropped = recent.removeLast(); evict(dropped); invites[dropped] = nil; members[dropped] = nil; if openGroup == dropped { openGroup = nil } }
+        if timelines[group] == nil {
+            var store = MlsTimelineStore(); store.groupID = group
+            if let kept = evictedSend.removeValue(forKey: group) { store.pending = kept.pending; store.composerOffUntil = kept.composerOffUntil }
+            timelines[group] = store
+        }
         if let info = groups[group], info.unread > 0 { groups[group] = info.with(unread: 0, unreadMentions: 0) }
         changed()
         guard timelines[group]?.loaded != true else { return }
         await loadNewest(group)
         _ = await refreshInfo(group)
         await refresh(group)
+    }
+    /// Drops the window of a group but keeps its send records (rows read from history come back with the next load).
+    private func evict(_ group: String) {
+        if let store = timelines[group] {
+            let kept = store.pending.filter { !$0.localID.hasPrefix("post:") }
+            if !kept.isEmpty || store.composerOffUntil != nil { evictedSend[group] = EvictedSend(pending: kept, composerOffUntil: store.composerOffUntil) }
+        }
+        timelines[group] = nil
+    }
+    /// Runs a change on the send records of a group, whether its timeline is held or was evicted.
+    private func mutateSend(_ group: String, _ body: (inout MlsTimelineStore) -> Void) {
+        if var store = timelines[group] { body(&store); timelines[group] = store; return }
+        var store = MlsTimelineStore(); store.groupID = group
+        store.pending = evictedSend[group]?.pending ?? []; store.composerOffUntil = evictedSend[group]?.composerOffUntil
+        body(&store)
+        evictedSend[group] = store.pending.isEmpty && store.composerOffUntil == nil ? nil : EvictedSend(pending: store.pending, composerOffUntil: store.composerOffUntil)
+    }
+    private func sendRecord(_ group: String, _ localID: String) -> MlsPendingPost? {
+        (timelines[group]?.pending ?? evictedSend[group]?.pending ?? []).first { $0.localID == localID }
     }
     public func close(_ group: String) { if openGroup == group { openGroup = nil } }
 
@@ -486,7 +539,7 @@ public actor MlsGroupSession {
         switch result {
         case .success(let page):
             var fresh = MlsTimelineStore(); fresh.groupID = group
-            fresh.readOnly = store.readOnly; fresh.deleting = store.deleting; fresh.tombstoned = store.tombstoned
+            fresh.readOnly = store.readOnly; fresh.composerOffUntil = store.composerOffUntil; fresh.deleting = store.deleting; fresh.tombstoned = store.tombstoned
             fresh.pending = store.pending.filter { !$0.localID.hasPrefix("post:") }
             for post in page.posts { absorb(post, group: group); fresh.insert(post) }
             fresh.floor = page.floorLogSeq; fresh.last = max(fresh.last, page.lastLogSeq); fresh.olderMore = page.more
@@ -568,7 +621,7 @@ public actor MlsGroupSession {
     /// Submits one text post. The call runs here, so the outcome is recorded even if the chat closed. Returns the
     /// `local_id`, or nil when the group is read-only, the text is empty, or the session is not admitted.
     @discardableResult public func send(_ group: String, text: String, replyTo: String? = nil, mentions: [String] = []) async -> String? {
-        guard admitted, var store = timelines[group], store.readOnly == nil else { return nil }
+        guard admitted, var store = timelines[group], store.readOnly == nil, !composerLocked(store) else { return nil }
         let body = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !body.isEmpty else { return nil }
         let localID = makeID()
@@ -577,19 +630,27 @@ public actor MlsGroupSession {
         await submit(localID, group: group)
         return localID
     }
+    /// The daily limit is used up and its reset time has not come (checked against the clock, not a stored flag).
+    private func composerLocked(_ store: MlsTimelineStore) -> Bool { store.composerOffUntil.map { $0 > nowMillis } ?? false }
     private func submit(_ localID: String, group: String) async {
-        guard let pending = timelines[group]?.pending.first(where: { $0.localID == localID }) else { return }
+        guard let pending = sendRecord(group, localID) else { return }
         let token = epoch
         let result = await repository.send(account: account, groupID: group, text: pending.text, replyTo: pending.replyTo, mentions: pending.mentions)
-        guard live(token), var store = timelines[group], let index = store.pending.firstIndex(where: { $0.localID == localID }) else { return }
-        switch result {
-        case .failure(let error): store.pending[index].state = .notSent(.error(error))
-        case .success(let receipt):
-            store.pending[index].postID = receipt.postID
-            if store.byPostID[receipt.postID] != nil { store.pending.remove(at: index) }   // an event posted it first
-            else { apply(receipt.state, to: &store, at: index) }
+        guard live(token) else { return }
+        mutateSend(group) { store in
+            guard var index = store.pending.firstIndex(where: { $0.localID == localID }) else { return }
+            switch result {
+            case .failure(let error): store.pending[index].state = .notSent(.error(error))
+            case .success(let receipt):
+                store.pending[index].postID = receipt.postID
+                // The SDK row of this post may have arrived while the call ran (r4 item 8): one bubble per `post_id`.
+                store.pending.removeAll { $0.localID != localID && $0.postID == receipt.postID }
+                index = store.pending.firstIndex(where: { $0.localID == localID }) ?? index
+                if store.byPostID[receipt.postID] != nil { store.pending.remove(at: index) }   // an event posted it first
+                else { apply(receipt.state, to: &store, at: index) }
+            }
         }
-        timelines[group] = store; changed()
+        changed()
     }
     /// Moves a pending post to the state of a reply or a `post_state` event.
     private func apply(_ state: MlsSendState, to store: inout MlsTimelineStore, at index: Int) {
@@ -611,7 +672,7 @@ public actor MlsGroupSession {
     }
     /// Retry is an explicit tap only: a new `group.send` with the same text, reply and mentions, and a new `local_id`.
     @discardableResult public func retry(_ group: String, localID: String) async -> String? {
-        guard admitted, var store = timelines[group], store.readOnly == nil, let index = store.pending.firstIndex(where: { $0.localID == localID }), store.pending[index].canRetry else { return nil }
+        guard admitted, var store = timelines[group], store.readOnly == nil, !composerLocked(store), let index = store.pending.firstIndex(where: { $0.localID == localID }), store.pending[index].canRetry else { return nil }
         let old = store.pending.remove(at: index)
         timelines[group] = store
         return await send(group, text: old.text, replyTo: old.replyTo, mentions: old.mentions)
@@ -711,7 +772,6 @@ public actor MlsGroupSession {
         timelines[group]?.readOnly = reason
     }
     private func applyPostState(group: String, postID: String, state: MlsPostState, logSeq: Int64?) {
-        guard var store = timelines[group], let index = store.pending.firstIndex(where: { $0.postID == postID }) else { return }
         let mapped: MlsSendState = switch state {
         case .sent: .sent(logSeq: logSeq ?? 0)
         case .queued(let reason): .queued(reason)
@@ -720,7 +780,9 @@ public actor MlsGroupSession {
         case .rateLimited(let quota): .rateLimited(quota ?? MlsQuota(limit: 0, remaining: 0, firstDay: false))
         default: .unknown("")
         }
-        apply(mapped, to: &store, at: index)
-        timelines[group] = store
+        mutateSend(group) { store in
+            guard let index = store.pending.firstIndex(where: { $0.postID == postID }) else { return }
+            apply(mapped, to: &store, at: index)
+        }
     }
 }

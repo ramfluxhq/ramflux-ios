@@ -51,6 +51,7 @@ public struct ChatScreen: View {
                 composer
             }
         } }.privacySensitive()
+            .environment(\.mlsRetryLocked, state.mls?.composerOffUntil != nil)
             .overlay { if let target = actionMessage { ChatActionsOverlay(message: target, mls: state.mls, onAction: onAction) } }
             #if os(iOS)
             .navigationBarBackButtonHidden(true)

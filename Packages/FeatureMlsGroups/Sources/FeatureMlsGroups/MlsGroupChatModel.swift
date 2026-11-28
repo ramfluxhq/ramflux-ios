@@ -17,9 +17,10 @@ import FeatureChat
     @ObservationIgnored private var appeared = false
     @ObservationIgnored private var mentions: [String: String] = [:]   // anchor -> inserted "@Name"
     @ObservationIgnored private var replyTo: String?
+    @ObservationIgnored private let now: @Sendable () -> Date
 
-    public init(session: MlsGroupSession, groupID: String, title: String, openInfo: @escaping () -> Void) {
-        self.session = session; self.groupID = groupID; self.openInfo = openInfo
+    public init(session: MlsGroupSession, groupID: String, title: String, openInfo: @escaping () -> Void, now: @escaping @Sendable () -> Date = { Date() }) {
+        self.session = session; self.groupID = groupID; self.openInfo = openInfo; self.now = now
         var initial = ChatState(loading: true)
         initial.isGroup = true; initial.conversationID = groupID; initial.displayTitle = title; initial.mls = MlsChatState()
         state = initial
@@ -113,7 +114,9 @@ import FeatureChat
         state.draft += (state.draft.isEmpty || state.draft.hasSuffix(" ") ? "" : " ") + token + " "
     }
     private func submit() {
-        guard state.mls?.readOnly == nil, state.mls?.composerOffUntil == nil else { return }
+        // The limit is checked against the clock here, not against a snapshot that may be stale.
+        let nowMillis = Int64(now().timeIntervalSince1970 * 1000)
+        guard state.mls?.readOnly == nil, (state.mls?.composerOffUntil ?? 0) <= nowMillis else { return }
         let text = state.draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         // Only the mentions whose token is still in the text are sent (anchors of the loaded members).

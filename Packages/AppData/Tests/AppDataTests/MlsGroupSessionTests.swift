@@ -12,6 +12,8 @@ private final class FakeMls: MlsGroupRepository, @unchecked Sendable {
         var joinResults: [Result<MlsJoinResult, MlsGroupError>] = []
         var gates: [CheckedContinuation<Void, Never>] = []
         var gateJoin = false
+        var gateSend = false
+        var sendGates: [CheckedContinuation<Void, Never>] = []
         var history: [(after: Int64?, before: Int64?)] = []
         var historyPages: [MlsHistoryPage] = []
         var sendResults: [Result<MlsSendReceipt, MlsGroupError>] = []
@@ -19,6 +21,7 @@ private final class FakeMls: MlsGroupRepository, @unchecked Sendable {
     let state = Mutex(State())
     func count(_ name: String) -> Int { state.withLock { $0.calls[name] ?? 0 } }
     private func note(_ name: String) { state.withLock { $0.calls[name, default: 0] += 1 } }
+    func openSend() { let waiting = state.withLock { s -> [CheckedContinuation<Void, Never>] in s.gateSend = false; defer { s.sendGates = [] }; return s.sendGates }; waiting.forEach { $0.resume() } }
     func open() { let waiting = state.withLock { s -> [CheckedContinuation<Void, Never>] in s.gateJoin = false; defer { s.gates = [] }; return s.gates }; waiting.forEach { $0.resume() } }
     func list(account: String, cursor: String?, limit: Int) async -> Result<MlsGroupPage, MlsGroupError> { note("list"); return .success(MlsGroupPage(groups: [], cursor: nil)) }
     func info(account: String, groupID: String) async -> Result<MlsGroupInfo, MlsGroupError> { note("info"); return .success(MlsGroupInfo(groupID: groupID, name: "G")) }
@@ -35,6 +38,7 @@ private final class FakeMls: MlsGroupRepository, @unchecked Sendable {
     func members(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsMemberPage, MlsGroupError> { note("members"); return .success(MlsMemberPage(rows: [], cursor: nil)) }
     func send(account: String, groupID: String, text: String, replyTo: String?, mentions: [String]) async -> Result<MlsSendReceipt, MlsGroupError> {
         note("send")
+        if state.withLock({ $0.gateSend }) { await withCheckedContinuation { c in state.withLock { $0.sendGates.append(c) } } }
         return state.withLock { $0.sendResults.isEmpty ? .failure(.generic(nil)) : $0.sendResults.removeFirst() }
     }
     func history(account: String, groupID: String, afterLogSeq: Int64?, beforeLogSeq: Int64?, limit: Int) async -> Result<MlsHistoryPage, MlsGroupError> {
@@ -61,23 +65,29 @@ private func postRows(_ snapshot: MlsTimelineSnapshot) -> [MlsPostRow] { snapsho
 private func pendings(_ snapshot: MlsTimelineSnapshot) -> [MlsPendingPost] { snapshot.entries.compactMap { if case .pending(let row) = $0 { row } else { nil } } }
 
 struct MlsGroupSessionTests {
-    @Test func aJoinResultOfAnOlderAttemptIsRecordedButNotShownAsTheCurrentOutcome() async {
+    @Test func aSecondJoinIsRefusedWhileAnyJoinOfTheAccountIsInFlightEvenAfterTheSheetClosed() async {
         let fake = FakeMls()
-        fake.state.withLock { $0.gateJoin = true; $0.joinResults = [.success(.joined(groupID: "g-old")), .success(.refused(.inviteInvalid))] }
+        fake.state.withLock { $0.gateJoin = true; $0.joinResults = [.success(.joined(groupID: "g-old"))] }
         let s = session(fake)
         let first = Task { await s.join(link: "rfinv-slow") }
         while fake.count("join") < 1 { await Task.yield() }
-        // The sheet closes (the attempt ends) and opens again with another link.
+        // The sheet closes and opens again: it shows the call in flight, and a tap with any link makes no call.
         await s.dismissJoin()
-        let second = Task { await s.join(link: "rfinv-other") }
-        while fake.count("join") < 2 { await Task.yield() }
-        fake.open()
-        _ = await first.value; _ = await second.value
-        let snapshot = await s.joinSnapshot()
+        let reopened = await s.joinSnapshot()
+        #expect(reopened.joining && reopened.outcome == nil)
+        #expect(await s.join(link: "rfinv-slow") == nil)
+        #expect(await s.join(link: "rfinv-other") == nil)
+        #expect(await s.join(link: "bad link") == nil)
+        #expect(fake.count("join") == 1)
+        fake.open(); _ = await first.value
         // The older Joined is not the outcome of the newer attempt, but the group was recorded (an info read follows).
-        #expect(snapshot.outcome == .refused(.inviteInvalid, local: false))
+        let done = await s.joinSnapshot()
+        #expect(!done.joining && done.outcome == nil)
         for _ in 0..<50 where fake.count("info") == 0 { try? await Task.sleep(for: .milliseconds(10)) }
         #expect(fake.count("info") >= 1)
+        // Once it returned, the next tap is accepted.
+        #expect(await s.join(link: "rfinv-next") != nil)
+        #expect(fake.count("join") == 2)
     }
     @Test func aSecondTapDuringACallIsIgnored() async {
         let fake = FakeMls()
@@ -240,5 +250,106 @@ struct MlsGroupSessionTests {
         let lines = await s.timelineSnapshot("g").entries.compactMap { entry -> MlsServiceLine? in if case .service(let line) = entry { line } else { nil } }
         #expect(lines.count == 1)
         if case .joined(let names)? = lines.first?.kind { #expect(names.count == 3) } else { Issue.record("joined") }
+    }
+}
+
+private func ownPending(_ seq: Int64?, id: String) -> MlsPost {
+    MlsPost(logSeq: seq, postID: id, author: author("me", me: true), appendedAt: 1, kind: .text, body: .text("hello"), state: .pending(.queued(.catchingUp)))
+}
+
+struct MlsGroupSessionAuditTests {
+    @Test func notSentBubblesSurviveTheEvictionOfTheirTimeline() async {
+        let fake = FakeMls()
+        fake.state.withLock { $0.sendResults = [.failure(.tooLarge(maxBytes: 10))] }
+        let s = session(fake)
+        await s.open("g1")
+        await s.send("g1", text: "big")
+        for group in ["g2", "g3", "g4"] { await s.open(group) }
+        await s.open("g1")
+        let kept = pendings(await s.timelineSnapshot("g1"))
+        #expect(kept.count == 1 && kept[0].text == "big" && kept[0].state == .notSent(.error(.tooLarge(maxBytes: 10))))
+    }
+    @Test func aSubmitInFlightWhenItsTimelineIsEvictedStillRecordsItsOutcome() async {
+        let fake = FakeMls()
+        fake.state.withLock { $0.gateSend = true; $0.sendResults = [.failure(.offline)] }
+        let s = session(fake)
+        await s.open("g1")
+        let call = Task { await s.send("g1", text: "slow") }
+        while fake.count("send") < 1 { await Task.yield() }
+        for group in ["g2", "g3", "g4"] { await s.open(group) }
+        fake.openSend(); _ = await call.value
+        await s.open("g1")
+        let kept = pendings(await s.timelineSnapshot("g1"))
+        #expect(kept.count == 1 && kept[0].state == .notSent(.error(.offline)))
+    }
+    @Test func aClearForgetsTheEvictedSendRecords() async {
+        let fake = FakeMls()
+        fake.state.withLock { $0.sendResults = [.failure(.offline)] }
+        let s = session(fake)
+        await s.open("g1"); await s.send("g1", text: "x")
+        for group in ["g2", "g3", "g4"] { await s.open(group) }
+        await s.clear(); await s.admit()
+        await s.open("g1")
+        #expect(pendings(await s.timelineSnapshot("g1")).isEmpty)
+    }
+    @Test func theSdkRowOfAnOwnPostArrivingDuringTheSubmitIsOneBubbleWithTheLatestState() async {
+        let fake = FakeMls()
+        fake.state.withLock { $0.gateSend = true; $0.sendResults = [.success(MlsSendReceipt(postID: "P1", state: .queued(.catchingUp)))] }
+        let s = session(fake)
+        await s.open("g")
+        let call = Task { await s.send("g", text: "hello") }
+        while fake.count("send") < 1 { await Task.yield() }
+        await s.handle(.post(groupID: "g", seq: 7, at: 1, post: ownPending(nil, id: "P1")))
+        #expect(pendings(await s.timelineSnapshot("g")).count == 2)
+        fake.openSend(); _ = await call.value
+        let one = pendings(await s.timelineSnapshot("g"))
+        #expect(one.count == 1 && one[0].postID == "P1")
+        await s.handle(.postState(groupID: "g", postID: "P1", state: .sent, logSeq: 3))
+        let after = await s.timelineSnapshot("g")
+        #expect(pendings(after).isEmpty && postRows(after).filter { $0.post.postID == "P1" }.count == 1)
+    }
+    @Test func aRateLimitLiftsAtItsResetTimeWithoutSendingAnything() async {
+        let fake = FakeMls()
+        let reset = Int64(Date().timeIntervalSince1970 * 1000) + 200
+        fake.state.withLock { $0.sendResults = [.success(MlsSendReceipt(postID: "P1", state: .rateLimited(MlsQuota(limit: 5, remaining: 0, firstDay: false, resetsAt: reset))))] }
+        let s = session(fake)
+        await s.open("g")
+        let changes = await s.changes()
+        await s.send("g", text: "hello")
+        #expect(await s.timelineSnapshot("g").composerOffUntil == reset)
+        // While locked neither a new send nor a Retry reaches the SDK.
+        #expect(await s.send("g", text: "again") == nil)
+        let notSent = pendings(await s.timelineSnapshot("g"))
+        #expect(await s.retry("g", localID: notSent[0].localID) == nil)
+        // The timer publishes a change at the reset time; the snapshot then shows the composer on.
+        var lifted = false
+        let deadline = Date().addingTimeInterval(5)
+        for await _ in changes {
+            if await s.timelineSnapshot("g").composerOffUntil == nil { lifted = true; break }
+            if Date() > deadline { break }
+        }
+        #expect(lifted)
+        #expect(fake.count("send") == 1)
+    }
+    @Test func aClearCancelsTheResetTimer() async {
+        let fake = FakeMls()
+        let reset = Int64(Date().timeIntervalSince1970 * 1000) + 100
+        fake.state.withLock { $0.sendResults = [.success(MlsSendReceipt(postID: "P1", state: .rateLimited(MlsQuota(limit: 5, remaining: 0, firstDay: false, resetsAt: reset))))] }
+        let s = session(fake)
+        await s.open("g"); await s.send("g", text: "x")
+        await s.clear()
+        let changes = await s.changes()
+        let fired = Mutex(false)
+        let watcher = Task { for await _ in changes { fired.withLock { $0 = true } } }
+        try? await Task.sleep(for: .milliseconds(300))
+        watcher.cancel()
+        #expect(!fired.withLock { $0 })
+    }
+    @Test func theInviteLinkIsNotRevealedByDump() {
+        let invite = MlsInvite(inviteID: "i1", link: "rfinv-SECRETLINK", maxUses: 1, expiresAt: 5)
+        var out = ""
+        dump(invite, to: &out); dump(MlsCreated(groupID: "g", invite: invite), to: &out); var snapshot = MlsInviteSnapshot(); snapshot.invites = [invite]; dump(snapshot, to: &out)
+        print(String(describing: Mirror(reflecting: invite).children.map { "\($0.value)" }), to: &out)
+        #expect(!out.contains("SECRETLINK") && out.contains("<redacted>"))
     }
 }
