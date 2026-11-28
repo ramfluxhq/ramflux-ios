@@ -6,7 +6,7 @@ import UIKit
 
 /// One editor of a secure entry form. `accountCode` accepts at most six ASCII digits on a number pad,
 /// always runs left to right, and keeps the submit button disabled until it holds six digits. A `text` editor
-/// is masked and has a Show toggle of its own; it never autocorrects, suggests or learns.
+/// is masked and has a Show toggle of its own that mirrors the text in a read-only label (the editor stays secure); it never autocorrects, suggests or learns.
 public struct RFSecureEntryField: Sendable, Equatable {
     public enum Kind: Sendable, Equatable { case text, accountCode }
     public let id: String
@@ -70,7 +70,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
 
 @MainActor public final class RFSecureEntryFormView: UIView, UITextFieldDelegate {
     static let codeDigits = 6
-    private struct Editor { let field: RFSecureEntryField; let editor: UITextField; let step: Int; let toggle: UIButton? }
+    private struct Editor { let field: RFSecureEntryField; let editor: UITextField; let step: Int; let toggle: UIButton?; let reveal: UILabel? }
     private let primaryButton = UIButton(type: .system)
     private let backButton = UIButton(type: .system)
     private let statusLabel = UILabel()
@@ -79,6 +79,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
     private var captions: [UILabel] = []
     private var helperLabels: [UILabel] = []
     private var noticeLabels: [UILabel] = []
+    private var revealLabels: [UILabel] = []
     private var editors: [Editor] = []
     private let steps: [RFSecureEntryStep]
     private var step = 0 { didSet { showStep() } }
@@ -93,6 +94,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
         didSet {
             guard fieldsAllowed != oldValue else { return }
             for item in editors { item.editor.isEnabled = fieldsAllowed; if !fieldsAllowed { item.editor.text = ""; item.editor.resignFirstResponder() } }
+            if !fieldsAllowed { for item in editors { item.reveal?.isHidden = true }; syncReveal() }
             refreshButton()
         }
     }
@@ -120,6 +122,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
                 editor.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
                 editor.addTarget(self, action: #selector(edited), for: .editingChanged)
                 var toggle: UIButton?
+                var reveal: UILabel?
                 if field.kind == .accountCode {
                     editor.keyboardType = .asciiCapableNumberPad
                     editor.semanticContentAttribute = .forceLeftToRight; editor.textAlignment = .left
@@ -129,10 +132,15 @@ public struct RFSecureEntryForm: UIViewRepresentable {
                     let show = UIButton(type: .system); show.addTarget(self, action: #selector(toggled(_:)), for: .touchUpInside)
                     show.accessibilityIdentifier = "secure-entry-show-" + field.id
                     editor.rightView = show; editor.rightViewMode = .always; toggle = show
+                    // Show never unmasks the editor: a revealed field would accept third-party keyboards and offer Copy, Cut and Share.
+                    // The text is mirrored in a read-only label instead, which has no selection and no edit menu.
+                    let label = UILabel(); label.numberOfLines = 0; label.isHidden = true; label.isUserInteractionEnabled = false
+                    label.accessibilityIdentifier = "secure-entry-reveal-" + field.id
+                    reveal = label; revealLabels.append(label)
                 }
                 editor.accessibilityIdentifier = "secure-entry-" + field.id
-                editors.append(Editor(field: field, editor: editor, step: index, toggle: toggle))
-                item.addArrangedSubview(caption); item.addArrangedSubview(editor); block.addArrangedSubview(item)
+                editors.append(Editor(field: field, editor: editor, step: index, toggle: toggle, reveal: reveal))
+                item.addArrangedSubview(caption); item.addArrangedSubview(editor); if let reveal { item.addArrangedSubview(reveal) }; block.addArrangedSubview(item)
             }
             let helper = UILabel(); helper.numberOfLines = 0; helper.text = page.helper; helper.isHidden = page.helper == nil
             helper.accessibilityIdentifier = "secure-entry-helper-\(index)"
@@ -164,6 +172,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
         }
         for label in titleLabels { label.font = scale(theme.size_title, .title3, .semibold); label.textColor = UIColor(theme.text); label.adjustsFontForContentSizeCategory = true }
         for label in captions { label.font = scale(theme.size_secondary, .subheadline, .medium); label.textColor = UIColor(theme.text); label.adjustsFontForContentSizeCategory = true }
+        for label in revealLabels { label.font = UIFontMetrics(forTextStyle: .title3).scaledFont(for: .monospacedSystemFont(ofSize: theme.size_mobile_body, weight: .medium)); label.textColor = UIColor(theme.text); label.adjustsFontForContentSizeCategory = true }
         for label in helperLabels + noticeLabels { label.font = scale(theme.size_secondary, .footnote, .regular); label.textColor = UIColor(theme.secondary); label.adjustsFontForContentSizeCategory = true }
         statusLabel.font = scale(theme.size_secondary, .subheadline, .medium); statusLabel.adjustsFontForContentSizeCategory = true
         let body = scale(theme.size_mobile_body, .body, .regular)
@@ -172,7 +181,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
             item.editor.font = item.field.kind == .accountCode ? UIFontMetrics(forTextStyle: .body).scaledFont(for: .monospacedDigitSystemFont(ofSize: theme.size_mobile_body, weight: .regular)) : body
             if let toggle = item.toggle {
                 var config = UIButton.Configuration.plain()
-                config.title = RFDesignStrings.text(item.editor.isSecureTextEntry ? "kit.secret.show" : "kit.secret.hide", locale: locale)
+                config.title = RFDesignStrings.text(item.reveal?.isHidden == false ? "kit.secret.hide" : "kit.secret.show", locale: locale)
                 config.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
                 config.baseForegroundColor = UIColor(theme.primary)
                 config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
@@ -206,13 +215,17 @@ public struct RFSecureEntryForm: UIViewRepresentable {
         let current = textField.text?.utf16.count ?? 0
         return current - range.length + string.utf16.count <= Self.codeDigits
     }
-    @objc private func edited() { onEdit?(); refreshButton() }
+    @objc private func edited() { syncReveal(); onEdit?(); refreshButton() }
+    /// Keeps each visible reveal label equal to its masked editor; a hidden one holds no text.
+    private func syncReveal() {
+        for item in editors { if let label = item.reveal { label.text = label.isHidden ? nil : item.editor.text } }
+        // The reveal label changes the form's height; the hosting SwiftUI view measures it again.
+        invalidateIntrinsicContentSize(); setNeedsLayout()
+    }
     @objc private func toggled(_ button: UIButton) {
         guard let item = editors.first(where: { $0.toggle === button }) else { return }
-        let text = item.editor.text
-        item.editor.isSecureTextEntry.toggle()
-        // Switching the masking mid-edit would otherwise drop the text on the next keystroke.
-        item.editor.text = nil; item.editor.text = text
+        item.reveal?.isHidden.toggle()
+        syncReveal()
         if let theme { apply(theme, locale: locale) }
     }
     @objc private func keyboardShown() {
@@ -257,7 +270,7 @@ public struct RFSecureEntryForm: UIViewRepresentable {
         erase(); submit(input)
     }
     func erase() {
-        for item in editors { item.editor.text = ""; item.editor.isSecureTextEntry = true; item.editor.resignFirstResponder() }
+        for item in editors { item.editor.text = ""; item.editor.isSecureTextEntry = true; item.reveal?.isHidden = true; item.reveal?.text = nil; item.editor.resignFirstResponder() }
         step = 0
         refreshButton()
     }
