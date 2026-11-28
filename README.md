@@ -90,7 +90,7 @@ scripts/realrun.sh                       # all flows in one command, output in b
 scripts/realrun.sh --only test04_directChatWithAlice --out /tmp/rr
 
 scripts/realrun.sh prepare --out /tmp/rr # or in short phases
-scripts/realrun.sh run --only test01_onboardingCustomNodeAccountLockUnlock,test02_contactsAddAliceAndVerify
+scripts/realrun.sh run --only test01_onboardingCustomNodeAccountLockUnlock,test02_contactsAddAlice
 scripts/realrun.sh run --only RealRunLifecycleTests
 scripts/realrun.sh rebuild               # after a code change; the app keeps its data
 scripts/realrun.sh finish                # flow table; stops the control server

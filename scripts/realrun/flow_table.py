@@ -13,7 +13,7 @@ from pathlib import Path
 FLOWS = [
     ("01-onboarding", "1 Connect to the custom node, create account, recovery phrase, code, lock, unlock"),
     ("03-conversations", "3 Conversation list shows real rows"),
-    ("06-contacts", "6 Add alice, request handled by the peer, safety number, verified"),
+    ("06-contacts", "6 Add alice, request handled by the peer, alice listed"),
     ("04-direct-chat", "4 Direct chat with alice both ways (send, receive, reply, edit, erase, receipts)"),
     ("04b-offline-queue", "4 Offline send queued and delivered after reconnect (needs a network cut; not scripted)"),
     ("04r-read-receipts", "4 Read receipts both ways: alice sees read, the phone shows Read"),
