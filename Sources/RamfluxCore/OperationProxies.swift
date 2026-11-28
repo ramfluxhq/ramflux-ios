@@ -36,12 +36,6 @@ public extension AccountProxy {
     func accountBackupCreate(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
         try await performSecret(.accountBackupCreate, context: context, body: body, secrets: secrets)
     }
-    func accountBackupExport(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
-        try await performSecretRequestResponse(.accountBackupExport, context: context, body: body, secrets: secrets)
-    }
-    func accountBackupImport(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> SecretBytes {
-        try await performSecretRequestResponse(.accountBackupImport, context: context, body: body, secrets: secrets)
-    }
     func accountBackupJobs(context: RequestContext, body: JSONValue = .object([:]), secrets: [String: SecretField] = [:]) async throws -> JSONValue {
         try await performSecret(.accountBackupJobs, context: context, body: body, secrets: secrets)
     }
