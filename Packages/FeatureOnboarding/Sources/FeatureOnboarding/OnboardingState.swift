@@ -17,6 +17,19 @@ public struct OnboardingState: Equatable, Sendable {
     public var visibleNodeFingerprint: String? { reviewedNode == candidate && canReviewFingerprint ? candidate?.fingerprint : nil }
     public var reviewedNode: NodeRecord?
     public var canReviewFingerprint: Bool { candidate?.publicKey != nil && !expectedNodeKey.isEmpty && expectedNodeKey == candidate?.publicKey }
+    /// The node this device already pinned under the candidate's id, when the key is the one just discovered.
+    public var pinnedCandidate: NodeRecord? {
+        guard let candidate else { return nil }
+        return nodes.first { $0.id == candidate.id && $0.isConfirmed && $0.publicKey != nil && $0.publicKey == candidate.publicKey }
+    }
+    /// The node was pinned with another key (the SDK's warning, or the stored pin differs): only an operator key moves on.
+    public var candidateKeyChanged: Bool {
+        guard let candidate else { return false }
+        if candidate.keyChanged { return true }
+        return nodes.contains { $0.id == candidate.id && $0.isConfirmed && $0.publicKey != nil && $0.publicKey != candidate.publicKey }
+    }
+    /// An equal or stronger pin with the same key already exists: nothing to trust again.
+    public var candidateAlreadyTrusted: Bool { !candidateKeyChanged && pinnedCandidate != nil }
     public var busy = false
     public var failure: AppFailure?
     public var metadata: CeremonyMetadata?

@@ -70,15 +70,23 @@ import AppData
             // One tap trusts the node just shown. An operator key the user entered must match the key shown and pins as
             // `operator`; without one the first connection is pinned as `tofu`, https only (a plain http node needs the operator key).
             guard let candidate = state.candidate, let key = candidate.publicKey, candidate.fingerprint != nil else { state.failure = .nodeKeyMismatch; return }
+            // A changed key is never trusted on first use, and an equal or stronger pin is never downgraded: both would be refused.
+            guard !state.candidateAlreadyTrusted else { send(.continueTrusted); return }
             if !state.expectedNodeKey.isEmpty {
                 guard state.expectedNodeKey == key else { state.failure = .nodeKeyMismatch; return }
                 state.reviewedNode = candidate; state.stage = .saving
                 run { [nodes] in .saved(await nodes.save(candidate, expectedPublicKey: key, operationID: UUID().uuidString), "operator") }
             } else {
+                guard !state.candidateKeyChanged else { state.failure = .nodeKeyMismatch; return }
                 guard NodeAddress.isHTTPS(candidate.origin) else { state.failure = .unavailableResource("onboarding.node.httpsRequired"); return }
                 state.stage = .saving
                 run { [nodes] in .saved(await nodes.trust(candidate, operationID: UUID().uuidString), "tofu") }
             }
+        case .continueTrusted:
+            guard state.stage == .identity, state.candidateAlreadyTrusted, let pinned = state.pinnedCandidate else { return }
+            state.candidate = pinned; state.reviewedNode = nil; state.expectedNodeKey = ""
+            if pinned.canCreateAccount { state.selectedNodeID = pinned.id }
+            state.stage = .saved
         case .setDefault:
             guard let candidate = state.candidate else { return }
             run { [nodes] in .defaultSet(await nodes.setDefault(candidate, operationID: UUID().uuidString)) }

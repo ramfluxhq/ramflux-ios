@@ -2124,6 +2124,74 @@
         }
       }
     },
+    "node.status.trusted": {
+      "comment": "Status line of the node trust step when this device already trusts the node with the same key.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You already trust this node."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已信任此节点。"
+          }
+        }
+      }
+    },
+    "node.keyChanged.title": {
+      "comment": "Title of the warning when a node this device pinned now presents another key.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This node's key has changed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此节点的密钥已更改"
+          }
+        }
+      }
+    },
+    "node.keyChanged.body": {
+      "comment": "Body of the key-changed warning; the only way on is the operator key.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't continue unless you expected this change."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "除非你预期此变化，否则请勿继续。"
+          }
+        }
+      }
+    },
+    "node.trustNewKey": {
+      "comment": "Destructive button that pins the new key after the operator key matched.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust new key"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信任新密钥"
+          }
+        }
+      }
+    },
     "node.status.confirmed": {
       "comment": "Status line of the node trust step when the operator key matched.",
       "localizations": {

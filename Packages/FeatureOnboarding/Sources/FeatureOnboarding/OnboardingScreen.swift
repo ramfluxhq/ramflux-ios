@@ -439,8 +439,17 @@ public struct OnboardingScreen: View {
         case .normalizedAddress, .checkingAddress: if state.normalized != nil { primary(copy("onboarding.address.connect"), .inspectOrigin) }
         case .identity:
             if let candidate = state.candidate {
-                RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.trust.summary", [.untrusted(candidate.origin)], locale: locale), confirmLabel: copy("node.trust"),
-                                          enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.trustNode) }, cancel: { onAction(.customNode) }).id(candidate.id)
+                if state.candidateKeyChanged {
+                    // No first-use trust: only the operator key the user typed (and that matches) moves on, styled as the danger it is.
+                    RFHostConfirmationActions(summary: copy("node.keyChanged.title"), confirmLabel: copy("node.trustNewKey"),
+                                              enabled: !state.busy && state.canReviewFingerprint, cancelEnabled: !state.busy, destructive: true,
+                                              confirm: { onAction(.trustNode) }, cancel: { onAction(.customNode) }).id(candidate.id + "-changed")
+                } else if state.candidateAlreadyTrusted {
+                    primary(copy("onboarding.continue"), .continueTrusted)
+                } else {
+                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.trust.summary", [.untrusted(candidate.origin)], locale: locale), confirmLabel: copy("node.trust"),
+                                              enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.trustNode) }, cancel: { onAction(.customNode) }).id(candidate.id)
+                }
             }
         case .saved:
             VStack(spacing: KitMetrics.headerGap) { primary(copy("onboarding.create.title"), .create); secondary(copy("onboarding.node.useAsDefault"), .setDefault) }
@@ -488,8 +497,15 @@ public struct OnboardingScreen: View {
             .accessibilityElement(children: .combine)
             .accessibilityIdentifier("onboarding-node-summary")
         }
-        Text(copy(state.canReviewFingerprint ? "node.status.confirmed" : "node.status.first")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
-            .accessibilityIdentifier("onboarding-node-status")
+        if state.candidateKeyChanged {
+            KitSecurityWarning(copy("node.keyChanged.title"), body: copy("node.keyChanged.body"), tone: .danger, icon: "shield-alert", tag: "onboarding-node-key-changed")
+            Text(copy("node.operatorInstructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+            KitTextField(value: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }), label: copy("node.operatorKey"), enabled: !state.busy, tag: "onboarding-operator-key")
+                .rfAddressInput()
+        } else {
+            Text(copy(state.candidateAlreadyTrusted ? "node.status.trusted" : state.canReviewFingerprint ? "node.status.confirmed" : "node.status.first")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+                .accessibilityIdentifier("onboarding-node-status")
+        }
         KitButton(copy("node.details"), action: { detailsOpen.toggle() }, kind: .text, size: .compact, tag: "onboarding-node-details")
         if detailsOpen {
             card {
@@ -498,8 +514,8 @@ public struct OnboardingScreen: View {
                         Text(copy("node.fingerprint")).rfFont(.size(theme.size_meta)).foregroundStyle(theme.secondary)
                         KitIdentifierText(fingerprint, tag: "onboarding-node-fingerprint").textSelection(.enabled)
                     }
-                    KitButton(copy("node.editOperatorKey"), action: { operatorKeyOpen.toggle() }, kind: .text, size: .compact, tag: "onboarding-operator-key-action")
-                    if operatorKeyOpen {
+                    if !state.candidateKeyChanged && !state.candidateAlreadyTrusted { KitButton(copy("node.editOperatorKey"), action: { operatorKeyOpen.toggle() }, kind: .text, size: .compact, tag: "onboarding-operator-key-action") }
+                    if operatorKeyOpen && !state.candidateKeyChanged && !state.candidateAlreadyTrusted {
                         Text(copy("node.operatorInstructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
                         KitTextField(value: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }), label: copy("node.operatorKey"), enabled: !state.busy, tag: "onboarding-operator-key")
                             .rfAddressInput()

@@ -14,6 +14,10 @@
 	<string>Enter operator key</string>
 	<key>node.fingerprint</key>
 	<string>Key fingerprint</string>
+	<key>node.keyChanged.body</key>
+	<string>Don't continue unless you expected this change.</string>
+	<key>node.keyChanged.title</key>
+	<string>This node's key has changed</string>
 	<key>node.operatorInstructions</key>
 	<string>If your node operator gave you the node's public key, enter it here.</string>
 	<key>node.operatorKey</key>
@@ -22,10 +26,14 @@
 	<string>Key confirmed by your invite.</string>
 	<key>node.status.first</key>
 	<string>First connection. Ramflux will warn you if this node's key ever changes.</string>
+	<key>node.status.trusted</key>
+	<string>You already trust this node.</string>
 	<key>node.trust</key>
 	<string>Trust this node</string>
 	<key>node.trust.summary</key>
 	<string>Trust this node · %@</string>
+	<key>node.trustNewKey</key>
+	<string>Trust new key</string>
 	<key>onboarding.a01.changeNode.detail</key>
 	<string>Does not change the account's node or authorisation</string>
 	<key>onboarding.a01.header</key>

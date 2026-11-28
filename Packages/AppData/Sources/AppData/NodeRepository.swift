@@ -35,7 +35,8 @@ public struct NativeNodeRepository: NodeRepository {
             let body = try await gateway.call(.nodeAdd, body: .object(["url": .string(origin), "refresh": .bool(refresh)]))
             guard let row = body["node"] else { throw AppFailure.invalidData }
             return .success(NodeRecord(id: try ProxyGateway.text(row, "node_id"), origin: try ProxyGateway.text(row, "discovery_url"),
-                                       fingerprint: try ProxyGateway.text(body, "key_fingerprint"), publicKey: try ProxyGateway.text(row, "node_public_key")))
+                                       fingerprint: try ProxyGateway.text(body, "key_fingerprint"), publicKey: try ProxyGateway.text(row, "node_public_key"),
+                                       pinSource: row["pin_source"]?.string, safetyWarnings: { if case .array(let values)? = row["safety_warnings"] { values.compactMap(\.string) } else { [] } }()))
         } catch { return .failure(AppFailure.map(error)) }
     }
     public func save(_ node: NodeRecord, expectedPublicKey: String, operationID: String) async -> RepositoryResult<Void> {

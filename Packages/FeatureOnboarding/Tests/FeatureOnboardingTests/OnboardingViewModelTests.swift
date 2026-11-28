@@ -16,6 +16,8 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
     func inspect(_ origin: String) -> RepositoryResult<NodeRecord> { origins.append(origin); return .success(NodeRecord(id: "node", origin: origin, fingerprint: "fingerprint", publicKey: "observed-key")) }
     func save(_ node: NodeRecord, expectedPublicKey: String, operationID: String) -> RepositoryResult<Void> { saved.append(node); return .success(()) }
     func setDefault(_ node: NodeRecord, operationID: String) -> RepositoryResult<Void> { .success(()) }
+    private(set) var trusts = 0
+    func trust(_ node: NodeRecord, operationID: String) -> RepositoryResult<Void> { trusts += 1; return .success(()) }
     func begin(name: String, nodeID: String?) -> RepositoryResult<CeremonyMetadata> { .success(CeremonyMetadata(id: "ceremony", expiresInMilliseconds: 60_000)) }
     func showPhrase() -> RepositoryResult<RecoveryDisplay> { .failure(.unsupported) }
     func hideAndChallenge() -> RepositoryResult<[Int]> { .success([3, 7, 11]) }
@@ -117,6 +119,40 @@ private actor FlowFake: OnboardingRepository, NodeRepository {
         model.send(.expectedNodeKeyChanged("observed-key")); model.send(.reviewNodeKey); model.send(.saveNode); await model.settle()
         #expect(await fake.saved.first?.publicKey == "observed-key")
         #expect(model.state.stage == .saved)
+    }
+    @Test func aChangedNodeKeyIsNeverTrustedOnFirstUse() async {
+        let fake = FlowFake(); var state = OnboardingState(stage: .identity)
+        state.candidate = NodeRecord(id: "node", origin: "https://example.org", fingerprint: "fp", publicKey: "new-key", safetyWarnings: ["tofu_unverified", "key_changed"])
+        #expect(state.candidateKeyChanged); #expect(!state.candidateAlreadyTrusted)
+        let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        vm.send(.trustNode); await vm.settle()
+        #expect(vm.state.failure == .nodeKeyMismatch); #expect(vm.state.stage == .identity); #expect(await fake.trusts == 0); #expect(await fake.saved.isEmpty)
+        vm.send(.expectedNodeKeyChanged("new-key")); vm.send(.trustNode); await vm.settle()
+        #expect(await fake.trusts == 0); #expect(await fake.saved.count == 1); #expect(vm.state.nodes.first?.pinSource == "operator")
+    }
+    @Test func aStoredPinWithAnotherKeyCountsAsChangedEvenWithoutTheWarning() {
+        var state = OnboardingState(stage: .identity)
+        state.nodes = [NodeRecord(id: "node", origin: "https://example.org", publicKey: "old-key", isConfirmed: true, pinSource: "operator")]
+        state.candidate = NodeRecord(id: "node", origin: "https://example.org", fingerprint: "fp", publicKey: "new-key")
+        #expect(state.candidateKeyChanged); #expect(!state.candidateAlreadyTrusted)
+    }
+    @Test func aNodeAlreadyPinnedWithTheSameKeyContinuesWithoutTrusting() async {
+        let fake = FlowFake(); var state = OnboardingState(stage: .identity)
+        state.nodes = [NodeRecord(id: "node", origin: "https://example.org", publicKey: "key", isConfirmed: true, pinSource: "operator")]
+        state.candidate = NodeRecord(id: "node", origin: "https://example.org", fingerprint: "fp", publicKey: "key", pinSource: "operator")
+        #expect(state.candidateAlreadyTrusted)
+        let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        vm.send(.trustNode); await vm.settle()
+        #expect(vm.state.stage == .saved); #expect(vm.state.selectedNodeID == "node"); #expect(vm.state.candidate?.pinSource == "operator")
+        #expect(await fake.trusts == 0); #expect(await fake.saved.isEmpty); #expect(vm.state.failure == nil)
+    }
+    @Test func aNewNodeStillGetsTheFirstConnectionTrust() async {
+        let fake = FlowFake(); var state = OnboardingState(stage: .identity)
+        state.candidate = NodeRecord(id: "node", origin: "https://example.org", fingerprint: "fp", publicKey: "key")
+        #expect(!state.candidateKeyChanged); #expect(!state.candidateAlreadyTrusted)
+        let vm = OnboardingViewModel(repository: fake, nodes: fake, state: state, emit: { _ in })
+        vm.send(.trustNode); await vm.settle()
+        #expect(await fake.trusts == 1); #expect(vm.state.nodes.first?.pinSource == "tofu")
     }
     @Test func plainDiscoveryRequiresMatchingOperatorKeyBeforeSavingOrCreation() async {
         let fake = FlowFake(); let model = OnboardingViewModel(repository: fake, nodes: fake, emit: { _ in })

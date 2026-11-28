@@ -14,6 +14,10 @@
 	<string>输入运营者密钥</string>
 	<key>node.fingerprint</key>
 	<string>密钥指纹</string>
+	<key>node.keyChanged.body</key>
+	<string>除非你预期此变化，否则请勿继续。</string>
+	<key>node.keyChanged.title</key>
+	<string>此节点的密钥已更改</string>
 	<key>node.operatorInstructions</key>
 	<string>如果节点运营方提供了节点公钥，请在此输入。</string>
 	<key>node.operatorKey</key>
@@ -22,10 +26,14 @@
 	<string>密钥已由邀请确认。</string>
 	<key>node.status.first</key>
 	<string>首次连接。如果此节点的密钥发生变化，Ramflux 会提醒你。</string>
+	<key>node.status.trusted</key>
+	<string>你已信任此节点。</string>
 	<key>node.trust</key>
 	<string>信任此节点</string>
 	<key>node.trust.summary</key>
 	<string>信任此节点 · %@</string>
+	<key>node.trustNewKey</key>
+	<string>信任新密钥</string>
 	<key>onboarding.a01.changeNode.detail</key>
 	<string>不会改变账户所属节点或授权</string>
 	<key>onboarding.a01.header</key>
