@@ -56,7 +56,7 @@ import FeatureChat
             Task { [session, groupID] in await session.deletePost(groupID, postID: id) }
         case .mlsMentionPicker(let open): state.mls?.mentionPicker = open
         case .mlsMention(let anchor): mention(anchor)
-        case .mlsDismissError: Task { [session, groupID] in await session.clearActionError(groupID) }
+        case .mlsDismissError: Task { [session, groupID] in await session.clearActionError(groupID); await session.clearAdminNotice(groupID) }
         case .mlsSkipCatchUp: if case .running(_, _, false, _)? = state.mls?.catchUp { state.mls?.skipDialog = true }
         case .mlsCancelSkip: state.mls?.skipDialog = false
         case .mlsConfirmSkip:
@@ -115,7 +115,8 @@ import FeatureChat
         if case .running(_, _, true, _)? = admin.catchUp { mls.skipDialog = false }
         if admin.catchUp == nil { mls.skipDialog = false }
         if snapshot.readOnly != nil { mls.voidTarget = nil }
-        if case .failed(let error) = snapshot.phase { mls.actionError = snapshot.actionError ?? error } else { mls.actionError = snapshot.actionError }
+        let voidError = admin.notice.flatMap { $0.kind == .void ? $0.error : nil }
+        if case .failed(let error) = snapshot.phase { mls.actionError = snapshot.actionError ?? error } else { mls.actionError = snapshot.actionError ?? voidError }
         var next = state
         next.mls = mls
         next.messages = mls.messageRecords()

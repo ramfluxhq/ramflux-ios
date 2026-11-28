@@ -250,7 +250,7 @@ struct MlsGroupAdminTests {
         let s = await ready(fake, requests: [request("ben"), request("chen")])
         fake.state.withLock { $0.admin["approve"] = [.failure(.requestNotFound)] }
         _ = await s.approve("g", requestID: "ben")
-        #expect(await s.adminSnapshot("g").notice == MlsAdminNotice(error: .requestNotFound, isToast: true))
+        #expect(await s.adminSnapshot("g").notice == MlsAdminNotice(error: .requestNotFound, isToast: true, kind: .approve))
         #expect(await s.adminSnapshot("g").requests.rows.map(\.id) == ["chen"])
         await s.decline("g", requestID: "chen")
         let after = await s.adminSnapshot("g")
@@ -355,8 +355,6 @@ struct MlsGroupAdminTests {
         let posts = [commit(240, body: .membership(changes: [], by: nil)), commit(250, kind: .settings, body: .settings(name: "N", approval: nil, by: nil))]
         for post in posts { await s.handle(.post(groupID: "g", seq: nil, at: nil, post: post)) }
         #expect(await s.adminSnapshot("g").voidableLogSeq == 250)
-        #expect(await s.void("g", logSeq: 240) == false)
-        #expect(fake.count("void") == 0)
         fake.state.withLock { $0.admin["void"] = [.success(.committed(logSeq: 251))] }
         #expect(await s.void("g", logSeq: 250) == true)
         await s.handle(.post(groupID: "g", seq: nil, at: nil, post: commit(251, kind: .void, body: .void(voidedLogSeq: 250, by: nil))))
@@ -365,6 +363,23 @@ struct MlsGroupAdminTests {
         let lines = await s.timelineSnapshot("g").entries.compactMap { entry -> MlsServiceLine? in if case .service(let line) = entry { line } else { nil } }
         #expect(lines.first { $0.logSeq == 250 }?.voided == true)
         #expect(lines.contains { if case .void = $0.kind { true } else { false } })
+    }
+    @Test func aVoidAimedAtACommitThatIsNoLongerTheHeadStillAsksTheSDKAndTheSDKDecides() async {
+        let fake = AdminFake()
+        let s = await ready(fake)
+        await s.handle(.post(groupID: "g", seq: nil, at: nil, post: commit(250, kind: .settings, body: .settings(name: "N", approval: nil, by: nil))))
+        // A newer commit arrives while the dialog for 250 is open: the entry moves, the confirmed call still goes out once.
+        await s.handle(.membership(groupID: "g", seq: 1, at: nil, post: joined(252, "z")))
+        #expect(await s.adminSnapshot("g").voidableLogSeq == 252)
+        fake.state.withLock { $0.admin["void"] = [.failure(.voidNotHead(headLogSeq: 252))] }
+        _ = await s.void("g", logSeq: 250)
+        #expect(fake.count("void") == 1)
+        #expect(await s.adminSnapshot("g").notice == MlsAdminNotice(error: .voidNotHead(headLogSeq: 252), kind: .void))
+        // A member makes no call at all.
+        let plain = AdminFake()
+        let regular = await ready(plain, role: .member)
+        _ = await regular.void("g", logSeq: 250)
+        #expect(plain.count("void") == 0)
     }
     @Test func aVoidNotHeadRefusalShowsTheTypedTextAndReadsTheGapWithoutRetrying() async {
         let fake = AdminFake()

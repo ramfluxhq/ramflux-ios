@@ -508,12 +508,11 @@ extension MlsGroupSession {
 
     // MARK: Void (common 3.6)
 
-    /// "Undo this change": the head commit, or the one a `head_commit_rejected` names. After its confirmation.
+    /// "Undo this change" for the commit the confirmation named (the head commit row, or the one a `head_commit_rejected`
+    /// names). After its confirmation. The SDK is the authority on which commit is the head: when a newer commit arrived
+    /// while the dialog was open it refuses with `void_not_head` (common 2.6 rule 4), and nothing is retried.
     @discardableResult public func void(_ group: String, logSeq: Int64) async -> Bool {
         guard canAdmin(group) != nil else { return false }
-        var rejected: Int64?
-        if case .headCommitRejected(let seq)? = admin.warnings[group]?.codes["head_commit_rejected"] { rejected = seq }
-        guard logSeq == headCommit(group) || logSeq == rejected else { return false }
         return await runCommit(group, kind: .void, target: .logSeq(logSeq)) { [repository, account] in await repository.void(account: account, groupID: group, logSeq: logSeq) }
     }
 
@@ -543,10 +542,10 @@ extension MlsGroupSession {
             scheduleInfo(group)
         case .success(.declined):
             admin.slots[group] = nil
-            admin.notices[group] = MlsAdminNotice(error: .generic(nil))
+            admin.notices[group] = MlsAdminNotice(error: .generic(nil), kind: kind)
         case .failure(let error):
             admin.slots[group] = nil
-            admin.notices[group] = MlsAdminNotice(error: error, isToast: error == .requestNotFound)
+            admin.notices[group] = MlsAdminNotice(error: error, isToast: error == .requestNotFound, kind: kind)
             switch error {
             case .paced(let at): admin.pacedUntil[group] = at
             case .requestNotFound: if kind == .approve, case .request(let request) = target { admin.requests[group]?.rows.removeAll { $0.requestID == request } }

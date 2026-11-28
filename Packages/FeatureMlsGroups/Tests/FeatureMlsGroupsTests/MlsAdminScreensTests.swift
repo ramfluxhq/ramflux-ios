@@ -58,3 +58,49 @@ struct MlsAdminScreensTests {
         #endif
     }
 }
+
+#if RAMFLUX_MLS_GALLERY
+import FeatureChat
+/// The chat model on the gallery fixture (Debug only): A3, the skip dialog is the only path to `skip: true`, and A1 for void.
+struct MlsChatModelAdminTests {
+    @MainActor private func wait(_ condition: () -> Bool) async {
+        for _ in 0..<300 where !condition() { try? await Task.sleep(for: .milliseconds(20)) }
+    }
+    @Test @MainActor func skipIsSentOnlyByTheDialogsConfirmAndNeverByCancelOrWithoutTheDialog() async throws {
+        let fixture = try #require(MlsGroupFixtures.admin.first { $0.id == "F3-12" })
+        let repository = FixtureMlsGroupRepository(fixture)
+        let session = MlsGroupSession(account: "gallery", repository: repository)
+        let model = MlsGroupChatModel(session: session, groupID: "g-bookclub", title: "Book club", openInfo: {})
+        model.send(.appeared)
+        await wait { model.state.mls?.catchUp != nil }
+        #expect(model.state.mls?.catchUp != nil)
+        model.send(.mlsConfirmSkip)                                   // no dialog: nothing
+        model.send(.mlsSkipCatchUp); #expect(model.state.mls?.skipDialog == true)
+        model.send(.mlsCancelSkip); #expect(model.state.mls?.skipDialog == false)
+        model.send(.mlsConfirmSkip)                                   // the dialog is closed again: nothing
+        try? await Task.sleep(for: .milliseconds(200))
+        #expect(repository.count("group.catch_up") == 0)
+        model.send(.mlsSkipCatchUp); model.send(.mlsConfirmSkip)
+        await wait { repository.count("group.catch_up") == 1 }
+        #expect(repository.count("group.catch_up") == 1)
+        model.send(.disappeared)
+    }
+    @Test @MainActor func undoIsSentOnlyByItsConfirmation() async throws {
+        let fixture = try #require(MlsGroupFixtures.admin.first { $0.id == "F3-10" })
+        let repository = FixtureMlsGroupRepository(fixture)
+        let session = MlsGroupSession(account: "gallery", repository: repository)
+        let model = MlsGroupChatModel(session: session, groupID: "g-design", title: "Design", openInfo: {})
+        model.send(.appeared)
+        await wait { !(model.state.mls?.entries.isEmpty ?? true) }
+        model.send(.mlsConfirmVoid)                                   // nothing is waiting for a confirmation
+        model.send(.mlsVoid(250)); #expect(model.state.mls?.voidTarget == 250)
+        model.send(.mlsCancelVoid)
+        try? await Task.sleep(for: .milliseconds(200))
+        #expect(repository.count("group.void") == 0)
+        model.send(.mlsVoid(250)); model.send(.mlsConfirmVoid)
+        await wait { repository.count("group.void") == 1 }
+        #expect(repository.count("group.void") == 1)
+        model.send(.disappeared)
+    }
+}
+#endif

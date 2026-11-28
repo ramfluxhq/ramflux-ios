@@ -48,9 +48,10 @@ public struct MlsRequestsScreen: View {
     @ViewBuilder private var content: some View {
         switch requests.phase {
         case .idle where requests.rows.isEmpty, .loading where requests.rows.isEmpty: ProgressView().frame(maxWidth: .infinity).padding(theme.gap)
-        case .loadError where requests.rows.isEmpty:
+        case .loadError(let error) where requests.rows.isEmpty:
             VStack(alignment: .leading, spacing: theme.gap) {
                 Text(FeatureMlsGroupsStrings.text("group.requests.loadError", locale: locale)).rfFont(.body).foregroundStyle(theme.danger)
+                Text(MlsChatText.error(error, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-requests-error-text")
                 Button(FeatureMlsGroupsStrings.text("group.requests.retry", locale: locale)) { model.retryRequests() }.accessibilityIdentifier("mls-requests-retry")
             }.accessibilityIdentifier("mls-requests-error-state")
         default:

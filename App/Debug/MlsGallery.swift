@@ -51,6 +51,16 @@ struct MlsGalleryView: View {
                         }.accessibilityIdentifier("mls-fixture-" + fixture.id)
                     }
                 }
+                Section(header: Text(verbatim: "Admin (M3)")) {
+                    ForEach(MlsGroupFixtures.admin) { fixture in
+                        NavigationLink { MlsGroupFixtureScreen(fixture: fixture) } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(verbatim: fixture.id + "  " + fixture.heading)
+                                Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }.accessibilityIdentifier("mls-fixture-" + fixture.id)
+                    }
+                }
             }
             .accessibilityIdentifier("mls-gallery")
             .navigationTitle(Text(verbatim: "MLS gallery"))
@@ -124,11 +134,15 @@ private struct MlsConversationListScreen: View {
     var body: some View { ConversationsHost(coordinator: coordinator).overlay(alignment: .bottomTrailing) { MlsFooter(repositories: repositories) } }
 }
 
-/// A groups fixture (F2-1 to F2-11): the real MLS groups module over a real `MlsGroupSession` bound to the fixture
-/// repository. F2-11 binds the native repository instead, which answers every call with the typed unavailable outcome.
+/// A groups fixture (F2-1 to F2-11, F3-1 to F3-14): the real MLS groups module over a real `MlsGroupSession` bound to the
+/// fixture repository. F2-11 binds the native repository instead, which answers every call with the typed unavailable
+/// outcome; F3-14 binds the native repository for every M3 method (the M2 reads still come from the fixture so the screens
+/// can be opened). The F3 fixtures have Lock now and Unlock buttons that call `clear()` and `admit()` of the session the
+/// way `AppComposition` does on a lock and an unlock.
 private struct MlsGroupFixtureScreen: View {
     let fixture: MlsGroupFixture
     private let repository: FixtureMlsGroupRepository?
+    private let session: MlsGroupSession
     @State private var model: MlsGroupsCoordinator
     @State private var showCalls = false
     init(fixture: MlsGroupFixture) {
@@ -138,16 +152,27 @@ private struct MlsGroupFixtureScreen: View {
         let source: any MlsGroupRepository = fake ?? NativeMlsGroupRepository()
         let defaults = UserDefaults(suiteName: "ramflux.mls.gallery") ?? .standard
         defaults.removePersistentDomain(forName: "ramflux.mls.gallery")
-        _model = State(initialValue: MlsGroupsCoordinator(session: MlsGroupSession(account: FixtureMlsGroupRepository.account, repository: source), account: FixtureMlsGroupRepository.account, defaults: defaults))
+        let session = MlsGroupSession(account: FixtureMlsGroupRepository.account, repository: source)
+        self.session = session
+        _model = State(initialValue: MlsGroupsCoordinator(session: session, account: FixtureMlsGroupRepository.account, defaults: defaults))
     }
     var body: some View {
         MlsGroupsHost(model: model)
             .overlay(alignment: .topTrailing) {
-                Button { showCalls = true } label: { Text(verbatim: "Calls").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }
-                    .padding(.top, 2).padding(.trailing, 8).accessibilityIdentifier("mls-calls-open")
+                HStack(spacing: 6) {
+                    if fixture.id.hasPrefix("F3-") {
+                        Button { lock() } label: { Text(verbatim: "Lock now").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-lock")
+                        Button { unlock() } label: { Text(verbatim: "Unlock").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-unlock")
+                    }
+                    Button { showCalls = true } label: { Text(verbatim: "Calls").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-calls-open")
+                }.padding(.top, 2).padding(.trailing, 8)
             }
             .sheet(isPresented: $showCalls) { MlsCallsView(fixture: fixture, repository: repository) }
     }
+    /// The same order as `AppComposition` on `.willLock`: the module stops and forgets its models, then the session clears.
+    private func lock() { Task { model.stop(); model.reset(); await session.clear() } }
+    /// As after an unlock: the session accepts writes and restarts its event consumer; the module reads the list again.
+    private func unlock() { Task { await session.admit(); model.start() } }
 }
 
 /// The per-method call counters of the fake (`mls-calls-<method>`): what the runner checks for "no call" and "one call".

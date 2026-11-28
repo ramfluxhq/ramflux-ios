@@ -420,11 +420,10 @@ public enum MlsReadOnly: Equatable, Sendable { case left, removed, banned }
 
 extension MlsGroupInfo {
     /// A copy with the fields a local event or an own action moves.
-    func with(lastLogSeq: Int64? = nil, lastActivityAt: Int64? = nil, unread: Int? = nil, unreadMentions: Int? = nil, readLogSeq: Int64? = nil, name: String? = nil, approval: Bool? = nil, push: MlsPush? = nil) -> MlsGroupInfo {
-        MlsGroupInfo(groupID: groupID, name: name ?? self.name, tier: tier, members: members, leaves: leaves, agents: agents, approval: approval ?? self.approval, myRole: myRole, hostNode: hostNode, push: push ?? self.push, catchUp: catchUp, privacyDelay: privacyDelay, postQuota: postQuota, commitQuota: commitQuota, lastLogSeq: lastLogSeq ?? self.lastLogSeq, warnings: warnings, lastActivityAt: lastActivityAt ?? self.lastActivityAt, unread: unread ?? self.unread, unreadMentions: unreadMentions ?? self.unreadMentions, readLogSeq: readLogSeq ?? self.readLogSeq, lastPost: lastPost)
+    func with(lastLogSeq: Int64? = nil, lastActivityAt: Int64? = nil, unread: Int? = nil, unreadMentions: Int? = nil, readLogSeq: Int64? = nil, name: String? = nil, approval: Bool? = nil, push: MlsPush? = nil, myRole: MlsRole? = nil, catchUp: MlsCatchUp? = nil, warnings: [MlsWarning]? = nil, postQuota: MlsQuota? = nil, commitQuota: MlsQuota? = nil, members: Int? = nil) -> MlsGroupInfo {
+        MlsGroupInfo(groupID: groupID, name: name ?? self.name, tier: tier, members: members ?? self.members, leaves: leaves, agents: agents, approval: approval ?? self.approval, myRole: myRole ?? self.myRole, hostNode: hostNode, push: push ?? self.push, catchUp: catchUp ?? self.catchUp, privacyDelay: privacyDelay, postQuota: postQuota ?? self.postQuota, commitQuota: commitQuota ?? self.commitQuota, lastLogSeq: lastLogSeq ?? self.lastLogSeq, warnings: warnings ?? self.warnings, lastActivityAt: lastActivityAt ?? self.lastActivityAt, unread: unread ?? self.unread, unreadMentions: unreadMentions ?? self.unreadMentions, readLogSeq: readLogSeq ?? self.readLogSeq, lastPost: lastPost)
     }
 }
-
 
 // MARK: M3 (admin and edge states)
 
@@ -482,5 +481,7 @@ public struct MlsAdminNotice: Equatable, Sendable {
     public let error: MlsGroupError
     /// `request_not_found` on an approve or decline: the row is gone and a toast says so.
     public let isToast: Bool
-    public init(error: MlsGroupError, isToast: Bool = false) { self.error = error; self.isToast = isToast }
+    /// The commit-producing action it came from (the chat shows only a void refusal).
+    public let kind: MlsAdminKind?
+    public init(error: MlsGroupError, isToast: Bool = false, kind: MlsAdminKind? = nil) { self.error = error; self.isToast = isToast; self.kind = kind }
 }
