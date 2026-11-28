@@ -35,6 +35,8 @@ packages:
     path: Packages/FeatureCalls
   FeatureGroups:
     path: Packages/FeatureGroups
+  FeatureMlsGroups:
+    path: Packages/FeatureMlsGroups
   FeatureAppShell:
     path: Packages/FeatureAppShell
   FeatureSettings:
@@ -98,6 +100,7 @@ targets:
       - package: FeatureAgents
       - package: FeatureCalls
       - package: FeatureGroups
+      - package: FeatureMlsGroups
       - package: FeatureSettings
       - package: FeatureContacts
       - package: FeatureChat
@@ -221,6 +224,7 @@ targets:
       - package: FeatureAgents
       - package: FeatureCalls
       - package: FeatureGroups
+      - package: FeatureMlsGroups
       - target: Ramflux
       - package: RamfluxCore
       - package: FeatureSettings

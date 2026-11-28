@@ -16,6 +16,7 @@ import FeatureTasks
 import FeatureAgents
 import FeatureCalls
 import FeatureGroups
+import FeatureMlsGroups
 import RFMedia
 import Observation
 import UserNotifications
@@ -197,6 +198,27 @@ import Push
         let coordinator = GroupsCoordinator(repository: repositories.groups, contacts: repositories.contacts, account: account) { [weak self] event in if case .navigate(let route) = event { self?.shell.send(.open(route)) } }
         currentGroups = (account, coordinator); return coordinator
     }
+    /// One MLS group session per account (M2): it owns the join, send and timeline records, so they outlive every view. Lock
+    /// and removal clear it; it refuses writes until the account is admitted again after the unlock.
+    @ObservationIgnored private var mlsSessions: [String: MlsGroupSession] = [:]
+    @ObservationIgnored private var mlsModules: [String: MlsGroupsCoordinator] = [:]
+    func mlsSession(account: String) -> MlsGroupSession {
+        if let existing = mlsSessions[account] { return existing }
+        let session = MlsGroupSession(account: account, repository: repositories.mlsGroups)
+        mlsSessions[account] = session; return session
+    }
+    /// The MLS groups module of an account. W (the pin batch) puts it in the shell; until then only the Debug gallery shows it.
+    func mlsGroups(account: String) -> MlsGroupsCoordinator {
+        if let existing = mlsModules[account] { return existing }
+        let module = MlsGroupsCoordinator(session: mlsSession(account: account), account: account)
+        mlsModules[account] = module; return module
+    }
+    private func clearMlsSession(_ account: String, forget: Bool) async {
+        let session = mlsSessions[account]
+        mlsModules[account]?.stop(); mlsModules[account]?.reset(); mlsModules[account] = nil
+        if forget { mlsSessions[account] = nil }
+        await session?.clear()
+    }
     @ObservationIgnored private var currentCalls: (String, CallsMode, CallsCoordinator)?
     func calls(account: String, conversation: String?) -> CallsCoordinator {
         let mode: CallsMode = conversation.map { .dial($0) } ?? .history
@@ -302,6 +324,8 @@ import Push
         unlockedAccount = session.activeAccountID
         callService.stop()
         guard let account = session.activeAccountID else { return }
+        // The account is admitted again: the MLS session accepts writes after a lock cleared it.
+        if let mls = mlsSessions[account] { Task { await mls.admit() } }
         // After unlock: queued sends resume with their operation ids, and the system call UI follows the account.
         Task { [chat = repositories.chat] in _ = await chat.resumeAfterUnlock(account: account) }
         callService.start(account: account)
@@ -363,12 +387,14 @@ import Push
             switch event {
             case .willLock(let account):
                 await MainActor.run { self?.accountLocked() }
+                await self?.clearMlsSession(account, forget: false)
                 await chat.sealForLock(account: account)
                 ImagePipeline.shared.purge()
             case .willLeave(let account):
                 await self?.routeRegistrar.deregister(account: account)
             case .willRemove(let account):
                 await MainActor.run { self?.accountLocked() }
+                await self?.clearMlsSession(account, forget: true)
                 await chat.purgeAccount(account: account)
                 ImagePipeline.shared.purge()
             }

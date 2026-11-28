@@ -52,6 +52,7 @@ jobs:
           swift test --package-path Packages/FeatureContacts
           swift test --package-path Packages/FeatureSettings
           swift test --package-path Packages/FeatureGroups
+          swift test --package-path Packages/FeatureMlsGroups
           swift test --package-path Packages/FeatureCalls
           swift test --package-path Packages/FeatureAgents
           swift test --package-path Packages/FeatureTasks
