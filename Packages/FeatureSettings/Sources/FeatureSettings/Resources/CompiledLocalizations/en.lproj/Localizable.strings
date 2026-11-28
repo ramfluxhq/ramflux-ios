@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>common.action.refresh</key>
-	<string>Refresh</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
 	<key>pairing.approve.confirm.action</key>
@@ -125,15 +123,15 @@
 	<key>settings.account.changeCode.cancel</key>
 	<string>Cancel</string>
 	<key>settings.account.changeCode.current</key>
-	<string>Current code</string>
+	<string>Current account code</string>
 	<key>settings.account.changeCode.detail</key>
 	<string>The six-digit code that unlocks this account</string>
 	<key>settings.account.changeCode.done</key>
 	<string>The account code was changed.</string>
 	<key>settings.account.changeCode.new</key>
-	<string>New code</string>
+	<string>New account code</string>
 	<key>settings.account.changeCode.repeat</key>
-	<string>Repeat the new code</string>
+	<string>Repeat new account code</string>
 	<key>settings.account.lock</key>
 	<string>Lock account</string>
 	<key>settings.account.lock.detail</key>
@@ -145,15 +143,15 @@
 	<key>settings.account.openOrCreate</key>
 	<string>Open or create an account</string>
 	<key>settings.account.removeLocal</key>
-	<string>Remove from this phone</string>
+	<string>Remove from this device</string>
 	<key>settings.account.removeLocal.detail</key>
-	<string>Erase this account's data and keys on this phone</string>
+	<string>Erase this account's data and keys on this device</string>
 	<key>settings.account.removeLocal.fact</key>
-	<string>Messages, keys and settings of this account are erased from this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup.</string>
+	<string>Messages, keys and settings of this account are erased from this device. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup.</string>
 	<key>settings.account.removeLocal.summary</key>
-	<string>Remove from this phone · %@</string>
+	<string>Remove from this device · %@</string>
 	<key>settings.account.removeLocal.title</key>
-	<string>Remove this account from this phone?</string>
+	<string>Remove this account from this device?</string>
 	<key>settings.account.security</key>
 	<string>Security</string>
 	<key>settings.account.signOut</key>
@@ -178,6 +176,10 @@
 	<string>Enter your account code to lock less often.</string>
 	<key>settings.appLock.code.restore</key>
 	<string>Restore with recovery phrase</string>
+	<key>settings.appLock.code.submit.change</key>
+	<string>Continue</string>
+	<key>settings.appLock.code.submit.turnOff</key>
+	<string>Turn off app lock</string>
 	<key>settings.appLock.code.title</key>
 	<string>Confirm with your account code</string>
 	<key>settings.appLock.code.turnOff</key>
@@ -238,12 +240,14 @@
 	<string>The archive is encrypted with a passphrase you choose. You need it to restore the archive, and nobody can recover it for you.</string>
 	<key>settings.backup.create.title</key>
 	<string>Back up this account</string>
+	<key>settings.backup.install.code.action</key>
+	<string>Restore account</string>
 	<key>settings.backup.install.code.body</key>
 	<string>The archive becomes an account on this phone. Choose the six-digit code that unlocks it.</string>
 	<key>settings.backup.install.code.new</key>
-	<string>New six-digit code</string>
+	<string>Account code</string>
 	<key>settings.backup.install.code.repeat</key>
-	<string>Repeat the code</string>
+	<string>Repeat account code</string>
 	<key>settings.backup.install.code.title</key>
 	<string>Set an account code</string>
 	<key>settings.backup.install.merge.fact</key>
@@ -310,6 +314,8 @@
 	<string>Writing</string>
 	<key>settings.backup.title</key>
 	<string>Backup and recovery</string>
+	<key>settings.backup.verify.action</key>
+	<string>Check archive</string>
 	<key>settings.backup.verify.body</key>
 	<string>Enter the passphrase the archive was written with. It is checked on this phone before anything is restored.</string>
 	<key>settings.backup.verify.title</key>
@@ -324,6 +330,16 @@
 	<string>Connected services</string>
 	<key>settings.delivery</key>
 	<string>Message delivery</string>
+	<key>settings.details.accountId</key>
+	<string>Account ID</string>
+	<key>settings.details.copy</key>
+	<string>Copy</string>
+	<key>settings.details.deviceId</key>
+	<string>Device ID</string>
+	<key>settings.details.section</key>
+	<string>More</string>
+	<key>settings.details.title</key>
+	<string>Details</string>
 	<key>settings.devices.link</key>
 	<string>Link new device</string>
 	<key>settings.devices.linked</key>
@@ -332,6 +348,8 @@
 	<string>This device record is unavailable. Refresh before continuing.</string>
 	<key>settings.devices.noAccount</key>
 	<string>Open an account to read its devices.</string>
+	<key>settings.devices.otherDevice</key>
+	<string>Other device</string>
 	<key>settings.devices.revoke</key>
 	<string>Revoke device</string>
 	<key>settings.devices.revoke.fact</key>
@@ -365,11 +383,11 @@
 	<key>settings.index.storage.detail</key>
 	<string>Media and file storage</string>
 	<key>settings.language.change</key>
-	<string>Change in system settings</string>
+	<string>Open iOS Settings</string>
 	<key>settings.language.note</key>
-	<string>Choose the app language in the system settings of Ramflux. Languages without a translation yet show English.</string>
+	<string>Change the app language in iOS Settings.</string>
 	<key>settings.language.pending</key>
-	<string>Not translated yet</string>
+	<string>Translation in progress</string>
 	<key>settings.language.title</key>
 	<string>Language</string>
 	<key>settings.language.translated</key>
@@ -395,7 +413,7 @@
 	<key>settings.privacy.autoAccept</key>
 	<string>Accept contact requests automatically</string>
 	<key>settings.privacy.autoAccept.off</key>
-	<string>You approve each contact request before the person can message you.</string>
+	<string>You review each request.</string>
 	<key>settings.privacy.autoAccept.on</key>
 	<string>Anyone who has your contact card becomes a contact without asking you.</string>
 	<key>settings.privacy.openAccount</key>
@@ -428,6 +446,8 @@
 	<string>App</string>
 	<key>settings.section.connectionData</key>
 	<string>Connection and data</string>
+	<key>settings.state.notAvailable</key>
+	<string>Not available yet.</string>
 	<key>settings.storage.title</key>
 	<string>Storage</string>
 	<key>settings.systemPermissions</key>
@@ -450,6 +470,8 @@
 	<string>Recovery phrase</string>
 	<key>settings.username.claim.phraseNote</key>
 	<string>Your recovery phrase authorizes this change. It is not stored.</string>
+	<key>settings.username.claim.submit</key>
+	<string>Claim username</string>
 	<key>settings.username.claim.title</key>
 	<string>Claim a username</string>
 	<key>settings.username.committed</key>

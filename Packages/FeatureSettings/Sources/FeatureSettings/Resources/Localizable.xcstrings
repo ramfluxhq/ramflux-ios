@@ -36,23 +36,6 @@
         }
       }
     },
-    "common.action.refresh": {
-      "comment": "Button that reloads the current screen from the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刷新"
-          }
-        }
-      }
-    },
     "settings.nodes.empty": {
       "comment": "Shown when the account service returned no saved nodes (servers).",
       "localizations": {
@@ -598,7 +581,7 @@
       }
     },
     "settings.devices.thisDevice": {
-      "comment": "Subtitle of the device the user is holding.",
+      "comment": "Row title of the device this app runs on.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -609,7 +592,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此设备"
+            "value": "本设备"
           }
         }
       }
@@ -930,7 +913,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "备份此账号"
+            "value": "备份此账户"
           }
         }
       }
@@ -1015,7 +998,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账号。"
+            "value": "从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账户。"
           }
         }
       }
@@ -1525,7 +1508,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置账号码"
+            "value": "设置账户码"
           }
         }
       }
@@ -1542,41 +1525,41 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "该归档将成为本机上的账号。请设置用于解锁的六位数账号码。"
+            "value": "该归档将成为本机上的账户。请设置用于解锁的六位数账户码。"
           }
         }
       }
     },
     "settings.backup.install.code.new": {
-      "comment": "Label of the new six-digit account code field.",
+      "comment": "Label of the new account code field when restoring a backup.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New six-digit code"
+            "value": "Account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "新的六位数账号码"
+            "value": "账户码"
           }
         }
       }
     },
     "settings.backup.install.code.repeat": {
-      "comment": "Label of the field that repeats the new six-digit account code.",
+      "comment": "Label of the repeated account code field when restoring a backup.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repeat the code"
+            "value": "Repeat account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "再次输入账号码"
+            "value": "再次输入账户码"
           }
         }
       }
@@ -1593,7 +1576,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢复到此账号？"
+            "value": "恢复到此账户？"
           }
         }
       }
@@ -1610,7 +1593,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "归档中的消息、联系人和设置将合并到此账号。本机上较新的数据会保留。"
+            "value": "归档中的消息、联系人和设置将合并到此账户。本机上较新的数据会保留。"
           }
         }
       }
@@ -1627,7 +1610,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "将归档恢复到账号 %@"
+            "value": "将归档恢复到账户 %@"
           }
         }
       }
@@ -1661,7 +1644,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账号已恢复"
+            "value": "账户已恢复"
           }
         }
       }
@@ -1678,7 +1661,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请使用刚设置的账号码解锁。"
+            "value": "请使用刚设置的账户码解锁。"
           }
         }
       }
@@ -1763,7 +1746,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "锁定、账号码与隐私"
+            "value": "锁定、账户码与隐私"
           }
         }
       }
@@ -1899,7 +1882,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "联系人请求与开放账号"
+            "value": "联系人请求与开放账户"
           }
         }
       }
@@ -1950,7 +1933,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "在本机关闭账号，直到再次输入账号码"
+            "value": "在本机关闭账户，直到再次输入账户码"
           }
         }
       }
@@ -1967,7 +1950,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "更改账号码"
+            "value": "更改账户码"
           }
         }
       }
@@ -1984,7 +1967,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "用于解锁此账号的六位数账号码"
+            "value": "用于解锁此账户的六位数账户码"
           }
         }
       }
@@ -2001,7 +1984,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "先输入当前账号码，再输入两次新的六位数账号码。新账号码用于在本机解锁此账号。"
+            "value": "先输入当前账户码，再输入两次新的六位数账户码。新账户码用于在本机解锁此账户。"
           }
         }
       }
@@ -2012,13 +1995,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Current code"
+            "value": "Current account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前账号码"
+            "value": "当前账户码"
           }
         }
       }
@@ -2029,30 +2012,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New code"
+            "value": "New account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "新账号码"
+            "value": "新账户码"
           }
         }
       }
     },
     "settings.account.changeCode.repeat": {
-      "comment": "Label of the field that repeats the new account code.",
+      "comment": "Label of the repeated new account code field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Repeat the new code"
+            "value": "Repeat new account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "再次输入新账号码"
+            "value": "再次输入新账户码"
           }
         }
       }
@@ -2069,7 +2052,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账号码已更改。"
+            "value": "账户码已更改。"
           }
         }
       }
@@ -2092,7 +2075,7 @@
       }
     },
     "settings.privacy.autoAccept": {
-      "comment": "Row that switches automatic acceptance of contact requests on or off.",
+      "comment": "Switch in Settings > Privacy.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2126,18 +2109,18 @@
       }
     },
     "settings.privacy.autoAccept.off": {
-      "comment": "Explains the consequence while contact requests need approval.",
+      "comment": "Subtitle of the switch while it is off.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You approve each contact request before the person can message you."
+            "value": "You review each request."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "每个联系人请求都需要你批准后，对方才能给你发消息。"
+            "value": "逐个审核每个请求。"
           }
         }
       }
@@ -2154,7 +2137,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "开放账号"
+            "value": "开放账户"
           }
         }
       }
@@ -2194,35 +2177,35 @@
       }
     },
     "settings.language.note": {
-      "comment": "Explains that the app language is chosen in the system settings of this app and which languages are translated.",
+      "comment": "Note at the top of the language list.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose the app language in the system settings of Ramflux. Languages without a translation yet show English."
+            "value": "Change the app language in iOS Settings."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在系统设置中为 Ramflux 选择应用语言。尚未翻译的语言会显示英文。"
+            "value": "请在 iOS 设置中更改应用语言。"
           }
         }
       }
     },
     "settings.language.change": {
-      "comment": "Button that opens the system settings page of this app to change its language.",
+      "comment": "Opens the iOS Settings page of this app, where the app language is chosen.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change in system settings"
+            "value": "Open iOS Settings"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "在系统设置中更改"
+            "value": "打开 iOS 设置"
           }
         }
       }
@@ -2245,18 +2228,18 @@
       }
     },
     "settings.language.pending": {
-      "comment": "Status of a language: not translated yet.",
+      "comment": "Shown for a language whose translation is not complete.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not translated yet"
+            "value": "Translation in progress"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "尚未翻译"
+            "value": "翻译进行中"
           }
         }
       }
@@ -3191,92 +3174,92 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "在此关闭账户；输入账户密码即可再次打开"
+            "value": "在此关闭账户；输入账户码即可再次打开"
           }
         }
       }
     },
     "settings.account.removeLocal": {
-      "comment": "Row on the account screen: erases this account's data from this phone after a confirmation.",
+      "comment": "Row that opens the removal confirmation.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove from this phone"
+            "value": "Remove from this device"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "从此手机移除"
+            "value": "从本设备移除"
           }
         }
       }
     },
     "settings.account.removeLocal.detail": {
-      "comment": "Detail under the remove-from-this-phone row on the account screen.",
+      "comment": "Row detail for removing the account from this device.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erase this account's data and keys on this phone"
+            "value": "Erase this account's data and keys on this device"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除此手机上该账户的数据和密钥"
+            "value": "清除本设备上该账户的数据和密钥"
           }
         }
       }
     },
     "settings.account.removeLocal.title": {
-      "comment": "Title of the confirmation that removes the account from this phone.",
+      "comment": "Title of the removal confirmation.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove this account from this phone?"
+            "value": "Remove this account from this device?"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "要从此手机移除此账户吗？"
+            "value": "要从本设备移除此账户吗？"
           }
         }
       }
     },
     "settings.account.removeLocal.fact": {
-      "comment": "Explanation on the confirmation that removes the account from this phone; other devices and the account itself are not affected.",
+      "comment": "Consequence sentence of the removal confirmation.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Messages, keys and settings of this account are erased from this phone. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup."
+            "value": "Messages, keys and settings of this account are erased from this device. Your other devices and the account itself are not affected. To use it here again you need the recovery phrase or a backup."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此账户的消息、密钥和设置将从此手机清除。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。"
+            "value": "此账户的消息、密钥和设置将从本设备清除。你的其他设备和账户本身不受影响。若要在本设备上再次使用，需要恢复短语或备份。"
           }
         }
       }
     },
     "settings.account.removeLocal.summary": {
-      "comment": "Summary on the confirmation that removes the account from this phone. %@ is the account identifier.",
+      "comment": "Spoken summary of the Remove action. %@ is the account name.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove from this phone · %@"
+            "value": "Remove from this device · %@"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "从此手机移除 · %@"
+            "value": "从本设备移除 · %@"
           }
         }
       }
@@ -3565,7 +3548,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此设备无法使用应用锁"
+            "value": "本设备无法使用应用锁"
           }
         }
       }
@@ -3616,7 +3599,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "打开或创建账号后即可设置用户名。"
+            "value": "打开或创建账户后即可设置用户名。"
           }
         }
       }
@@ -3981,6 +3964,210 @@
           "stringUnit": {
             "state": "translated",
             "value": "用恢复短语恢复"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.submit.turnOff": {
+      "comment": "Button of the account code prompt that turns app lock off.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off app lock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭应用锁"
+          }
+        }
+      }
+    },
+    "settings.appLock.code.submit.change": {
+      "comment": "Button of the account code prompt that confirms a lock change.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        }
+      }
+    },
+    "settings.username.claim.submit": {
+      "comment": "Button that claims the username with the recovery phrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claim username"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置用户名"
+          }
+        }
+      }
+    },
+    "settings.backup.verify.action": {
+      "comment": "Button that checks a backup archive with its passphrase.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check archive"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "校验归档"
+          }
+        }
+      }
+    },
+    "settings.backup.install.code.action": {
+      "comment": "Button that restores the account from the archive with the new account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复账户"
+          }
+        }
+      }
+    },
+    "settings.devices.otherDevice": {
+      "comment": "Row title of another device of the account.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他设备"
+          }
+        }
+      }
+    },
+    "settings.details.title": {
+      "comment": "Row that opens a plain list with technical details.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "详细信息"
+          }
+        }
+      }
+    },
+    "settings.details.section": {
+      "comment": "Section label above the Details row.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
+          }
+        }
+      }
+    },
+    "settings.details.copy": {
+      "comment": "Copies the shown identifier.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制"
+          }
+        }
+      }
+    },
+    "settings.details.deviceId": {
+      "comment": "Label of the device id on the device details page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Device ID"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设备 ID"
+          }
+        }
+      }
+    },
+    "settings.details.accountId": {
+      "comment": "Label of the account id on the account details page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account ID"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户 ID"
+          }
+        }
+      }
+    },
+    "settings.state.notAvailable": {
+      "comment": "State line of a row whose feature this version does not offer.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not available yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不可用。"
           }
         }
       }

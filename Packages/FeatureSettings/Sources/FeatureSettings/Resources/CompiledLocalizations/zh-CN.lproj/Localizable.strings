@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>common.action.refresh</key>
-	<string>刷新</string>
 	<key>common.appName</key>
 	<string>Ramflux</string>
 	<key>pairing.approve.confirm.action</key>
@@ -119,25 +117,25 @@
 	<key>settings.about.title</key>
 	<string>关于与诊断</string>
 	<key>settings.account.changeCode</key>
-	<string>更改账号码</string>
+	<string>更改账户码</string>
 	<key>settings.account.changeCode.body</key>
-	<string>先输入当前账号码，再输入两次新的六位数账号码。新账号码用于在本机解锁此账号。</string>
+	<string>先输入当前账户码，再输入两次新的六位数账户码。新账户码用于在本机解锁此账户。</string>
 	<key>settings.account.changeCode.cancel</key>
 	<string>取消</string>
 	<key>settings.account.changeCode.current</key>
-	<string>当前账号码</string>
+	<string>当前账户码</string>
 	<key>settings.account.changeCode.detail</key>
-	<string>用于解锁此账号的六位数账号码</string>
+	<string>用于解锁此账户的六位数账户码</string>
 	<key>settings.account.changeCode.done</key>
-	<string>账号码已更改。</string>
+	<string>账户码已更改。</string>
 	<key>settings.account.changeCode.new</key>
-	<string>新账号码</string>
+	<string>新账户码</string>
 	<key>settings.account.changeCode.repeat</key>
-	<string>再次输入新账号码</string>
+	<string>再次输入新账户码</string>
 	<key>settings.account.lock</key>
 	<string>锁定账户</string>
 	<key>settings.account.lock.detail</key>
-	<string>在本机关闭账号，直到再次输入账号码</string>
+	<string>在本机关闭账户，直到再次输入账户码</string>
 	<key>settings.account.networkLive</key>
 	<string>网络已连接</string>
 	<key>settings.account.networkUnconfirmed</key>
@@ -145,21 +143,21 @@
 	<key>settings.account.openOrCreate</key>
 	<string>打开或创建账户</string>
 	<key>settings.account.removeLocal</key>
-	<string>从此手机移除</string>
+	<string>从本设备移除</string>
 	<key>settings.account.removeLocal.detail</key>
-	<string>清除此手机上该账户的数据和密钥</string>
+	<string>清除本设备上该账户的数据和密钥</string>
 	<key>settings.account.removeLocal.fact</key>
-	<string>此账户的消息、密钥和设置将从此手机清除。你的其他设备和账户本身不受影响。若要在此手机上再次使用，需要恢复短语或备份。</string>
+	<string>此账户的消息、密钥和设置将从本设备清除。你的其他设备和账户本身不受影响。若要在本设备上再次使用，需要恢复短语或备份。</string>
 	<key>settings.account.removeLocal.summary</key>
-	<string>从此手机移除 · %@</string>
+	<string>从本设备移除 · %@</string>
 	<key>settings.account.removeLocal.title</key>
-	<string>要从此手机移除此账户吗？</string>
+	<string>要从本设备移除此账户吗？</string>
 	<key>settings.account.security</key>
 	<string>安全</string>
 	<key>settings.account.signOut</key>
 	<string>退出登录</string>
 	<key>settings.account.signOut.detail</key>
-	<string>在此关闭账户；输入账户密码即可再次打开</string>
+	<string>在此关闭账户；输入账户码即可再次打开</string>
 	<key>settings.account.thisPhone</key>
 	<string>在此手机上</string>
 	<key>settings.account.title</key>
@@ -178,6 +176,10 @@
 	<string>输入账户码以延长锁定时间。</string>
 	<key>settings.appLock.code.restore</key>
 	<string>用恢复短语恢复</string>
+	<key>settings.appLock.code.submit.change</key>
+	<string>继续</string>
+	<key>settings.appLock.code.submit.turnOff</key>
+	<string>关闭应用锁</string>
 	<key>settings.appLock.code.title</key>
 	<string>用账户码确认</string>
 	<key>settings.appLock.code.turnOff</key>
@@ -211,7 +213,7 @@
 	<key>settings.appLock.toggle</key>
 	<string>应用锁</string>
 	<key>settings.appLock.unavailable</key>
-	<string>此设备无法使用应用锁</string>
+	<string>本设备无法使用应用锁</string>
 	<key>settings.appearance.system</key>
 	<string>跟随系统</string>
 	<key>settings.appearance.theme</key>
@@ -237,21 +239,23 @@
 	<key>settings.backup.create.body</key>
 	<string>归档使用你设置的密码加密。恢复时需要此密码，任何人都无法帮你找回。</string>
 	<key>settings.backup.create.title</key>
-	<string>备份此账号</string>
+	<string>备份此账户</string>
+	<key>settings.backup.install.code.action</key>
+	<string>恢复账户</string>
 	<key>settings.backup.install.code.body</key>
-	<string>该归档将成为本机上的账号。请设置用于解锁的六位数账号码。</string>
+	<string>该归档将成为本机上的账户。请设置用于解锁的六位数账户码。</string>
 	<key>settings.backup.install.code.new</key>
-	<string>新的六位数账号码</string>
+	<string>账户码</string>
 	<key>settings.backup.install.code.repeat</key>
-	<string>再次输入账号码</string>
+	<string>再次输入账户码</string>
 	<key>settings.backup.install.code.title</key>
-	<string>设置账号码</string>
+	<string>设置账户码</string>
 	<key>settings.backup.install.merge.fact</key>
-	<string>归档中的消息、联系人和设置将合并到此账号。本机上较新的数据会保留。</string>
+	<string>归档中的消息、联系人和设置将合并到此账户。本机上较新的数据会保留。</string>
 	<key>settings.backup.install.merge.summary</key>
-	<string>将归档恢复到账号 %@</string>
+	<string>将归档恢复到账户 %@</string>
 	<key>settings.backup.install.merge.title</key>
-	<string>恢复到此账号？</string>
+	<string>恢复到此账户？</string>
 	<key>settings.backup.job.title</key>
 	<string>%1$@：%2$@</string>
 	<key>settings.backup.jobs.empty</key>
@@ -283,15 +287,15 @@
 	<key>settings.backup.restore.limit</key>
 	<string>本机可导入不超过 256 MiB 的归档。</string>
 	<key>settings.backup.restore.newInstall</key>
-	<string>从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账号。</string>
+	<string>从“文件”中选择备份归档。用其密码校验后，它将成为本机上的一个账户。</string>
 	<key>settings.backup.restore.title</key>
 	<string>从归档恢复</string>
 	<key>settings.backup.restored.action</key>
 	<string>继续</string>
 	<key>settings.backup.restored.body</key>
-	<string>请使用刚设置的账号码解锁。</string>
+	<string>请使用刚设置的账户码解锁。</string>
 	<key>settings.backup.restored.title</key>
-	<string>账号已恢复</string>
+	<string>账户已恢复</string>
 	<key>settings.backup.state.cancelled</key>
 	<string>已取消</string>
 	<key>settings.backup.state.done</key>
@@ -310,6 +314,8 @@
 	<string>写入中</string>
 	<key>settings.backup.title</key>
 	<string>备份与恢复</string>
+	<key>settings.backup.verify.action</key>
+	<string>校验归档</string>
 	<key>settings.backup.verify.body</key>
 	<string>输入写入归档时使用的密码。恢复前会先在本机校验。</string>
 	<key>settings.backup.verify.title</key>
@@ -324,6 +330,16 @@
 	<string>已连接的服务</string>
 	<key>settings.delivery</key>
 	<string>消息送达</string>
+	<key>settings.details.accountId</key>
+	<string>账户 ID</string>
+	<key>settings.details.copy</key>
+	<string>复制</string>
+	<key>settings.details.deviceId</key>
+	<string>设备 ID</string>
+	<key>settings.details.section</key>
+	<string>更多</string>
+	<key>settings.details.title</key>
+	<string>详细信息</string>
 	<key>settings.devices.link</key>
 	<string>关联新设备</string>
 	<key>settings.devices.linked</key>
@@ -332,6 +348,8 @@
 	<string>此设备记录不可用。请刷新后再继续。</string>
 	<key>settings.devices.noAccount</key>
 	<string>打开账户以查看其设备。</string>
+	<key>settings.devices.otherDevice</key>
+	<string>其他设备</string>
 	<key>settings.devices.revoke</key>
 	<string>撤销设备</string>
 	<key>settings.devices.revoke.fact</key>
@@ -341,7 +359,7 @@
 	<key>settings.devices.revoke.title</key>
 	<string>要撤销此设备吗？</string>
 	<key>settings.devices.thisDevice</key>
-	<string>此设备</string>
+	<string>本设备</string>
 	<key>settings.devices.title</key>
 	<string>我的设备</string>
 	<key>settings.devices.webOriginWarning</key>
@@ -349,7 +367,7 @@
 	<key>settings.index.about.detail</key>
 	<string>版本、许可与诊断</string>
 	<key>settings.index.account.detail</key>
-	<string>锁定、账号码与隐私</string>
+	<string>锁定、账户码与隐私</string>
 	<key>settings.index.appearance.detail</key>
 	<string>主题与语言</string>
 	<key>settings.index.backup.detail</key>
@@ -361,15 +379,15 @@
 	<key>settings.index.nodes.detail</key>
 	<string>工作节点与默认节点</string>
 	<key>settings.index.privacy.detail</key>
-	<string>联系人请求与开放账号</string>
+	<string>联系人请求与开放账户</string>
 	<key>settings.index.storage.detail</key>
 	<string>媒体与文件存储</string>
 	<key>settings.language.change</key>
-	<string>在系统设置中更改</string>
+	<string>打开 iOS 设置</string>
 	<key>settings.language.note</key>
-	<string>请在系统设置中为 Ramflux 选择应用语言。尚未翻译的语言会显示英文。</string>
+	<string>请在 iOS 设置中更改应用语言。</string>
 	<key>settings.language.pending</key>
-	<string>尚未翻译</string>
+	<string>翻译进行中</string>
 	<key>settings.language.title</key>
 	<string>语言</string>
 	<key>settings.language.translated</key>
@@ -395,13 +413,13 @@
 	<key>settings.privacy.autoAccept</key>
 	<string>自动接受联系人请求</string>
 	<key>settings.privacy.autoAccept.off</key>
-	<string>每个联系人请求都需要你批准后，对方才能给你发消息。</string>
+	<string>逐个审核每个请求。</string>
 	<key>settings.privacy.autoAccept.on</key>
 	<string>任何拥有你联系人名片的人都会直接成为联系人，无需你同意。</string>
 	<key>settings.privacy.openAccount</key>
 	<string>公开账户与用户名查找</string>
 	<key>settings.privacy.openAccount.section</key>
-	<string>开放账号</string>
+	<string>开放账户</string>
 	<key>settings.privacy.requests</key>
 	<string>联系人请求</string>
 	<key>settings.privacy.retention.label</key>
@@ -428,6 +446,8 @@
 	<string>应用</string>
 	<key>settings.section.connectionData</key>
 	<string>连接与数据</string>
+	<key>settings.state.notAvailable</key>
+	<string>暂不可用。</string>
 	<key>settings.storage.title</key>
 	<string>存储空间</string>
 	<key>settings.systemPermissions</key>
@@ -450,12 +470,14 @@
 	<string>恢复短语</string>
 	<key>settings.username.claim.phraseNote</key>
 	<string>恢复短语用于授权此次更改，不会被保存。</string>
+	<key>settings.username.claim.submit</key>
+	<string>设置用户名</string>
 	<key>settings.username.claim.title</key>
 	<string>设置用户名</string>
 	<key>settings.username.committed</key>
 	<string>其他人可以通过此用户名添加你。</string>
 	<key>settings.username.noAccount</key>
-	<string>打开或创建账号后即可设置用户名。</string>
+	<string>打开或创建账户后即可设置用户名。</string>
 	<key>settings.username.none</key>
 	<string>尚未设置用户名</string>
 	<key>settings.username.note</key>
