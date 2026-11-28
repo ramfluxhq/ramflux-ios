@@ -140,7 +140,7 @@ public struct SettingsScreen: View {
             Text(copy("settings.privacy.retention.note")).rfFont(.caption)
         case .privacy:
             let automatic = state.snapshot.requestPolicy == "auto_accept"
-            group(copy("settings.privacy.requests"), [])
+            Text(copy("settings.privacy.requests")).rfFont(.caption).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap)
             Toggle(isOn: Binding(get: { automatic }, set: { onAction(.requestPolicy(autoAccept: $0)) })) {
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(copy("settings.privacy.autoAccept"))
