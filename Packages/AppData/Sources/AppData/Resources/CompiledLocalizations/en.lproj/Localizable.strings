@@ -85,15 +85,15 @@
 	<key>cards.unavailable</key>
 	<string>Interactive cards are not available on this device yet. You can continue using messages and your account.</string>
 	<key>chat.message.unsupported</key>
-	<string>This message has no displayable text projection.</string>
+	<string>This message can't be shown.</string>
 	<key>chat.send.deliveryFailed</key>
-	<string>The account service reported delivery failed. The original operation is retained.</string>
+	<string>Not sent. Try again.</string>
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>Attachment transfer requires the phone file-storage integration. No file has been downloaded.</string>
 	<key>chat.unavailable.calls</key>
 	<string>Group calls are not available. Calls are one to one.</string>
 	<key>chat.unavailable.details</key>
-	<string>Conversation details are not available in this phone build.</string>
+	<string>Not available yet.</string>
 	<key>common.connection.failed</key>
 	<string>Unable to connect</string>
 	<key>common.tab.agents</key>
@@ -101,29 +101,29 @@
 	<key>common.tab.groups</key>
 	<string>Groups</string>
 	<key>common.tab.messages</key>
-	<string>Messages</string>
+	<string>Chats</string>
 	<key>common.tab.more</key>
 	<string>More</string>
 	<key>contacts.unavailable.batch</key>
 	<string>Batch decisions are not available yet. Review each request separately.</string>
 	<key>contacts.unavailable.contactGone</key>
-	<string>This contact no longer exists. Refresh your contacts.</string>
+	<string>This contact no longer exists.</string>
 	<key>contacts.unavailable.identityCommitment</key>
-	<string>The current contact identity commitment is unavailable.</string>
+	<string>Not available yet.</string>
 	<key>contacts.unavailable.replyWithoutAcceptance</key>
-	<string>The service does not expose this request's reply conversation yet. No contact has been accepted.</string>
+	<string>Not available yet. No contact has been accepted.</string>
 	<key>contacts.unavailable.reporting</key>
-	<string>Stranger reporting is not available in the account service yet. Decline or block remains available.</string>
+	<string>Reporting is not available yet. You can still decline or block.</string>
+	<key>conversations.preview.attachment</key>
+	<string>Attachment</string>
 	<key>conversations.unavailable.search</key>
 	<string>Local message search is not available yet.</string>
-	<key>conversations.unavailable.searchService</key>
-	<string>Local message search is not available in the account service yet.</string>
 	<key>failure.busy.message</key>
-	<string>Another operation or account writer is still active.</string>
+	<string>Another operation is still running. Try again in a moment.</string>
 	<key>failure.busy.title</key>
 	<string>Please try again shortly</string>
 	<key>failure.invalidData.message</key>
-	<string>The service returned information this app cannot display.</string>
+	<string>Something went wrong. Try again.</string>
 	<key>failure.invalidData.title</key>
 	<string>Unable to read this information</string>
 	<key>failure.invalidInput.message</key>
@@ -141,17 +141,17 @@
 	<key>failure.outcomeUnknown.title</key>
 	<string>Outcome not confirmed</string>
 	<key>failure.resyncRequired.message</key>
-	<string>An update gap occurred. Refresh to load current records and reopen updates.</string>
+	<string>Some updates were missed. Reopen this screen to load the latest.</string>
 	<key>failure.resyncRequired.title</key>
 	<string>Refresh your local records</string>
 	<key>failure.sdkUnavailable.message</key>
-	<string>This build cannot open the account service. Your saved data has not been changed.</string>
+	<string>Try again. Your saved data has not been changed.</string>
 	<key>failure.sdkUnavailable.title</key>
-	<string>Account services are unavailable</string>
+	<string>Something went wrong</string>
 	<key>failure.unavailable.title</key>
 	<string>Not available yet</string>
 	<key>failure.unsupported.message</key>
-	<string>This action is not supported by the account service.</string>
+	<string>Not available yet.</string>
 	<key>failure.upgradeRequired.message</key>
 	<string>Update Ramflux before continuing with this account.</string>
 	<key>failure.upgradeRequired.title</key>
@@ -169,19 +169,19 @@
 	<key>notification.message.title</key>
 	<string>New message</string>
 	<key>onboarding.failure.pairingUnavailable</key>
-	<string>This SDK has no registered phone pairing coordinator. No pairing code has been created.</string>
+	<string>Linking a new device is not available yet.</string>
 	<key>onboarding.failure.setupExpired</key>
-	<string>Setup expired. Start a new account ceremony.</string>
+	<string>Setup expired. Start again.</string>
 	<key>onboarding.nodeKeyMismatch</key>
-	<string>The operator key must match the discovered node key. Check it with the operator before confirming.</string>
+	<string>The operator key does not match this node.</string>
 	<key>onboarding.nodeRequired</key>
 	<string>Select a confirmed node before preparing your account.</string>
 	<key>onboarding.protocol</key>
-	<string>The account setup response did not match the supported SDK contract. Update the app before retrying.</string>
+	<string>Something went wrong. Try again.</string>
 	<key>onboarding.refusal.title</key>
 	<string>Account setup needs attention</string>
 	<key>onboarding.sdkRefusal</key>
-	<string>The SDK refused this request (code %@). Keep the current state and check the node or app configuration.</string>
+	<string>Something went wrong. Try again.</string>
 	<key>onboarding.vaultBusy</key>
 	<string>The private Keychain is busy. Finish the current account operation and try again.</string>
 	<key>onboarding.vaultCorrupt</key>
@@ -295,15 +295,15 @@
 	<key>refusal.rate_limited.title</key>
 	<string>Too many attempts</string>
 	<key>refusal.resync_required</key>
-	<string>This conversation needs to sync again.</string>
+	<string>This chat needs to sync again.</string>
 	<key>refusal.resync_required.title</key>
 	<string>Sync required</string>
 	<key>refusal.schema_reset_required</key>
-	<string>This conversation needs a reset before it can continue.</string>
+	<string>This chat needs a reset before it can continue.</string>
 	<key>refusal.schema_reset_required.title</key>
 	<string>Reset required</string>
 	<key>refusal.sdkReason</key>
-	<string>The request was refused: %@. Nothing was changed; review the screen before retrying.</string>
+	<string>Something went wrong. Try again. Nothing was changed.</string>
 	<key>refusal.storage_capacity</key>
 	<string>There is not enough room to save this.</string>
 	<key>refusal.storage_capacity.title</key>
@@ -327,15 +327,15 @@
 	<key>session.unavailable.featureNotInstalled</key>
 	<string>This feature module is not installed yet.</string>
 	<key>session.unavailable.nativeCore</key>
-	<string>Account services are unavailable in this build. Saved data has not been changed.</string>
+	<string>Something went wrong. Try again. Saved data has not been changed.</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>Advanced connected-service configuration is managed on your desktop.</string>
 	<key>settings.unavailable.diagnosticExport</key>
 	<string>Sanitized diagnostic export is not available in this build. No private account data has been shared.</string>
 	<key>settings.unavailable.openAccount</key>
-	<string>Open-account and username reachability are not available in the account service yet. They are separate from automatically accepting requests.</string>
+	<string>Not available yet.</string>
 	<key>settings.unavailable.pairing</key>
-	<string>The phone pairing coordinator is not registered. No device code or authorization has been created.</string>
+	<string>Linking a new device is not available yet.</string>
 	<key>status.accept</key>
 	<string>Accept</string>
 	<key>status.accepted</key>
@@ -395,12 +395,12 @@
 	<key>username.retryIn</key>
 	<string>Try again in %@ s</string>
 	<key>username.unavailable.directory</key>
-	<string>Username service unreachable; messaging still works</string>
+	<string>Usernames are not available on this node right now.</string>
 	<key>username.unavailable.notConfigured</key>
-	<string>Usernames are not set up for this build or computer</string>
+	<string>Not available yet.</string>
 	<key>username.unavailable.notFound</key>
 	<string>No one with that username</string>
 	<key>username.unavailable.retry</key>
-	<string>The username service is busy; try again later</string>
+	<string>Usernames are not available on this node right now. Try again later.</string>
 </dict>
 </plist>

@@ -161,7 +161,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有找到 Agent"
+            "value": "没有找到智能体"
           }
         }
       }
@@ -210,7 +210,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "发起多 Agent 会话"
+            "value": "发起多智能体聊天"
           }
         }
       }

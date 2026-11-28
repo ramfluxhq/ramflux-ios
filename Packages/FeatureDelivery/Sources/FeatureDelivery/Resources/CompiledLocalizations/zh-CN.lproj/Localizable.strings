@@ -15,7 +15,7 @@
 	<key>guidance.swipe</key>
 	<string>如果你将 Ramflux 从后台划掉，消息仍会通知，但清除要等到你再次打开才生效。</string>
 	<key>late</key>
-	<string>这可能由 iPhone 设置或你的服务器推送限制造成。</string>
+	<string>这可能由 iPhone 设置或你的节点推送限制造成。</string>
 	<key>phone.allowed</key>
 	<string>允许通知</string>
 	<key>phone.badges</key>
@@ -77,13 +77,13 @@
 	<key>status.notificationsOff</key>
 	<string>通知已关闭</string>
 	<key>status.pending</key>
-	<string>等待向你的服务器注册</string>
+	<string>等待向你的节点注册</string>
 	<key>status.ready</key>
 	<string>就绪</string>
 	<key>status.retrying</key>
 	<string>注册失败，正在重试</string>
 	<key>status.serverNoPush</key>
-	<string>你的服务器不发送推送通知</string>
+	<string>你的节点不发送推送通知</string>
 	<key>status.waitingForCentre</key>
 	<string>等待中央服务</string>
 	<key>title</key>

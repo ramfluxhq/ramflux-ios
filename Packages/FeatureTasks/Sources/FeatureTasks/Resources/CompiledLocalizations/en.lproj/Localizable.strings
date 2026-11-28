@@ -37,11 +37,11 @@
 	<key>tasks.confirm.summary</key>
 	<string>%1$@ · %2$@ · %3$@</string>
 	<key>tasks.context</key>
-	<string>Tasks belong to a conversation. Select its actual local history.</string>
+	<string>Tasks belong to a chat. Select its actual local history.</string>
 	<key>tasks.conversation</key>
-	<string>Conversation</string>
+	<string>Chat</string>
 	<key>tasks.conversations</key>
-	<string>Choose a conversation</string>
+	<string>Choose a chat</string>
 	<key>tasks.create</key>
 	<string>Start a new Agent task</string>
 	<key>tasks.decision</key>
@@ -71,7 +71,7 @@
 	<key>tasks.needs_me</key>
 	<string>Needs your input</string>
 	<key>tasks.noAuthority</key>
-	<string>These are SDK records, not a device-role authority claim. No mobile approval is issued here.</string>
+	<string>No approval can be given on this phone.</string>
 	<key>tasks.notRevoked</key>
 	<string>Not marked revoked</string>
 	<key>tasks.operationBoundary</key>
@@ -93,7 +93,7 @@
 	<key>tasks.permission.rejected</key>
 	<string>Rejected</string>
 	<key>tasks.permission.submitted</key>
-	<string>Submitted</string>
+	<string>Sent</string>
 	<key>tasks.permissions</key>
 	<string>Permissions and approvals</string>
 	<key>tasks.proposed</key>
@@ -139,7 +139,7 @@
 	<key>tasks.step</key>
 	<string>Task step</string>
 	<key>tasks.submitted</key>
-	<string>Task action submitted; delivery is not confirmed</string>
+	<string>Task action sent; delivery is not confirmed</string>
 	<key>tasks.task</key>
 	<string>Task</string>
 	<key>tasks.title</key>

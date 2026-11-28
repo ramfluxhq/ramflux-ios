@@ -27,7 +27,7 @@
 	<key>agents.unavailable.access</key>
 	<string>此手机暂不支持更改谁可以联系此智能体。</string>
 	<key>agents.unavailable.chat</key>
-	<string>无法在本机打开与此代理的对话。</string>
+	<string>无法在本机打开与此智能体的聊天。</string>
 	<key>agents.unavailable.creationDecision</key>
 	<string>此手机暂不支持批准或拒绝此智能体创建。请在发起创建的桌面端处理。</string>
 	<key>agents.unavailable.goal</key>
@@ -37,15 +37,15 @@
 	<key>agents.unavailable.pause</key>
 	<string>暂不支持暂停智能体。</string>
 	<key>backup.failure.accountLocked</key>
-	<string>请先解锁账号。</string>
+	<string>请先解锁账户。</string>
 	<key>backup.failure.attachmentsUnavailable</key>
 	<string>部分附件不在本机上。</string>
 	<key>backup.failure.attendanceRequired</key>
 	<string>请保持此页面打开，连接后再试一次。</string>
 	<key>backup.failure.authorizationRejected</key>
-	<string>该账号未授权此次恢复。</string>
+	<string>该账户未授权此次恢复。</string>
 	<key>backup.failure.conflict</key>
-	<string>该归档与本机已有的账号数据冲突。</string>
+	<string>该归档与本机已有的账户数据冲突。</string>
 	<key>backup.failure.damaged</key>
 	<string>该归档已损坏或在写入后被更改。</string>
 	<key>backup.failure.importTooLarge</key>
@@ -55,7 +55,7 @@
 	<key>backup.failure.interrupted</key>
 	<string>任务在完成前中断，请重新开始。</string>
 	<key>backup.failure.networkingPending</key>
-	<string>账号仍在等待节点，请在连接后再试。</string>
+	<string>账户仍在等待节点，请在连接后再试。</string>
 	<key>backup.failure.notWritable</key>
 	<string>无法写入该归档。</string>
 	<key>backup.failure.other</key>
@@ -69,7 +69,7 @@
 	<key>backup.failure.passphraseTooShort</key>
 	<string>归档密码至少需要 15 个字符。</string>
 	<key>backup.failure.restoreSetupRequired</key>
-	<string>请为恢复的账号设置六位数账号码。</string>
+	<string>请为恢复的账户设置六位数账户码。</string>
 	<key>backup.failure.title</key>
 	<string>备份或恢复未能进行</string>
 	<key>backup.failure.unreadable</key>
@@ -83,47 +83,47 @@
 	<key>cards.approval.changed</key>
 	<string>此请求已变更。请重新查看。</string>
 	<key>cards.unavailable</key>
-	<string>此设备暂不支持交互卡片。您可以继续使用消息和账户功能。</string>
+	<string>本设备暂不支持交互卡片。你可以继续使用消息和账户功能。</string>
 	<key>chat.message.unsupported</key>
-	<string>此消息没有可显示的文本。</string>
+	<string>无法显示此消息。</string>
 	<key>chat.send.deliveryFailed</key>
-	<string>账户服务报告发送失败。原始操作已保留。</string>
+	<string>未发送。请重试。</string>
 	<key>chat.unavailable.attachmentTransfer</key>
 	<string>附件传输需要手机文件存储集成。尚未下载任何文件。</string>
 	<key>chat.unavailable.calls</key>
 	<string>暂不支持群组通话，通话仅限一对一。</string>
 	<key>chat.unavailable.details</key>
-	<string>此手机版本暂不支持查看会话详情。</string>
+	<string>暂不可用。</string>
 	<key>common.connection.failed</key>
 	<string>无法连接</string>
 	<key>common.tab.agents</key>
-	<string>Agents</string>
+	<string>智能体</string>
 	<key>common.tab.groups</key>
 	<string>群组</string>
 	<key>common.tab.messages</key>
-	<string>消息</string>
+	<string>聊天</string>
 	<key>common.tab.more</key>
 	<string>更多</string>
 	<key>contacts.unavailable.batch</key>
 	<string>暂不支持批量处理。请逐条审核请求。</string>
 	<key>contacts.unavailable.contactGone</key>
-	<string>该联系人已不存在。请刷新联系人。</string>
+	<string>该联系人已不存在。</string>
 	<key>contacts.unavailable.identityCommitment</key>
-	<string>当前联系人的身份承诺不可用。</string>
+	<string>暂不可用。</string>
 	<key>contacts.unavailable.replyWithoutAcceptance</key>
-	<string>服务尚未提供此请求的回复会话。未接受任何联系人请求。</string>
+	<string>暂不可用。未接受任何联系人请求。</string>
 	<key>contacts.unavailable.reporting</key>
-	<string>账户服务暂不支持举报陌生人。你仍可拒绝或屏蔽请求。</string>
+	<string>暂不支持举报。你仍可拒绝或屏蔽请求。</string>
+	<key>conversations.preview.attachment</key>
+	<string>附件</string>
 	<key>conversations.unavailable.search</key>
 	<string>暂不支持本地消息搜索。</string>
-	<key>conversations.unavailable.searchService</key>
-	<string>账户服务暂不支持本地消息搜索。</string>
 	<key>failure.busy.message</key>
-	<string>其他操作或账户写入进程仍在运行。</string>
+	<string>另一项操作仍在进行。请稍后重试。</string>
 	<key>failure.busy.title</key>
 	<string>请稍后重试</string>
 	<key>failure.invalidData.message</key>
-	<string>服务返回了此应用无法显示的信息。</string>
+	<string>出了点问题，请重试。</string>
 	<key>failure.invalidData.title</key>
 	<string>无法读取此信息</string>
 	<key>failure.invalidInput.message</key>
@@ -131,7 +131,7 @@
 	<key>failure.invalidInput.title</key>
 	<string>请检查输入内容</string>
 	<key>failure.locked.message</key>
-	<string>请先解锁此设备，再打开本地记录。</string>
+	<string>请先解锁本设备，再打开本地记录。</string>
 	<key>failure.locked.title</key>
 	<string>解锁此账户</string>
 	<key>failure.offline.message</key>
@@ -141,17 +141,17 @@
 	<key>failure.outcomeUnknown.title</key>
 	<string>结果尚未确认</string>
 	<key>failure.resyncRequired.message</key>
-	<string>更新出现中断。请刷新以加载最新记录并重新订阅更新。</string>
+	<string>部分更新未收到。请重新打开此页面以加载最新内容。</string>
 	<key>failure.resyncRequired.title</key>
 	<string>刷新本地记录</string>
 	<key>failure.sdkUnavailable.message</key>
-	<string>此版本无法打开账户服务。已保存的数据未被更改。</string>
+	<string>请重试。已保存的数据未被更改。</string>
 	<key>failure.sdkUnavailable.title</key>
-	<string>账户服务不可用</string>
+	<string>出了点问题</string>
 	<key>failure.unavailable.title</key>
 	<string>暂不可用</string>
 	<key>failure.unsupported.message</key>
-	<string>账户服务不支持此操作。</string>
+	<string>暂不可用。</string>
 	<key>failure.upgradeRequired.message</key>
 	<string>请更新 Ramflux 后再继续使用此账户。</string>
 	<key>failure.upgradeRequired.title</key>
@@ -169,31 +169,31 @@
 	<key>notification.message.title</key>
 	<string>新消息</string>
 	<key>onboarding.failure.pairingUnavailable</key>
-	<string>此 SDK 没有已注册的手机配对服务。未创建配对码。</string>
+	<string>暂不支持关联新设备。</string>
 	<key>onboarding.failure.setupExpired</key>
-	<string>设置已过期。请重新开始账户设置。</string>
+	<string>设置已过期。请重新开始。</string>
 	<key>onboarding.nodeKeyMismatch</key>
-	<string>运营方公钥必须与发现的节点公钥一致。请先向运营方核对，再确认。</string>
+	<string>运营者密钥与此节点不匹配。</string>
 	<key>onboarding.nodeRequired</key>
 	<string>请先选择已确认的节点，再准备账户。</string>
 	<key>onboarding.protocol</key>
-	<string>账户设置响应与支持的 SDK 合约不一致。请更新应用后重试。</string>
+	<string>出了点问题，请重试。</string>
 	<key>onboarding.refusal.title</key>
 	<string>请检查账户设置</string>
 	<key>onboarding.sdkRefusal</key>
-	<string>SDK 拒绝了此请求（代码 %@）。请保留当前状态，并检查节点或应用配置。</string>
+	<string>出了点问题，请重试。</string>
 	<key>onboarding.vaultBusy</key>
 	<string>私有钥匙串正忙。请完成当前账户操作后重试。</string>
 	<key>onboarding.vaultCorrupt</key>
 	<string>无法验证私有钥匙串中的凭据。请先恢复账户。</string>
 	<key>onboarding.vaultLocked</key>
-	<string>私有钥匙串已锁定。请解锁此设备后重试。</string>
+	<string>私有钥匙串已锁定。请解锁本设备后重试。</string>
 	<key>onboarding.vaultMissing</key>
 	<string>私有钥匙串中缺少所需账户凭据。请先恢复账户。</string>
 	<key>onboarding.vaultPermission</key>
 	<string>此应用无法访问其私有钥匙串。请安装包含应用钥匙串权限且正确签名的版本。</string>
 	<key>onboarding.vaultUnavailable</key>
-	<string>此设备上的私有钥匙串提供程序不可用。</string>
+	<string>本设备上的私有钥匙串提供程序不可用。</string>
 	<key>pairing.failure.Busy</key>
 	<string>另一个关联步骤仍在进行，请稍后再试。</string>
 	<key>pairing.failure.Expired</key>
@@ -243,7 +243,7 @@
 	<key>recovery.failure.title</key>
 	<string>恢复此账户</string>
 	<key>refusal.already_contact</key>
-	<string>此账户已是您的联系人，未应用其名片。</string>
+	<string>此账户已是你的联系人，未应用其名片。</string>
 	<key>refusal.already_contact.title</key>
 	<string>已是联系人</string>
 	<key>refusal.card_limit_exceeded</key>
@@ -295,15 +295,15 @@
 	<key>refusal.rate_limited.title</key>
 	<string>尝试过多</string>
 	<key>refusal.resync_required</key>
-	<string>此会话需要重新同步。</string>
+	<string>此聊天需要重新同步。</string>
 	<key>refusal.resync_required.title</key>
 	<string>需要同步</string>
 	<key>refusal.schema_reset_required</key>
-	<string>此会话需要重置后才能继续。</string>
+	<string>此聊天需要重置后才能继续。</string>
 	<key>refusal.schema_reset_required.title</key>
 	<string>需要重置</string>
 	<key>refusal.sdkReason</key>
-	<string>请求被拒绝：%@。未做任何更改；请先核对页面再决定是否重试。</string>
+	<string>出了点问题，请重试。未做任何更改。</string>
 	<key>refusal.storage_capacity</key>
 	<string>没有足够的空间保存。</string>
 	<key>refusal.storage_capacity.title</key>
@@ -327,15 +327,15 @@
 	<key>session.unavailable.featureNotInstalled</key>
 	<string>尚未安装此功能模块。</string>
 	<key>session.unavailable.nativeCore</key>
-	<string>此版本的账户服务不可用。已保存的数据未被更改。</string>
+	<string>出了点问题，请重试。已保存的数据未被更改。</string>
 	<key>settings.unavailable.connectedServices</key>
 	<string>请在桌面端管理已连接服务的高级配置。</string>
 	<key>settings.unavailable.diagnosticExport</key>
 	<string>此版本暂不支持脱敏诊断导出。未共享任何账户隐私数据。</string>
 	<key>settings.unavailable.openAccount</key>
-	<string>账户服务暂不支持公开账户和用户名查找。这些功能与自动接受请求相互独立。</string>
+	<string>暂不可用。</string>
 	<key>settings.unavailable.pairing</key>
-	<string>手机配对服务尚未注册。未创建设备代码或授权。</string>
+	<string>暂不支持关联新设备。</string>
 	<key>status.accept</key>
 	<string>接受</string>
 	<key>status.accepted</key>
@@ -389,18 +389,18 @@
 	<key>username.claim.invalid</key>
 	<string>用户名格式不正确</string>
 	<key>username.claim.phraseMismatch</key>
-	<string>恢复短语与此账号不符</string>
+	<string>恢复短语与此账户不符</string>
 	<key>username.claim.taken</key>
 	<string>该用户名已被占用</string>
 	<key>username.retryIn</key>
 	<string>%@ 秒后重试</string>
 	<key>username.unavailable.directory</key>
-	<string>用户名服务暂时无法连接；消息功能不受影响</string>
+	<string>此节点暂时无法使用用户名。</string>
 	<key>username.unavailable.notConfigured</key>
-	<string>此版本或此电脑未设置用户名服务</string>
+	<string>暂不可用。</string>
 	<key>username.unavailable.notFound</key>
 	<string>没有使用该用户名的人</string>
 	<key>username.unavailable.retry</key>
-	<string>用户名服务繁忙，请稍后再试</string>
+	<string>此节点暂时无法使用用户名。请稍后再试。</string>
 </dict>
 </plist>

@@ -23,13 +23,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a conversation"
+            "value": "Choose a chat"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择会话"
+            "value": "选择聊天"
           }
         }
       }
@@ -39,13 +39,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tasks belong to a conversation. Select its actual local history."
+            "value": "Tasks belong to a chat. Select its actual local history."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "任务属于特定会话。请选择其本地记录。"
+            "value": "任务属于特定聊天。请选择其本地记录。"
           }
         }
       }
@@ -253,13 +253,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation"
+            "value": "Chat"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话"
+            "value": "聊天"
           }
         }
       }
@@ -337,16 +337,17 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Task action submitted; delivery is not confirmed"
+            "value": "Task action sent; delivery is not confirmed"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "任务操作已提交；尚未确认送达"
+            "value": "任务操作已发送；尚未确认送达"
           }
         }
-      }
+      },
+      "comment": "Shown after a task action was sent."
     },
     "tasks.waiting": {
       "localizations": {
@@ -492,7 +493,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "需要您的输入"
+            "value": "需要你的输入"
           }
         }
       }
@@ -740,16 +741,17 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "These are SDK records, not a device-role authority claim. No mobile approval is issued here."
+            "value": "No approval can be given on this phone."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "这些是 SDK 记录，不代表设备角色具有授权权限。此处不会发出移动端审批。"
+            "value": "此手机上无法进行审批。"
           }
         }
-      }
+      },
+      "comment": "Note on the task list: approvals are not issued on the phone."
     },
     "tasks.startProposed": {
       "comment": "Button that starts a proposed task.",
@@ -954,18 +956,18 @@
       }
     },
     "tasks.permission.submitted": {
-      "comment": "Permission request state: submitted.",
+      "comment": "Status of a permission request that was sent.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Submitted"
+            "value": "Sent"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "已提交"
+            "value": "已发送"
           }
         }
       }

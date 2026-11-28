@@ -144,13 +144,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Waiting to register with your server"
+            "value": "Waiting to register with your node"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "等待向你的服务器注册"
+            "value": "等待向你的节点注册"
           }
         }
       }
@@ -212,13 +212,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your server does not send push notifications"
+            "value": "Your node does not send push notifications"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "你的服务器不发送推送通知"
+            "value": "你的节点不发送推送通知"
           }
         }
       }
@@ -875,13 +875,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This can be caused by iPhone settings or by your server's push limits."
+            "value": "This can be caused by iPhone settings or by your node's push limits."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "这可能由 iPhone 设置或你的服务器推送限制造成。"
+            "value": "这可能由 iPhone 设置或你的节点推送限制造成。"
           }
         }
       }

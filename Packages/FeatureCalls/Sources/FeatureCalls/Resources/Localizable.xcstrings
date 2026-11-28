@@ -607,7 +607,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此设备上的故障"
+            "value": "本设备上的故障"
           }
         }
       }
@@ -851,18 +851,18 @@
       }
     },
     "calls.daemon_restarted": {
-      "comment": "Call end reason: the account service restarted.",
+      "comment": "Reason shown for a call that ended because the account restarted.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The account service restarted"
+            "value": "Something went wrong. Try again."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户服务已重启"
+            "value": "出了点问题，请重试。"
           }
         }
       }
@@ -1074,13 +1074,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation"
+            "value": "Chat"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话"
+            "value": "聊天"
           }
         }
       }
@@ -1682,18 +1682,18 @@
       }
     },
     "calls.video.unavailable": {
-      "comment": "Note under the disabled video call button.",
+      "comment": "Shown when a video call cannot be started.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Video calls cannot be started yet: your account service supports voice calls only."
+            "value": "Video calls are not available yet."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "暂时无法发起视频通话：你的账户服务目前只支持语音通话。"
+            "value": "暂不支持视频通话。"
           }
         }
       }

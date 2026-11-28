@@ -56,7 +56,8 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .vaultCorrupt: AppDataStrings.text("onboarding.vaultCorrupt", locale: locale)
         case .vaultBusy: AppDataStrings.text("onboarding.vaultBusy", locale: locale)
         case .vaultUnavailable: AppDataStrings.text("onboarding.vaultUnavailable", locale: locale)
-        case .sdkRefusal(let code): AppDataStrings.format("onboarding.sdkRefusal", String(code), locale: locale)
+        // The refusal code is logged where the failure is made; the screen shows a sentence, never the code.
+        case .sdkRefusal: AppDataStrings.text("onboarding.sdkRefusal", locale: locale)
         case .onboardingProtocol: AppDataStrings.text("onboarding.protocol", locale: locale)
         case .localStorage: AppDataStrings.text("request.localStorage", locale: locale)
         case .localFailure: AppDataStrings.text("request.localFailure", locale: locale)
@@ -73,7 +74,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .notAvailable(let message): message
         case .outcomeUnknown: AppDataStrings.text("failure.outcomeUnknown.message", locale: locale)
         case .failed: AppDataStrings.text("request.localFailure", locale: locale)
-        case .sdkReason(let reason): AppDataStrings.format("refusal.sdkReason", reason.replacingOccurrences(of: "_", with: " "), locale: locale)
+        case .sdkReason: AppDataStrings.text("refusal.sdkReason", locale: locale)
         case .typedRefusal(let name): AppDataStrings.text(Self.refusalMessage(name), locale: locale)
         case .accountCode(let issue): AppDataStrings.text(Self.accountCodeMessage(issue), locale: locale)
         case .recoveryPhraseMismatch: AppDataStrings.text("recovery.failure.phraseMismatch", locale: locale)
@@ -156,7 +157,7 @@ public enum AppFailure: Error, Sendable, Equatable {
             if let reason = failure.reasonCode, reason == "already_contact" { return .typedRefusal(reason) }
             // Codes 1, 16 and 25 now carry the SDK's typed reason. A named reason is a definite refusal, whatever
             // effect the bridge reports; without one the code keeps its usual mapping below.
-            if let reason = failure.specificReason, !reason.hasPrefix("vault_"), [.invalidArgument, .internalFailure, .cancelled].contains(failure.code) { return .sdkReason(reason) }
+            if let reason = failure.specificReason, !reason.hasPrefix("vault_"), [.invalidArgument, .internalFailure, .cancelled].contains(failure.code) { EventDiagnostics.note("refusal reason \(reason)"); return .sdkReason(reason) }
             if failure.effect == .unknown, failure.operationID != nil { return .outcomeUnknown }
             switch failure.reasonCode {
             case "vault_permission": return .vaultPermission
@@ -175,7 +176,7 @@ public enum AppFailure: Error, Sendable, Equatable {
             case .suspended: return .offline
             case .transportUnavailable, .timeout, .closed: return .offline
             case .invalidArgument, .invalidCanonicalJSON: return .invalidInput
-            default: return .sdkRefusal(failure.rawCode)
+            default: EventDiagnostics.note("refusal code \(failure.rawCode)"); return .sdkRefusal(failure.rawCode)
             }
         }
         if let bridge = error as? BridgeError {

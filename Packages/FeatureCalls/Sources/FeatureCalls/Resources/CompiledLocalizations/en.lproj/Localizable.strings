@@ -49,11 +49,11 @@
 	<key>calls.control.unsupported</key>
 	<string>Not supported on this phone.</string>
 	<key>calls.conversation</key>
-	<string>Conversation</string>
+	<string>Chat</string>
 	<key>calls.created</key>
 	<string>Started</string>
 	<key>calls.daemon_restarted</key>
-	<string>The account service restarted</string>
+	<string>Something went wrong. Try again.</string>
 	<key>calls.decline</key>
 	<string>Decline call</string>
 	<key>calls.declined</key>
@@ -199,7 +199,7 @@
 	<key>calls.unknown</key>
 	<string>Call status unavailable</string>
 	<key>calls.video.unavailable</key>
-	<string>Video calls cannot be started yet: your account service supports voice calls only.</string>
+	<string>Video calls are not available yet.</string>
 	<key>calls.wake.caller</key>
 	<string>Ramflux call</string>
 </dict>

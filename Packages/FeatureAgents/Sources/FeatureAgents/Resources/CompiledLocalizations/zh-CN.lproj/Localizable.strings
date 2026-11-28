@@ -33,7 +33,7 @@
 	<key>agents.empty.message</key>
 	<string>试试其他姓名或关键词。</string>
 	<key>agents.empty.title</key>
-	<string>没有找到 Agent</string>
+	<string>没有找到智能体</string>
 	<key>agents.goal</key>
 	<string>职责</string>
 	<key>agents.loading</key>
@@ -41,7 +41,7 @@
 	<key>agents.loadingMore</key>
 	<string>正在加载更多智能体</string>
 	<key>agents.multi</key>
-	<string>发起多 Agent 会话</string>
+	<string>发起多智能体聊天</string>
 	<key>agents.name</key>
 	<string>名称</string>
 	<key>agents.none.message</key>

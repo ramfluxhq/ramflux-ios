@@ -15,7 +15,7 @@
 	<key>guidance.swipe</key>
 	<string>If you swipe Ramflux away, messages still notify, but clears wait until you open it.</string>
 	<key>late</key>
-	<string>This can be caused by iPhone settings or by your server's push limits.</string>
+	<string>This can be caused by iPhone settings or by your node's push limits.</string>
 	<key>phone.allowed</key>
 	<string>Notifications allowed</string>
 	<key>phone.badges</key>
@@ -77,13 +77,13 @@
 	<key>status.notificationsOff</key>
 	<string>Notifications are off</string>
 	<key>status.pending</key>
-	<string>Waiting to register with your server</string>
+	<string>Waiting to register with your node</string>
 	<key>status.ready</key>
 	<string>Ready</string>
 	<key>status.retrying</key>
 	<string>Registration failed, retrying</string>
 	<key>status.serverNoPush</key>
-	<string>Your server does not send push notifications</string>
+	<string>Your node does not send push notifications</string>
 	<key>status.waitingForCentre</key>
 	<string>Waiting for the central service</string>
 	<key>title</key>
