@@ -113,9 +113,10 @@ import RamfluxCore
             guard account != nil else { return }
             clearUsername()
             dispatch(PendingSettingsMutation(change: .signOut, operationID: UUID().uuidString))
-        case .requestRemoveLocal: if account != nil, !state.busy, !state.unknownMutation { state.failure = nil; state.confirmingRemoval = true }
+        case .requestRemoveLocal: if account != nil, !state.busy, !state.unknownMutation { state.failure = nil; state.confirmingRemoval = true; state.removalAcknowledged = false }
+        case .acknowledgeRemoveLocal(let value): if state.confirmingRemoval, !state.busy { state.removalAcknowledged = value }
         case .confirmRemoveLocal:
-            guard account != nil, state.confirmingRemoval else { return }
+            guard account != nil, state.confirmingRemoval, state.removalAcknowledged else { return }
             clearUsername()
             dispatch(PendingSettingsMutation(change: .removeLocal, operationID: UUID().uuidString))
         case .setDefault(let id):
@@ -124,7 +125,7 @@ import RamfluxCore
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .dismissModal:
             if state.codePrompt { userDismissedCode = true; finishAccountCode(nil) }
-            state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false; state.claim = nil }
+            state.pendingRevoke = nil; if !state.busy { state.changingCode = false; state.confirmingRemoval = false; state.removalAcknowledged = false; state.claim = nil }
         case .startClaimUsername:
             guard account != nil, !state.busy else { return }
             state.failure = nil; state.claim = UsernameClaim()
@@ -272,7 +273,7 @@ import RamfluxCore
             self.state.busy = false; self.state.pendingMutation = pending; self.state.unknownMutation = pending != nil
             switch result {
             case .success:
-                self.state.pendingRevoke = nil; self.state.confirmingRemoval = false
+                self.state.pendingRevoke = nil; self.state.confirmingRemoval = false; self.state.removalAcknowledged = false
                 if attempt.change == .removeLocal { self.emit(.removed(removedName)) }
                 else if [.lock, .signOut].contains(attempt.change) { self.emit(.locked) } else { self.refresh() }
             case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = pending != nil || failure == .outcomeUnknown || failure == .offline

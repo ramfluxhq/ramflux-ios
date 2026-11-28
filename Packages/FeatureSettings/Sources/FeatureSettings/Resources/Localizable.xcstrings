@@ -3230,6 +3230,23 @@
         }
       }
     },
+    "settings.account.removeLocal.ack": {
+      "comment": "Switch that must be on before the removal can be confirmed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I understand"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "我已了解"
+          }
+        }
+      }
+    },
     "settings.account.removeLocal.fact": {
       "comment": "Consequence sentence of the removal confirmation.",
       "localizations": {

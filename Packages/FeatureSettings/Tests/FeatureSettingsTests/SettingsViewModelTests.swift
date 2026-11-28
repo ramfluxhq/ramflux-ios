@@ -32,6 +32,15 @@ private actor SettingsFake: SettingsRepository {
         vm.send(.confirmRevoke("peer")); await vm.settle(); #expect(await fake.revoked == ["peer"])
         vm.send(.disappeared); #expect(vm.state.pendingRevoke == nil)
     }
+    @Test func removingTheAccountNeedsTheAcknowledgement() async {
+        let vm = model(SettingsFake())
+        vm.send(.acknowledgeRemoveLocal(true)); #expect(!vm.state.removalAcknowledged)
+        vm.send(.requestRemoveLocal); #expect(vm.state.confirmingRemoval); #expect(!vm.state.removalAcknowledged)
+        vm.send(.confirmRemoveLocal); await vm.settle(); #expect(vm.state.pendingMutation == nil); #expect(vm.state.confirmingRemoval)
+        vm.send(.acknowledgeRemoveLocal(true)); #expect(vm.state.removalAcknowledged)
+        vm.send(.dismissModal); #expect(!vm.state.confirmingRemoval); #expect(!vm.state.removalAcknowledged)
+        vm.send(.requestRemoveLocal); #expect(!vm.state.removalAcknowledged)
+    }
     @Test func unknownMutationSurvivesConcealmentAndPreventsAnotherRevocation() async {
         let fake = SettingsFake(unknown: true); var state = SettingsState()
         state.snapshot = SettingsSnapshot(devices: [DeviceRecord(id: "peer", isLocal: false, capabilities: [])])

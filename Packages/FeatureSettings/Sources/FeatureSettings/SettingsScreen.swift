@@ -240,7 +240,9 @@ public struct SettingsScreen: View {
             Text(copy("settings.account.removeLocal.title")).rfFont(.page).accessibilityAddTraits(.isHeader)
             KitAccountRow(name: record.title(locale: locale), initial: record.initial(locale: locale), shortID: record.shortID, tag: "settings-remove-account")
             Text(copy("settings.account.removeLocal.fact"))
-            RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.account.removeLocal.summary", [.untrusted(record.title(locale: locale))], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, destructive: true, confirm: { onAction(.confirmRemoveLocal) }, cancel: { onAction(.dismissModal) }).id(account)
+            Toggle(copy("settings.account.removeLocal.ack"), isOn: Binding(get: { state.removalAcknowledged }, set: { onAction(.acknowledgeRemoveLocal($0)) }))
+                .disabled(state.busy).accessibilityIdentifier("settings-remove-ack")
+            RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("settings.account.removeLocal.summary", [.untrusted(record.title(locale: locale))], locale: locale), enabled: state.removalAcknowledged && !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, destructive: true, confirm: { onAction(.confirmRemoveLocal) }, cancel: { onAction(.dismissModal) }).id(account)
         }
     }
     private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }

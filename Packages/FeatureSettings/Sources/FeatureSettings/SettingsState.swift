@@ -16,6 +16,8 @@ public struct SettingsState: Equatable, Sendable {
     public var pendingRevoke: DeviceRecord?
     /// The confirmation for removing the account from this phone is open.
     public var confirmingRemoval = false
+    /// The "I understand" switch of that confirmation; the red Remove stays disabled until it is on.
+    public var removalAcknowledged = false
     /// The change-code sheet is open; `codeChanged` confirms a finished change.
     public var changingCode = false
     public var codeChanged = false

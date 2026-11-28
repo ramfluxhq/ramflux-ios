@@ -144,6 +144,8 @@
 	<string>打开或创建账户</string>
 	<key>settings.account.removeLocal</key>
 	<string>从本设备移除</string>
+	<key>settings.account.removeLocal.ack</key>
+	<string>我已了解</string>
 	<key>settings.account.removeLocal.detail</key>
 	<string>清除本设备上该账户的数据和密钥</string>
 	<key>settings.account.removeLocal.fact</key>

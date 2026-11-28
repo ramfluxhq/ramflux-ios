@@ -13,7 +13,7 @@ public enum SettingsAction: Equatable, Sendable, CustomStringConvertible {
     /// The account-code sheet of a weakening change: submit the code (its one copy is taken) or cancel.
     case submitAccountCode(SensitiveSubmission), cancelAccountCode
     /// `signOut` closes the account on this phone; removal asks for confirmation first.
-    case signOut, requestRemoveLocal, confirmRemoveLocal
+    case signOut, requestRemoveLocal, acknowledgeRemoveLocal(Bool), confirmRemoveLocal
     /// Username page: open the claim sheet, edit its name, continue to the recovery phrase, submit the phrase, cancel, re-read.
     case startClaimUsername, claimNameChanged(String), continueClaimUsername, submitClaimUsername(SensitiveSubmission), cancelClaimUsername, refreshUsername
     /// The scene leaves `.active`: the claim sheet closes (its phrase field is erased) and a claim in flight is cancelled.

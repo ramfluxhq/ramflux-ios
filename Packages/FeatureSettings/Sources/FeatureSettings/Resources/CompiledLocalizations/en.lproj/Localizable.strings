@@ -144,6 +144,8 @@
 	<string>Open or create an account</string>
 	<key>settings.account.removeLocal</key>
 	<string>Remove from this device</string>
+	<key>settings.account.removeLocal.ack</key>
+	<string>I understand</string>
 	<key>settings.account.removeLocal.detail</key>
 	<string>Erase this account's data and keys on this device</string>
 	<key>settings.account.removeLocal.fact</key>
