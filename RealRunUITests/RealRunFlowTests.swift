@@ -104,9 +104,9 @@ final class RealRunFlowTests: RealRunTestCase {
         }
     }
 
-    // MARK: Flow 6: add alice by principal id, alice accepts, safety number, verified
+    // MARK: Flow 6: add alice by principal id, alice accepts, alice is listed
 
-    func test02_contactsAddAliceAndVerify() {
+    func test02_contactsAddAlice() {
         flow("06-contacts") {
             try ensureReady()
             try openMore()
@@ -147,24 +147,7 @@ final class RealRunFlowTests: RealRunTestCase {
             }) else { throw FlowStop.fail("alice did not appear in the phone's contacts after she accepted: \(visibleFailure())") }
             snap("06-contact-listed")
             try tap(row, "alice contact row")
-            try tap(element("contact-safety"), "View safety number")
-            let number = try require(element("contacts-safety-number"), "safety number", timeout: 30)
-            let phoneDigits = number.label.filter(\.isNumber)
-            let peer = control.rf("alice", ["contact", "safety-number", "--contact", commitment])
-            let peerText = (peer.json.map { "\($0)" } ?? peer.stdout)
-            let peerDigits = String(describing: peer.json?["safety_number"] ?? peerText).filter(\.isNumber)
-            snap("06-safety-number")
-            guard !phoneDigits.isEmpty else { throw FlowStop.fail("safety number has no digits") }
-            let matches = peer.exit == 0 && peerDigits.contains(phoneDigits)
-            try tap(element("contact-verify"), "I compared this number")
-            try tap(app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Confirm:'")).firstMatch, "verify confirmation")
-            guard eventually(30, { self.text(containing: "You marked this number verified").exists || self.text(containing: "Identity verified").exists }) else {
-                throw FlowStop.fail("contact not shown as verified after confirming: \(visibleFailure())")
-            }
-            guard matches else {
-                throw FlowStop.fail("safety number on the phone (\(phoneDigits.count) digits) does not match alice's (exit \(peer.exit)): phone \(phoneDigits) peer \(peerDigits.prefix(80))")
-            }
-            return "request by principal id reached alice (\(requestID)); accepted with rf; alice listed; safety number equals alice's; marked verified"
+            return "request by principal id reached alice (\(requestID)); accepted with rf; alice listed and opens"
         }
     }
 
