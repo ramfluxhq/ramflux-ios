@@ -28,6 +28,9 @@ struct MlsGalleryRoot: View {
 }
 
 struct MlsGalleryView: View {
+    /// The groups module owns a NavigationStack. Pushed inside the gallery stack it would be nested, and SwiftUI ignores
+    /// its second-level pushes (chat to group info), so the group fixtures open as full-screen covers.
+    @State private var groupFixture: MlsGroupFixture?
     var body: some View {
         NavigationStack {
             List {
@@ -43,7 +46,7 @@ struct MlsGalleryView: View {
                 }
                 Section(header: Text(verbatim: "Groups (M2)")) {
                     ForEach(MlsGroupFixtures.all) { fixture in
-                        NavigationLink { MlsGroupFixtureScreen(fixture: fixture) } label: {
+                        Button { groupFixture = fixture } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(verbatim: fixture.id + "  " + fixture.heading)
                                 Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
@@ -53,7 +56,7 @@ struct MlsGalleryView: View {
                 }
                 Section(header: Text(verbatim: "Admin (M3)")) {
                     ForEach(MlsGroupFixtures.admin) { fixture in
-                        NavigationLink { MlsGroupFixtureScreen(fixture: fixture) } label: {
+                        Button { groupFixture = fixture } label: {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(verbatim: fixture.id + "  " + fixture.heading)
                                 Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
@@ -65,6 +68,7 @@ struct MlsGalleryView: View {
             .accessibilityIdentifier("mls-gallery")
             .navigationTitle(Text(verbatim: "MLS gallery"))
         }
+        .fullScreenCover(item: $groupFixture) { fixture in MlsGroupFixtureScreen(fixture: fixture, close: { groupFixture = nil }) }
     }
 }
 
@@ -141,12 +145,14 @@ private struct MlsConversationListScreen: View {
 /// way `AppComposition` does on a lock and an unlock.
 private struct MlsGroupFixtureScreen: View {
     let fixture: MlsGroupFixture
+    let close: () -> Void
     private let repository: FixtureMlsGroupRepository?
     private let session: MlsGroupSession
     @State private var model: MlsGroupsCoordinator
     @State private var showCalls = false
-    init(fixture: MlsGroupFixture) {
+    init(fixture: MlsGroupFixture, close: @escaping () -> Void) {
         self.fixture = fixture
+        self.close = close
         let fake: FixtureMlsGroupRepository? = fixture.id == "F2-11" ? nil : FixtureMlsGroupRepository(fixture)
         repository = fake
         let source: any MlsGroupRepository = fake ?? NativeMlsGroupRepository()
@@ -158,14 +164,15 @@ private struct MlsGroupFixtureScreen: View {
     }
     var body: some View {
         MlsGroupsHost(model: model)
-            .overlay(alignment: .topTrailing) {
+            .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 0) {
                 HStack(spacing: 6) {
+                    Button { close() } label: { Text(verbatim: "Close").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-gallery-close")
                     if fixture.id.hasPrefix("F3-") {
                         Button { lock() } label: { Text(verbatim: "Lock now").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-lock")
                         Button { unlock() } label: { Text(verbatim: "Unlock").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-unlock")
                     }
                     Button { showCalls = true } label: { Text(verbatim: "Calls").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }.accessibilityIdentifier("mls-calls-open")
-                }.padding(.top, 2).padding(.trailing, 8)
+                }.padding(.vertical, 2).padding(.trailing, 8)
             }
             .sheet(isPresented: $showCalls) { MlsCallsView(fixture: fixture, repository: repository) }
     }

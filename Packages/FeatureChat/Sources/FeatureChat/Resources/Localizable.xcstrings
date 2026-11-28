@@ -1550,6 +1550,23 @@
         }
       }
     },
+    "group.info.entry": {
+      "comment": "Accessibility label of the group chat header button that opens the group info screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group info"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组信息"
+          }
+        }
+      }
+    },
     "chat.gallery.more": {
       "comment": "Gallery button that reads older messages for more items.",
       "localizations": {

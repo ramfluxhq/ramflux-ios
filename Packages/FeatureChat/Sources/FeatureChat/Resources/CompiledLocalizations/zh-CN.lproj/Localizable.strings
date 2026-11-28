@@ -248,6 +248,8 @@
 	<string>获取邀请链接</string>
 	<key>group.hint.agent.mobile</key>
 	<string>你可以在桌面端添加智能体，让群组随时可以加入。</string>
+	<key>group.info.entry</key>
+	<string>群组信息</string>
 	<key>group.leave.done</key>
 	<string>你已退出此群组。</string>
 	<key>group.member.unnamed</key>

@@ -16,7 +16,7 @@ public struct ChatScreen: View {
     public init(state: ChatState, onAction: @escaping (ChatAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
-            KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, aiMarker: state.peerIsAgent, tag: state.conversationID) {
+            KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, moreLabel: state.mls == nil ? nil : FeatureChatStrings.text("group.info.entry", locale: locale), moreTag: state.mls == nil ? nil : "mls-group-info-entry", aiMarker: state.peerIsAgent, tag: state.conversationID) {
                 KitAvatar(String(state.displayTitle.prefix(1)), size: 36, kind: state.isGroup ? .channel : .person, tag: state.conversationID + "-avatar")
             }
             if !state.isGroup && state.identity.isChanged {

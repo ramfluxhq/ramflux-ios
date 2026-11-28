@@ -151,6 +151,8 @@ public struct KitChatHeader<Avatar: View>: View {
     var onBack: () -> Void
     var onCall: (() -> Void)?
     var onMore: (() -> Void)?
+    var moreLabel: String?
+    var moreTag: String?
     var aiMarker: Bool
     var tag: String?
     var avatar: Avatar
@@ -162,6 +164,8 @@ public struct KitChatHeader<Avatar: View>: View {
         onBack: @escaping () -> Void,
         onCall: (() -> Void)? = nil,
         onMore: (() -> Void)? = nil,
+        moreLabel: String? = nil,
+        moreTag: String? = nil,
         aiMarker: Bool = false,
         tag: String? = nil,
         @ViewBuilder avatar: () -> Avatar
@@ -172,6 +176,8 @@ public struct KitChatHeader<Avatar: View>: View {
         self.onBack = onBack
         self.onCall = onCall
         self.onMore = onMore
+        self.moreLabel = moreLabel
+        self.moreTag = moreTag
         self.tag = tag
         self.avatar = avatar()
     }
@@ -195,7 +201,7 @@ public struct KitChatHeader<Avatar: View>: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             if let onCall { KitIconHit(icon: "phone", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.call"), action: onCall) }
-            if let onMore { KitIconHit(icon: "ellipsis", size: KitMetrics.iconBack, tint: theme.text, label: RFDesignStrings.text("kit.more"), action: onMore) }
+            if let onMore { KitIconHit(icon: "ellipsis", size: KitMetrics.iconBack, tint: theme.text, label: moreLabel ?? RFDesignStrings.text("kit.more"), tag: moreTag, action: onMore) }
         }
         .padding(.horizontal, KitMetrics.gutter)
         .padding(.vertical, KitMetrics.headerPadV)

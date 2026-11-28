@@ -248,6 +248,8 @@
 	<string>Get invite link</string>
 	<key>group.hint.agent.mobile</key>
 	<string>You can add an agent from your desktop to keep the group open for joins.</string>
+	<key>group.info.entry</key>
+	<string>Group info</string>
 	<key>group.leave.done</key>
 	<string>You left this group.</string>
 	<key>group.member.unnamed</key>
