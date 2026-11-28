@@ -192,7 +192,7 @@ import RamfluxCore
     /// Stores the SDK's app-lock state and the monotonic moment its account-code wait ends. Nothing else is kept.
     private func apply(_ record: AppLockRecord) {
         state.appLock = record
-        state.codeRetryDeadline = record.codeRetryAfterMilliseconds.map { ContinuousClock.now.advanced(by: .milliseconds(Int(min($0, 86_400_000)))) }
+        state.codeRetryDeadline = record.codeRetryAfterSeconds.map { ContinuousClock.now.advanced(by: .seconds(Int(min($0, 86_400)))) }
     }
     /// A change that lowers the lock's strength: the lock is on and it is turned off, or its timeout gets longer.
     private func weakensAppLock(enabled: Bool, timeout: UInt64) -> Bool {

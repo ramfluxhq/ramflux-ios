@@ -12,14 +12,14 @@ public struct AppLockRecord: Equatable, Sendable {
     public let timeoutMilliseconds: UInt64
     public let state: State
     public let remainingMilliseconds: UInt64?
-    /// The wait before the next account-code check is allowed (`code_retry_after_ms`); nil when none applies.
-    public let codeRetryAfterMilliseconds: UInt64?
+    /// The wait in whole seconds before the next account-code check is allowed (`code_retry_after_secs`); nil when none applies.
+    public let codeRetryAfterSeconds: UInt64?
     /// The account-code checks are used up; only the recovery phrase restores the account (`code_attempts_exhausted`).
     public let codeAttemptsExhausted: Bool
     public init(enabled: Bool, timeoutMilliseconds: UInt64, state: State, remainingMilliseconds: UInt64?,
-                codeRetryAfterMilliseconds: UInt64? = nil, codeAttemptsExhausted: Bool = false) {
+                codeRetryAfterSeconds: UInt64? = nil, codeAttemptsExhausted: Bool = false) {
         self.enabled = enabled; self.timeoutMilliseconds = timeoutMilliseconds; self.state = state; self.remainingMilliseconds = remainingMilliseconds
-        self.codeRetryAfterMilliseconds = codeRetryAfterMilliseconds; self.codeAttemptsExhausted = codeAttemptsExhausted
+        self.codeRetryAfterSeconds = codeRetryAfterSeconds; self.codeAttemptsExhausted = codeAttemptsExhausted
     }
     static func decode(_ body: JSONValue) throws -> AppLockRecord {
         guard let enabled = body["enabled"]?.bool, let name = body["state"]?.string,
@@ -30,9 +30,9 @@ public struct AppLockRecord: Equatable, Sendable {
         default: .locked
         }
         let remaining = ProxyGateway.integer(body["remaining_ms"]).flatMap { $0 >= 0 ? UInt64($0) : nil }
-        let retry = ProxyGateway.integer(body["code_retry_after_ms"]).flatMap { $0 > 0 ? UInt64($0) : nil }
+        let retry = ProxyGateway.integer(body["code_retry_after_secs"]).flatMap { $0 > 0 ? UInt64($0) : nil }
         return AppLockRecord(enabled: enabled, timeoutMilliseconds: UInt64(timeout), state: state, remainingMilliseconds: remaining,
-                             codeRetryAfterMilliseconds: retry, codeAttemptsExhausted: body["code_attempts_exhausted"]?.bool == true)
+                             codeRetryAfterSeconds: retry, codeAttemptsExhausted: body["code_attempts_exhausted"]?.bool == true)
     }
 }
 

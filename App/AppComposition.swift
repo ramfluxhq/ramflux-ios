@@ -71,6 +71,15 @@ import Push
         accountLocked()
         shell.path = []
         shell.send(.retry)
+        // The shell has no screen of its own for "no account": once the session is re-read, land on the account picker when
+        // other accounts remain, on onboarding otherwise, instead of leaving the old tab on screen.
+        Task { [weak self] in
+            await self?.shell.viewModel.settle()
+            guard let self, !self.shell.viewModel.state.privacyShield, self.shell.viewModel.state.session.phase == .ready,
+                  self.shell.viewModel.state.session.activeAccountID == nil else { return }
+            self.shell.send(.selectTab(.messages))
+            if self.shell.viewModel.state.session.accounts.isEmpty { self.shell.send(.open(.onboarding)) } else { self.shell.send(.openAccounts) }
+        }
         removedNotice = true
         removedNoticeTask?.cancel()
         removedNoticeTask = Task { [weak self] in

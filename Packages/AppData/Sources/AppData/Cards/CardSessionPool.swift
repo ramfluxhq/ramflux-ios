@@ -446,26 +446,21 @@ public actor CardSessionPool {
     private enum CallKind { case open, resume, other }
     private enum Recovery { case none, disposeOldest, suspendOldest }
 
-    /// An open that the process budget refused, or a resume that failed as invalid (core leaves the resume cap untyped at
-    /// this pin): both mean "no slot" and take the same one retry.
+    /// An open or resume that the process budget refused (`card_limit_exceeded`): both mean "no slot" and take the same one retry.
     private static func isOverLimit(_ error: any Error) -> Bool {
-        let refusal = CardSessionRefusal.of(error)
-        if refusal == .limitExceeded { return true }
-        guard refusal == nil, let failure = error as? CoreFailure else { return false }
-        return failure.code == .invalidArgument
+        CardSessionRefusal.of(error) == .limitExceeded
     }
 
     private static func recovery(for error: any Error, kind: CallKind) -> Recovery {
         if CardSessionRefusal.of(error) == .limit { return .disposeOldest }
         switch kind {
-        case .open: return CardSessionRefusal.of(error) == .limitExceeded ? .suspendOldest : .none
-        case .resume: return isOverLimit(error) ? .suspendOldest : .none
+        case .open, .resume: return isOverLimit(error) ? .suspendOldest : .none
         case .other: return .none
         }
     }
 
     /// Runs one bus call with one retry. `card_session_limit` (32 sessions of the account) disposes this account's least
-    /// recently used card; `card_limit_exceeded` on open, or an invalid-argument failure on resume, suspends the least
+    /// recently used card; `card_limit_exceeded` on open or resume suspends the least
     /// recently used resumed card of any account (the cap is the process's). A second failure is the caller's.
     private func perform(keeping ref: String, kind: CallKind = .other, _ call: () async throws -> CardResponse) async throws -> CardResponse {
         do { return try await call() } catch {

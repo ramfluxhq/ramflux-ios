@@ -104,8 +104,8 @@ import RFDesign
         guard case .success(let record) = await settings.appLock(account: account) else { return }
         exhausted = record.codeAttemptsExhausted
         if exhausted { phraseAccepted = false; clearWait(); return }
-        guard let milliseconds = record.codeRetryAfterMilliseconds, milliseconds > 0 else { if waitUntil == nil { phraseAccepted = false }; return }
-        startWait(ContinuousClock.now.advanced(by: .milliseconds(Int(min(milliseconds, 86_400_000)))))
+        guard let seconds = record.codeRetryAfterSeconds, seconds > 0 else { if waitUntil == nil { phraseAccepted = false }; return }
+        startWait(ContinuousClock.now.advanced(by: .seconds(Int(min(seconds, 86_400)))))
     }
     private func startWait(_ until: ContinuousClock.Instant) {
         waitUntil = until; waitTimer?.cancel()
