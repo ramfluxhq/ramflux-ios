@@ -16,7 +16,7 @@ public struct BackupScreen: View {
     private func copy(_ key: String) -> String { FeatureSettingsStrings.text(key, locale: locale) }
     public var body: some View {
         RFPage { ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) {
-            KitPageHeader(copy("settings.backup.title"), onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: copy("common.action.refresh"), action: { onAction(.refresh) })], tag: "backup-header")
+            KitPageHeader(copy("settings.backup.title"), onBack: { dismiss() }, tag: "backup-header")
             if case .restored = state.step { restored } else { overview }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
             .privacySensitive().rfHidesNavigationBar()
@@ -145,7 +145,8 @@ public struct BackupScreen: View {
         case .existingArchive: [RFSecureEntryField(id: "passphrase", label: copy("settings.backup.passphrase.existing"))]
         case .newCode: [RFSecureEntryField(id: "passphrase", label: copy("settings.backup.install.code.new"), kind: .accountCode), RFSecureEntryField(id: "passphraseRepeat", label: copy("settings.backup.install.code.repeat"), kind: .accountCode)]
         }
-        RFSecureEntryForm(fields: fields, enabled: state.attended && !state.busy, submit: submit).frame(minHeight: theme.composer_min * CGFloat(fields.count + 1))
+        let action = switch form { case .newArchive: "settings.backup.create.action"; case .existingArchive: "settings.backup.verify.action"; case .newCode: "settings.backup.install.code.action" }
+        RFSecureEntryForm(fields: fields, submitLabel: copy(action), enabled: state.attended && !state.busy, submit: submit)
         #else
         RFUnavailableView(title: copy("settings.backup.title"), message: AppFailure.unsupported.message(locale: locale))
         #endif

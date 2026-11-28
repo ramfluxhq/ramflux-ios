@@ -8,9 +8,10 @@ struct RFHostConfirmButton: View {
     let summary: String
     let confirmLabel: String?
     let enabled: Bool
+    let destructive: Bool
     let confirm: () -> Void
     var body: some View {
-        Button(confirmLabel ?? RFDesignStrings.text("confirmation.confirm", locale: locale), role: .destructive) {
+        Button(confirmLabel ?? RFDesignStrings.text("confirmation.confirm", locale: locale), role: destructive ? .destructive : nil) {
             if gate.activate(.tap, enabled: enabled) { confirm() }
         }
         .accessibilityLabel(RFDesignStrings.format("confirmation.action", summary, locale: locale))

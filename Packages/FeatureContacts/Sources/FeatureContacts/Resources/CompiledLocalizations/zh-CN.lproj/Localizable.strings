@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>common.action.refresh</key>
-	<string>刷新</string>
 	<key>common.action.reply</key>
 	<string>回复</string>
 	<key>common.tab.contacts</key>
@@ -47,9 +45,9 @@
 	<key>contacts.loadingMore</key>
 	<string>正在加载更多</string>
 	<key>contacts.myCard.explain</key>
-	<string>对方添加此名片后，即可通过您的主节点联系您。名片七天后失效，届时请重新打开此页面获取新名片。</string>
+	<string>对方添加此名片后，即可通过你的主节点联系你。名片七天后失效，届时请重新打开此页面获取新名片。</string>
 	<key>contacts.myCard.qr</key>
-	<string>您的联系人名片二维码</string>
+	<string>你的联系人名片二维码</string>
 	<key>contacts.myCard.share</key>
 	<string>分享联系人名片</string>
 	<key>contacts.myCard.text</key>

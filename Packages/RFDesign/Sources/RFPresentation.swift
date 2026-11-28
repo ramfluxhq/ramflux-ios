@@ -90,9 +90,11 @@ public struct RFUnavailableView: View {
 }
 
 public extension View {
+    /// Hides the system navigation bar (the kit header is the only header) and keeps the edge-swipe back gesture, which
+    /// UIKit disables together with the bar.
     @ViewBuilder func rfHidesNavigationBar() -> some View {
         #if os(iOS)
-        self.toolbar(.hidden, for: .navigationBar)
+        self.toolbar(.hidden, for: .navigationBar).background(RFEdgeSwipeBackEnabler().frame(width: 0, height: 0))
         #else
         self
         #endif
@@ -109,3 +111,25 @@ public extension View {
 public extension EnvironmentValues {
     @Entry var rfLoadsOnAppear = true
 }
+
+#if os(iOS)
+import UIKit
+/// Re-enables the interactive pop gesture of the enclosing navigation controller while its bar is hidden; the gesture only
+/// begins when there is a screen to go back to.
+private struct RFEdgeSwipeBackEnabler: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> Controller { Controller() }
+    func updateUIViewController(_ controller: Controller, context: Context) {}
+    final class Controller: UIViewController {
+        override func viewDidAppear(_ animated: Bool) { super.viewDidAppear(animated); attach() }
+        override func didMove(toParent parent: UIViewController?) { super.didMove(toParent: parent); attach() }
+        private func attach() { navigationController?.interactivePopGestureRecognizer?.delegate = RFEdgeSwipeDelegate.shared }
+    }
+}
+@MainActor private final class RFEdgeSwipeDelegate: NSObject, UIGestureRecognizerDelegate {
+    static let shared = RFEdgeSwipeDelegate()
+    func gestureRecognizerShouldBegin(_ gesture: UIGestureRecognizer) -> Bool {
+        guard let navigation = gesture.view?.next as? UINavigationController else { return false }
+        return navigation.viewControllers.count > 1
+    }
+}
+#endif

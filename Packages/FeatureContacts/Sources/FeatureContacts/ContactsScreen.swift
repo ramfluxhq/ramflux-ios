@@ -11,21 +11,28 @@ public struct ContactsScreen: View {
     public let state: ContactsState
     public let onAction: (ContactsAction) -> Void
     public init(state: ContactsState, onAction: @escaping (ContactsAction) -> Void) { self.state = state; self.onAction = onAction }
-    public var body: some View {
+    /// Only the contact list pulls to refresh; the event stream keeps every page current.
+    @ViewBuilder private var page: some View {
+        if state.mode == .contacts { scrolling.refreshable { onAction(.refresh) } } else { scrolling }
+    }
+    private var scrolling: some View {
         RFPage { ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) {
-            KitPageHeader(title, onBack: { dismiss() }, actions: [KitHeaderAction(icon: "refresh-cw", label: FeatureContactsStrings.text("common.action.refresh", locale: locale), action: { onAction(.refresh) })], tag: "contacts-header")
+            KitPageHeader(title, onBack: { dismiss() }, tag: "contacts-header")
             if state.pendingMutation != nil { Button(FeatureContactsStrings.text("contacts.reconcile", locale: locale)) { onAction(.retryPendingMutation) }.disabled(state.busy) }
             if state.loading { ProgressView(FeatureContactsStrings.text("contacts.loading", locale: locale)) }
             content
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
+    }
+    public var body: some View {
+        page
             .privacySensitive().rfHidesNavigationBar()
             .sheet(item: Binding(get: { state.pending }, set: { if $0 == nil { onAction(.cancelDecision) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {
                     Text(untrusted: pending.request.name).rfFont(.body, weight: .semibold)
                     KitIdentifierText(pending.request.principal).textSelection(.enabled)
                     Text(pending.action == .accept ? FeatureContactsStrings.text("contacts.decision.confirmAccept", locale: locale) : FeatureContactsStrings.text("contacts.decision.confirmOther", locale: locale))
-                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(AppDataStrings.status(pending.action.rawValue, locale: locale)), .untrusted(pending.request.name), .identifier(pending.request.principal)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
+                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(AppDataStrings.status(pending.action.rawValue, locale: locale)), .untrusted(pending.request.name), .identifier(pending.request.principal)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, destructive: pending.action != .accept, confirm: { onAction(.confirmDecision) }, cancel: { onAction(.cancelDecision) }).id(pending.id)
                     if state.busy { ProgressView(FeatureContactsStrings.text("contacts.decision.applying", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
@@ -35,7 +42,7 @@ public struct ContactsScreen: View {
                     Text(untrusted: pending.contact.displayName).rfFont(.body, weight: .semibold)
                     KitIdentifierText(pending.contact.id).textSelection(.enabled)
                     Text(FeatureContactsStrings.text("contacts.change.confirm." + pending.change.rawValue, locale: locale))
-                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(changeLabel(pending.change)), .untrusted(pending.contact.displayName), .identifier(pending.contact.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, confirm: { onAction(.confirmChange) }, cancel: { onAction(.cancelChange) }).id(pending.id)
+                    RFHostConfirmationActions(summary: FeatureContactsStrings.sentence("contacts.decision.summary", [.localized(changeLabel(pending.change)), .untrusted(pending.contact.displayName), .identifier(pending.contact.id)], locale: locale), enabled: !state.busy && !state.unknownMutation, cancelEnabled: !state.busy, destructive: pending.change == .remove || pending.change == .block, confirm: { onAction(.confirmChange) }, cancel: { onAction(.cancelChange) }).id(pending.id)
                     if state.busy { ProgressView(FeatureContactsStrings.text("contacts.change.applying", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)

@@ -36,23 +36,6 @@
         }
       }
     },
-    "common.action.refresh": {
-      "comment": "Button that reloads the current screen from the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刷新"
-          }
-        }
-      }
-    },
     "contacts.request.title": {
       "comment": "Title of the screen showing one request from someone who is not a contact.",
       "localizations": {
@@ -949,7 +932,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "对方添加此名片后，即可通过您的主节点联系您。名片七天后失效，届时请重新打开此页面获取新名片。"
+            "value": "对方添加此名片后，即可通过你的主节点联系你。名片七天后失效，届时请重新打开此页面获取新名片。"
           }
         }
       }
@@ -966,7 +949,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "您的联系人名片二维码"
+            "value": "你的联系人名片二维码"
           }
         }
       }

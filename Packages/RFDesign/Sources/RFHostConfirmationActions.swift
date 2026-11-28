@@ -9,25 +9,29 @@ public struct RFHostConfirmationActions: View {
     @FocusState private var cancelFocused: Bool
     @AccessibilityFocusState private var cancelAccessibilityFocused: Bool
     public let confirmLabel: String?
+    /// The label of the quiet dismiss action; "Cancel" when nil.
+    public let cancelLabel: String?
     public let summary: String
     public let enabled: Bool
     public let cancelEnabled: Bool
+    /// A destructive confirmation keeps the danger style and starts with focus on Cancel; every other one is a primary action.
+    public let destructive: Bool
     public let confirm: () -> Void
     public let cancel: () -> Void
-    public init(summary: String, confirmLabel: String? = nil, enabled: Bool, cancelEnabled: Bool = true, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
-        self.confirmLabel = confirmLabel; self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.confirm = confirm; self.cancel = cancel
+    public init(summary: String, confirmLabel: String? = nil, cancelLabel: String? = nil, enabled: Bool, cancelEnabled: Bool = true, destructive: Bool = false, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
+        self.confirmLabel = confirmLabel; self.cancelLabel = cancelLabel; self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.destructive = destructive; self.confirm = confirm; self.cancel = cancel
     }
     public var body: some View {
         #if os(iOS)
-        RFNativeConfirmationActions(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, confirm: confirm, cancel: cancel)
+        RFNativeConfirmationActions(summary: summary, confirmLabel: confirmLabel, cancelLabel: cancelLabel, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, destructive: destructive, confirm: confirm, cancel: cancel)
         #else
         VStack(spacing: theme.gap) {
-            Button(RFDesignStrings.text("confirmation.cancel", locale: locale), role: .cancel, action: cancel)
+            RFHostConfirmButton(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, destructive: destructive, confirm: confirm)
+            Button(cancelLabel ?? RFDesignStrings.text("confirmation.cancel", locale: locale), role: .cancel, action: cancel)
                 .keyboardShortcut(.cancelAction)
                 .focused($cancelFocused)
                 .accessibilityFocused($cancelAccessibilityFocused)
                 .disabled(!cancelEnabled)
-            RFHostConfirmButton(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, confirm: confirm)
         }
         .defaultFocus($cancelFocused, true)
         .task { cancelFocused = true; cancelAccessibilityFocused = true }

@@ -8,11 +8,13 @@ import UIKit
     let stack = UIStackView()
     var cancelAction: () -> Void = {}
     private var needsInitialFocus = false
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [cancelButton] }
+    /// A destructive confirmation starts with focus on Cancel; any other one starts on its primary action.
+    var destructive = true
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [destructive ? cancelButton : confirmButton] }
     override init(frame: CGRect) {
         super.init(frame: frame)
         stack.axis = .vertical; stack.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(stack); stack.addArrangedSubview(cancelButton); stack.addArrangedSubview(confirmButton)
+        addSubview(stack); stack.addArrangedSubview(confirmButton); stack.addArrangedSubview(cancelButton)
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: leadingAnchor), stack.trailingAnchor.constraint(equalTo: trailingAnchor),
             stack.topAnchor.constraint(equalTo: topAnchor), stack.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -21,7 +23,7 @@ import UIKit
         ])
         cancelButton.addTarget(self, action: #selector(cancelled), for: .touchUpInside)
         cancelButton.cancel = { [weak self] in self?.cancelled() }
-        // The safe action is first for both native focus and accessibility navigation.
+        // The primary action is first on screen; for a destructive confirmation the safe action leads accessibility navigation.
         accessibilityElements = [cancelButton, confirmButton]
     }
     required init?(coder: NSCoder) { nil }
@@ -33,17 +35,18 @@ import UIKit
     }
     override func layoutSubviews() {
         super.layoutSubviews()
+        let target: UIButton = destructive ? cancelButton : confirmButton
         guard needsInitialFocus, let window, window.windowScene?.activationState == .foregroundActive,
-              !bounds.isEmpty, cancelButton.isEnabled else { return }
+              !bounds.isEmpty, target.isEnabled else { return }
         // First-responder transfer is effective even when another branch owns keyboard input.
         // A setNeedsFocusUpdate() on this previously unfocused container is insufficient.
-        guard cancelButton.becomeFirstResponder() else { return }
+        guard target.becomeFirstResponder() else { return }
         needsInitialFocus = false
         if let system = UIFocusSystem.focusSystem(for: window) {
-            system.requestFocusUpdate(to: cancelButton)
+            system.requestFocusUpdate(to: target)
             system.updateFocusIfNeeded()
         }
-        UIAccessibility.post(notification: .screenChanged, argument: cancelButton)
+        UIAccessibility.post(notification: .screenChanged, argument: target)
     }
 }
 #endif

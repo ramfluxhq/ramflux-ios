@@ -52,6 +52,8 @@
 	<string>The microphone lets the other person hear you on a voice call.</string>
 	<key>microphone.without</key>
 	<string>Messaging and call history still work without microphone access.</string>
+	<key>notNow</key>
+	<string>Not now</string>
 	<key>notifications</key>
 	<string>Notifications</string>
 	<key>notifications.detail</key>
@@ -89,7 +91,7 @@
 	<key>photoPicker.detail</key>
 	<string>The system photo picker grants access only to the items you select, without library-wide permission.</string>
 	<key>promptBoundary</key>
-	<string>Continue opens the system prompt. Cancel does not ask for permission.</string>
+	<string>Continue opens the system prompt. Not now does not ask for permission.</string>
 	<key>status.allowed</key>
 	<string>Allowed</string>
 	<key>status.denied</key>

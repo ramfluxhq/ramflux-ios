@@ -8,14 +8,16 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
     @Environment(\.rfTheme) private var theme
     let summary: String
     let confirmLabel: String?
+    let cancelLabel: String?
     let enabled: Bool
     let cancelEnabled: Bool
+    let destructive: Bool
     let confirm: () -> Void
     let cancel: () -> Void
     func makeUIView(context: Context) -> RFConfirmationActionsControl { RFConfirmationActionsControl() }
     func updateUIView(_ view: RFConfirmationActionsControl, context: Context) {
-        view.cancelAction = cancel
-        view.cancelButton.setTitle(RFDesignStrings.text("confirmation.cancel", locale: locale), for: .normal)
+        view.cancelAction = cancel; view.destructive = destructive
+        view.cancelButton.setTitle(cancelLabel ?? RFDesignStrings.text("confirmation.cancel", locale: locale), for: .normal)
         view.cancelButton.isEnabled = cancelEnabled
         view.cancelButton.titleLabel?.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_body) ?? .preferredFont(forTextStyle: .body))
         view.cancelButton.titleLabel?.adjustsFontForContentSizeCategory = true
@@ -25,8 +27,9 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
         button.accessibilityLabel = RFDesignStrings.format("confirmation.action", summary, locale: locale)
         var style = UIButton.Configuration.filled()
         style.title = confirmLabel ?? RFDesignStrings.text("confirmation.confirm", locale: locale)
-        style.baseForegroundColor = UIColor(theme.danger)
-        style.baseBackgroundColor = UIColor(theme.danger_bg)
+        // An affirmative action is the filled primary; only a destructive one takes the danger colours.
+        style.baseForegroundColor = UIColor(destructive ? theme.danger : theme.on_primary)
+        style.baseBackgroundColor = UIColor(destructive ? theme.danger_bg : theme.primary)
         let font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_body) ?? .preferredFont(forTextStyle: .body))
         style.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
             var result = attributes; result.font = font; return result

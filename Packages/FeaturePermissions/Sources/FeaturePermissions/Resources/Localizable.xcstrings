@@ -30,7 +30,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "权限状态仅保存在此设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。"
+            "value": "权限状态仅保存在本设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。"
           }
         }
       }
@@ -107,16 +107,17 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Continue opens the system prompt. Cancel does not ask for permission."
+            "value": "Continue opens the system prompt. Not now does not ask for permission."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点继续后由系统询问；轻点取消则不会询问。"
+            "value": "轻点“继续”后由系统询问；轻点“以后再说”则不会询问。"
           }
         }
-      }
+      },
+      "comment": "Explains what the two actions on a permission explanation do."
     },
     "denied": {
       "localizations": {
@@ -854,6 +855,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "受系统限制"
+          }
+        }
+      }
+    },
+    "notNow": {
+      "comment": "Quiet dismiss action under Continue on a permission explanation.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以后再说"
           }
         }
       }

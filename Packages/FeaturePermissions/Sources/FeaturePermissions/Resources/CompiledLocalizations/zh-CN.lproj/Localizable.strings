@@ -35,7 +35,7 @@
 	<key>incomingCalls.detail</key>
 	<string>来电使用系统通话界面，无需权限。在此版本具备通话媒体之前，语音和视频通话暂不可用，因此暂时无法接听。</string>
 	<key>intro</key>
-	<string>权限状态仅保存在此设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。</string>
+	<string>权限状态仅保存在本设备上，不会同步或发送给节点。返回 Ramflux 时会重新读取。</string>
 	<key>loading</key>
 	<string>正在读取系统权限</string>
 	<key>microphone</key>
@@ -52,6 +52,8 @@
 	<string>麦克风让对方在语音通话中听到你的声音。</string>
 	<key>microphone.without</key>
 	<string>不允许麦克风也可以继续收发消息和查看通话记录。</string>
+	<key>notNow</key>
+	<string>以后再说</string>
 	<key>notifications</key>
 	<string>通知</string>
 	<key>notifications.detail</key>
@@ -89,7 +91,7 @@
 	<key>photoPicker.detail</key>
 	<string>系统照片选择器仅授权你所选的项目，无需整个图库权限。</string>
 	<key>promptBoundary</key>
-	<string>轻点继续后由系统询问；轻点取消则不会询问。</string>
+	<string>轻点“继续”后由系统询问；轻点“以后再说”则不会询问。</string>
 	<key>status.allowed</key>
 	<string>已允许</string>
 	<key>status.denied</key>

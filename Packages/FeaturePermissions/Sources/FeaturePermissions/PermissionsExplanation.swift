@@ -18,7 +18,7 @@ public struct PermissionsExplanation: View {
             Text(copy(permission.rawValue + ".scope"))
             Text(copy(permission.rawValue + ".without"))
             Text(copy("promptBoundary")).rfFont(.caption)
-            RFHostConfirmationActions(summary: copy(permission.rawValue + ".title"), confirmLabel: copy("continue"), enabled: !busy, cancelEnabled: !busy, confirm: { onAction(.confirmExplanation) }, cancel: { onAction(.cancelExplanation) })
+            RFHostConfirmationActions(summary: copy(permission.rawValue + ".title"), confirmLabel: copy("continue"), cancelLabel: copy("notNow"), enabled: !busy, cancelEnabled: !busy, confirm: { onAction(.confirmExplanation) }, cancel: { onAction(.cancelExplanation) })
         }.padding(theme.gap).frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity) } }
     }
 }

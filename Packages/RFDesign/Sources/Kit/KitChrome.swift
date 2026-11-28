@@ -113,7 +113,8 @@ public struct KitPageHeader: View {
                         weight: large ? .bold : .semibold,
                         color: theme.text,
                         line: large ? KitMetrics.lineTight : KitMetrics.lineTitle,
-                        role: latin ? .latin : .ui
+                        role: latin ? .latin : .ui,
+                        lines: 2
                     )
                 }
                 if large, let subtitle, !subtitle.isEmpty {
