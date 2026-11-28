@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import SwiftUI
 import AppData
+import FeatureChat
 import RFDesign
 import RFLocalization
 public struct ContactsScreen: View {
@@ -29,6 +30,9 @@ public struct ContactsScreen: View {
                     if state.busy { ProgressView(FeatureContactsStrings.text("contacts.decision.applying", locale: locale)) }
                     if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)) }
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
+            }
+            .sheet(isPresented: Binding(get: { state.mode.isProfile && state.identity.showsSheet }, set: { if !$0 { onAction(.identityLater) } })) {
+                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
             }
             .sheet(item: Binding(get: { state.pendingChange }, set: { if $0 == nil { onAction(.cancelChange) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {
@@ -107,6 +111,7 @@ public struct ContactsScreen: View {
                 HStack(spacing: theme.gap) { Text(untrusted: contact.displayName).rfFont(.page); if contact.classification.isAIAgent { KitAIMarker(tag: "contact-ai") } }
                 KitIdentifierText(contact.id).textSelection(.enabled)
                 if contact.blocked { Label(FeatureContactsStrings.text("contacts.profile.blocked", locale: locale), systemImage: "hand.raised") }
+                IdentityEncryptionSection(panel: state.identity, showsSecurity: false, onReview: { onAction(.identityReview) })
                 changeButtons(contact)
             } else { Text(FeatureContactsStrings.text("contacts.profile.missing", locale: locale)) }
         }

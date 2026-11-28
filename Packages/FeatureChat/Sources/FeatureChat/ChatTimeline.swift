@@ -21,15 +21,16 @@ public struct ChatTimeline: UIViewControllerRepresentable {
     public let revealed: Set<String>
     let cards: [String: CardMessageState]
     let agentAuthors: Set<String>
-    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
-        self.agentAuthors = agentAuthors
+    let service: [ServiceLine]
+    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
+        self.agentAuthors = agentAuthors; self.service = service
         self.media = media; self.revealed = revealed; self.cards = cards
         self.isGroup = isGroup; self.messages = messages; self.outbox = outbox; self.unreadAnchorID = unreadAnchorID; self.olderAvailable = olderAvailable; self.loadingOlder = loadingOlder; self.onAction = onAction
     }
     public func makeUIViewController(context: Context) -> TimelineController { TimelineController() }
     public func updateUIViewController(_ controller: TimelineController, context: Context) {
         controller.onAction = onAction
-        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors)
+        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors, service: service)
     }
 }
 #endif

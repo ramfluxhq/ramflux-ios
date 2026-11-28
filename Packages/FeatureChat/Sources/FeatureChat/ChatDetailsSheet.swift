@@ -12,6 +12,7 @@ struct ChatDetailsSheet: View {
     let title: String
     let conversationID: String
     let isGroup: Bool
+    let identity: IdentityPanel
     let onAction: (ChatAction) -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -40,6 +41,9 @@ struct ChatDetailsSheet: View {
                     Text(FeatureChatStrings.text("chat.details.muteUnknown", locale: locale)).rfFont(.caption)
                 }
             }
+            if !isGroup {
+                IdentityEncryptionSection(panel: identity, showsSecurity: true, onReview: { onAction(.identityReview) })
+            }
             KitRow(FeatureChatStrings.text("chat.gallery.title", locale: locale), action: { onAction(.openGallery) }, icon: "images", tag: "chat-details-gallery")
             if let storage = state.storage {
                 KitRow(FeatureChatStrings.text("chat.storage.conversation", locale: locale), icon: "database", value: storage.formatted(.byteCount(style: .file).locale(locale)), trailing: .none)
@@ -57,5 +61,8 @@ struct ChatDetailsSheet: View {
             }
             Button(FeatureChatStrings.text("chat.details.close", locale: locale)) { onAction(.closeDetails) }
         }.padding(theme.gap) } }
+        .sheet(isPresented: Binding(get: { identity.showsSheet }, set: { if !$0 { onAction(.identityLater) } })) {
+            IdentityChangeSheet(panel: identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
+        }
     }
 }

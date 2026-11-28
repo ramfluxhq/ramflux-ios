@@ -126,6 +126,14 @@ public struct ConversationsScreen: View {
         default: .person
         }
         let label = kind == .person ? String(row.title.prefix(1)) : ""
-        return KitAvatar(label, size: 44, kind: kind, icon: row.avatarIcon.isEmpty ? "orbit" : row.avatarIcon, tag: row.id + "-avatar")
+        let avatar = KitAvatar(label, size: 44, kind: kind, icon: row.avatarIcon.isEmpty ? "orbit" : row.avatarIcon, tag: row.id + "-avatar")
+        return avatar.overlay(alignment: .bottomTrailing) {
+            // The peer's identity changed and is not accepted yet.
+            if let peer = row.peer, state.changedPeers.contains(peer) {
+                Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 14)).foregroundStyle(theme.warning)
+                    .accessibilityLabel(Text(FeatureConversationsStrings.text("identity.state.changed", locale: locale)))
+                    .accessibilityIdentifier("identity-badge-" + row.id)
+            }
+        }
     }
 }

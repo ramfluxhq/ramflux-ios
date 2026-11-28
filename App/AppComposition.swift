@@ -135,7 +135,7 @@ import Push
         // inbox is built again once the real name is back after the unlock.
         if let inbox, inbox.0 == account, inbox.1 == title { return inbox.2 }
         inbox?.2.send(.disappeared)
-        let coordinator = ConversationsCoordinator(repository: repositories.conversations, account: account, accountTitle: title) { [weak self] route in self?.shell.send(.open(route)) }
+        let coordinator = ConversationsCoordinator(repository: repositories.conversations, identity: repositories.identity, account: account, accountTitle: title) { [weak self] route in self?.shell.send(.open(route)) }
         inbox = (account, title, coordinator); return coordinator
     }
     @ObservationIgnored private var currentChat: (String, String, String?, ChatCoordinator)?
@@ -146,7 +146,7 @@ import Push
         // A direct conversation takes the name its directory row resolved (contact name or short identifier).
         let row = inbox.flatMap { $0.0 == account ? $0.2.viewModel.state.rows.first { $0.id == conversation } : nil }
         let resolved = title ?? row?.title
-        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved,
+        let coordinator = ChatCoordinator(repository: repositories.chat, cards: repositories.cards, identity: repositories.identity, peerContact: group == nil ? row?.peer : nil, account: account, conversation: conversation, isGroup: group != nil, groupID: group, title: resolved,
                                           peerIsAgent: group == nil && row?.classification.isAIAgent == true) { [weak self] event in
             self?.chatEvent(event, account: account, conversation: conversation)
         }
@@ -187,7 +187,7 @@ import Push
     func contacts(account: String, mode: ContactsMode) -> ContactsCoordinator {
         if let currentContacts, currentContacts.0 == account, currentContacts.1 == mode { return currentContacts.2 }
         currentContacts?.2.send(.disappeared)
-        let coordinator = ContactsCoordinator(repository: repositories.contacts, account: account, mode: mode) { [weak self] route in self?.shell.send(.open(route)) }
+        let coordinator = ContactsCoordinator(repository: repositories.contacts, identity: repositories.identity, account: account, mode: mode) { [weak self] route in self?.shell.send(.open(route)) }
         currentContacts = (account, mode, coordinator); return coordinator
     }
     @ObservationIgnored private var currentGroups: (String, GroupsCoordinator)?

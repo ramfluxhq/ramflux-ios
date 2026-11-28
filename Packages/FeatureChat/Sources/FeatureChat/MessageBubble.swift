@@ -241,6 +241,8 @@ struct TimelineRow: View {
             MessageBubble(message: record, isGroup: isGroup, media: media, onAction: onAction)
         case .outbox(let entry):
             OutboxBubble(entry: entry, onAction: onAction)
+        case .service(let line):
+            ServiceLineView(line: line)
         }
     }
 }

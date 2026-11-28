@@ -92,6 +92,9 @@ public protocol ContactIdentityRepository: Sendable {
     /// Accepts the changed identity whose new anchor the user saw. Called from one place only: the Accept action of the
     /// identity change sheet. Never retried and never called without a tap.
     func accept(account: String, contact: String, newAnchor: String) async -> AcceptOutcome
+    /// The unaccepted changes this client knows of, one per contact, for the conversation list's warning glyph. There is no
+    /// per-row status read: the list shows the badge from events and from the contacts the user has opened.
+    func pendingChanges(account: String) async -> [IdentityChange]
     /// Identity changes as they arrive (`contact.identity_changed`).
     func changes(account: String) -> AsyncStream<IdentityChange>
     /// Invalidations for identity changes and `conversation.devices_changed`; screens re-read silently.
@@ -177,6 +180,7 @@ actor IdentityMemory {
         if rows[change.contact] == nil, rows.count >= Self.limit, let oldest = rows.min(by: { $0.value.seenAt < $1.value.seenAt })?.key { rows[oldest] = nil }
         rows[change.contact] = change; changes[account] = rows
     }
+    func all(account: String) -> [IdentityChange] { Array((changes[account] ?? [:]).values) }
     func latest(account: String, keys: [String]) -> IdentityChange? { keys.lazy.compactMap { self.changes[account]?[$0] }.first }
     func clear(account: String, keys: [String]) { for key in keys { changes[account]?[key] = nil } }
 }
@@ -209,6 +213,7 @@ public struct NativeContactIdentityRepository: ContactIdentityRepository {
         // ContactIdentityParsing.accepted and ContactIdentityParsing.acceptRefusal.
         .failed(.unsupported)
     }
+    public func pendingChanges(account: String) async -> [IdentityChange] { await memory.all(account: account) }
     public func changes(account: String) -> AsyncStream<IdentityChange> {
         let (stream, continuation) = AsyncStream<IdentityChange>.makeStream(bufferingPolicy: .bufferingNewest(16))
         let updates = updates, memory = memory
@@ -254,6 +259,7 @@ public struct UnavailableContactIdentityRepository: ContactIdentityRepository {
     public func identity(account: String, contact: String) async -> RepositoryResult<IdentityRead> { .failure(.sdkUnavailable) }
     public func security(account: String, conversation: String) async -> RepositoryResult<ConversationSecurity> { .failure(.sdkUnavailable) }
     public func accept(account: String, contact: String, newAnchor: String) async -> AcceptOutcome { .failed(.sdkUnavailable) }
+    public func pendingChanges(account: String) async -> [IdentityChange] { [] }
     public func changes(account: String) -> AsyncStream<IdentityChange> { AsyncStream { $0.finish() } }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
 }

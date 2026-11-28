@@ -15,5 +15,7 @@ public struct ConversationsState: Equatable, Sendable {
     public var canLoadBefore = false
     public var failure: AppFailure?
     public var query = ""
+    /// Peers whose changed identity is not accepted yet; their rows show a warning glyph.
+    public var changedPeers: Set<String> = []
     public init(rows: [ConversationRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.rows = rows; self.loading = loading; self.failure = failure }
 }
