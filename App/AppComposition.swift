@@ -58,13 +58,14 @@ import Push
     }
     /// The app lock's code field for the active account. Success re-activates the shell only: the navigation
     /// path and any sheet stay as they were, so the same conversation is back underneath.
-    @ObservationIgnored private var appLockScreen: (String, AppLockModel)?
+    /// One model per account id: a lock page pushed over another one keeps its own removal state and name.
+    @ObservationIgnored private var appLockScreens: [String: AppLockModel] = [:]
     func appLock(account: String) -> AppLockModel {
         // The one account this page is bound to, by id, as `account.list` names it (only its own name and initial are drawn).
         let record = shell.viewModel.state.session.accounts.first { $0.id == account }
-        if let appLockScreen, appLockScreen.0 == account {
-            if let record, appLockScreen.1.account != record { appLockScreen.1.account = record }
-            return appLockScreen.1
+        if let existing = appLockScreens[account] {
+            if let record, existing.account != record { existing.account = record }
+            return existing
         }
         let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account, record: record,
                                  onUnlocked: { [weak self] in
@@ -72,7 +73,7 @@ import Push
                                     if self?.shell.path.contains(.unlockAccount(account)) == true { self?.shell.closeUnlock() }
                                     self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) },
                                  onRemoved: { [weak self] in self?.lockedAccountRemoved(account) })
-        appLockScreen = (account, model); return model
+        appLockScreens[account] = model; return model
     }
     /// Shown at the top after an account was removed from this device ("<name> was removed from this device."); clears itself.
     private(set) var removedNotice: String?
@@ -82,11 +83,11 @@ import Push
     /// account picker when others exist, onboarding otherwise.
     private func lockedAccountRemoved(_ account: String) {
         // The name is read before anything else changes: the session no longer lists the account once it is read again.
-        let record = appLockScreen?.1.account ?? shell.viewModel.state.session.accounts.first { $0.id == account }
+        let record = appLockScreens[account]?.account ?? shell.viewModel.state.session.accounts.first { $0.id == account }
         let name = (record ?? AccountRecord(id: account, displayName: "", isLocked: true)).title()
         showRemovedNotice(name)
         clearLockRecovery()
-        appLockScreen = nil
+        appLockScreens[account] = nil
         accountLocked()
         shell.path = []
         shell.send(.retry)
@@ -131,10 +132,10 @@ import Push
         guard lockRecovery == nil else { return }
         // A refusal that moves the lock screen closes the recovery; the cover reads the app-lock state again and shows the
         // lock form with the countdown or the exhausted page. A success keeps the cover until the state says unlocked.
-        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account, name: appLockScreen?.1.account?.displayName ?? shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? ""),
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account, name: appLockScreens[account]?.account?.displayName ?? shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? ""),
             lockRecoveryEnded: { [weak self] failure in
                 self?.lockRecovery = nil
-                if let model = self?.appLockScreen, model.0 == account { model.1.recoveryEnded(failure) }
+                self?.appLockScreens[account]?.recoveryEnded(failure)
             }) { [weak self] recovered in
             self?.lockRecovery = nil
             if recovered != nil { self?.shell.send(.retry) }
@@ -145,7 +146,7 @@ import Push
     func clearLockRecovery() {
         lockRecovery?.coordinator.send(.disappeared)
         lockRecovery = nil
-        appLockScreen?.1.conceal()
+        for model in appLockScreens.values { model.conceal() }
     }
     @ObservationIgnored private var inbox: (String, String, ConversationsCoordinator)?
     func conversations(account: String) -> ConversationsCoordinator {
