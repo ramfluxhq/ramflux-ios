@@ -106,7 +106,7 @@ public struct ChatScreen: View {
             onSend: { if composerEnabled { onAction(.send) } },
             onAttach: { onAction(.attachRequested) },
             sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-            attachEnabled: !state.staging,
+            attachEnabled: !state.staging && state.mls == nil,
             replyAuthor: replyAuthor,
             replyExcerpt: replyExcerpt,
             onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
