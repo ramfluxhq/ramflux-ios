@@ -46,8 +46,6 @@
 	<string>Link copied</string>
 	<key>group.invite.copy</key>
 	<string>Copy link</string>
-	<key>group.invite.create</key>
-	<string>`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`</string>
 	<key>group.invite.duration</key>
 	<string>Valid for</string>
 	<key>group.invite.expired</key>

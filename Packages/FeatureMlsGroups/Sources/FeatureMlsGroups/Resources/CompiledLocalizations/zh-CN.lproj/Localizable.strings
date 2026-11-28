@@ -46,8 +46,6 @@
 	<string>链接已复制</string>
 	<key>group.invite.copy</key>
 	<string>复制链接</string>
-	<key>group.invite.create</key>
-	<string>Presets: 1 day (86400), 7 days (604800, default), 30 days (2592000); 1, 10 or 100 uses (default 100).</string>
 	<key>group.invite.duration</key>
 	<string>有效期</string>
 	<key>group.invite.expired</key>

@@ -61,7 +61,7 @@ public struct MlsInvitePanel: View {
     private var presets: some View {
         VStack(alignment: .leading, spacing: theme.gap) {
             Text(FeatureMlsGroupsStrings.text("group.invite.duration", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
-            Picker("", selection: $days) { ForEach([1, 7, 30], id: \.self) { Text(FeatureMlsGroupsStrings.format("group.invite.duration.day", $0, locale: locale)).tag($0) } }.pickerStyle(.segmented).accessibilityIdentifier("mls-invite-days")
+            Picker("", selection: $days) { ForEach([1, 7], id: \.self) { Text(FeatureMlsGroupsStrings.format("group.invite.duration.day", $0, locale: locale)).tag($0) } }.pickerStyle(.segmented).accessibilityIdentifier("mls-invite-days")
             Text(FeatureMlsGroupsStrings.text("group.invite.uses", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
             Picker("", selection: $uses) { ForEach([1, 10, 100], id: \.self) { Text(FeatureMlsGroupsStrings.format("group.invite.maxUses", $0, locale: locale)).tag($0) } }.pickerStyle(.segmented).accessibilityIdentifier("mls-invite-uses")
             KitButton(FeatureMlsGroupsStrings.text("group.invite.new", locale: locale), action: { model.createInvite(maxUses: uses, ttlSeconds: days * 86_400) }, kind: .secondary, enabled: !model.invites.creating, loading: model.invites.creating, tag: "mls-invite-new")

@@ -446,23 +446,6 @@
         }
       }
     },
-    "group.invite.create": {
-      "comment": "MLS groups (invite panel). English: \"`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`\"",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Presets: 1 day (86400), 7 days (604800, default), 30 days (2592000); 1, 10 or 100 uses (default 100)."
-          }
-        }
-      }
-    },
     "group.invite.duration": {
       "comment": "MLS groups (invite panel). English: \"Valid for\"",
       "localizations": {
