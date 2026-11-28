@@ -103,8 +103,11 @@ public struct IdentityPanel: Equatable, Sendable {
         closing?.cancel(); panel.phase = .idle; panel.sheetOpen = false
     }
     /// The explicit "Accept new identity" tap. It names the anchor of the change the sheet displays now.
-    public func accept() {
+    /// `anchor` is the new anchor the sheet rendered when it was tapped; when the panel holds a different change by now,
+    /// nothing is sent and the sheet shows "changed again" and waits for a new tap.
+    public func accept(anchor: String) {
         guard panel.sheetOpen, panel.phase != .accepting, panel.phase != .alreadyHandled, let displayed = panel.change else { return }
+        guard displayed.newAnchor == anchor else { panel.phase = .changedAgain; return }
         panel.phase = .accepting
         let current = epoch
         acceptance = Task { [weak self, repository, account] in
@@ -121,7 +124,14 @@ public struct IdentityPanel: Equatable, Sendable {
         switch outcome {
         case .accepted:
             // The status is read again for the real state; until then nothing is claimed.
-            panel.change = nil; panel.state = nil; panel.phase = .idle; panel.sheetOpen = false
+            // A newer change that arrived while the request ran stays visible, with the sheet showing "changed again".
+            if panel.change?.newAnchor == displayed.newAnchor {
+                panel.change = nil; panel.state = nil; panel.phase = .idle; panel.sheetOpen = false
+            } else if panel.change != nil {
+                panel.phase = .changedAgain
+            } else {
+                panel.state = nil; panel.phase = .idle; panel.sheetOpen = false
+            }
             append(ServiceLine(id: "accepted:" + displayed.newAnchor, kind: .identityAccepted, name: panel.presentedName))
             reread()
         case .alreadyHandled:
@@ -145,7 +155,8 @@ public struct IdentityPanel: Equatable, Sendable {
         if panel.change?.newAnchor != change.newAnchor {
             var next = panel
             next.state = .changed; next.change = change
-            if panel.phase == .alreadyHandled { next.phase = .idle }
+            if panel.sheetOpen, panel.phase != .accepting { next.phase = .changedAgain }
+            else if panel.phase == .alreadyHandled { next.phase = .idle }
             panel = next
             append(ServiceLine(id: "changed:" + change.newAnchor, kind: .identityChanged, name: panel.presentedName))
         }
@@ -170,7 +181,11 @@ public struct IdentityPanel: Equatable, Sendable {
             next.state = value.state
             if value.state == .changed {
                 // A status read that names no anchor keeps the one the event gave.
-                if let change = value.change { next.change = change }
+                if let change = value.change {
+                    // The sheet shows another change than the one on screen: the user must tap again.
+                    if next.sheetOpen, next.phase != .accepting, let shown = next.change, shown.newAnchor != change.newAnchor { next.phase = .changedAgain }
+                    next.change = change
+                }
             } else {
                 next.change = nil
                 if next.phase != .alreadyHandled { next.phase = .idle; next.sheetOpen = false }

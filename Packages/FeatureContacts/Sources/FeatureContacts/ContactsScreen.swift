@@ -32,7 +32,7 @@ public struct ContactsScreen: View {
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
             }
             .sheet(isPresented: Binding(get: { state.mode.isProfile && state.identity.showsSheet }, set: { if !$0 { onAction(.identityLater) } })) {
-                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
+                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept(anchor: $0)) }, onLater: { onAction(.identityLater) })
             }
             .sheet(item: Binding(get: { state.pendingChange }, set: { if $0 == nil { onAction(.cancelChange) } })) { pending in
                 NavigationStack { RFPage { VStack(alignment: .leading, spacing: theme.gap) {

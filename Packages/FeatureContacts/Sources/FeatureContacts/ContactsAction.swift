@@ -6,7 +6,7 @@ public enum ContactsAction: Equatable, Sendable {
     case requestDecision(String, ContactDecision), confirmDecision, cancelDecision, unavailable(ContactUnavailable)
     case requestChange(ContactChange), confirmChange, cancelChange
     /// Identity review of the profile contact: open the sheet, close it ("Not now"), and the explicit accept.
-    case identityReview, identityLater, identityAccept
+    case identityReview, identityLater, identityAccept(anchor: String)
     /// Sends the contact request for the `@name` that was looked up, only while the field still holds that text.
     case sendUsername
 }

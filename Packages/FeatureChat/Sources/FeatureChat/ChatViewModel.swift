@@ -118,7 +118,7 @@ import FeatureCards
         case .setMuted(let muted): setMuted(muted)
         case .identityReview: review?.review()
         case .identityLater: review?.later()
-        case .identityAccept: review?.accept()
+        case .identityAccept(let anchor): review?.accept(anchor: anchor)
         case .disappeared, .conceal:
             if !state.draft.isEmpty || action == .conceal { saveDraft(state.draft) }
             if typingSentAt != nil { typing(active: false) }
