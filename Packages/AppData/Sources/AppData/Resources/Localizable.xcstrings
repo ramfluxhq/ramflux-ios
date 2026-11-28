@@ -3359,6 +3359,40 @@
         }
       },
       "extractionState": "manual"
+    },
+    "refusal.identity_change_pending.title": {
+      "comment": "Title when a send is refused because the contact's changed identity has not been accepted yet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity changed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身份已更改"
+          }
+        }
+      }
+    },
+    "refusal.identity_change_pending": {
+      "comment": "Message when a send is refused because the contact's changed identity has not been accepted yet. Nothing was sent.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message not sent. Review the new identity before sending."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息未发送。请先查看新身份再发送。"
+          }
+        }
+      }
     }
   }
 }

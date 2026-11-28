@@ -798,40 +798,6 @@
         }
       }
     },
-    "chat.details.safety": {
-      "comment": "Row that opens the safety number of the other person in a direct conversation.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safety number"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "安全码"
-          }
-        }
-      }
-    },
-    "chat.details.safetyUnavailable": {
-      "comment": "Shown instead of the safety number row when the other person is not a contact or has not written yet.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The safety number is available once this person is a contact and has written to you."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "对方成为联系人并给你发过消息后，才能查看安全码。"
-          }
-        }
-      }
-    },
     "chat.details.close": {
       "comment": "Button that closes the conversation details sheet.",
       "localizations": {

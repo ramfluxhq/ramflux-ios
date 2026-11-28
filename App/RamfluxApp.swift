@@ -58,9 +58,9 @@ import RFDesign
                 case .mediaStorage:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(MediaStorageHost(repository: composition.repositories.chat, account: account)) }
                     else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
-                case .contacts, .strangers, .contact, .safetyNumber:
+                case .contacts, .strangers, .contact:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
-                        let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
+                        let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); default: .contacts }
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
                     } else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))

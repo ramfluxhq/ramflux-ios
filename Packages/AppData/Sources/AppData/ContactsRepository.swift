@@ -8,8 +8,7 @@ public protocol ContactsRepository: Sendable {
     func requests(account: String) async -> RepositoryResult<[ContactRequestRecord]>
     func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void>
     func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void>
-    func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety>
-    /// Removes, blocks, unblocks or marks the safety number of an accepted contact verified.
+    /// Removes, blocks or unblocks an accepted contact.
     func change(account: String, contact: ContactRecord, change: ContactChange, operationID: String) async -> RepositoryResult<Void>
     /// One page of accepted contacts whose name or principal contains `query` (empty matches all).
     func contactsPage(account: String, query: String, cursor: String?, limit: Int) async -> RepositoryResult<RowPage<ContactRecord>>
@@ -52,24 +51,6 @@ public struct NativeContactsRepository: ContactsRepository {
         await requestPager.page(cursor: cursor, limit: limit, read: { await self.requests(account: account) }, include: { $0.direction == direction })
     }
     public func change(account: String, contact: ContactRecord, change: ContactChange, operationID: String) async -> RepositoryResult<Void> {
-        if change == .verify {
-            guard let root = contact.rootCommitment else { return .failure(.unavailableResource("contacts.unavailable.identityCommitment")) }
-            let result = await mutations.run(scope: account, arguments: .change(contact.id, change), operationID: operationID) { [gateway] in
-                do {
-                    // Compare-and-set: the SDK records "verified" only if the safety facts still match the
-                    // snapshot the user compared, which `contact.verification.status` returns as `expected`.
-                    let status = try await gateway.call(.contactVerificationStatus, account: account, body: .object(["contact_identity_commitment": .string(root)]))
-                    guard status["contact_identity_commitment"] == .string(root), let expected = status["expected"], case .object = expected else { throw AppFailure.invalidData }
-                    _ = try await gateway.call(.contactVerify, account: account, body: .object(["expected": expected]), operationID: operationID)
-                    return .success(())
-                } catch { return .failure(AppFailure.map(error)) }
-            }
-            // A verify whose reply was lost (or refused as a repeat) may still have been recorded: the SDK's
-            // current verification state decides, read again instead of reporting an unknown outcome.
-            guard case .failure(let failure) = result else { return result }
-            guard case .success(let safety) = await self.safety(account: account, contact: contact), safety.root == root, safety.verified else { return .failure(failure) }
-            return .success(())
-        }
         guard let link = contact.linkID else { return .failure(.invalidInput) }
         let (operation, body): (SDKOperation, JSONValue) = switch change {
         case .remove: (.contactRemove, .object(["link_id": .string(link), "scope": .string("me")]))
@@ -86,7 +67,7 @@ public struct NativeContactsRepository: ContactsRepository {
             let body = try await gateway.call(.contactList, account: account)
             let records = try await ProxyGateway.mapRows(body, "contacts") { row in
                 let id = try ProxyGateway.text(row, "principal_id")
-                return ContactRecord(id: id, displayName: row["display_name"]?.string ?? id, subtitle: id, verified: row["verified"]?.bool, rootCommitment: row["root_commitment"]?.string,
+                return ContactRecord(id: id, displayName: row["display_name"]?.string ?? id, subtitle: id, rootCommitment: row["root_commitment"]?.string,
                                      linkID: row["link_id"]?.string, blocked: row["blocked"]?.bool ?? false, classification: PrincipalClassification(sdk: row["verified_classification"]))
             }
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
@@ -98,7 +79,7 @@ public struct NativeContactsRepository: ContactsRepository {
             let records = try await ProxyGateway.mapRows(body, "requests") { row in
                 let principal = try ProxyGateway.text(row, "principal_id")
                 return ContactRequestRecord(id: try ProxyGateway.text(row, "request_id"), principal: principal, name: row["display_name"]?.string ?? principal,
-                    direction: try ProxyGateway.text(row, "direction"), state: try ProxyGateway.text(row, "state"), preview: row["preview"]?.string, safetyNumber: Self.number(row["safety_number"]), classification: PrincipalClassification(sdk: row["verified_classification"]))
+                    direction: try ProxyGateway.text(row, "direction"), state: try ProxyGateway.text(row, "state"), preview: row["preview"]?.string, classification: PrincipalClassification(sdk: row["verified_classification"]))
             }
             guard Set(records.map(\.id)).count == records.count else { throw AppFailure.invalidData }; return .success(records)
         } catch { return .failure(AppFailure.map(error)) }
@@ -139,22 +120,6 @@ public struct NativeContactsRepository: ContactsRepository {
         catch { return .failure(AppFailure.map(error)) }
         }
     }
-    public func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> {
-        guard let root = contact.rootCommitment else { return .failure(.unavailableResource("contacts.unavailable.identityCommitment")) }
-        do {
-            let body = try await gateway.call(.contactVerificationStatus, account: account, body: .object(["contact_identity_commitment": .string(root)]))
-            guard body["contact_identity_commitment"] == .string(root), let number = Self.number(body["safety_number"]) else { throw AppFailure.invalidData }
-            let verified = body["verification_state"] == .string("verified")
-            return .success(ContactSafety(root: root, number: number, fingerprint: try ProxyGateway.text(body, "fingerprint_hex"), verified: verified,
-                requiresReview: !verified && body["stored_verification_state"] == .string("verified")))
-        } catch { return .failure(AppFailure.map(error)) }
-    }
-    static func number(_ value: JSONValue?) -> String? {
-        if let text = value?.string, text.utf8.count <= 2048 { return text }
-        guard case .array(let groups) = value, !groups.isEmpty, groups.count <= 64 else { return nil }
-        let parts = groups.compactMap(\.string)
-        guard parts.count == groups.count, parts.allSatisfy({ !$0.isEmpty && $0.utf8.count <= 64 }) else { return nil }; return parts.joined(separator: " ")
-    }
     public func observe(account: String) async -> RepositoryObservation { await updates.observe(account: account) }
     public func ownCard(account: String) async -> RepositoryResult<ContactCardExport> {
         do {
@@ -179,7 +144,6 @@ public struct UnavailableContactsRepository: ContactsRepository {
     public func requests(account: String) async -> RepositoryResult<[ContactRequestRecord]> { .failure(.sdkUnavailable) }
     public func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
     public func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
-    public func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> { .failure(.sdkUnavailable) }
     public func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .sdkUnavailable) }
     public func unavailable(_ capability: ContactUnavailable) -> AppFailure { NativeContactsRepository.refusal(capability) }
 }

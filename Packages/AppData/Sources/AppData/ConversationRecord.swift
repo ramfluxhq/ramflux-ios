@@ -19,6 +19,8 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
     public let titleIsIdentifier: Bool
     /// SDK-verified kind of a direct conversation's peer; `.aiAgent` shows the AI marker.
     public let classification: PrincipalClassification
+    /// The principal id of a direct conversation's peer, when the directory names one; the key of its identity state.
+    public let peer: String?
     public init(
         id: String,
         title: String,
@@ -34,8 +36,10 @@ public struct ConversationRecord: Identifiable, Sendable, Equatable {
         sender: String = "",
         groupID: String? = nil,
         titleIsIdentifier: Bool = false,
-        classification: PrincipalClassification = .unknown
+        classification: PrincipalClassification = .unknown,
+        peer: String? = nil
     ) {
+        self.peer = peer
         self.classification = classification
         self.titleIsIdentifier = titleIsIdentifier
         self.id = id

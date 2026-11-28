@@ -16,14 +16,16 @@ public struct AppRepositories: Sendable {
     public let pairing: any PairingRepository
     public let preferences: any PreferencesRepository
     public let contacts: any ContactsRepository
+    /// Direct-chat identity (MLS): state, pending change, accept, conversation security.
+    public let identity: any ContactIdentityRepository
     public let chat: any ChatRepository
     public let conversations: any ConversationsRepository
     public let session: any SessionRepository
     public let nodes: any NodeRepository
     public let onboarding: any OnboardingRepository
     /// Accounts created or restored on this device (public facts only), for unlock and account switch.
-    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), pairing: any PairingRepository = UnavailablePairingRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository(), cards: any CardsRepository = UnavailableCardsRepository(), lifecycle: AccountLifecycleHooks = AccountLifecycleHooks(), pushRoutes: any PushRouteRepository = UnavailablePushRouteRepository(), delivery: any DeliveryRepository = NativeDeliverySignalsRepository()) {
-        self.lifecycle = lifecycle; self.pushRoutes = pushRoutes; self.delivery = delivery
+    public init(session: any SessionRepository, nodes: any NodeRepository, onboarding: any OnboardingRepository, conversations: any ConversationsRepository = UnavailableConversationsRepository(), chat: any ChatRepository = UnavailableChatRepository(), contacts: any ContactsRepository = UnavailableContactsRepository(), settings: any SettingsRepository = UnavailableSettingsRepository(), backup: any BackupRepository = UnavailableBackupRepository(), pairing: any PairingRepository = UnavailablePairingRepository(), preferences: any PreferencesRepository = NativePreferencesRepository(), groups: any GroupsRepository = UnavailableGroupsRepository(), calls: any CallsRepository = UnavailableCallsRepository(), microphone: any MicrophoneRepository = NativeMicrophoneRepository(), agents: any AgentsRepository = UnavailableAgentsRepository(), tasks: any TasksRepository = UnavailableTasksRepository(), cards: any CardsRepository = UnavailableCardsRepository(), lifecycle: AccountLifecycleHooks = AccountLifecycleHooks(), pushRoutes: any PushRouteRepository = UnavailablePushRouteRepository(), identity: any ContactIdentityRepository = UnavailableContactIdentityRepository(), delivery: any DeliveryRepository = NativeDeliverySignalsRepository()) {
+        self.lifecycle = lifecycle; self.pushRoutes = pushRoutes; self.delivery = delivery; self.identity = identity
         self.session = session; self.nodes = nodes; self.onboarding = onboarding; self.conversations = conversations; self.chat = chat; self.contacts = contacts; self.settings = settings; self.backup = backup; self.pairing = pairing; self.preferences = preferences; self.groups = groups; self.calls = calls; self.microphone = microphone; self.agents = agents; self.tasks = tasks; self.cards = cards
     }
 }

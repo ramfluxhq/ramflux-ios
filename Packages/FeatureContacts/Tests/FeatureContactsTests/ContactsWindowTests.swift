@@ -26,7 +26,6 @@ private final class SyntheticContacts: ContactsRepository, Sendable {
     func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> { .failure(.unsupported) }
     func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> { .success(()) }
     func change(account: String, contact: ContactRecord, change: ContactChange, operationID: String) async -> RepositoryResult<Void> { changes.withLock { $0.append(contact.id + ":" + change.rawValue) }; return .success(()) }
-    func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> { .success(ContactSafety(root: contact.rootCommitment ?? "", number: "12345", fingerprint: "f", verified: false, requiresReview: false)) }
     func observe(account: String) async -> RepositoryObservation {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
         return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() })
@@ -58,18 +57,14 @@ private final class SyntheticContacts: ContactsRepository, Sendable {
         model.send(.refresh); await model.settle()
         #expect(model.state.selected?.blocked == true)
         model.send(.requestChange(.block)); #expect(model.state.pendingChange == nil)
-        model.send(.requestChange(.verify)); #expect(model.state.pendingChange == nil)
         model.send(.requestChange(.unblock)); #expect(model.state.pendingChange?.change == .unblock); #expect(source.changes.withLock { $0 }.isEmpty)
         model.send(.confirmChange); await model.settle(); #expect(source.changes.withLock { $0 } == ["p00001:unblock"]); #expect(model.state.pendingChange == nil)
         model.send(.disappeared)
     }
-    @Test func verifyIsOfferedOnlyForTheFreshUnverifiedSafetyNumberAndRemoveLeaves() async {
+    @Test func removeLeavesTheProfile() async {
         let source = SyntheticContacts(); var events: [ContactsEvent] = []
-        let model = ContactsViewModel(repository: source, account: "a", state: ContactsState(mode: .safety("p00002")), emit: { events.append($0) })
+        let model = ContactsViewModel(repository: source, account: "a", state: ContactsState(mode: .profile("p00002")), emit: { events.append($0) })
         model.send(.refresh); await model.settle()
-        #expect(model.state.safety?.number == "12345"); #expect(model.state.safetyPrincipal == "p00002")
-        model.send(.requestChange(.verify)); #expect(model.state.pendingChange?.change == .verify)
-        model.send(.confirmChange); await model.settle(); #expect(source.changes.withLock { $0 } == ["p00002:verify"])
         model.send(.requestChange(.remove)); model.send(.confirmChange); await model.settle()
         #expect(events == [.navigate(.contacts)])
         model.send(.disappeared)

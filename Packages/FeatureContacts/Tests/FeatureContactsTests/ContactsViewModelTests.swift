@@ -26,7 +26,6 @@ private actor ContactsFake: ContactsRepository {
         attempts.append((operationID, principal)); if let gate { await gate.wait() }; return .failure(.outcomeUnknown)
     }
     func decide(account: String, request: String, decision: ContactDecision, operationID: String) -> RepositoryResult<Void> { decisions.append(request + ":" + decision.rawValue); return .success(()) }
-    func safety(account: String, contact: ContactRecord) -> RepositoryResult<ContactSafety> { .failure(.unsupported) }
     func observe(account: String) -> RepositoryObservation { {
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1)); pair.continuation.yield(.invalidated)
         return RepositoryObservation(stream: pair.stream, onStop: { pair.continuation.finish() })
@@ -79,10 +78,10 @@ private actor ContactsFake: ContactsRepository {
         #expect(model.state.mode == .contacts)
         model.send(.disappeared)
     }
-    @Test func unavailableRepositoryDoesNotFabricateContactOrVerification() async {
+    @Test func unavailableRepositoryDoesNotFabricateContacts() async {
         let model = ContactsViewModel(repository: UnavailableContactsRepository(), account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()
-        #expect(model.state.contacts.isEmpty); #expect(model.state.safety == nil); #expect(model.state.failure == .sdkUnavailable)
+        #expect(model.state.contacts.isEmpty); #expect(model.state.failure == .sdkUnavailable)
         model.send(.disappeared)
     }
 }

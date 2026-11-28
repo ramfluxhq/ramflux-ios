@@ -262,6 +262,10 @@
 	<string>此处无法使用阅后即焚。</string>
 	<key>refusal.ephemeral_unavailable.title</key>
 	<string>不可用</string>
+	<key>refusal.identity_change_pending</key>
+	<string>消息未发送。请先查看新身份再发送。</string>
+	<key>refusal.identity_change_pending.title</key>
+	<string>身份已更改</string>
 	<key>refusal.internal</key>
 	<string>出现问题，请重试。</string>
 	<key>refusal.internal.title</key>

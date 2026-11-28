@@ -42,10 +42,6 @@
 	<string>消息免打扰</string>
 	<key>chat.details.muteUnknown</key>
 	<string>此会话暂时没有免打扰状态。</string>
-	<key>chat.details.safety</key>
-	<string>安全码</string>
-	<key>chat.details.safetyUnavailable</key>
-	<string>对方成为联系人并给你发过消息后，才能查看安全码。</string>
 	<key>chat.details.title</key>
 	<string>会话详情</string>
 	<key>chat.details.you</key>

@@ -12,7 +12,7 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case selectText(String), closeTextSelection
     case beginReply(String), beginEdit(String), beginReact(String), reactionMode(Bool), chooseReaction(String), removeReaction(String), cancelReaction
     case requestDelete(String, MessageDeleteScope), cancelDelete, confirmDelete
-    case detailsRequested, closeDetails, setMuted(Bool), openSafetyNumber
+    case detailsRequested, closeDetails, setMuted(Bool)
     case mediaTapped(String), revealMedia(String), cancelMedia(String), closePreview, saveToPhotos(String)
     case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia])
     case removeDraftItem(Int), draftCaptionChanged(String), sendMediaDraft, cancelMediaDraft, openAlbum(String), closeAlbum

@@ -42,7 +42,6 @@ import AppData
         case .mode(let mode):
             switch mode {
             case .profile(let id): emit(.navigate(.contact(id)))
-            case .safety(let id): emit(.navigate(.safetyNumber(id)))
             default:
                 guard mode != state.mode else { return }
                 state.mode = mode; state.failure = nil
@@ -81,7 +80,7 @@ import AppData
             guard !state.busy, !state.unknownMutation, let pending = state.pending else { return }
             mutate { [repository, account] in await repository.decide(account: account, request: pending.request.id, decision: pending.action, operationID: UUID().uuidString) }
         case .requestChange(let change):
-            guard !state.busy, !state.unknownMutation, let contact = state.selected, Self.allows(change, contact: contact, safety: state.safety, stale: state.safetyStale) else { return }
+            guard !state.busy, !state.unknownMutation, let contact = state.selected, Self.allows(change, contact: contact) else { return }
             state.pendingChange = PendingContactChange(contact: contact, change: change)
         case .cancelChange: if !state.busy { state.pendingChange = nil }
         case .confirmChange:
@@ -97,13 +96,12 @@ import AppData
             state = ContactsState(mode: mode); state.unknownMutation = unknown
         }
     }
-    /// Which changes the profile and safety screens offer for a contact.
-    static func allows(_ change: ContactChange, contact: ContactRecord, safety: ContactSafety?, stale: Bool) -> Bool {
+    /// Which changes the profile screen offers for a contact.
+    static func allows(_ change: ContactChange, contact: ContactRecord) -> Bool {
         switch change {
         case .remove: contact.linkID != nil
         case .block: contact.linkID != nil && !contact.blocked
         case .unblock: contact.linkID != nil && contact.blocked
-        case .verify: contact.rootCommitment != nil && !stale && safety.map { !$0.verified && $0.root == contact.rootCommitment } == true
         }
     }
     /// Resolves `@name` before any request is sent. A late answer is dropped unless the field still holds its text.
@@ -149,12 +147,11 @@ import AppData
     }
     private func refresh() {
         readID &+= 1; let current = readID; let mode = state.mode, query = state.query; state.loading = true; state.loadingMore = false; read?.cancel()
-        if case .safety = mode { state.safety = nil; state.safetyPrincipal = nil; state.safetyStale = false }
         read = Task { [weak self, repository, account] in
             let pendingMutation = await repository.pendingMutation(account: account)
             var failure: AppFailure?
             var contacts: RowWindow<ContactRecord>?, requests: RowWindow<ContactRequestRecord>?
-            var selected: ContactRecord?, request: ContactRequestRecord?, safety: ContactSafety?, card: ContactCardExport?
+            var selected: ContactRecord?, request: ContactRequestRecord?, card: ContactCardExport?
             switch mode {
             case .contacts:
                 switch await RowWindow.first({ cursor, limit in await repository.contactsPage(account: account, query: query, cursor: cursor, limit: limit) }) {
@@ -167,15 +164,8 @@ import AppData
                 }
             case .request(let id):
                 switch await repository.request(account: account, id: id) { case .success(let row): request = row; case .failure(let error): failure = error }
-            case .profile(let id), .safety(let id):
+            case .profile(let id):
                 switch await repository.contact(account: account, id: id) { case .success(let row): selected = row; case .failure(let error): failure = error }
-                if case .safety = mode, let contact = selected {
-                    switch await repository.safety(account: account, contact: contact) {
-                    case .success(let value) where value.root == contact.rootCommitment: safety = value
-                    case .success: failure = .invalidData
-                    case .failure(let error): failure = error
-                    }
-                }
             case .add: break
             case .myCard:
                 switch await repository.ownCard(account: account) { case .success(let value): card = value; case .failure(let error): failure = error }
@@ -193,9 +183,6 @@ import AppData
             case .strangers, .sent: self.applyWindow()
             case .request: if failure == nil { self.state.selectedRequest = request }
             case .profile: if failure == nil { self.state.selected = selected }
-            case .safety(let id):
-                self.state.selected = failure == nil ? selected : nil
-                self.state.safety = safety; self.state.safetyPrincipal = safety == nil ? nil : id
             case .add: break
             case .myCard: self.state.ownCard = card
             }
@@ -237,9 +224,8 @@ import AppData
             state.requests = requestWindow.rows; state.canLoadMore = requestWindow.canLoadAfter; state.canLoadBefore = requestWindow.canLoadBefore
         }
     }
-    private func revokeSafety() {
+    private func stopReading() {
         readID &+= 1; read?.cancel(); state.loading = false; state.loadingMore = false
-        state.safety = nil; state.safetyPrincipal = nil; state.safetyStale = true
     }
     private func observe() {
         guard observer == nil else { return }; watchID &+= 1; let current = watchID; live = false
@@ -247,10 +233,10 @@ import AppData
             let observation = await repository.observe(account: account)
             for await update in observation.stream {
                 guard !Task.isCancelled, let self else { break }
-                switch update { case .invalidated: if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.state.failure = failure; self.revokeSafety() }
+                switch update { case .invalidated: if self.state.loading || self.state.loadingMore { self.pendingRefresh = true } else { self.refresh() }; case .failed(let failure): self.state.failure = failure; self.stopReading() }
                 self.markLive()
             }
-            await observation.stop(); if let self, self.watchID == current { self.observer = nil; self.revokeSafety(); self.markLive() }
+            await observation.stop(); if let self, self.watchID == current { self.observer = nil; self.stopReading(); self.markLive() }
         }
     }
     private func markLive() { live = true; let waiters = liveWaiters; liveWaiters = []; waiters.forEach { $0.resume() } }

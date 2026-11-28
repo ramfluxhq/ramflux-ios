@@ -12,8 +12,6 @@
 	<string>Add</string>
 	<key>contacts.add.address</key>
 	<string>Account address, @username or contact card</string>
-	<key>contacts.add.notVerifiedNote</key>
-	<string>A request does not make the other account verified.</string>
 	<key>contacts.add.send</key>
 	<string>Send contact request</string>
 	<key>contacts.add.title</key>
@@ -26,8 +24,6 @@
 	<string>Remove this contact? You can add them again later with a new request.</string>
 	<key>contacts.change.confirm.unblock</key>
 	<string>Unblock this contact? They can reach you again.</string>
-	<key>contacts.change.confirm.verify</key>
-	<string>Mark this safety number verified? Only confirm if every digit matched through a trusted channel.</string>
 	<key>contacts.decision.applying</key>
 	<string>Applying decision</string>
 	<key>contacts.decision.confirmAccept</key>
@@ -62,18 +58,12 @@
 	<string>Blocked</string>
 	<key>contacts.profile.missing</key>
 	<string>This contact is unavailable. Refresh your contacts.</string>
-	<key>contacts.profile.notVerified</key>
-	<string>Identity not verified</string>
 	<key>contacts.profile.remove</key>
 	<string>Remove contact</string>
 	<key>contacts.profile.title</key>
 	<string>Contact</string>
 	<key>contacts.profile.unblock</key>
 	<string>Unblock contact</string>
-	<key>contacts.profile.verified</key>
-	<string>Identity verified</string>
-	<key>contacts.profile.viewSafety</key>
-	<string>View safety number</string>
 	<key>contacts.reconcile</key>
 	<string>Reconcile original contact action</string>
 	<key>contacts.request.accept</key>
@@ -94,22 +84,6 @@
 	<string>Requests for this account will appear here.</string>
 	<key>contacts.requests.empty.title</key>
 	<string>No requests</string>
-	<key>contacts.safety.compareInstructions</key>
-	<string>Compare this number through another trusted channel.</string>
-	<key>contacts.safety.identityChanged</key>
-	<string>Identity changed. Compare the complete number again.</string>
-	<key>contacts.safety.markCompared</key>
-	<string>I compared this number</string>
-	<key>contacts.safety.notVerified</key>
-	<string>Not verified</string>
-	<key>contacts.safety.title</key>
-	<string>Safety number</string>
-	<key>contacts.safety.unavailable</key>
-	<string>Safety details are unavailable for this contact.</string>
-	<key>contacts.safety.verified</key>
-	<string>Verified</string>
-	<key>contacts.safety.verifiedNote</key>
-	<string>You marked this number verified. If the identity changes, you will be asked to compare again.</string>
 	<key>contacts.sent.title</key>
 	<string>Sent requests</string>
 	<key>contacts.strangers.batch</key>

@@ -5,7 +5,7 @@ import AppData
 import RFDesign
 import RFLocalization
 
-/// Conversation details (members, mute, safety). Built from the Kit and the nearest boards; no
+/// Conversation details (members, mute, encryption). Built from the Kit and the nearest boards; no
 /// mobile board exists for it yet. Facts the SDK does not return are shown as unavailable.
 struct ChatDetailsSheet: View {
     let state: ChatDetailsState
@@ -38,13 +38,6 @@ struct ChatDetailsSheet: View {
                     }
                 } else {
                     Text(FeatureChatStrings.text("chat.details.muteUnknown", locale: locale)).rfFont(.caption)
-                }
-                if !isGroup {
-                    if details.peerPrincipal != nil {
-                        KitRow(FeatureChatStrings.text("chat.details.safety", locale: locale), action: { onAction(.openSafetyNumber) }, icon: "shield-check", tag: "chat-details-safety")
-                    } else {
-                        Text(FeatureChatStrings.text("chat.details.safetyUnavailable", locale: locale)).rfFont(.caption)
-                    }
                 }
             }
             KitRow(FeatureChatStrings.text("chat.gallery.title", locale: locale), action: { onAction(.openGallery) }, icon: "images", tag: "chat-details-gallery")

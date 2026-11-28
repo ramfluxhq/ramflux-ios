@@ -5,10 +5,9 @@ import Testing
 import RamfluxCore
 @testable import AppData
 struct ContactsRepositoryTests {
-    @Test func exactRequestDecisionAndAllSafetyGroupsArePreserved() async {
+    @Test func exactRequestDecisionAndOperationIDArePreserved() async {
         let transport = ProxyTransport { request in
             switch request.method {
-            case "contact.verification.status": return .object(["contact_identity_commitment": .string("root"), "safety_number": .array([.string("12345"),.string("67890")]), "fingerprint_hex": .string("fingerprint"), "verification_state": .string("key_changed"), "stored_verification_state": .string("verified")])
             case "contact.block":
                 #expect(request.body["request_id"] == .string("request")); #expect(request.operationID?.rawValue == "stable")
                 return .object([:])
@@ -17,9 +16,6 @@ struct ContactsRepositoryTests {
         }
         let client = RamfluxClient(transport: transport), updates = NativeUpdateSource(client: RamfluxClient(transport: transport))
         let repo = NativeContactsRepository(client: client, updates: updates)
-        let contact = ContactRecord(id: "peer", displayName: "Peer", subtitle: "peer", rootCommitment: "root")
-        guard case .success(let safety) = await repo.safety(account: "a", contact: contact) else { Issue.record("Safety mapping failed"); return }
-        #expect(safety.number == "12345 67890"); #expect(!safety.verified); #expect(safety.requiresReview)
         _ = await repo.decide(account: "a", request: "request", decision: .block, operationID: "stable")
         #expect(transport.calls.withLock { $0.last?.method } == "contact.block")
     }
@@ -31,7 +27,7 @@ struct ContactsRepositoryTests {
         let rows: [JSONValue] = (0..<50_000).map { .object(["principal_id": .string("p\($0)"), "display_name": .string("Contact \($0)")]) }
         let clock = ContinuousClock(), start = clock.now
         let records = try await ProxyGateway.mapRows(.object(["contacts": .array(rows)]), "contacts") { row in
-            ContactRecord(id: try ProxyGateway.text(row, "principal_id"), displayName: row["display_name"]?.string ?? "", subtitle: "", verified: nil)
+            ContactRecord(id: try ProxyGateway.text(row, "principal_id"), displayName: row["display_name"]?.string ?? "", subtitle: "")
         }
         let decoded = clock.now - start
         #expect(records.count == 50_000); #expect(records.last?.id == "p49999")

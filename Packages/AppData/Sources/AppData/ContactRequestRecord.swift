@@ -7,25 +7,14 @@ public struct ContactRequestRecord: Identifiable, Equatable, Sendable {
     public let direction: String
     public let state: String
     public let preview: String?
-    public let safetyNumber: String?
     public let classification: PrincipalClassification
-    public init(id: String, principal: String, name: String, direction: String, state: String, preview: String? = nil, safetyNumber: String? = nil, classification: PrincipalClassification = .unknown) {
+    public init(id: String, principal: String, name: String, direction: String, state: String, preview: String? = nil, classification: PrincipalClassification = .unknown) {
         self.classification = classification
-        self.id = id; self.principal = principal; self.name = name; self.direction = direction; self.state = state; self.preview = preview; self.safetyNumber = safetyNumber
-    }
-}
-public struct ContactSafety: Equatable, Sendable {
-    public let root: String
-    public let number: String
-    public let fingerprint: String
-    public let verified: Bool
-    public let requiresReview: Bool
-    public init(root: String, number: String, fingerprint: String, verified: Bool, requiresReview: Bool) {
-        self.root = root; self.number = number; self.fingerprint = fingerprint; self.verified = verified; self.requiresReview = requiresReview
+        self.id = id; self.principal = principal; self.name = name; self.direction = direction; self.state = state; self.preview = preview
     }
 }
 public enum ContactDecision: String, Equatable, Sendable { case accept, decline, block }
 /// Stranger actions the pinned SDK has no method for.
 public enum ContactUnavailable: Sendable, Equatable { case reporting, batch, replyWithoutAcceptance }
 /// Changes to an accepted contact, selected by its friend link.
-public enum ContactChange: String, Equatable, Sendable { case remove, block, unblock, verify }
+public enum ContactChange: String, Equatable, Sendable { case remove, block, unblock }
