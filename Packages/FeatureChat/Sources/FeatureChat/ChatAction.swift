@@ -27,5 +27,7 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case appearance(dark: Bool, locale: String)
     case shareMedia(String), shareFinished, forwardRequested(String), forwardTo(messageID: String, conversation: String, groupID: String?)
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
+    /// MLS group chat (M2): retry a not-sent bubble, drop it, delete a post for everyone (request, confirm, cancel), the mention picker.
+    case mlsRetry(String), mlsDiscard(String), mlsRequestDelete(String), mlsConfirmDelete, mlsCancelDelete, mlsMentionPicker(Bool), mlsMention(String), mlsDismissError
     public var description: String { "ChatAction" }
 }

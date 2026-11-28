@@ -19,6 +19,8 @@ enum TimelineItem: Equatable, Sendable {
     case outbox(OutboxEntry)
     /// An identity or encryption line made on this device; never a message row.
     case service(ServiceLine)
+    /// An own group post that is not posted yet (MLS, M2).
+    case mlsPending(MlsPendingPost)
 
     var id: String {
         switch self {
@@ -28,6 +30,7 @@ enum TimelineItem: Equatable, Sendable {
         case .message(let record, _): "message:" + record.id
         case .outbox(let entry): "outbox:" + entry.operationID
         case .service(let line): "service:" + line.id
+        case .mlsPending(let pending): "mls-pending:" + pending.localID
         }
     }
 }
@@ -41,6 +44,8 @@ struct MessageMedia: Equatable, Sendable {
     var card: CardMessageState?
     /// The incoming message's author is a participant the SDK verified as an AI agent.
     var authorIsAgent = false
+    /// A group post whose "Delete for everyone" is in flight (MLS, M2).
+    var deleting = false
     static let none = MessageMedia()
 }
 
@@ -53,7 +58,8 @@ enum TimelineProjection {
     /// Chronological rows with a day chip where the calendar day changes, the unread divider
     /// above `unreadAnchorID`, and unadmitted sends after the last message. Messages without a
     /// valid timestamp start no new day. Linear in the window size; the window is bounded.
-    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = []) -> [TimelineItem] {
+    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = [], mls: [MlsTimelineEntry]? = nil, locale: Locale = .current) -> [TimelineItem] {
+        if let mls { return mlsItems(mls, calendar: calendar, loadingOlder: loadingOlder, locale: locale) }
         var items: [TimelineItem] = []
         items.reserveCapacity(messages.count + outbox.count + service.count + 8)
         if loadingOlder { items.append(.history) }
@@ -76,6 +82,31 @@ enum TimelineProjection {
         // Identity lines follow the messages in the order they happened; they carry no timestamp of a message.
         for line in service { items.append(.service(line)) }
         for entry in outbox { items.append(.outbox(entry)) }
+        return items
+    }
+
+    /// The group timeline: the session's entries in their order, with a day chip where the day changes.
+    static func mlsItems(_ entries: [MlsTimelineEntry], calendar: Calendar, loadingOlder: Bool, locale: Locale) -> [TimelineItem] {
+        var items: [TimelineItem] = []
+        items.reserveCapacity(entries.count + 8)
+        if loadingOlder { items.append(.history) }
+        var previews: [String: String] = [:]
+        for case .post(let row) in entries { if case .text(let text) = row.post.body, !row.isDeleted { previews[row.post.postID] = String(text.prefix(120)) } }
+        var currentDay: Date?
+        for entry in entries {
+            switch entry {
+            case .post(let row):
+                let record = MlsChatMapping.record(row, locale: locale, previews: previews)
+                if let day = day(of: record, calendar: calendar), day != currentDay { items.append(.day(day)); currentDay = day }
+                var slice = MessageMedia.none
+                slice.authorIsAgent = row.authorIsAgent && !row.isMine
+                slice.deleting = row.deleting
+                items.append(.message(record, slice))
+            case .service(let line): items.append(.service(ServiceLine(id: "mls:" + line.id, kind: .mls(line), name: "")))
+            case .pending(let pending): items.append(.mlsPending(pending))
+            case .floor: items.append(.service(ServiceLine(id: "mls-floor", kind: .mlsFloor, name: "")))
+            }
+        }
         return items
     }
 

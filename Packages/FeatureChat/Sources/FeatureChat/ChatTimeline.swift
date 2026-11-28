@@ -22,15 +22,16 @@ public struct ChatTimeline: UIViewControllerRepresentable {
     let cards: [String: CardMessageState]
     let agentAuthors: Set<String>
     let service: [ServiceLine]
-    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = [], onAction: @escaping (ChatAction) -> Void = { _ in }) {
-        self.agentAuthors = agentAuthors; self.service = service
+    let mls: [MlsTimelineEntry]?
+    public init(messages: [MessageRecord], outbox: [OutboxEntry] = [], isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = [], mls: [MlsTimelineEntry]? = nil, onAction: @escaping (ChatAction) -> Void = { _ in }) {
+        self.agentAuthors = agentAuthors; self.service = service; self.mls = mls
         self.media = media; self.revealed = revealed; self.cards = cards
         self.isGroup = isGroup; self.messages = messages; self.outbox = outbox; self.unreadAnchorID = unreadAnchorID; self.olderAvailable = olderAvailable; self.loadingOlder = loadingOlder; self.onAction = onAction
     }
     public func makeUIViewController(context: Context) -> TimelineController { TimelineController() }
     public func updateUIViewController(_ controller: TimelineController, context: Context) {
         controller.onAction = onAction
-        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors, service: service)
+        controller.update(messages, outbox: outbox, theme: theme, locale: locale, isGroup: isGroup, unreadAnchorID: unreadAnchorID, olderAvailable: olderAvailable, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors, service: service, mls: mls)
     }
 }
 #endif

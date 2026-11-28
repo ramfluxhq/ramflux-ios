@@ -122,6 +122,8 @@ struct ServiceLineView: View {
         case .identityChanged: FeatureChatStrings.sentence("identity.timeline.changed", [.untrusted(line.name)], locale: locale)
         case .identityAccepted: FeatureChatStrings.sentence("identity.timeline.accepted", [.untrusted(line.name)], locale: locale)
         case .forkRecovered: FeatureChatStrings.text("security.warning.fork_recovered", locale: locale)
+        case .mls(let value): MlsChatText.line(value, locale: locale)
+        case .mlsFloor: FeatureChatStrings.text("group.timeline.floor", locale: locale)
         }
     }
 }

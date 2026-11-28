@@ -64,6 +64,7 @@ import FeatureCards
     }
     public func send(_ action: ChatAction) {
         switch action {
+        case .mlsRetry, .mlsDiscard, .mlsRequestDelete, .mlsConfirmDelete, .mlsCancelDelete, .mlsMentionPicker, .mlsMention, .mlsDismissError: break   // handled by MlsGroupChatModel
         case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
         case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards(); loadAgentAuthors(); startIdentity()
         case .refresh: reload(); observe()
