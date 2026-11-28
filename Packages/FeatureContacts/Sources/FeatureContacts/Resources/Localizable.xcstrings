@@ -70,57 +70,6 @@
         }
       }
     },
-    "contacts.safety.unavailable": {
-      "comment": "Shown when the safety number of this contact cannot be read.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safety details are unavailable for this contact."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "此联系人的安全信息不可用。"
-          }
-        }
-      }
-    },
-    "contacts.profile.notVerified": {
-      "comment": "Status on a contact profile: the contact's identity has not been verified.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Identity not verified"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "身份未验证"
-          }
-        }
-      }
-    },
-    "contacts.safety.notVerified": {
-      "comment": "Status on the safety number screen: not verified yet.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not verified"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未验证"
-          }
-        }
-      }
-    },
     "contacts.request.block": {
       "comment": "Button that blocks the sender of a request.",
       "localizations": {
@@ -172,40 +121,6 @@
         }
       }
     },
-    "contacts.safety.markCompared": {
-      "comment": "Button the user taps after comparing the full safety number with the contact.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I compared this number"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "我已核对此号码"
-          }
-        }
-      }
-    },
-    "contacts.add.notVerifiedNote": {
-      "comment": "Note that sending a request does not verify the other account.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A request does not make the other account verified."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "发送请求并不表示对方账户已通过验证。"
-          }
-        }
-      }
-    },
     "contacts.strangers.title": {
       "comment": "Title of the list of requests from people who are not contacts.",
       "localizations": {
@@ -223,23 +138,6 @@
         }
       }
     },
-    "contacts.safety.verified": {
-      "comment": "Status on the safety number screen: verified.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verified"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已验证"
-          }
-        }
-      }
-    },
     "contacts.decision.confirmOther": {
       "comment": "Question confirming a decline or block decision on an incoming request.",
       "localizations": {
@@ -253,23 +151,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "要对这条收到的请求执行此操作吗？"
-          }
-        }
-      }
-    },
-    "contacts.safety.identityChanged": {
-      "comment": "Warning that the contact's identity changed and the full number must be compared again.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Identity changed. Compare the complete number again."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "身份已更改。请重新核对完整号码。"
           }
         }
       }
@@ -359,57 +240,6 @@
         }
       }
     },
-    "contacts.safety.title": {
-      "comment": "Title of the safety number screen and label of a safety number value. A safety number is a long number both people compare to verify identities.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Safety number"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "安全号码"
-          }
-        }
-      }
-    },
-    "contacts.profile.verified": {
-      "comment": "Status on a contact profile: the contact's identity has been verified.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Identity verified"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "身份已验证"
-          }
-        }
-      }
-    },
-    "contacts.safety.compareInstructions": {
-      "comment": "Instruction to compare the safety number through another trusted channel, such as in person or by phone.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compare this number through another trusted channel."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请通过其他可信渠道核对此号码。"
-          }
-        }
-      }
-    },
     "contacts.add.action": {
       "comment": "Short button that opens the add-contact screen.",
       "localizations": {
@@ -440,23 +270,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "添加联系人"
-          }
-        }
-      }
-    },
-    "contacts.profile.viewSafety": {
-      "comment": "Button that opens the contact's safety number.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View safety number"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看安全号码"
           }
         }
       }
@@ -852,23 +665,6 @@
         }
       }
     },
-    "contacts.change.confirm.verify": {
-      "comment": "Confirmation text before marking a safety number verified; the user states they compared it.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mark this safety number verified? Only confirm if every digit matched through a trusted channel."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "将此安全码标记为已验证？只有在通过可信渠道逐位核对一致后才确认。"
-          }
-        }
-      }
-    },
     "contacts.change.applying": {
       "comment": "Progress label while a contact change is applied.",
       "localizations": {
@@ -899,23 +695,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在加载更多"
-          }
-        }
-      }
-    },
-    "contacts.safety.verifiedNote": {
-      "comment": "Shown under a verified safety number.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "You marked this number verified. If the identity changes, you will be asked to compare again."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "你已将此安全码标记为已验证。如果对方身份变化，会提示你重新核对。"
           }
         }
       }

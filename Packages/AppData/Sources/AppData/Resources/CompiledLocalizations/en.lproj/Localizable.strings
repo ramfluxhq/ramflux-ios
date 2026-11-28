@@ -262,6 +262,10 @@
 	<string>Disappearing messages are not available here.</string>
 	<key>refusal.ephemeral_unavailable.title</key>
 	<string>Not available</string>
+	<key>refusal.identity_change_pending</key>
+	<string>Message not sent. Review the new identity before sending.</string>
+	<key>refusal.identity_change_pending.title</key>
+	<string>Identity changed</string>
 	<key>refusal.internal</key>
 	<string>Something went wrong. Try again.</string>
 	<key>refusal.internal.title</key>

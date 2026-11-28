@@ -50,7 +50,7 @@ public struct NativeConversationsRepository: ConversationsRepository {
                 }
                 return ConversationRecord(id: id, title: title ?? id, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]),
                                           kind: group == nil ? "person" : "group", muted: row["muted"] == .bool(true), groupID: group, titleIsIdentifier: identifier,
-                                          classification: peer.flatMap { known[$0]?.classification } ?? .unknown)
+                                          classification: peer.flatMap { known[$0]?.classification } ?? .unknown, peer: peer)
             }
             let next: String?
             switch body["next_cursor"] {

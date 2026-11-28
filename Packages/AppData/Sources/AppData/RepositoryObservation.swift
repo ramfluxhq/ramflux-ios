@@ -11,16 +11,26 @@ public struct TransientFrame: Equatable, Sendable {
     public let body: Data
     public init(topic: String, body: Data) { self.topic = topic; self.body = body }
 }
+/// The body of a payload-carrying account event (`contact.identity_changed`, `conversation.devices_changed`),
+/// delivered only to observers that asked for event frames. `body` is the frame body as JSON bytes. The body is
+/// handed to the parser and never logged.
+public struct EventFrame: Equatable, Sendable {
+    public let topic: String
+    public let body: Data
+    public init(topic: String, body: Data) { self.topic = topic; self.body = body }
+}
 /// One logical observer of account invalidations. Any number may be live at once; `stop()` is idempotent
 /// and returns after the shared native subscription has stopped if this was its last observer.
 public final class RepositoryObservation: Sendable {
     public let stream: AsyncStream<RepositoryUpdate>
     /// Transient frames; `nil` unless the observer asked for them. It finishes with `stream`.
     public let transient: AsyncStream<TransientFrame>?
+    /// Payload frames of the identity topics; `nil` unless the observer asked for them. It finishes with `stream`.
+    public let events: AsyncStream<EventFrame>?
     private let onStop: @Sendable () async -> Void
     private let stopCalled = Mutex(false)
-    public init(failure: AppFailure) { onStop = {}; transient = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
-    public init(stream: AsyncStream<RepositoryUpdate>, transient: AsyncStream<TransientFrame>? = nil, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; self.stream = stream; self.transient = transient }
+    public init(failure: AppFailure) { onStop = {}; transient = nil; events = nil; stream = AsyncStream { $0.yield(.failed(failure)); $0.finish() } }
+    public init(stream: AsyncStream<RepositoryUpdate>, transient: AsyncStream<TransientFrame>? = nil, events: AsyncStream<EventFrame>? = nil, onStop: @escaping @Sendable () async -> Void = {}) { self.onStop = onStop; self.stream = stream; self.transient = transient; self.events = events }
     public func stop() async { let call = stopCalled.withLock { value in let old = value; value = true; return !old }; if call { await onStop() } }
 }
 /// Shared event fan-out: one native subscription per active scope (an account, or the daemon-scoped
@@ -44,9 +54,13 @@ public actor NativeUpdateSource {
     /// `message.received` and `group.message.received` are what the SDK journal emits for an inbound row
     /// (`bus/journal/project.rs`); without them a new message reached an open chat only through
     /// `conversation.changed`.
-    static let topics = ["conversation.changed", "surface.changed", "surface.resync", "surface.rejected", "surface.rpc.conflict", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.received", "group.message.received", "message.changed", "message.updated", "group.changed", "group.invitation", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic]
+    static let topics = ["conversation.changed", "surface.changed", "surface.resync", "surface.rejected", "surface.rpc.conflict", "call.changed", "task.changed", "mcp.approval.request", "mcp.approval.granted", "mcp.approval.denied", "message.received", "group.message.received", "message.changed", "message.updated", "group.changed", "group.invitation", "group.state.conflict", "group.state.delivery_failed", "contact.changed", "contact.requested", "contact.accepted", "contact.declined", "contact.blocked", "account.state", transientTopic, identityChangedTopic, devicesChangedTopic]
     /// Live-only frames (typing indicators). They never invalidate read models.
     static let transientTopic = "message.transient"
+    /// Direct-chat identity events whose payload the identity repository parses (see `EventFrame`).
+    static let identityChangedTopic = "contact.identity_changed"
+    static let devicesChangedTopic = "conversation.devices_changed"
+    static let payloadTopics: Set<String> = [identityChangedTopic, devicesChangedTopic]
     /// The only topic the SDK accepts on a subscription without an account.
     static let backupJobTopic = "account.backup.job.changed"
     /// Consecutive resubscriptions without a delivered event before the hub reports a failure.
@@ -55,6 +69,7 @@ public actor NativeUpdateSource {
     private var scope: Scope?
     private var observers: [UUID: AsyncStream<RepositoryUpdate>.Continuation] = [:]
     private var transients: [UUID: AsyncStream<TransientFrame>.Continuation] = [:]
+    private var eventSinks: [UUID: AsyncStream<EventFrame>.Continuation] = [:]
     private var subscription: EventSubscription?
     private var pump: Task<Void, Never>?
     private var epoch: UInt64 = 0
@@ -117,19 +132,20 @@ public actor NativeUpdateSource {
     public var observerCount: Int { observers.count }
     /// Registers an observer. With `transientFrames`, the observation also carries the live
     /// `message.transient` frames of the account (bounded to the newest 32).
-    public func observe(account: String, transientFrames: Bool = false) async -> RepositoryObservation {
-        await observe(scope: .account(account), transientFrames: transientFrames)
+    public func observe(account: String, transientFrames: Bool = false, eventFrames: Bool = false) async -> RepositoryObservation {
+        await observe(scope: .account(account), transientFrames: transientFrames, eventFrames: eventFrames)
     }
     /// Registers an observer of backup and restore job changes while no account is open (restoring onto a
     /// new install). It ends any account observers, like observing another account does.
-    public func observeBackupJobs() async -> RepositoryObservation { await observe(scope: .backupJobs, transientFrames: false) }
-    private func observe(scope: Scope, transientFrames: Bool) async -> RepositoryObservation {
+    public func observeBackupJobs() async -> RepositoryObservation { await observe(scope: .backupJobs, transientFrames: false, eventFrames: false) }
+    private func observe(scope: Scope, transientFrames: Bool, eventFrames: Bool) async -> RepositoryObservation {
         let id = UUID()
         let pair = AsyncStream<RepositoryUpdate>.makeStream(bufferingPolicy: .bufferingNewest(1))
         pair.continuation.onTermination = { [weak self] _ in Task { await self?.remove(id) } }
         let frames = transientFrames ? AsyncStream<TransientFrame>.makeStream(bufferingPolicy: .bufferingNewest(32)) : nil
-        await serialized { hub in await hub.join(id: id, scope: scope, continuation: pair.continuation, transient: frames?.continuation) }
-        return RepositoryObservation(stream: pair.stream, transient: frames?.stream, onStop: { [weak self] in await self?.remove(id) })
+        let payloads = eventFrames ? AsyncStream<EventFrame>.makeStream(bufferingPolicy: .bufferingNewest(32)) : nil
+        await serialized { hub in await hub.join(id: id, scope: scope, continuation: pair.continuation, transient: frames?.continuation, events: payloads?.continuation) }
+        return RepositoryObservation(stream: pair.stream, transient: frames?.stream, events: payloads?.stream, onStop: { [weak self] in await self?.remove(id) })
     }
     private func remove(_ id: UUID) async {
         await serialized { hub in await hub.leave(id: id) }
@@ -140,14 +156,14 @@ public actor NativeUpdateSource {
         let next = Task { await previous?.value; await work(self) }
         tail = next; await next.value
     }
-    private func join(id: UUID, scope: Scope, continuation: AsyncStream<RepositoryUpdate>.Continuation, transient: AsyncStream<TransientFrame>.Continuation?) async {
+    private func join(id: UUID, scope: Scope, continuation: AsyncStream<RepositoryUpdate>.Continuation, transient: AsyncStream<TransientFrame>.Continuation?, events: AsyncStream<EventFrame>.Continuation?) async {
         if self.scope != scope { await close(finishing: true); self.scope = scope }
-        observers[id] = continuation; transients[id] = transient
+        observers[id] = continuation; transients[id] = transient; eventSinks[id] = events
         if subscription == nil { await open() } else { continuation.yield(.invalidated) }
     }
     private func leave(id: UUID) async {
         guard let continuation = observers.removeValue(forKey: id) else { return }
-        continuation.finish(); transients.removeValue(forKey: id)?.finish()
+        continuation.finish(); transients.removeValue(forKey: id)?.finish(); eventSinks.removeValue(forKey: id)?.finish()
         if observers.isEmpty { await close(finishing: false); scope = nil }
     }
     private func open() async {
@@ -180,6 +196,14 @@ public actor NativeUpdateSource {
         resyncs = 0
         let topic = frame["method"]?.string ?? frame["topic"]?.string
         EventDiagnostics.note("frame topic=\(topic ?? "?") epoch=\(current) observers=\(observers.count)")
+        if let topic, Self.payloadTopics.contains(topic) {
+            // The payload goes only to observers that asked; every observer still reloads like for any other topic.
+            if !eventSinks.isEmpty, let body = frame["body"], let bytes = try? JSONEncoder().encode(body), bytes.count <= 65_536 {
+                let value = EventFrame(topic: topic, body: bytes)
+                for continuation in eventSinks.values { continuation.yield(value) }
+            }
+            broadcast(.invalidated); return
+        }
         guard topic == Self.transientTopic else { broadcast(.invalidated); return }
         guard !transients.isEmpty, let body = frame["body"], let bytes = try? JSONEncoder().encode(body), bytes.count <= 65_536 else { return }
         let value = TransientFrame(topic: Self.transientTopic, body: bytes)
@@ -209,6 +233,9 @@ public actor NativeUpdateSource {
         for continuation in observers.values { continuation.finish() }
         observers.removeAll(); finishTransients(); scope = nil; resyncs = 0
     }
-    private func finishTransients() { for continuation in transients.values { continuation.finish() }; transients.removeAll() }
+    private func finishTransients() {
+        for continuation in transients.values { continuation.finish() }; transients.removeAll()
+        for continuation in eventSinks.values { continuation.finish() }; eventSinks.removeAll()
+    }
     deinit { subscription?.cancel(); pump?.cancel() }
 }

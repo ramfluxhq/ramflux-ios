@@ -20,6 +20,9 @@ public enum AppFailure: Error, Sendable, Equatable {
     case usernameRetry(seconds: Int)
     case backup(BackupIssue)
     case pairing(PairingIssue)
+    /// A send was refused because the contact's changed identity is not accepted yet (`identity_change_pending`); the
+    /// payload is the contact the SDK named. Nothing was sent and nothing is retried on its own.
+    case identityChangePending(String)
     public var title: String { title(locale: .current) }
     public func title(locale: Locale) -> String {
         switch self {
@@ -43,6 +46,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .usernameRetry: AppDataStrings.text("failure.unavailable.title", locale: locale)
         case .backup: AppDataStrings.text("backup.failure.title", locale: locale)
         case .pairing: AppDataStrings.text("pairing.failure.title", locale: locale)
+        case .identityChangePending: AppDataStrings.text("refusal.identity_change_pending.title", locale: locale)
         }
     }
     public var message: String { message(locale: .current) }
@@ -83,6 +87,7 @@ public enum AppFailure: Error, Sendable, Equatable {
         case .usernameRetry(let seconds): AppDataStrings.format("username.retryIn", String(seconds), locale: locale)
         case .backup(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
         case .pairing(let issue): AppDataStrings.text(issue.messageKey, locale: locale)
+        case .identityChangePending: AppDataStrings.text("refusal.identity_change_pending", locale: locale)
         }
     }
     /// A refusal of the typed account code itself (wrong, malformed, retry later), not of the account.
@@ -94,6 +99,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     public var canRetry: Bool {
         if case .typedRefusal = self { return false }
         if case .sdkReason = self { return false }
+        if case .identityChangePending = self { return false }
         if case .accountCode(let issue) = self { return issue != .attemptsExhausted && issue != .deviceUnlockUnavailable }
         return self != .outcomeUnknown && self != .sdkUnavailable && self != .unsupported
     }
@@ -143,6 +149,7 @@ public enum AppFailure: Error, Sendable, Equatable {
     public static func map(_ error: any Error) -> Self {
         if let failure = error as? Self { return failure }
         if let failure = error as? CoreFailure {
+            if let block = ContactIdentityParsing.sendBlock(failure) { return .identityChangePending(block.contact) }
             if let name = failure.typedName, let refusal = Self.knownRefusal(name) { return refusal }
             if let issue = AccountCodeIssue.sdk(failure.reasonCode) {
                 // The wait is the SDK's `retry_after_ms`. A throttle that names no wait is shown without a countdown;

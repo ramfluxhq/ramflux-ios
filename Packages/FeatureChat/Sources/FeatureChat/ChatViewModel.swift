@@ -112,9 +112,6 @@ import FeatureCards
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil
         case .setMuted(let muted): setMuted(muted)
-        case .openSafetyNumber:
-            guard let principal = state.details?.details?.peerPrincipal else { return }
-            state.details = nil; emit(.navigate(.safetyNumber(principal)))
         case .disappeared, .conceal:
             if !state.draft.isEmpty || action == .conceal { saveDraft(state.draft) }
             if typingSentAt != nil { typing(active: false) }

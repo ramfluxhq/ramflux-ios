@@ -19,7 +19,6 @@ private final class RosterFake: ContactsRepository, Sendable {
     func requests(account: String) async -> RepositoryResult<[ContactRequestRecord]> { .success([]) }
     func add(account: String, principal: String, operationID: String) async -> RepositoryResult<Void> { .failure(.unsupported) }
     func decide(account: String, request: String, decision: ContactDecision, operationID: String) async -> RepositoryResult<Void> { .failure(.unsupported) }
-    func safety(account: String, contact: ContactRecord) async -> RepositoryResult<ContactSafety> { .failure(.unsupported) }
     func observe(account: String) async -> RepositoryObservation { RepositoryObservation(failure: .unsupported) }
     func unavailable(_ capability: ContactUnavailable) -> AppFailure { .unsupported }
 }

@@ -46,7 +46,6 @@ public struct ContactsScreen: View {
         case .remove: FeatureContactsStrings.text("contacts.profile.remove", locale: locale)
         case .block: FeatureContactsStrings.text("contacts.profile.block", locale: locale)
         case .unblock: FeatureContactsStrings.text("contacts.profile.unblock", locale: locale)
-        case .verify: FeatureContactsStrings.text("contacts.safety.markCompared", locale: locale)
         }
     }
     @ViewBuilder private var pagingFooter: some View {
@@ -59,7 +58,7 @@ public struct ContactsScreen: View {
         }
     }
     private var title: String {
-        switch state.mode { case .contacts: FeatureContactsStrings.text("common.tab.contacts", locale: locale); case .strangers: FeatureContactsStrings.text("contacts.strangers.title", locale: locale); case .sent: FeatureContactsStrings.text("contacts.sent.title", locale: locale); case .add: FeatureContactsStrings.text("contacts.add.title", locale: locale); case .profile: FeatureContactsStrings.text("contacts.profile.title", locale: locale); case .safety: FeatureContactsStrings.text("contacts.safety.title", locale: locale); case .request: FeatureContactsStrings.text("contacts.request.title", locale: locale); case .myCard: FeatureContactsStrings.text("contacts.myCard.title", locale: locale) }
+        switch state.mode { case .contacts: FeatureContactsStrings.text("common.tab.contacts", locale: locale); case .strangers: FeatureContactsStrings.text("contacts.strangers.title", locale: locale); case .sent: FeatureContactsStrings.text("contacts.sent.title", locale: locale); case .add: FeatureContactsStrings.text("contacts.add.title", locale: locale); case .profile: FeatureContactsStrings.text("contacts.profile.title", locale: locale); case .request: FeatureContactsStrings.text("contacts.request.title", locale: locale); case .myCard: FeatureContactsStrings.text("contacts.myCard.title", locale: locale) }
     }
     @ViewBuilder private var content: some View {
         switch state.mode {
@@ -80,7 +79,6 @@ public struct ContactsScreen: View {
             if let card = state.ownCard { MyContactCardView(card: card) }
         case .add:
             TextField(FeatureContactsStrings.text("contacts.add.address", locale: locale), text: Binding(get: { state.principal }, set: { onAction(.principal($0)) })).textFieldStyle(.roundedBorder).rfAddressInput().disabled(state.busy).accessibilityIdentifier("contacts-add-address")
-            Text(FeatureContactsStrings.text("contacts.add.notVerifiedNote", locale: locale))
             if state.lookingUp { ProgressView(FeatureContactsStrings.text("contacts.username.lookingUp", locale: locale)) }
             if let found = state.usernameLookup, found.text == state.principal {
                 // The result card: what the directory holds for the name. Sending targets only this text.
@@ -108,35 +106,20 @@ public struct ContactsScreen: View {
             if let contact = state.selected, contact.id == id {
                 HStack(spacing: theme.gap) { Text(untrusted: contact.displayName).rfFont(.page); if contact.classification.isAIAgent { KitAIMarker(tag: "contact-ai") } }
                 KitIdentifierText(contact.id).textSelection(.enabled)
-                Label(contact.verified == true ? FeatureContactsStrings.text("contacts.profile.verified", locale: locale) : FeatureContactsStrings.text("contacts.profile.notVerified", locale: locale), systemImage: contact.verified == true ? "checkmark.shield" : "shield")
                 if contact.blocked { Label(FeatureContactsStrings.text("contacts.profile.blocked", locale: locale), systemImage: "hand.raised") }
-                KitButton(FeatureContactsStrings.text("contacts.profile.viewSafety", locale: locale), action: { onAction(.mode(.safety(id))) }, kind: .secondary, tag: "contact-safety")
                 changeButtons(contact)
             } else { Text(FeatureContactsStrings.text("contacts.profile.missing", locale: locale)) }
-        case .safety:
-            if let safety = state.safety, let contact = state.selected, state.safetyPrincipal == contact.id, !state.safetyStale {
-                if safety.requiresReview { Label(FeatureContactsStrings.text("contacts.safety.identityChanged", locale: locale), systemImage: "exclamationmark.shield").foregroundStyle(theme.danger) }
-                KitIdentifierText(safety.number, tag: "contacts-safety-number").textSelection(.enabled)
-                KitIdentifierText(safety.fingerprint, color: theme.secondary, tag: "contacts-safety-fingerprint").textSelection(.enabled)
-                Label(safety.verified ? FeatureContactsStrings.text("contacts.safety.verified", locale: locale) : FeatureContactsStrings.text("contacts.safety.notVerified", locale: locale), systemImage: safety.verified ? "checkmark.shield" : "shield")
-                if safety.verified { Text(FeatureContactsStrings.text("contacts.safety.verifiedNote", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary) }
-                else {
-                    Text(FeatureContactsStrings.text("contacts.safety.compareInstructions", locale: locale))
-                    KitButton(FeatureContactsStrings.text("contacts.safety.markCompared", locale: locale), action: { onAction(.requestChange(.verify)) },
-                              enabled: ContactsViewModel.allows(.verify, contact: contact, safety: safety, stale: state.safetyStale) && !state.busy && !state.unknownMutation, tag: "contact-verify")
-                }
-            } else if !state.loading { Text(FeatureContactsStrings.text("contacts.safety.unavailable", locale: locale)) }
         }
     }
     @ViewBuilder private func changeButtons(_ contact: ContactRecord) -> some View {
         let enabled = !state.busy && !state.unknownMutation
-        if ContactsViewModel.allows(.unblock, contact: contact, safety: nil, stale: false) {
+        if ContactsViewModel.allows(.unblock, contact: contact) {
             KitButton(FeatureContactsStrings.text("contacts.profile.unblock", locale: locale), action: { onAction(.requestChange(.unblock)) }, kind: .secondary, enabled: enabled, tag: "contact-unblock")
         }
-        if ContactsViewModel.allows(.block, contact: contact, safety: nil, stale: false) {
+        if ContactsViewModel.allows(.block, contact: contact) {
             KitButton(FeatureContactsStrings.text("contacts.profile.block", locale: locale), action: { onAction(.requestChange(.block)) }, kind: .secondary, enabled: enabled, tag: "contact-block")
         }
-        if ContactsViewModel.allows(.remove, contact: contact, safety: nil, stale: false) {
+        if ContactsViewModel.allows(.remove, contact: contact) {
             KitButton(FeatureContactsStrings.text("contacts.profile.remove", locale: locale), action: { onAction(.requestChange(.remove)) }, kind: .destructive, enabled: enabled, tag: "contact-remove")
         }
     }
@@ -147,7 +130,6 @@ public struct ContactsScreen: View {
         VStack(alignment: .leading, spacing: theme.gap) {
             Label(FeatureContactsStrings.text("contacts.request.firstContact", locale: locale), systemImage: "exclamationmark.shield")
             Text(untrusted: request.name).rfFont(.body, weight: .semibold); KitIdentifierText(request.principal).textSelection(.enabled)
-            if let number = request.safetyNumber { LabeledContent { KitIdentifierText(number) } label: { Text(FeatureContactsStrings.text("contacts.safety.title", locale: locale)) } }
             if let preview = request.preview { Text(untrusted: preview, kind: .messageBody) }
             Text(AppDataStrings.status(request.state, locale: locale))
             if request.direction == "inbound" && request.state == "pending" {

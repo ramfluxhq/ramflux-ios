@@ -359,17 +359,14 @@ extension MessageWindowPage {
         #expect(model.state.draft == "half written")
         model.send(.disappeared)
     }
-    @Test func detailsShowMuteAndRouteToTheMatchedContactsSafetyNumber() async {
-        var routes: [AppRoute] = []
+    @Test func detailsShowMuteAndTheMatchedContact() async {
         let fake = ChatFake()
-        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { if case .navigate(let route) = $0 { routes.append(route) } })
+        let model = ChatViewModel(repository: fake, account: "a", conversation: "c", emit: { _ in })
         model.send(.appeared); await model.settle()
         model.send(.detailsRequested); await model.settle()
         #expect(model.state.details?.details == ChatDetails(muted: false, peerPrincipal: "lin", peerName: "Lin"))
         model.send(.setMuted(true)); await model.settle()
         #expect(model.state.details?.details?.muted == true); #expect(await fake.muted == [true])
-        model.send(.openSafetyNumber)
-        #expect(routes == [.safetyNumber("lin")]); #expect(model.state.details == nil)
         model.send(.disappeared)
     }
 }

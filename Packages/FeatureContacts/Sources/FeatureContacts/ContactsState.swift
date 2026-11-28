@@ -3,8 +3,6 @@
 import AppData
 public struct ContactsState: Equatable, Sendable {
     public var mode: ContactsMode
-    public var safetyPrincipal: String?
-    public var safetyStale = false
     public var pendingMutation: PendingContactMutation?
     /// The held window of accepted contacts matching `query` (contacts mode).
     public var contacts: [ContactRecord] = []
@@ -12,7 +10,7 @@ public struct ContactsState: Equatable, Sendable {
     public var requests: [ContactRequestRecord] = []
     public var canLoadMore = false
     public var canLoadBefore = false
-    /// The contact of the profile or safety screen.
+    /// The contact of the profile screen.
     public var selected: ContactRecord?
     /// The request of the request screen.
     public var selectedRequest: ContactRequestRecord?
@@ -22,7 +20,6 @@ public struct ContactsState: Equatable, Sendable {
     public var loadingMore = false
     public var busy = false
     public var failure: AppFailure?
-    public var safety: ContactSafety?
     /// This account's contact card (my-card mode).
     public var ownCard: ContactCardExport?
     public var pending: PendingContactDecision?

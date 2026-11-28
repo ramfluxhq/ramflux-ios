@@ -10,7 +10,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
 }
 public enum AppRoute: Hashable, Sendable {
     /// A group's conversation: the conversation id, the SDK `group_id` (they can differ) and the title to show.
-    case conversation(String), groupConversation(String, group: String, title: String?), contacts, strangers, contact(String), safetyNumber(String)
+    case conversation(String), groupConversation(String, group: String, title: String?), contacts, strangers, contact(String)
     case settings, devices, device(String), nodes, node(String), appearance, privacy, appLock, backup, account, about
     case systemPermissions
     /// The Username page: the account's directory status and the claim or change of the name.
