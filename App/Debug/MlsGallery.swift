@@ -5,6 +5,7 @@ import SwiftUI
 import AppData
 import FeatureChat
 import FeatureContacts
+import FeatureMlsGroups
 import FeatureConversations
 import RFDesign
 
@@ -29,13 +30,27 @@ struct MlsGalleryRoot: View {
 struct MlsGalleryView: View {
     var body: some View {
         NavigationStack {
-            List(MlsFixtures.all) { fixture in
-                NavigationLink { MlsFixtureMenu(fixture: fixture) } label: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(verbatim: fixture.id + "  " + fixture.heading)
-                        Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
+            List {
+                Section(header: Text(verbatim: "Identity (M1)")) {
+                    ForEach(MlsFixtures.all) { fixture in
+                        NavigationLink { MlsFixtureMenu(fixture: fixture) } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(verbatim: fixture.id + "  " + fixture.heading)
+                                Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }.accessibilityIdentifier("mls-fixture-" + fixture.id)
                     }
-                }.accessibilityIdentifier("mls-fixture-" + fixture.id)
+                }
+                Section(header: Text(verbatim: "Groups (M2)")) {
+                    ForEach(MlsGroupFixtures.all) { fixture in
+                        NavigationLink { MlsGroupFixtureScreen(fixture: fixture) } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(verbatim: fixture.id + "  " + fixture.heading)
+                                Text(verbatim: fixture.expected).font(.caption).foregroundStyle(.secondary)
+                            }
+                        }.accessibilityIdentifier("mls-fixture-" + fixture.id)
+                    }
+                }
             }
             .accessibilityIdentifier("mls-gallery")
             .navigationTitle(Text(verbatim: "MLS gallery"))
@@ -107,5 +122,52 @@ private struct MlsConversationListScreen: View {
         _coordinator = State(initialValue: ConversationsCoordinator(repository: repositories.conversations, identity: repositories.identity, account: MlsFixtureRepositories.account, accountTitle: "Gallery", navigate: { _ in }))
     }
     var body: some View { ConversationsHost(coordinator: coordinator).overlay(alignment: .bottomTrailing) { MlsFooter(repositories: repositories) } }
+}
+
+/// A groups fixture (F2-1 to F2-11): the real MLS groups module over a real `MlsGroupSession` bound to the fixture
+/// repository. F2-11 binds the native repository instead, which answers every call with the typed unavailable outcome.
+private struct MlsGroupFixtureScreen: View {
+    let fixture: MlsGroupFixture
+    private let repository: FixtureMlsGroupRepository?
+    @State private var model: MlsGroupsCoordinator
+    @State private var showCalls = false
+    init(fixture: MlsGroupFixture) {
+        self.fixture = fixture
+        let fake: FixtureMlsGroupRepository? = fixture.id == "F2-11" ? nil : FixtureMlsGroupRepository(fixture)
+        repository = fake
+        let source: any MlsGroupRepository = fake ?? NativeMlsGroupRepository()
+        let defaults = UserDefaults(suiteName: "ramflux.mls.gallery") ?? .standard
+        defaults.removePersistentDomain(forName: "ramflux.mls.gallery")
+        _model = State(initialValue: MlsGroupsCoordinator(session: MlsGroupSession(account: FixtureMlsGroupRepository.account, repository: source), account: FixtureMlsGroupRepository.account, defaults: defaults))
+    }
+    var body: some View {
+        MlsGroupsHost(model: model)
+            .overlay(alignment: .topTrailing) {
+                Button { showCalls = true } label: { Text(verbatim: "Calls").font(.caption2).padding(4).background(.thinMaterial, in: Capsule()) }
+                    .padding(.top, 2).padding(.trailing, 8).accessibilityIdentifier("mls-calls-open")
+            }
+            .sheet(isPresented: $showCalls) { MlsCallsView(fixture: fixture, repository: repository) }
+    }
+}
+
+/// The per-method call counters of the fake (`mls-calls-<method>`): what the runner checks for "no call" and "one call".
+private struct MlsCallsView: View {
+    let fixture: MlsGroupFixture
+    let repository: FixtureMlsGroupRepository?
+    var body: some View {
+        NavigationStack {
+            TimelineView(.periodic(from: .now, by: 0.5)) { _ in
+                List {
+                    Section(header: Text(verbatim: fixture.id + "  " + fixture.hint)) {
+                        ForEach(MlsCallCounts.methods, id: \.self) { method in
+                            HStack { Text(verbatim: method); Spacer(); Text(verbatim: String(repository?.count(method) ?? 0)) }
+                                .accessibilityElement(children: .combine).accessibilityIdentifier("mls-calls-" + method)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(Text(verbatim: "Calls"))
+        }
+    }
 }
 #endif
