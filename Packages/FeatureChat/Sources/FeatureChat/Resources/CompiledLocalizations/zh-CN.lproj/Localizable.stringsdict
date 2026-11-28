@@ -58,6 +58,48 @@
 			<string>未发送的消息，含 %lld 个附件</string>
 		</dict>
 	</dict>
+	<key>group.send.rateLimited.firstDay</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>新成员第一天最多可发送 %lld 条消息。</string>
+		</dict>
+	</dict>
+	<key>group.timeline.joinedMany</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%2$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>%1$@ 和其他 %2$lld 人加入了群组</string>
+		</dict>
+	</dict>
+	<key>group.timeline.leftMany</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%2$#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>%1$@ 和其他 %2$lld 人退出了群组</string>
+		</dict>
+	</dict>
 	<key>security.devices</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

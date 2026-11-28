@@ -60,8 +60,9 @@ import RFDesign
         let gap = max(0, visible - tableView.contentSize.height)
         if abs(tableView.contentInset.top - gap) > 0.5 { tableView.contentInset.top = gap }
     }
-    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = []) {
-        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors, service: service)
+    public func update(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], theme: RFTheme = .light, locale: Locale = .current, isGroup: Bool = false, unreadAnchorID: String? = nil, olderAvailable: Bool = false, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = [], mls: [MlsTimelineEntry]? = nil) {
+        let items = TimelineProjection.items(messages, outbox: outbox, calendar: .current, unreadAnchorID: unreadAnchorID, loadingOlder: loadingOlder, media: media, revealed: revealed, cards: cards, agentAuthors: agentAuthors, service: service, mls: mls, locale: locale)
+        updatePullToRefresh(enabled: mls != nil)
         loadViewIfNeeded()
         self.olderAvailable = olderAvailable
         if !loadingOlder { requestedOlderAt = nil }
@@ -93,6 +94,14 @@ import RFDesign
                 self.tableView.contentOffset.y = self.tableView.rectForRow(at: path).minY - anchorY
             }
         }
+    }
+    /// A group timeline can be pulled to refresh (`group.refresh` through the session's coalescing).
+    private func updatePullToRefresh(enabled: Bool) {
+        if enabled, refreshControl == nil {
+            let control = UIRefreshControl()
+            control.addAction(UIAction { [weak self, weak control] _ in self?.onAction(.refresh); control?.endRefreshing() }, for: .valueChanged)
+            refreshControl = control
+        } else if !enabled, refreshControl != nil { refreshControl = nil }
     }
     private var context: String { "\(Int(tableView.bounds.width))|\(traitCollection.preferredContentSizeCategory.rawValue)" }
     public override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {

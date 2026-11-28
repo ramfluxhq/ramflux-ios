@@ -27,12 +27,12 @@ public struct ChatScreen: View {
             }
             if state.loading && state.messages.isEmpty { ProgressView(FeatureChatStrings.text("chat.loading", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)).padding(.horizontal, KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading) }
-            if state.messages.isEmpty && state.outbox.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
+            if state.messages.isEmpty && state.outbox.isEmpty && !state.loading && (state.mls?.entries.isEmpty ?? true) { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
-                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, onAction: onAction)
+                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, mls: state.mls?.entries, onAction: onAction)
                 #else
-                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
+                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, mls: state.mls?.entries, locale: locale), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
                 #endif
                 if state.detached {
                     Button(FeatureChatStrings.text("chat.timeline.jumpToLatest", locale: locale)) { onAction(.jumpToLatest) }
@@ -45,20 +45,13 @@ public struct ChatScreen: View {
             if state.showsSendBlockPrompt {
                 IdentityBanner(panel: state.identity, text: FeatureChatStrings.sentence("identity.send.blocked", [.untrusted(state.identity.presentedName.isEmpty ? state.displayTitle : state.identity.presentedName)], locale: locale), tag: "identity-composer-prompt", onReview: { onAction(.identityReview) })
             }
-            KitComposer(
-                value: draft,
-                placeholder: FeatureChatStrings.text("chat.composer.placeholder", locale: locale),
-                onSend: { if composerEnabled { onAction(.send) } },
-                onAttach: { onAction(.attachRequested) },
-                sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                attachEnabled: !state.staging,
-                replyAuthor: replyAuthor,
-                replyExcerpt: replyExcerpt,
-                onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
-                tag: "chat-composer"
-            )
+            if let mls = state.mls {
+                MlsComposerArea(state: state, mls: mls, onAction: onAction) { composer }
+            } else {
+                composer
+            }
         } }.privacySensitive()
-            .overlay { if let target = actionMessage { ChatActionsOverlay(message: target, onAction: onAction) } }
+            .overlay { if let target = actionMessage { ChatActionsOverlay(message: target, mls: state.mls, onAction: onAction) } }
             #if os(iOS)
             .navigationBarBackButtonHidden(true)
             #endif
@@ -105,6 +98,21 @@ public struct ChatScreen: View {
                 IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept(anchor: $0)) }, onLater: { onAction(.identityLater) })
             }
     }
+    /// The composer of a direct chat, and of a group chat while it can send.
+    private var composer: some View {
+            KitComposer(
+            value: draft,
+            placeholder: FeatureChatStrings.text("chat.composer.placeholder", locale: locale),
+            onSend: { if composerEnabled { onAction(.send) } },
+            onAttach: { onAction(.attachRequested) },
+            sendActive: composerEnabled && !state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            attachEnabled: !state.staging,
+            replyAuthor: replyAuthor,
+            replyExcerpt: replyExcerpt,
+            onCloseReply: state.held == nil && state.composer != nil ? { onAction(.cancelComposer) } : nil,
+            tag: "chat-composer"
+        )
+    }
     private var actionMessage: MessageRecord? { state.actionTarget.flatMap { id in state.messages.first { $0.id == id } } }
     private var composerEnabled: Bool { !state.sending && state.held == nil }
     private var draft: Binding<String> {
@@ -132,6 +140,8 @@ public struct ChatScreen: View {
 /// with the actions the SDK supports for this message.
 struct ChatActionsOverlay: View {
     let message: MessageRecord
+    /// Set in a group chat: no reactions, edit, forward or local delete; "Delete for everyone" on own posted rows.
+    var mls: MlsChatState?
     let onAction: (ChatAction) -> Void
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
@@ -141,7 +151,7 @@ struct ChatActionsOverlay: View {
                 .accessibilityLabel(Text(FeatureChatStrings.text("chat.composer.cancel", locale: locale)))
                 .accessibilityAddTraits(.isButton)
             VStack(alignment: message.isOwn == true ? .trailing : .leading, spacing: theme.gap) {
-                KitReactionBar(reactions: ChatReactionPalette.tokens, onReaction: { index in onAction(.chooseReaction(ChatReactionPalette.tokens[index])) }, onMore: { onAction(.beginReact(message.id)) }, tag: "chat-reactions")
+                if mls == nil { KitReactionBar(reactions: ChatReactionPalette.tokens, onReaction: { index in onAction(.chooseReaction(ChatReactionPalette.tokens[index])) }, onMore: { onAction(.beginReact(message.id)) }, tag: "chat-reactions") }
                 KitContextMenu(entries: entries.map(\.entry), onSelect: { index in entries[index].run() }, tag: "chat-actions")
             }
             .padding(KitMetrics.gutter)
@@ -149,7 +159,27 @@ struct ChatActionsOverlay: View {
         }
     }
     private struct Entry { let entry: KitMenuEntry; let run: () -> Void }
+    private func mlsEntries(_ mls: MlsChatState) -> [Entry] {
+        var list: [Entry] = []
+        if mls.readOnly == nil { list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("common.action.reply", locale: locale), icon: "reply"), run: { onAction(.beginReply(message.id)) })) }
+        if case .text(let text) = message.kind, !text.isEmpty {
+            list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.copy", locale: locale), icon: "copy"), run: {
+                #if canImport(UIKit)
+                UIPasteboard.general.string = text
+                #endif
+                onAction(.closeActions)
+            }))
+            list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.selectText", locale: locale), icon: "type"), run: { onAction(.selectText(message.id)) }))
+        }
+        let deletable = mls.readOnly == nil && mls.entries.contains { if case .post(let row) = $0 { row.post.postID == message.id && row.canDelete && !row.deleting } else { false } }
+        if deletable {
+            list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("group.delete.action", locale: locale), icon: "trash-2", danger: true, groupBefore: true), run: { onAction(.mlsRequestDelete(message.id)) }))
+        }
+        if list.isEmpty { list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.composer.cancel", locale: locale), icon: "x"), run: { onAction(.closeActions) })) }
+        return list
+    }
     private var entries: [Entry] {
+        if let mls { return mlsEntries(mls) }
         var list = [Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("common.action.reply", locale: locale), icon: "reply"), run: { onAction(.beginReply(message.id)) })]
         if case .text(let text) = message.kind, !text.isEmpty {
             list.append(Entry(entry: KitMenuEntry(label: FeatureChatStrings.text("chat.message.copy", locale: locale), icon: "copy"), run: {
@@ -215,5 +245,56 @@ struct ChatMediaSheets: ViewModifier {
         }
         .fullScreenCover(isPresented: Binding(get: { state.cameraActive }, set: { if !$0 { onAction(.permissionResolved(.camera, granted: false)) } })) { CameraCapture(onAction: onAction).ignoresSafeArea() }
         #endif
+    }
+}
+
+/// The area under a group timeline: the error of the last action, the read-only banner or the daily-limit notice in
+/// place of the composer, the mention button and the composer. Group sends are text only (no attach action).
+struct MlsComposerArea<Composer: View>: View {
+    let state: ChatState
+    let mls: MlsChatState
+    let onAction: (ChatAction) -> Void
+    @ViewBuilder let composer: () -> Composer
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    var body: some View {
+        VStack(spacing: 0) {
+            if let error = mls.actionError {
+                HStack(alignment: .center, spacing: theme.gap) {
+                    Text(MlsChatText.error(error, locale: locale)).rfFont(.caption).foregroundStyle(theme.danger).frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityIdentifier("mls-action-error")
+                    Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale)) { onAction(.mlsDismissError) }.rfFont(.caption)
+                }.padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
+            }
+            if let reason = mls.readOnly {
+                KitTipBar(MlsChatText.banner(reason, locale: locale), icon: "info", tag: "mls-read-only").padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
+            } else if let until = mls.composerOffUntil {
+                KitTipBar(FeatureChatStrings.format("group.send.rateLimited", MlsChatText.time(until, locale: locale), locale: locale), icon: "clock-3", tag: "mls-composer-off").padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
+            } else {
+                if !mls.mentionCandidates.isEmpty {
+                    HStack { Button { onAction(.mlsMentionPicker(true)) } label: { Text(verbatim: "@").rfFont(.page) }
+                        .accessibilityLabel(Text(FeatureChatStrings.text("group.mention.action", locale: locale))).accessibilityIdentifier("mls-mention")
+                        Spacer() }.padding(.horizontal, KitMetrics.gutter)
+                }
+                composer()
+            }
+        }
+        .confirmationDialog(FeatureChatStrings.text("group.delete.title", locale: locale), isPresented: Binding(get: { mls.deleteTarget != nil }, set: { if !$0 { onAction(.mlsCancelDelete) } }), titleVisibility: .visible) {
+            Button(FeatureChatStrings.text("group.delete.confirm", locale: locale), role: .destructive) { onAction(.mlsConfirmDelete) }.accessibilityIdentifier("mls-delete-confirm")
+            Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale), role: .cancel) { onAction(.mlsCancelDelete) }
+        }
+        .sheet(isPresented: Binding(get: { mls.mentionPicker }, set: { if !$0 { onAction(.mlsMentionPicker(false)) } })) {
+            RFPage { ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) {
+                Text(FeatureChatStrings.text("group.mention.title", locale: locale)).rfFont(.page)
+                ForEach(mls.mentionCandidates) { member in
+                    Button { onAction(.mlsMention(member.anchor)) } label: {
+                        HStack(spacing: theme.gap) {
+                            Text(MlsChatText.displayName(MlsAuthor(anchor: member.anchor, display: member.display), locale: locale)).rfFont(.body)
+                            if member.aiFlag { KitAIMarker(tag: "mls-mention-ai") }
+                        }.frame(maxWidth: .infinity, alignment: .leading)
+                    }.buttonStyle(.plain)
+                }
+            }.padding(theme.gap) } }
+        }
     }
 }

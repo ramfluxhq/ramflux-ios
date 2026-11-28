@@ -192,6 +192,114 @@
 	<string>Refresh</string>
 	<key>common.action.reply</key>
 	<string>Reply</string>
+	<key>group.delete.action</key>
+	<string>Delete for everyone</string>
+	<key>group.delete.confirm</key>
+	<string>Delete</string>
+	<key>group.delete.deleting</key>
+	<string>Deleting…</string>
+	<key>group.delete.title</key>
+	<string>Delete this message for everyone?</string>
+	<key>group.error.generic</key>
+	<string>Something went wrong. Try again.</string>
+	<key>group.error.groupFull</key>
+	<string>This group is full.</string>
+	<key>group.error.hostUnreachable</key>
+	<string>Can't reach the group's server.</string>
+	<key>group.error.messageNotFound</key>
+	<string>This message no longer exists.</string>
+	<key>group.error.notAdmin</key>
+	<string>Only admins can do this.</string>
+	<key>group.error.notAuthor</key>
+	<string>You can only delete your own messages.</string>
+	<key>group.error.notMember</key>
+	<string>You're not a member of this group.</string>
+	<key>group.error.ownerProtected</key>
+	<string>This can't be done to the group owner.</string>
+	<key>group.error.paced</key>
+	<string>Please wait until %1$@ and try again.</string>
+	<key>group.error.rateLimited</key>
+	<string>You've reached the limit. Try again later.</string>
+	<key>group.error.rejoinNeeded</key>
+	<string>This device needs to rejoin the group.</string>
+	<key>group.error.requestNotFound</key>
+	<string>This request is no longer pending.</string>
+	<key>group.error.tierUnavailable</key>
+	<string>This group size isn't available.</string>
+	<key>group.error.tooLarge</key>
+	<string>This is too large. The limit is %1$@.</string>
+	<key>group.error.unavailable</key>
+	<string>Groups aren't available in this version yet.</string>
+	<key>group.error.unknownInvite</key>
+	<string>This invite doesn't exist.</string>
+	<key>group.error.voidNotHead</key>
+	<string>Only the latest change can be undone.</string>
+	<key>group.leave.done</key>
+	<string>You left this group.</string>
+	<key>group.member.unnamed</key>
+	<string>Member</string>
+	<key>group.members.you</key>
+	<string>You</string>
+	<key>group.mention.action</key>
+	<string>Mention</string>
+	<key>group.mention.title</key>
+	<string>Mention a member</string>
+	<key>group.message.attachment</key>
+	<string>Attachment</string>
+	<key>group.send.delayed</key>
+	<string>Sends around %1$@ for privacy</string>
+	<key>group.send.failed</key>
+	<string>Not sent</string>
+	<key>group.send.queued.catchingUp</key>
+	<string>Waiting until this device is up to date</string>
+	<key>group.send.queued.fetchingTokens</key>
+	<string>Preparing to send</string>
+	<key>group.send.queued.generic</key>
+	<string>Waiting to send</string>
+	<key>group.send.queued.hostUnreachable</key>
+	<string>Waiting for the group's server</string>
+	<key>group.send.rateLimited</key>
+	<string>Daily limit reached. You can send again at %1$@.</string>
+	<key>group.send.rateLimited.noReset</key>
+	<string>Daily limit reached. Try again later.</string>
+	<key>group.send.retry</key>
+	<string>Retry</string>
+	<key>group.send.sending</key>
+	<string>Sending…</string>
+	<key>group.state.banned</key>
+	<string>You were banned from this group.</string>
+	<key>group.state.removed</key>
+	<string>You were removed from this group.</string>
+	<key>group.timeline.approvalOff</key>
+	<string>%1$@ turned off approval for new members</string>
+	<key>group.timeline.approvalOn</key>
+	<string>%1$@ turned on approval for new members</string>
+	<key>group.timeline.banned</key>
+	<string>%1$@ banned %2$@</string>
+	<key>group.timeline.bannedPassive</key>
+	<string>%1$@ was banned</string>
+	<key>group.timeline.deleted</key>
+	<string>Message deleted</string>
+	<key>group.timeline.floor</key>
+	<string>Earlier messages are not available on this device</string>
+	<key>group.timeline.joined</key>
+	<string>%1$@ joined</string>
+	<key>group.timeline.left</key>
+	<string>%1$@ left</string>
+	<key>group.timeline.name</key>
+	<string>%1$@ changed the group name to %2$@</string>
+	<key>group.timeline.removed</key>
+	<string>%1$@ removed %2$@</string>
+	<key>group.timeline.removedPassive</key>
+	<string>%1$@ was removed</string>
+	<key>group.timeline.roleAdmin</key>
+	<string>%1$@ made %2$@ an admin</string>
+	<key>group.timeline.roleMember</key>
+	<string>%1$@ made %2$@ a member</string>
+	<key>group.timeline.updated</key>
+	<string>Group updated</string>
+	<key>group.timeline.void</key>
+	<string>Change undone</string>
 	<key>identity.accept.again</key>
 	<string>The identity changed again. Review it again.</string>
 	<key>identity.accept.already</key>

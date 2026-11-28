@@ -96,6 +96,8 @@ public struct ChatState: Equatable, Sendable {
     public var details: ChatDetailsState?
     /// The direct peer's identity: banner, review sheet, encryption section and service lines. Empty in a group.
     public var identity = IdentityPanel()
+    /// MLS group extras (M2); nil in a direct chat.
+    public var mls: MlsChatState?
     /// Transfer state per attachment id, only for attachments in the window.
     public var media: [String: MediaTransferState] = [:]
     /// Untrusted senders' thumbnails the user chose to show.

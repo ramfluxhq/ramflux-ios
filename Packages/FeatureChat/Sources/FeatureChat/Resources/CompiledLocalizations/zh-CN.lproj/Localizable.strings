@@ -192,6 +192,114 @@
 	<string>刷新</string>
 	<key>common.action.reply</key>
 	<string>回复</string>
+	<key>group.delete.action</key>
+	<string>为所有人删除</string>
+	<key>group.delete.confirm</key>
+	<string>删除</string>
+	<key>group.delete.deleting</key>
+	<string>正在删除…</string>
+	<key>group.delete.title</key>
+	<string>要为所有人删除这条消息吗？</string>
+	<key>group.error.generic</key>
+	<string>出了点问题。请重试。</string>
+	<key>group.error.groupFull</key>
+	<string>此群组已满。</string>
+	<key>group.error.hostUnreachable</key>
+	<string>无法连接到群组服务器。</string>
+	<key>group.error.messageNotFound</key>
+	<string>此消息已不存在。</string>
+	<key>group.error.notAdmin</key>
+	<string>只有管理员可以执行此操作。</string>
+	<key>group.error.notAuthor</key>
+	<string>你只能删除自己的消息。</string>
+	<key>group.error.notMember</key>
+	<string>你不是此群组的成员。</string>
+	<key>group.error.ownerProtected</key>
+	<string>无法对群主执行此操作。</string>
+	<key>group.error.paced</key>
+	<string>请等到 %1$@ 后再试。</string>
+	<key>group.error.rateLimited</key>
+	<string>已达到上限。请稍后再试。</string>
+	<key>group.error.rejoinNeeded</key>
+	<string>此设备需要重新加入群组。</string>
+	<key>group.error.requestNotFound</key>
+	<string>此申请已不在等待中。</string>
+	<key>group.error.tierUnavailable</key>
+	<string>此群组规模不可用。</string>
+	<key>group.error.tooLarge</key>
+	<string>内容过大。上限为 %1$@。</string>
+	<key>group.error.unavailable</key>
+	<string>此版本暂不支持群组。</string>
+	<key>group.error.unknownInvite</key>
+	<string>此邀请不存在。</string>
+	<key>group.error.voidNotHead</key>
+	<string>只能撤销最近一次更改。</string>
+	<key>group.leave.done</key>
+	<string>你已退出此群组。</string>
+	<key>group.member.unnamed</key>
+	<string>成员</string>
+	<key>group.members.you</key>
+	<string>你</string>
+	<key>group.mention.action</key>
+	<string>提及</string>
+	<key>group.mention.title</key>
+	<string>提及成员</string>
+	<key>group.message.attachment</key>
+	<string>附件</string>
+	<key>group.send.delayed</key>
+	<string>为保护隐私，将在 %1$@ 左右发出</string>
+	<key>group.send.failed</key>
+	<string>未发送</string>
+	<key>group.send.queued.catchingUp</key>
+	<string>正在等待此设备同步完成</string>
+	<key>group.send.queued.fetchingTokens</key>
+	<string>正在准备发送</string>
+	<key>group.send.queued.generic</key>
+	<string>等待发送</string>
+	<key>group.send.queued.hostUnreachable</key>
+	<string>正在等待群组服务器</string>
+	<key>group.send.rateLimited</key>
+	<string>已达到今日上限。你可以在 %1$@ 后再次发送。</string>
+	<key>group.send.rateLimited.noReset</key>
+	<string>已达到今日上限。请稍后再试。</string>
+	<key>group.send.retry</key>
+	<string>重试</string>
+	<key>group.send.sending</key>
+	<string>正在发送…</string>
+	<key>group.state.banned</key>
+	<string>你已被此群组封禁。</string>
+	<key>group.state.removed</key>
+	<string>你已被移出此群组。</string>
+	<key>group.timeline.approvalOff</key>
+	<string>%1$@ 关闭了新成员审批</string>
+	<key>group.timeline.approvalOn</key>
+	<string>%1$@ 开启了新成员审批</string>
+	<key>group.timeline.banned</key>
+	<string>%1$@ 封禁了 %2$@</string>
+	<key>group.timeline.bannedPassive</key>
+	<string>%1$@ 被封禁</string>
+	<key>group.timeline.deleted</key>
+	<string>消息已删除</string>
+	<key>group.timeline.floor</key>
+	<string>更早的消息在此设备上不可用</string>
+	<key>group.timeline.joined</key>
+	<string>%1$@ 加入了群组</string>
+	<key>group.timeline.left</key>
+	<string>%1$@ 退出了群组</string>
+	<key>group.timeline.name</key>
+	<string>%1$@ 将群组名称改为 %2$@</string>
+	<key>group.timeline.removed</key>
+	<string>%1$@ 将 %2$@ 移出了群组</string>
+	<key>group.timeline.removedPassive</key>
+	<string>%1$@ 被移出了群组</string>
+	<key>group.timeline.roleAdmin</key>
+	<string>%1$@ 将 %2$@ 设为管理员</string>
+	<key>group.timeline.roleMember</key>
+	<string>%1$@ 将 %2$@ 设为普通成员</string>
+	<key>group.timeline.updated</key>
+	<string>群组已更新</string>
+	<key>group.timeline.void</key>
+	<string>更改已撤销</string>
 	<key>identity.accept.again</key>
 	<string>身份再次更改。请重新查看。</string>
 	<key>identity.accept.already</key>

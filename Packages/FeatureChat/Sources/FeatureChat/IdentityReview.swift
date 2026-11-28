@@ -6,7 +6,11 @@ import AppData
 /// A centred line of the timeline made on this device from the identity change stream and the security read.
 /// It is never a message row.
 public struct ServiceLine: Equatable, Sendable, Identifiable {
-    public enum Kind: Equatable, Sendable { case identityChanged, identityAccepted, forkRecovered }
+    public enum Kind: Equatable, Sendable { case identityChanged, identityAccepted, forkRecovered
+        /// An MLS group timeline line (M2).
+        case mls(MlsServiceLine)
+        /// "Earlier messages are not available on this device".
+        case mlsFloor }
     public let id: String
     public let kind: Kind
     public let name: String

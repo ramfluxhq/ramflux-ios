@@ -2145,6 +2145,1029 @@
           }
         }
       }
+    },
+    "group.delete.action": {
+      "comment": "MLS groups (group chat). English: \"Delete for everyone\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete for everyone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为所有人删除"
+          }
+        }
+      }
+    },
+    "group.delete.confirm": {
+      "comment": "MLS groups (group chat). English: \"Delete\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        }
+      }
+    },
+    "group.delete.deleting": {
+      "comment": "MLS groups (group chat). English: \"Deleting…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleting…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在删除…"
+          }
+        }
+      }
+    },
+    "group.delete.title": {
+      "comment": "MLS groups (group chat). English: \"Delete this message for everyone?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this message for everyone?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要为所有人删除这条消息吗？"
+          }
+        }
+      }
+    },
+    "group.error.generic": {
+      "comment": "MLS groups (error text). English: \"Something went wrong. Try again.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong. Try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "出了点问题。请重试。"
+          }
+        }
+      }
+    },
+    "group.error.groupFull": {
+      "comment": "MLS groups (error text). English: \"This group is full.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group is full."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组已满。"
+          }
+        }
+      }
+    },
+    "group.error.hostUnreachable": {
+      "comment": "MLS groups (error text). English: \"Can't reach the group's server.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't reach the group's server."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法连接到群组服务器。"
+          }
+        }
+      }
+    },
+    "group.error.messageNotFound": {
+      "comment": "MLS groups (error text). English: \"This message no longer exists.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This message no longer exists."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此消息已不存在。"
+          }
+        }
+      }
+    },
+    "group.error.notAdmin": {
+      "comment": "MLS groups (error text). English: \"Only admins can do this.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only admins can do this."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有管理员可以执行此操作。"
+          }
+        }
+      }
+    },
+    "group.error.notAuthor": {
+      "comment": "MLS groups (error text). English: \"You can only delete your own messages.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can only delete your own messages."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你只能删除自己的消息。"
+          }
+        }
+      }
+    },
+    "group.error.notMember": {
+      "comment": "MLS groups (error text). English: \"You're not a member of this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're not a member of this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你不是此群组的成员。"
+          }
+        }
+      }
+    },
+    "group.error.ownerProtected": {
+      "comment": "MLS groups (error text). English: \"This can't be done to the group owner.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be done to the group owner."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法对群主执行此操作。"
+          }
+        }
+      }
+    },
+    "group.error.paced": {
+      "comment": "MLS groups (error text). English: \"Please wait until %1$@ and try again.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please wait until %1$@ and try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请等到 %1$@ 后再试。"
+          }
+        }
+      }
+    },
+    "group.error.rateLimited": {
+      "comment": "MLS groups (error text). English: \"You've reached the limit. Try again later.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You've reached the limit. Try again later."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已达到上限。请稍后再试。"
+          }
+        }
+      }
+    },
+    "group.error.rejoinNeeded": {
+      "comment": "MLS groups (error text). English: \"This device needs to rejoin the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device needs to rejoin the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备需要重新加入群组。"
+          }
+        }
+      }
+    },
+    "group.error.requestNotFound": {
+      "comment": "MLS groups (error text). English: \"This request is no longer pending.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This request is no longer pending."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此申请已不在等待中。"
+          }
+        }
+      }
+    },
+    "group.error.tierUnavailable": {
+      "comment": "MLS groups (error text). English: \"This group size isn't available.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group size isn't available."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组规模不可用。"
+          }
+        }
+      }
+    },
+    "group.error.tooLarge": {
+      "comment": "MLS groups (error text). English: \"This is too large. The limit is %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is too large. The limit is %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内容过大。上限为 %1$@。"
+          }
+        }
+      }
+    },
+    "group.error.unavailable": {
+      "comment": "MLS groups (error text). English: \"Groups aren't available in this version yet.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups aren't available in this version yet."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此版本暂不支持群组。"
+          }
+        }
+      }
+    },
+    "group.error.unknownInvite": {
+      "comment": "MLS groups (error text). English: \"This invite doesn't exist.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This invite doesn't exist."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此邀请不存在。"
+          }
+        }
+      }
+    },
+    "group.error.voidNotHead": {
+      "comment": "MLS groups (error text). English: \"Only the latest change can be undone.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the latest change can be undone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只能撤销最近一次更改。"
+          }
+        }
+      }
+    },
+    "group.leave.done": {
+      "comment": "MLS groups (leave confirmation). English: \"You left this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You left this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已退出此群组。"
+          }
+        }
+      }
+    },
+    "group.member.unnamed": {
+      "comment": "MLS groups (members screen). English: \"Member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "group.members.you": {
+      "comment": "MLS groups (members screen). English: \"You\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你"
+          }
+        }
+      }
+    },
+    "group.mention.action": {
+      "comment": "MLS groups (group chat composer). English: \"Mention\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mention"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提及"
+          }
+        }
+      }
+    },
+    "group.mention.title": {
+      "comment": "MLS groups (group chat composer). English: \"Mention a member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mention a member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提及成员"
+          }
+        }
+      }
+    },
+    "group.message.attachment": {
+      "comment": "MLS groups (group chat). English: \"Attachment\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attachment"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "附件"
+          }
+        }
+      }
+    },
+    "group.send.delayed": {
+      "comment": "MLS groups (group chat). English: \"Sends around %1$@ for privacy\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends around %1$@ for privacy"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为保护隐私，将在 %1$@ 左右发出"
+          }
+        }
+      }
+    },
+    "group.send.failed": {
+      "comment": "MLS groups (group chat). English: \"Not sent\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not sent"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未发送"
+          }
+        }
+      }
+    },
+    "group.send.queued.catchingUp": {
+      "comment": "MLS groups (group chat). English: \"Waiting until this device is up to date\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting until this device is up to date"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待此设备同步完成"
+          }
+        }
+      }
+    },
+    "group.send.queued.fetchingTokens": {
+      "comment": "MLS groups (group chat). English: \"Preparing to send\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing to send"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在准备发送"
+          }
+        }
+      }
+    },
+    "group.send.queued.generic": {
+      "comment": "MLS groups (group chat). English: \"Waiting to send\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting to send"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待发送"
+          }
+        }
+      }
+    },
+    "group.send.queued.hostUnreachable": {
+      "comment": "MLS groups (group chat). English: \"Waiting for the group's server\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the group's server"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待群组服务器"
+          }
+        }
+      }
+    },
+    "group.send.rateLimited": {
+      "comment": "MLS groups (group chat). English: \"Daily limit reached. You can send again at %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily limit reached. You can send again at %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已达到今日上限。你可以在 %1$@ 后再次发送。"
+          }
+        }
+      }
+    },
+    "group.send.rateLimited.firstDay": {
+      "comment": "MLS groups (group chat). English: \"New members can send %lld message on their first day.\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "New members can send %lld message on their first day."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "New members can send %lld messages on their first day."
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "新成员第一天最多可发送 %lld 条消息。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.send.rateLimited.noReset": {
+      "comment": "MLS groups (group chat). English: \"Daily limit reached. Try again later.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily limit reached. Try again later."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已达到今日上限。请稍后再试。"
+          }
+        }
+      }
+    },
+    "group.send.retry": {
+      "comment": "MLS groups (group chat). English: \"Retry\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "group.send.sending": {
+      "comment": "MLS groups (group chat). English: \"Sending…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在发送…"
+          }
+        }
+      }
+    },
+    "group.state.banned": {
+      "comment": "MLS groups (group chat). English: \"You were banned from this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were banned from this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已被此群组封禁。"
+          }
+        }
+      }
+    },
+    "group.state.removed": {
+      "comment": "MLS groups (group chat). English: \"You were removed from this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were removed from this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已被移出此群组。"
+          }
+        }
+      }
+    },
+    "group.timeline.approvalOff": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ turned off approval for new members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ turned off approval for new members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 关闭了新成员审批"
+          }
+        }
+      }
+    },
+    "group.timeline.approvalOn": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ turned on approval for new members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ turned on approval for new members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 开启了新成员审批"
+          }
+        }
+      }
+    },
+    "group.timeline.banned": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ banned %2$@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ banned %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 封禁了 %2$@"
+          }
+        }
+      }
+    },
+    "group.timeline.bannedPassive": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ was banned\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ was banned"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 被封禁"
+          }
+        }
+      }
+    },
+    "group.timeline.deleted": {
+      "comment": "MLS groups (group chat timeline). English: \"Message deleted\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message deleted"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息已删除"
+          }
+        }
+      }
+    },
+    "group.timeline.floor": {
+      "comment": "MLS groups (group chat timeline). English: \"Earlier messages are not available on this device\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Earlier messages are not available on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更早的消息在此设备上不可用"
+          }
+        }
+      }
+    },
+    "group.timeline.joined": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ joined\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ joined"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 加入了群组"
+          }
+        }
+      }
+    },
+    "group.timeline.joinedMany": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ and %2$lld other joined\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ and %2$lld other joined"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ and %2$lld others joined"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ 和其他 %2$lld 人加入了群组"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.timeline.left": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ left\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ left"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 退出了群组"
+          }
+        }
+      }
+    },
+    "group.timeline.leftMany": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ and %2$lld other left\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ and %2$lld other left"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ and %2$lld others left"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%1$@ 和其他 %2$lld 人退出了群组"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.timeline.name": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ changed the group name to %2$@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ changed the group name to %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 将群组名称改为 %2$@"
+          }
+        }
+      }
+    },
+    "group.timeline.removed": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ removed %2$@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ removed %2$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 将 %2$@ 移出了群组"
+          }
+        }
+      }
+    },
+    "group.timeline.removedPassive": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ was removed\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ was removed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 被移出了群组"
+          }
+        }
+      }
+    },
+    "group.timeline.roleAdmin": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ made %2$@ an admin\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ made %2$@ an admin"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 将 %2$@ 设为管理员"
+          }
+        }
+      }
+    },
+    "group.timeline.roleMember": {
+      "comment": "MLS groups (group chat timeline). English: \"%1$@ made %2$@ a member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ made %2$@ a member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 将 %2$@ 设为普通成员"
+          }
+        }
+      }
+    },
+    "group.timeline.updated": {
+      "comment": "MLS groups (group chat timeline). English: \"Group updated\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group updated"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组已更新"
+          }
+        }
+      }
+    },
+    "group.timeline.void": {
+      "comment": "MLS groups (group chat timeline). English: \"Change undone\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change undone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更改已撤销"
+          }
+        }
+      }
     }
   }
 }

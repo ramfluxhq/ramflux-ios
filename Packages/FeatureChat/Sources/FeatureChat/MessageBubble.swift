@@ -66,6 +66,9 @@ public struct MessageBubble: View {
                         MediaAttachmentView(attachment: attachment, state: media.states[attachment.id] ?? .idle, revealed: media.revealed.contains(attachment.id), isOwn: own, time: clock, onAction: onAction)
                     }
                 }
+                if media.deleting {
+                    Text(FeatureChatStrings.text("group.delete.deleting", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-deleting")
+                }
                 if !message.reactions.isEmpty {
                     HStack(spacing: theme.gap / 2) {
                         ForEach(message.reactions) { reaction in
@@ -243,6 +246,46 @@ struct TimelineRow: View {
             OutboxBubble(entry: entry, onAction: onAction)
         case .service(let line):
             ServiceLineView(line: line)
+        case .mlsPending(let pending):
+            MlsPendingBubble(pending: pending, onAction: onAction)
         }
     }
+}
+
+/// An own group post that is not posted yet (MLS, M2): sending, queued with its reason, delayed with its time, or not sent
+/// with a Retry that is an explicit tap (nothing is sent again by itself).
+struct MlsPendingBubble: View {
+    let pending: MlsPendingPost
+    let onAction: (ChatAction) -> Void
+    @Environment(\.locale) private var locale
+    @Environment(\.rfTheme) private var theme
+    var body: some View {
+        VStack(alignment: .trailing, spacing: theme.gap / 2) {
+            HStack(alignment: .center, spacing: theme.gap) {
+                if notSent { KitIcon(name: "circle-alert", size: KitMetrics.iconInfo, tint: theme.danger).accessibilityHidden(true) }
+                KitBubble(pending.text, kind: .own, time: nil, pending: !notSent, failed: notSent, tag: "mls-pending-" + pending.localID)
+            }
+            HStack(spacing: theme.gap) {
+                if case .queued = pending.state { KitIcon(name: "clock-3", size: KitMetrics.iconInfo, tint: theme.secondary).accessibilityHidden(true) }
+                if case .delayed = pending.state { KitIcon(name: "clock-3", size: KitMetrics.iconInfo, tint: theme.secondary).accessibilityHidden(true) }
+                Text(MlsChatText.status(pending.state, locale: locale)).rfFont(.caption).foregroundStyle(notSent ? theme.danger : theme.secondary)
+                    .accessibilityIdentifier("mls-send-state")
+                if notSent {
+                    Button(FeatureChatStrings.text("group.send.retry", locale: locale)) { onAction(.mlsRetry(pending.localID)) }
+                        .rfFont(.caption).foregroundStyle(theme.danger).buttonStyle(.plain).accessibilityIdentifier("mls-retry")
+                    Menu {
+                        Button(FeatureChatStrings.text("chat.outbox.discard", locale: locale), role: .destructive) { onAction(.mlsDiscard(pending.localID)) }
+                    } label: { KitIcon(name: "info", size: KitMetrics.iconInfo, tint: theme.secondary) }
+                        .accessibilityLabel(Text(FeatureChatStrings.text("chat.outbox.details", locale: locale)))
+                }
+            }
+            if case .notSent(let reason) = pending.state {
+                Text(MlsChatText.notSentDetail(reason, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).multilineTextAlignment(.trailing)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.horizontal, theme.gap)
+        .accessibilityElement(children: .contain)
+    }
+    private var notSent: Bool { if case .notSent = pending.state { true } else { false } }
 }
