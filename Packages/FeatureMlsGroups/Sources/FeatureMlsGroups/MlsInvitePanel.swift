@@ -33,7 +33,7 @@ public struct MlsInvitePanel: View {
             Text(FeatureMlsGroupsStrings.text("group.invite.secretNote", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
             if let invite = live {
                 linkBlock(invite)
-                if let qr { KitQrCode(qr, label: FeatureMlsGroupsStrings.text("group.invite.qr", locale: locale), tag: "mls-invite-qr").frame(maxWidth: .infinity) }
+                if let qr { KitQrCode(qr, label: FeatureMlsGroupsStrings.text("group.invite.qr", locale: locale), tag: "mls-invite-qr").privacySensitive().frame(maxWidth: .infinity) }
             }
             presets
             if let error = model.invites.error { Text(MlsChatText.error(error, locale: locale)).rfFont(.caption).foregroundStyle(theme.danger).accessibilityIdentifier("mls-invite-error") }
@@ -52,7 +52,7 @@ public struct MlsInvitePanel: View {
     @ViewBuilder private func linkBlock(_ invite: MlsInvite) -> some View {
         Text(verbatim: RFBidi.isolateLeftToRight(invite.link)).font(.system(.footnote, design: .monospaced)).lineLimit(1).truncationMode(.middle)
             .padding(theme.gap).frame(maxWidth: .infinity, alignment: .leading).background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_md))
-            .accessibilityIdentifier("mls-invite-link")
+            .privacySensitive().accessibilityIdentifier("mls-invite-link")
         HStack(spacing: theme.gap) {
             KitButton(FeatureMlsGroupsStrings.text(copied == invite.inviteID ? "group.invite.copied" : "group.invite.copy", locale: locale), action: { copy(invite) }, kind: .secondary, size: .compact, tag: "mls-invite-copy")
             ShareLink(item: invite.link) { Text(FeatureMlsGroupsStrings.text("group.invite.share", locale: locale)).rfFont(.body) }.accessibilityIdentifier("mls-invite-share")

@@ -19,7 +19,7 @@ public struct MlsJoinSheet: View {
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             Text(FeatureMlsGroupsStrings.text("group.join.title", locale: locale)).rfFont(.page)
-            KitTextField(value: $link, label: FeatureMlsGroupsStrings.text("group.join.field", locale: locale), enabled: !model.join.joining, tag: "mls-join-field")
+            KitTextField(value: $link, label: FeatureMlsGroupsStrings.text("group.join.field", locale: locale), enabled: !model.join.joining, sensitive: true, tag: "mls-join-field")
             HStack(spacing: theme.gap) {
                 KitButton(FeatureMlsGroupsStrings.text("group.join.paste", locale: locale), action: paste, kind: .secondary, size: .compact, enabled: !model.join.joining, tag: "mls-join-paste")
                 KitButton(FeatureMlsGroupsStrings.text(model.join.joining ? "group.join.joining" : "group.join.submit", locale: locale), action: { model.joinTapped(link: link) }, size: .compact, enabled: !model.join.joining && !link.isEmpty, loading: model.join.joining, tag: "mls-join-submit")

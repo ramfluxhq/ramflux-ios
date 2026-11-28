@@ -216,7 +216,7 @@ import Push
     private func clearMlsSession(_ account: String, forget: Bool) async {
         let session = mlsSessions[account]
         mlsModules[account]?.stop(); mlsModules[account]?.reset(); mlsModules[account] = nil
-        if forget { mlsSessions[account] = nil }
+        if forget { mlsSessions[account] = nil; MlsGroupsCoordinator.purgeNoticeFlags(account: account) }
         await session?.clear()
     }
     @ObservationIgnored private var currentCalls: (String, CallsMode, CallsCoordinator)?

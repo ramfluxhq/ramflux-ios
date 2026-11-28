@@ -137,7 +137,7 @@ public struct MlsGroupPage: Equatable, Sendable {
 }
 
 /// An invite. The link is a secret (S1): it is never printed, logged or stored beyond the session's memory.
-public struct MlsInvite: Equatable, Sendable, Identifiable, CustomStringConvertible, CustomDebugStringConvertible {
+public struct MlsInvite: Equatable, Sendable, Identifiable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public var id: String { inviteID }
     public let inviteID: String
     public let link: String
@@ -149,15 +149,18 @@ public struct MlsInvite: Equatable, Sendable, Identifiable, CustomStringConverti
     public init(inviteID: String, link: String, maxUses: Int, usesLeft: Int? = nil, expiresAt: Int64, revoked: Bool = false) { self.inviteID = inviteID; self.link = link; self.maxUses = maxUses; self.usesLeft = usesLeft; self.expiresAt = expiresAt; self.revoked = revoked }
     public var description: String { "MlsInvite(link=<redacted>)" }
     public var debugDescription: String { description }
+    /// `dump()` and `Mirror` never reveal the link (S9).
+    public var customMirror: Mirror { Mirror(self, children: ["inviteID": inviteID, "link": "<redacted>", "maxUses": maxUses, "expiresAt": expiresAt, "revoked": revoked], displayStyle: .struct) }
     public func isExpired(now: Int64) -> Bool { expiresAt > 0 && expiresAt <= now }
 }
 
-public struct MlsCreated: Equatable, Sendable, CustomStringConvertible, CustomDebugStringConvertible {
+public struct MlsCreated: Equatable, Sendable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
     public let groupID: String
     public let invite: MlsInvite
     public init(groupID: String, invite: MlsInvite) { self.groupID = groupID; self.invite = invite }
     public var description: String { "MlsCreated(link=<redacted>)" }
     public var debugDescription: String { description }
+    public var customMirror: Mirror { Mirror(self, children: ["groupID": groupID, "invite": invite], displayStyle: .struct) }
 }
 
 public enum MlsPendingReason: Equatable, Sendable { case awaitingAdmin, awaitingMemberOnline, unknown(String) }

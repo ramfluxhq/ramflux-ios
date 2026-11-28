@@ -10,12 +10,15 @@ public struct KitTextField: View {
     var note: String?
     var enabled: Bool
     var focused: Bool
+    var sensitive: Bool
     var tag: String?
     @FocusState private var editing: Bool
     @Environment(\.rfTheme) private var theme
     @Environment(\.kitCapturing) private var capturing
 
-    public init(value: Binding<String>, label: String, placeholder: String = "", error: String? = nil, note: String? = nil, enabled: Bool = true, focused: Bool = false, tag: String? = nil) {
+    /// `sensitive`: the text is a secret typed verbatim (a link): no autocorrection, no autocapitalisation, no predictive
+    /// text, and it is hidden from snapshots.
+    public init(value: Binding<String>, label: String, placeholder: String = "", error: String? = nil, note: String? = nil, enabled: Bool = true, focused: Bool = false, sensitive: Bool = false, tag: String? = nil) {
         self._value = value
         self.label = label
         self.placeholder = placeholder
@@ -23,6 +26,7 @@ public struct KitTextField: View {
         self.note = note
         self.enabled = enabled
         self.focused = focused
+        self.sensitive = sensitive
         self.tag = tag
     }
 
@@ -62,7 +66,22 @@ public struct KitTextField: View {
                 .foregroundStyle(theme.text)
                 .focused($editing)
                 .disabled(!enabled)
+                .modifier(KitSensitiveInput(sensitive: sensitive))
         }
+    }
+}
+
+/// Verbatim input for a secret: autocorrection, autocapitalisation and predictive text off.
+struct KitSensitiveInput: ViewModifier {
+    let sensitive: Bool
+    func body(content: Content) -> some View {
+        if sensitive {
+            #if os(iOS)
+            content.autocorrectionDisabled().textInputAutocapitalization(.never).privacySensitive()
+            #else
+            content.autocorrectionDisabled().privacySensitive()
+            #endif
+        } else { content }
     }
 }
 

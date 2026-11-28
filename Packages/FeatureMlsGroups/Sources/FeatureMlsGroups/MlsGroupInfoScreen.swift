@@ -29,7 +29,7 @@ public struct MlsGroupInfoScreen: View {
                 }
                 Text(FeatureMlsGroupsStrings.text(info.approval ? "group.info.approvalOn" : "group.info.approvalOff", locale: locale)).rfFont(.body)
                 HStack { Text(FeatureMlsGroupsStrings.text("group.info.push", locale: locale)).rfFont(.body); Spacer(); Text(MlsGroupsText.push(info.push, locale: locale)).rfFont(.body).foregroundStyle(theme.secondary) }
-                if model.readOnly == nil || model.readOnly == .left { entry("group.invite.title", id: "mls-info-invites", action: onInvites) }
+                if model.readOnly == nil { entry("group.invite.title", id: "mls-info-invites", action: onInvites) }
                 entry("group.info.membersEntry", id: "mls-info-members", action: onMembers)
             } else { ProgressView() }
             KitButton(FeatureMlsGroupsStrings.text("group.info.refresh", locale: locale), action: { model.refresh() }, kind: .secondary, tag: "mls-info-refresh")

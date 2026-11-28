@@ -254,9 +254,16 @@ struct TimelineRow: View {
 
 /// An own group post that is not posted yet (MLS, M2): sending, queued with its reason, delayed with its time, or not sent
 /// with a Retry that is an explicit tap (nothing is sent again by itself).
+private struct MlsRetryLockedKey: EnvironmentKey { static let defaultValue = false }
+extension EnvironmentValues {
+    /// The daily limit has the composer off: Retry waits for the reset like the composer does.
+    var mlsRetryLocked: Bool { get { self[MlsRetryLockedKey.self] } set { self[MlsRetryLockedKey.self] = newValue } }
+}
+
 struct MlsPendingBubble: View {
     let pending: MlsPendingPost
     let onAction: (ChatAction) -> Void
+    @Environment(\.mlsRetryLocked) private var retryLocked
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     var body: some View {
@@ -272,7 +279,7 @@ struct MlsPendingBubble: View {
                     .accessibilityIdentifier("mls-send-state")
                 if notSent {
                     Button(FeatureChatStrings.text("group.send.retry", locale: locale)) { onAction(.mlsRetry(pending.localID)) }
-                        .rfFont(.caption).foregroundStyle(theme.danger).buttonStyle(.plain).accessibilityIdentifier("mls-retry")
+                        .rfFont(.caption).foregroundStyle(retryLocked ? theme.secondary : theme.danger).buttonStyle(.plain).disabled(retryLocked).accessibilityIdentifier("mls-retry")
                     Menu {
                         Button(FeatureChatStrings.text("chat.outbox.discard", locale: locale), role: .destructive) { onAction(.mlsDiscard(pending.localID)) }
                     } label: { KitIcon(name: "info", size: KitMetrics.iconInfo, tint: theme.secondary) }
