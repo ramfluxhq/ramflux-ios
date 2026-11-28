@@ -29,5 +29,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case permissionResolved(DevicePermission, granted: Bool), photoSaved(Bool)
     /// MLS group chat (M2): retry a not-sent bubble, drop it, delete a post for everyone (request, confirm, cancel), the mention picker.
     case mlsRetry(String), mlsDiscard(String), mlsRequestDelete(String), mlsConfirmDelete, mlsCancelDelete, mlsMentionPicker(Bool), mlsMention(String), mlsDismissError
+    /// MLS group chat (M3): the catch-up skip dialog (open, keep catching up, skip), hide a banner by its code, show the
+    /// undecryptable placeholder, undo a commit (request with its `log_seq`, cancel, confirm), open the invite panel.
+    case mlsSkipCatchUp, mlsCancelSkip, mlsConfirmSkip, mlsHideBanner(String), mlsShowUndecryptable, mlsVoid(Int64), mlsCancelVoid, mlsConfirmVoid, mlsOpenInvite
     public var description: String { "ChatAction" }
 }

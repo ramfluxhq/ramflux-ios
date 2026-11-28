@@ -126,7 +126,7 @@ public enum MlsRoute: Hashable, Sendable { case chat(String), info(String), memb
     // MARK: Per-group models (kept while the module lives)
     public func chat(_ group: String) -> MlsGroupChatModel {
         if let model = chats[group] { return model }
-        let model = MlsGroupChatModel(session: session, groupID: group, title: list.rows.first { $0.groupID == group }?.name ?? "") { [weak self] in self?.path.append(.info(group)) }
+        let model = MlsGroupChatModel(session: session, groupID: group, title: list.rows.first { $0.groupID == group }?.name ?? "", openInfo: { [weak self] in self?.path.append(.info(group)) }, openInvite: { [weak self] in self?.sheet = .invite(group: group, fromCreate: false) })
         chats[group] = model; return model
     }
     public func detail(_ group: String) -> MlsGroupModel {

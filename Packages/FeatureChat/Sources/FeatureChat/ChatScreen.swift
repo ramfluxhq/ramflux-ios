@@ -25,12 +25,13 @@ public struct ChatScreen: View {
             if state.offline {
                 KitTipBar(FeatureChatStrings.text("chat.offline.banner", locale: locale), icon: "wifi-off").padding(.horizontal, KitMetrics.gutter).padding(.top, theme.gap)
             }
+            if let mls = state.mls, !mls.banners.isEmpty { MlsBannersView(mls: mls, onAction: onAction) }
             if state.loading && state.messages.isEmpty { ProgressView(FeatureChatStrings.text("chat.loading", locale: locale)) }
             if let failure = state.failure { RFFailureView(title: failure.title(locale: locale), message: failure.message(locale: locale)).padding(.horizontal, KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading) }
             if state.messages.isEmpty && state.outbox.isEmpty && !state.loading && (state.mls?.entries.isEmpty ?? true) { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
-                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, mls: state.mls?.entries, onAction: onAction)
+                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, mls: state.mls?.entries, mlsScroll: state.mls.map { ($0.scrollSerial, "service:mls:undecryptable") }, onAction: onAction)
                 #else
                 ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, mls: state.mls?.entries, locale: locale), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
                 #endif
@@ -258,6 +259,17 @@ struct MlsComposerArea<Composer: View>: View {
     @ViewBuilder let composer: () -> Composer
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    /// The daily post limit line (when it is low or on the first day) and the privacy-delay ETA, above the composer.
+    @ViewBuilder private var quotaAndPrivacy: some View {
+        if let quota = mls.quotaLine {
+            Text(MlsChatText.postQuota(quota, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, KitMetrics.gutter).accessibilityIdentifier("mls-quota-line")
+        }
+        if let eta = mls.privacyEta {
+            Text(MlsChatText.privacyEta(eta, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, KitMetrics.gutter).accessibilityIdentifier("mls-privacy-eta")
+        }
+    }
     var body: some View {
         VStack(spacing: 0) {
             if let error = mls.actionError {
@@ -271,7 +283,9 @@ struct MlsComposerArea<Composer: View>: View {
                 KitTipBar(MlsChatText.banner(reason, locale: locale), icon: "info", tag: "mls-read-only").padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
             } else if let until = mls.composerOffUntil {
                 KitTipBar(FeatureChatStrings.format("group.send.rateLimited", MlsChatText.time(until, locale: locale), locale: locale), icon: "clock-3", tag: "mls-composer-off").padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
+                quotaAndPrivacy
             } else {
+                quotaAndPrivacy
                 if !mls.mentionCandidates.isEmpty {
                     HStack { Button { onAction(.mlsMentionPicker(true)) } label: { Text(verbatim: "@").rfFont(.page) }
                         .accessibilityLabel(Text(FeatureChatStrings.text("group.mention.action", locale: locale))).accessibilityIdentifier("mls-mention")
@@ -280,6 +294,14 @@ struct MlsComposerArea<Composer: View>: View {
                 composer()
             }
         }
+        .alert(FeatureChatStrings.text("group.skip.title", locale: locale), isPresented: Binding(get: { mls.skipDialog }, set: { if !$0 { onAction(.mlsCancelSkip) } })) {
+            Button(FeatureChatStrings.text("group.skip.confirm", locale: locale), role: .destructive) { onAction(.mlsConfirmSkip) }.accessibilityIdentifier("mls-skip-confirm")
+            Button(FeatureChatStrings.text("group.skip.cancel", locale: locale), role: .cancel) { onAction(.mlsCancelSkip) }.accessibilityIdentifier("mls-skip-cancel")
+        } message: { Text(verbatim: "\(FeatureChatStrings.text("group.skip.body", locale: locale))\n\n\(FeatureChatStrings.text("group.skip.bodyMore", locale: locale))") }
+        .confirmationDialog(FeatureChatStrings.text("group.void.title", locale: locale), isPresented: Binding(get: { mls.voidTarget != nil }, set: { if !$0 { onAction(.mlsCancelVoid) } }), titleVisibility: .visible) {
+            Button(FeatureChatStrings.text("group.void.confirm", locale: locale), role: .destructive) { onAction(.mlsConfirmVoid) }.accessibilityIdentifier("mls-void-confirm")
+            Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale), role: .cancel) { onAction(.mlsCancelVoid) }
+        } message: { Text(FeatureChatStrings.text("group.void.body", locale: locale)) }
         .confirmationDialog(FeatureChatStrings.text("group.delete.title", locale: locale), isPresented: Binding(get: { mls.deleteTarget != nil }, set: { if !$0 { onAction(.mlsCancelDelete) } }), titleVisibility: .visible) {
             Button(FeatureChatStrings.text("group.delete.confirm", locale: locale), role: .destructive) { onAction(.mlsConfirmDelete) }.accessibilityIdentifier("mls-delete-confirm")
             Button(FeatureChatStrings.text("chat.composer.cancel", locale: locale), role: .cancel) { onAction(.mlsCancelDelete) }

@@ -245,7 +245,7 @@ struct TimelineRow: View {
         case .outbox(let entry):
             OutboxBubble(entry: entry, onAction: onAction)
         case .service(let line):
-            ServiceLineView(line: line)
+            ServiceLineView(line: line, onAction: onAction)
         case .mlsPending(let pending):
             MlsPendingBubble(pending: pending, onAction: onAction)
         }

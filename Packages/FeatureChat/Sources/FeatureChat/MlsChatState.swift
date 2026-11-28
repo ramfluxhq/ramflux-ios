@@ -18,6 +18,21 @@ public struct MlsChatState: Equatable, Sendable {
     public var mentionCandidates: [MlsMemberRow] = []
     /// The error of the last explicit action (delete), shown once.
     public var actionError: MlsGroupError?
+    /// M3: the catch-up state (running or rejoining with the reason), the banners in order (at most two show, then "+N"),
+    /// the post quota line and the privacy-delay ETA, and the state of the skip and void dialogs.
+    public var catchUp: MlsCatchUpView?
+    public var banners: [MlsBanner] = []
+    public var quotaLine: MlsQuota?
+    /// Unix milliseconds a message sent now goes out around.
+    public var privacyEta: Int64?
+    /// The "Skip" dialog is open. Its confirm is the only path to `skip: true`.
+    public var skipDialog = false
+    /// The commit the "Undo this change" confirmation is about.
+    public var voidTarget: Int64?
+    /// A `head_commit_rejected` banner names this commit; its action opens the same confirmation.
+    public var rejectedLogSeq: Int64?
+    /// Bumped by "Show" on the undecryptable banner: the timeline scrolls to the placeholder.
+    public var scrollSerial = 0
     public init() {}
     /// The posted rows as the records the shared bubble draws, newest first: what the action menu, the text selection and
     /// the reply quote look up by id.

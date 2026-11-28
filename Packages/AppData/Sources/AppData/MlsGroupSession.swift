@@ -140,6 +140,7 @@ public actor MlsGroupSession {
         var times: [Int64] = timelines.values.compactMap(\.composerOffUntil) + evictedSend.values.compactMap(\.composerOffUntil)
         times += pendingJoins.values.map(\.expiresAt)
         times += admin.wakeTimes()
+        times += groups.values.compactMap { if case .waiting(let after) = $0.privacyDelay { after } else { nil } }
         let next = times.filter { $0 > current }.min()
         guard next != wakeAt else { return }
         wakeTask?.cancel(); wakeTask = nil; wakeAt = next

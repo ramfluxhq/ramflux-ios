@@ -110,12 +110,26 @@ public struct IdentityEncryptionSection: View {
 /// The centred identity and encryption lines of the timeline.
 struct ServiceLineView: View {
     let line: ServiceLine
+    var onAction: (ChatAction) -> Void = { _ in }
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
+    /// The MLS commit this line belongs to, when the viewer may undo it (the head commit; common 2.6).
+    private var voidable: Int64? { if case .mls(let value) = line.kind, value.voidable, let seq = value.logSeq { seq } else { nil } }
     var body: some View {
-        Text(text).rfFont(.caption).foregroundStyle(theme.secondary).multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity).padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
-            .accessibilityIdentifier("service-" + line.id)
+        VStack(spacing: 2) {
+            Text(text).rfFont(.caption).foregroundStyle(theme.secondary).multilineTextAlignment(.center)
+            if case .mls(let value) = line.kind {
+                if value.voided { Text(FeatureChatStrings.text("group.void.undone", locale: locale)).rfFont(.caption, weight: .semibold).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-undone-\(value.logSeq ?? 0)") }
+                else if value.undoing { Text(FeatureChatStrings.text("group.void.undoing", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-undoing-\(value.logSeq ?? 0)") }
+            }
+        }
+        .frame(maxWidth: .infinity).padding(.horizontal, KitMetrics.gutter).padding(.vertical, theme.gap)
+        .accessibilityIdentifier("service-" + line.id)
+        .contextMenu {
+            if let seq = voidable {
+                Button(role: .destructive) { onAction(.mlsVoid(seq)) } label: { Text(FeatureChatStrings.text("group.void.action", locale: locale)) }.accessibilityIdentifier("mls-void-\(seq)")
+            }
+        }
     }
     private var text: String {
         switch line.kind {

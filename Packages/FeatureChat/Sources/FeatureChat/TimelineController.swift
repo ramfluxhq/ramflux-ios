@@ -95,6 +95,14 @@ import RFDesign
             }
         }
     }
+    private var scrolledSerial = 0
+    /// Scrolls to a row once per serial (a request from the UI, never from an event).
+    func scroll(toSerial serial: Int, id: String) {
+        guard serial > scrolledSerial else { return }
+        scrolledSerial = serial
+        guard let source, let path = source.indexPath(for: id) else { return }
+        tableView.scrollToRow(at: path, at: .middle, animated: true)
+    }
     /// A group timeline can be pulled to refresh (`group.refresh` through the session's coalescing).
     private func updatePullToRefresh(enabled: Bool) {
         if enabled, refreshControl == nil {

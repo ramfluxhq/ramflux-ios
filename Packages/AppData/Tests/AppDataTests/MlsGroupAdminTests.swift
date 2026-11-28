@@ -392,6 +392,37 @@ struct MlsGroupAdminTests {
         #expect(fake.count("remove") == 1)
     }
 
+    @Test func theUndecryptablePlaceholderSitsBeforeTheFirstRowAtOrAfterItsLogSeqAndNeverMergesTheHeadCommit() async {
+        let fake = AdminFake()
+        let s = await ready(fake)
+        let text: (Int64) -> MlsPost = { MlsPost(logSeq: $0, postID: "p\($0)", author: MlsAuthor(anchor: "a"), appendedAt: $0, kind: .text, body: .text("m")) }
+        for post in [text(138), text(139), text(141), joined(150, "x"), joined(151, "y")] { await s.handle(.post(groupID: "g", seq: nil, at: nil, post: post)) }
+        await s.handle(.warning(groupID: "g", seq: 1, warning: MlsWarning(code: .undecryptable(count: 12, fromLogSeq: 140))))
+        let entries = await s.timelineSnapshot("g").entries
+        let ids = entries.map(\.id)
+        let placeholder = ids.firstIndex(of: "service:undecryptable")
+        #expect(placeholder != nil && ids.firstIndex(of: "post:p141") == (placeholder ?? 0) + 1 && ids.firstIndex(of: "post:p139") == (placeholder ?? 0) - 1)
+        // The two join rows stay two lines because the newest one is the head commit the viewer may undo.
+        let joinedLines = entries.compactMap { entry -> MlsServiceLine? in if case .service(let line) = entry, case .joined = line.kind { line } else { nil } }
+        #expect(joinedLines.count == 2 && joinedLines.last?.voidable == true && joinedLines.first?.voidable == false)
+        await s.handle(.warning(groupID: "g", seq: 2, warning: MlsWarning(code: .undecryptable(count: 0, fromLogSeq: nil), cleared: true)))
+        #expect(await s.timelineSnapshot("g").entries.contains { $0.id == "service:undecryptable" } == false)
+    }
+    @Test func hidingABannerIsPerGroupAndOnlyForTheHideableCodes() async {
+        let fake = AdminFake()
+        let s = await ready(fake)
+        await s.handle(.warning(groupID: "g", seq: 1, warning: MlsWarning(code: .hostUnusual(.lateRoll))))
+        await s.handle(.warning(groupID: "g", seq: 2, warning: MlsWarning(code: .forkAlarm(headN: 1))))
+        await s.hideWarning("g", code: "fork_alarm")
+        #expect(await s.adminSnapshot("g").banners.count == 2)
+        await s.hideWarning("g", code: "host_unusual")
+        let after = await s.adminSnapshot("g")
+        #expect(after.banners.map(\.id) == ["fork_alarm"])
+        #expect(after.warningRows.count == 2)   // the info rows keep the hidden one
+        await s.clear(); await s.admit()
+        #expect(await s.adminSnapshot("g").banners.isEmpty)
+    }
+
     // MARK: Pure rules
     @Test func theHeadCommitRule() {
         let rows: [(seq: Int64, kind: MlsPostKind)] = [(240, .membership), (250, .settings)]

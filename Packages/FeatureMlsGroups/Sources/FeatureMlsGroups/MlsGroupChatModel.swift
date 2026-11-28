@@ -13,14 +13,15 @@ import FeatureChat
     public let groupID: String
     @ObservationIgnored private let session: MlsGroupSession
     @ObservationIgnored private let openInfo: () -> Void
+    @ObservationIgnored private let openInvite: () -> Void
     @ObservationIgnored private var observer: Task<Void, Never>?
     @ObservationIgnored private var appeared = false
     @ObservationIgnored private var mentions: [String: String] = [:]   // anchor -> inserted "@Name"
     @ObservationIgnored private var replyTo: String?
     @ObservationIgnored private let now: @Sendable () -> Date
 
-    public init(session: MlsGroupSession, groupID: String, title: String, openInfo: @escaping () -> Void, now: @escaping @Sendable () -> Date = { Date() }) {
-        self.session = session; self.groupID = groupID; self.openInfo = openInfo; self.now = now
+    public init(session: MlsGroupSession, groupID: String, title: String, openInfo: @escaping () -> Void, openInvite: @escaping () -> Void = {}, now: @escaping @Sendable () -> Date = { Date() }) {
+        self.session = session; self.groupID = groupID; self.openInfo = openInfo; self.openInvite = openInvite; self.now = now
         var initial = ChatState(loading: true)
         initial.isGroup = true; initial.conversationID = groupID; initial.displayTitle = title; initial.mls = MlsChatState()
         state = initial
@@ -56,6 +57,22 @@ import FeatureChat
         case .mlsMentionPicker(let open): state.mls?.mentionPicker = open
         case .mlsMention(let anchor): mention(anchor)
         case .mlsDismissError: Task { [session, groupID] in await session.clearActionError(groupID) }
+        case .mlsSkipCatchUp: if case .running(_, _, false, _)? = state.mls?.catchUp { state.mls?.skipDialog = true }
+        case .mlsCancelSkip: state.mls?.skipDialog = false
+        case .mlsConfirmSkip:
+            // The only path to `skip: true`: the dialog's destructive button.
+            guard state.mls?.skipDialog == true else { return }
+            state.mls?.skipDialog = false
+            Task { [session, groupID] in await session.skipCatchUp(groupID) }
+        case .mlsHideBanner(let code): Task { [session, groupID] in await session.hideWarning(groupID, code: code) }
+        case .mlsShowUndecryptable: state.mls?.scrollSerial += 1
+        case .mlsVoid(let logSeq): state.mls?.voidTarget = logSeq
+        case .mlsCancelVoid: state.mls?.voidTarget = nil
+        case .mlsConfirmVoid:
+            guard let logSeq = state.mls?.voidTarget else { return }
+            state.mls?.voidTarget = nil
+            Task { [session, groupID] in await session.void(groupID, logSeq: logSeq) }
+        case .mlsOpenInvite: openInvite()
         default: break
         }
     }
@@ -84,10 +101,20 @@ import FeatureChat
     private func reload() async {
         let snapshot = await session.timelineSnapshot(groupID)
         let candidates = await session.mentionCandidates(groupID)
-        let named = await session.group(groupID)?.name
+        let info = await session.group(groupID)
+        let named = info?.name
+        let admin = await session.adminSnapshot(groupID)
         var mls = state.mls ?? MlsChatState()
         mls.entries = snapshot.entries; mls.readOnly = snapshot.readOnly; mls.composerOffUntil = snapshot.composerOffUntil
         mls.mentionCandidates = candidates
+        // M3: banners, the quota line and the privacy ETA come from the session's snapshots; a read-only group shows none.
+        let nowMillis = Int64(now().timeIntervalSince1970 * 1000)
+        mls.catchUp = admin.catchUp; mls.banners = admin.banners; mls.rejectedLogSeq = admin.rejectedLogSeq
+        mls.quotaLine = snapshot.readOnly == nil ? info?.postQuota.flatMap { MlsQuotaRule.shows($0) ? $0 : nil } : nil
+        mls.privacyEta = snapshot.readOnly == nil ? info.flatMap { MlsPrivacyRule.eta($0.privacyDelay, now: nowMillis) } : nil
+        if case .running(_, _, true, _)? = admin.catchUp { mls.skipDialog = false }
+        if admin.catchUp == nil { mls.skipDialog = false }
+        if snapshot.readOnly != nil { mls.voidTarget = nil }
         if case .failed(let error) = snapshot.phase { mls.actionError = snapshot.actionError ?? error } else { mls.actionError = snapshot.actionError }
         var next = state
         next.mls = mls
