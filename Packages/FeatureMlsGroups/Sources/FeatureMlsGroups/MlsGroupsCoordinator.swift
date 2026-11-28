@@ -115,10 +115,11 @@ public enum MlsRoute: Hashable, Sendable { case chat(String), info(String), memb
         }
     }
     /// The notice is remembered per account and group; the key holds neither the link nor any name.
-    static func noticeKey(account: String, group: String) -> String { "mls.hostNotice." + account + "." + group }
+    /// "/" separates the parts because account and group ids may contain dots but never a slash.
+    static func noticeKey(account: String, group: String) -> String { "mls.hostNotice/" + account + "/" + group }
     /// Account removal: the remembered notices of the account go with it.
     public static func purgeNoticeFlags(account: String, defaults: UserDefaults = .standard) {
-        let prefix = "mls.hostNotice." + account + "."
+        let prefix = "mls.hostNotice/" + account + "/"
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(prefix) { defaults.removeObject(forKey: key) }
     }
 
