@@ -1,0 +1,1816 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "group.common.cancel": {
+      "comment": "MLS groups (group screens). English: \"Cancel\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        }
+      }
+    },
+    "group.common.close": {
+      "comment": "MLS groups (group screens). English: \"Close\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "group.create.approval": {
+      "comment": "MLS groups (create sheet). English: \"New members need approval\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New members need approval"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新成员需要审批"
+          }
+        }
+      }
+    },
+    "group.create.approvalOffHelp": {
+      "comment": "MLS groups (create sheet). English: \"Anyone with the link can join. A join completes only while a member's device or an agent is online.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone with the link can join. A join completes only while a member's device or an agent is online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何持有链接的人都可以加入。只有在某位成员的设备或智能体在线时，加入才能完成。"
+          }
+        }
+      }
+    },
+    "group.create.approvalOnHelp": {
+      "comment": "MLS groups (create sheet). English: \"An admin approves each request before someone joins.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An admin approves each request before someone joins."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每个加入申请都需要管理员批准。"
+          }
+        }
+      }
+    },
+    "group.create.creating": {
+      "comment": "MLS groups (create sheet). English: \"Creating…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在创建…"
+          }
+        }
+      }
+    },
+    "group.create.name": {
+      "comment": "MLS groups (create sheet). English: \"Group name\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group name"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组名称"
+          }
+        }
+      }
+    },
+    "group.create.nameRequired": {
+      "comment": "MLS groups (create sheet). English: \"Enter a group name.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a group name."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请输入群组名称。"
+          }
+        }
+      }
+    },
+    "group.create.nameTooLong": {
+      "comment": "MLS groups (create sheet). English: \"Use at most 64 characters.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use at most 64 characters."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最多 64 个字符。"
+          }
+        }
+      }
+    },
+    "group.create.size": {
+      "comment": "MLS groups (create sheet). English: \"Up to 1,000 members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up to 1,000 members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最多 1,000 位成员"
+          }
+        }
+      }
+    },
+    "group.create.submit": {
+      "comment": "MLS groups (create sheet). English: \"Create\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建"
+          }
+        }
+      }
+    },
+    "group.create.title": {
+      "comment": "MLS groups (create sheet). English: \"New group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建群组"
+          }
+        }
+      }
+    },
+    "group.info.agents": {
+      "comment": "MLS groups (group info). English: \"%lld agent\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld agent"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld agents"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个智能体"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.info.approvalOff": {
+      "comment": "MLS groups (group info). English: \"Anyone with the link can join\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone with the link can join"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何持有链接的人都可以加入"
+          }
+        }
+      }
+    },
+    "group.info.approvalOn": {
+      "comment": "MLS groups (group info). English: \"New members need approval\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New members need approval"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新成员需要审批"
+          }
+        }
+      }
+    },
+    "group.info.invitesEntry": {
+      "comment": "MLS groups (group info). English: \"Invite links\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite links"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请链接"
+          }
+        }
+      }
+    },
+    "group.info.leave": {
+      "comment": "MLS groups (group info). English: \"Leave group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出群组"
+          }
+        }
+      }
+    },
+    "group.info.members": {
+      "comment": "MLS groups (group info). English: \"%lld member\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld member"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld members"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 位成员"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.info.membersEntry": {
+      "comment": "MLS groups (group info). English: \"Members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "group.info.push": {
+      "comment": "MLS groups (group info). English: \"Notifications\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
+    "group.info.refresh": {
+      "comment": "MLS groups (group info). English: \"Refresh\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新"
+          }
+        }
+      }
+    },
+    "group.info.title": {
+      "comment": "MLS groups (group info). English: \"Group info\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group info"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组信息"
+          }
+        }
+      }
+    },
+    "group.invite.copied": {
+      "comment": "MLS groups (invite panel). English: \"Link copied\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link copied"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "链接已复制"
+          }
+        }
+      }
+    },
+    "group.invite.copy": {
+      "comment": "MLS groups (invite panel). English: \"Copy link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制链接"
+          }
+        }
+      }
+    },
+    "group.invite.create": {
+      "comment": "MLS groups (invite panel). English: \"`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Presets: 1 day (86400), 7 days (604800, default), 30 days (2592000); 1, 10 or 100 uses (default 100)."
+          }
+        }
+      }
+    },
+    "group.invite.duration": {
+      "comment": "MLS groups (invite panel). English: \"Valid for\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Valid for"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有效期"
+          }
+        }
+      }
+    },
+    "group.invite.duration.day": {
+      "comment": "MLS groups (invite panel). English: \"%lld day\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld days"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 天"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.invite.expired": {
+      "comment": "MLS groups (invite panel). English: \"Expired\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expired"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已过期"
+          }
+        }
+      }
+    },
+    "group.invite.expires": {
+      "comment": "MLS groups (invite panel). English: \"Expires %1$@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires %1$@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 过期"
+          }
+        }
+      }
+    },
+    "group.invite.list": {
+      "comment": "MLS groups (invite panel). English: \"Invite links\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite links"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请链接"
+          }
+        }
+      }
+    },
+    "group.invite.maxUses": {
+      "comment": "MLS groups (invite panel). English: \"Up to %lld use\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Up to %lld use"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Up to %lld uses"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "最多使用 %lld 次"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.invite.new": {
+      "comment": "MLS groups (invite panel). English: \"New link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建链接"
+          }
+        }
+      }
+    },
+    "group.invite.qr": {
+      "comment": "MLS groups (invite panel). English: \"QR code\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "二维码"
+          }
+        }
+      }
+    },
+    "group.invite.revoke": {
+      "comment": "MLS groups (invite panel). English: \"Revoke\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销"
+          }
+        }
+      }
+    },
+    "group.invite.revokeConfirm.body": {
+      "comment": "MLS groups (invite panel). English: \"People who haven't joined yet can no longer use it.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People who haven't joined yet can no longer use it."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未加入的人将无法再使用此链接。"
+          }
+        }
+      }
+    },
+    "group.invite.revokeConfirm.title": {
+      "comment": "MLS groups (invite panel). English: \"Revoke this link?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke this link?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销此链接？"
+          }
+        }
+      }
+    },
+    "group.invite.revoked": {
+      "comment": "MLS groups (invite panel). English: \"Revoked\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已撤销"
+          }
+        }
+      }
+    },
+    "group.invite.secretNote": {
+      "comment": "MLS groups (invite panel). English: \"Anyone with this link can ask to join. Share it only with people you trust.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone with this link can ask to join. Share it only with people you trust."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何持有此链接的人都可以申请加入。请只分享给你信任的人。"
+          }
+        }
+      }
+    },
+    "group.invite.share": {
+      "comment": "MLS groups (invite panel). English: \"Share\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分享"
+          }
+        }
+      }
+    },
+    "group.invite.title": {
+      "comment": "MLS groups (invite panel). English: \"Invite link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请链接"
+          }
+        }
+      }
+    },
+    "group.invite.uses": {
+      "comment": "MLS groups (invite panel). English: \"Uses\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用次数"
+          }
+        }
+      }
+    },
+    "group.invite.usesLeft": {
+      "comment": "MLS groups (invite panel). English: \"%1$lld of %2$lld uses left\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld uses left"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "剩余 %1$lld 次，共 %2$lld 次"
+          }
+        }
+      }
+    },
+    "group.join.field": {
+      "comment": "MLS groups (join sheet). English: \"Invite link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "邀请链接"
+          }
+        }
+      }
+    },
+    "group.join.joined": {
+      "comment": "MLS groups (join sheet). English: \"You joined %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You joined %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已加入 %1$@。"
+          }
+        }
+      }
+    },
+    "group.join.joinedUnnamed": {
+      "comment": "MLS groups (join sheet). English: \"You joined the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You joined the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已加入群组。"
+          }
+        }
+      }
+    },
+    "group.join.joining": {
+      "comment": "MLS groups (join sheet). English: \"Joining…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joining…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加入…"
+          }
+        }
+      }
+    },
+    "group.join.open": {
+      "comment": "MLS groups (join sheet). English: \"Open group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "打开群组"
+          }
+        }
+      }
+    },
+    "group.join.paste": {
+      "comment": "MLS groups (join sheet). English: \"Paste\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴"
+          }
+        }
+      }
+    },
+    "group.join.pending.admin": {
+      "comment": "MLS groups (join sheet). English: \"Request sent. An admin needs to approve it by %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request sent. An admin needs to approve it by %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "申请已发送。需要管理员在 %1$@ 前批准。"
+          }
+        }
+      }
+    },
+    "group.join.pending.online": {
+      "comment": "MLS groups (join sheet). English: \"Waiting for a member to come online. This can take until %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for a member to come online. This can take until %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待成员上线，最晚可能要到 %1$@。"
+          }
+        }
+      }
+    },
+    "group.join.pending.row": {
+      "comment": "MLS groups (join sheet). English: \"Waiting to join a group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting to join a group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待加入群组"
+          }
+        }
+      }
+    },
+    "group.join.refused.alreadyMember": {
+      "comment": "MLS groups (join sheet). English: \"You're already in this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're already in this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已在此群组中。"
+          }
+        }
+      }
+    },
+    "group.join.refused.generic": {
+      "comment": "MLS groups (join sheet). English: \"This invite can't be used.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This invite can't be used."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此邀请无法使用。"
+          }
+        }
+      }
+    },
+    "group.join.refused.groupFull": {
+      "comment": "MLS groups (join sheet). English: \"This group is full.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group is full."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组已满。"
+          }
+        }
+      }
+    },
+    "group.join.refused.inviteExpired": {
+      "comment": "MLS groups (join sheet). English: \"This invite expired on %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This invite expired on %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此邀请已于 %1$@ 过期。"
+          }
+        }
+      }
+    },
+    "group.join.refused.inviteInvalid": {
+      "comment": "MLS groups (join sheet). English: \"This invite can't be used. It may have expired, been used up or been revoked.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This invite can't be used. It may have expired, been used up or been revoked."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此邀请无法使用。它可能已过期、用尽或被撤销。"
+          }
+        }
+      }
+    },
+    "group.join.refused.linkInvalid": {
+      "comment": "MLS groups (join sheet). English: \"This link isn't a valid group invite.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This link isn't a valid group invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此链接不是有效的群组邀请。"
+          }
+        }
+      }
+    },
+    "group.join.refused.queueFull": {
+      "comment": "MLS groups (join sheet). English: \"Too many people are waiting to join. Try again later.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many people are waiting to join. Try again later."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待加入的人太多。请稍后再试。"
+          }
+        }
+      }
+    },
+    "group.join.refused.rateLimited": {
+      "comment": "MLS groups (join sheet). English: \"Too many attempts. Try again in %1$@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many attempts. Try again in %1$@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尝试次数过多。请在 %1$@ 后重试。"
+          }
+        }
+      }
+    },
+    "group.join.refused.requestExpired": {
+      "comment": "MLS groups (join sheet). English: \"Your request wasn't accepted in time. Ask for a new invite.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your request wasn't accepted in time. Ask for a new invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你的申请未能及时获批。请索取新的邀请。"
+          }
+        }
+      }
+    },
+    "group.join.submit": {
+      "comment": "MLS groups (join sheet). English: \"Join\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入"
+          }
+        }
+      }
+    },
+    "group.join.title": {
+      "comment": "MLS groups (join sheet). English: \"Join a group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join a group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入群组"
+          }
+        }
+      }
+    },
+    "group.leave": {
+      "comment": "MLS groups (leave confirmation). English: \"`{group_id}` → `{state: committed, log_seq}`\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`{group_id}` → `{state: committed, log_seq}`"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The confirmation must be accepted first. On `committed`: the group becomes read-only (\"You left this group\") and the composer is removed. The group leaves the list on the `membership` event `left` for `is_me`, or on the next list refresh that no longer contains it (Q13)."
+          }
+        }
+      }
+    },
+    "group.leave.body": {
+      "comment": "MLS groups (leave confirmation). English: \"You'll stop getting messages from this group. You need a new invite to join again.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You'll stop getting messages from this group. You need a new invite to join again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你将不再收到此群组的消息。再次加入需要新的邀请。"
+          }
+        }
+      }
+    },
+    "group.leave.confirm": {
+      "comment": "MLS groups (leave confirmation). English: \"Leave\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出"
+          }
+        }
+      }
+    },
+    "group.leave.done": {
+      "comment": "MLS groups (leave confirmation). English: \"You left this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You left this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已退出此群组。"
+          }
+        }
+      }
+    },
+    "group.leave.owner": {
+      "comment": "MLS groups (leave confirmation). English: \"The owner can't leave the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The owner can't leave the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群主不能退出群组。"
+          }
+        }
+      }
+    },
+    "group.leave.title": {
+      "comment": "MLS groups (leave confirmation). English: \"Leave this group?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave this group?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出此群组？"
+          }
+        }
+      }
+    },
+    "group.list.agents": {
+      "comment": "MLS groups (groups list). English: \"%lld agent\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld agent"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld agents"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个智能体"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.list.create": {
+      "comment": "MLS groups (groups list). English: \"New group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建群组"
+          }
+        }
+      }
+    },
+    "group.list.empty": {
+      "comment": "MLS groups (groups list). English: \"No groups yet\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No groups yet"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有群组"
+          }
+        }
+      }
+    },
+    "group.list.error": {
+      "comment": "MLS groups (groups list). English: \"Couldn't load groups.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load groups."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载群组。"
+          }
+        }
+      }
+    },
+    "group.list.join": {
+      "comment": "MLS groups (groups list). English: \"Join with a link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join with a link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过链接加入"
+          }
+        }
+      }
+    },
+    "group.list.lastPostAttachment": {
+      "comment": "MLS groups (groups list). English: \"Attachment\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attachment"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "附件"
+          }
+        }
+      }
+    },
+    "group.list.loading": {
+      "comment": "MLS groups (groups list). English: \"Loading groups…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading groups…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载群组…"
+          }
+        }
+      }
+    },
+    "group.list.members": {
+      "comment": "MLS groups (groups list). English: \"%lld member\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld member"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld members"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 位成员"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.list.offline": {
+      "comment": "MLS groups (groups list). English: \"You're offline. Groups update when you reconnect.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're offline. Groups update when you reconnect."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已离线。重新连接后群组会更新。"
+          }
+        }
+      }
+    },
+    "group.list.retry": {
+      "comment": "MLS groups (groups list). English: \"Try again\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "group.list.title": {
+      "comment": "MLS groups (groups list). English: \"Groups\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组"
+          }
+        }
+      }
+    },
+    "group.list.unread": {
+      "comment": "MLS groups (groups list). English: \"%lld unread\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld unread"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld unread"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 条未读"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.members.devices": {
+      "comment": "MLS groups (members screen). English: \"%lld device\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld device"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld devices"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 台设备"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.members.loadingAll": {
+      "comment": "MLS groups (members screen). English: \"Loading all members… %1$lld of %2$lld\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading all members… %1$lld of %2$lld"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载全部成员… %1$lld / %2$lld"
+          }
+        }
+      }
+    },
+    "group.members.noResults": {
+      "comment": "MLS groups (members screen). English: \"No members found\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No members found"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未找到成员"
+          }
+        }
+      }
+    },
+    "group.members.pageError": {
+      "comment": "MLS groups (members screen). English: \"Couldn't load more members.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load more members."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载更多成员。"
+          }
+        }
+      }
+    },
+    "group.members.search": {
+      "comment": "MLS groups (members screen). English: \"Search members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索成员"
+          }
+        }
+      }
+    },
+    "group.members.section.admins": {
+      "comment": "MLS groups (members screen). English: \"Admins\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admins"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理员"
+          }
+        }
+      }
+    },
+    "group.members.section.members": {
+      "comment": "MLS groups (members screen). English: \"Members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "group.members.section.owner": {
+      "comment": "MLS groups (members screen). English: \"Owner\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Owner"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群主"
+          }
+        }
+      }
+    },
+    "group.members.title": {
+      "comment": "MLS groups (members screen). English: \"Members\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员"
+          }
+        }
+      }
+    },
+    "group.message.delete": {
+      "comment": "MLS groups (group chat). English: \"`{group_id, post_id}` → `{state: committed, log_seq}` (assumed, Q10)\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`{group_id, post_id}` → `{state: committed, log_seq}` (assumed, Q10)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own posts with a `log_seq` only. The confirmation must be accepted first. While the call runs the row shows \"Deleting…\". The tombstone appears on the success reply or on `post_deleted`, whichever comes first."
+          }
+        }
+      }
+    },
+    "group.notice.hostIp.body": {
+      "comment": "MLS groups (host notice). English: \"The group's server (%1$@) can see your network address. Messages stay end-to-end encrypted.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group's server (%1$@) can see your network address. Messages stay end-to-end encrypted."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组服务器（%1$@）可以看到你的网络地址。消息仍保持端到端加密。"
+          }
+        }
+      }
+    },
+    "group.notice.hostIp.ok": {
+      "comment": "MLS groups (host notice). English: \"OK\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "知道了"
+          }
+        }
+      }
+    },
+    "group.notice.hostIp.title": {
+      "comment": "MLS groups (host notice). English: \"About this group's server\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About this group's server"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于此群组的服务器"
+          }
+        }
+      }
+    },
+    "group.push.all": {
+      "comment": "MLS groups (group info). English: \"All messages\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All messages"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有消息"
+          }
+        }
+      }
+    },
+    "group.push.mentionsReplies": {
+      "comment": "MLS groups (group info). English: \"Mentions and replies\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentions and replies"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提及和回复"
+          }
+        }
+      }
+    },
+    "group.push.none": {
+      "comment": "MLS groups (group info). English: \"None\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无"
+          }
+        }
+      }
+    },
+    "group.read": {
+      "comment": "MLS groups (groups). English: \"`{group_id?}` → `{}` (assumed, Q17)\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "`{group_id?}` → `{}` (assumed, Q17)"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulls from the host now. Called when a group opens, when the app returns to the foreground with a group open, on pull to refresh (phones) and on \"Refresh\" (desktop). At most once every 5 s per group; extra calls inside that window are dropped. The results arrive as events."
+          }
+        }
+      }
+    },
+    "group.warning.hostIpVisible": {
+      "comment": "MLS groups (group info). English: \"The group's server (%1$@) can see your network address.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group's server (%1$@) can see your network address."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组服务器（%1$@）可以看到你的网络地址。"
+          }
+        }
+      }
+    }
+  }
+}

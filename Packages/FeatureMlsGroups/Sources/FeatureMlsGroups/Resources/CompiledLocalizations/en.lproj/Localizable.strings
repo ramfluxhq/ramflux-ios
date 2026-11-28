@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>group.common.cancel</key>
+	<string>Cancel</string>
+	<key>group.common.close</key>
+	<string>Close</string>
+	<key>group.create.approval</key>
+	<string>New members need approval</string>
+	<key>group.create.approvalOffHelp</key>
+	<string>Anyone with the link can join. A join completes only while a member's device or an agent is online.</string>
+	<key>group.create.approvalOnHelp</key>
+	<string>An admin approves each request before someone joins.</string>
+	<key>group.create.creating</key>
+	<string>Creating…</string>
+	<key>group.create.name</key>
+	<string>Group name</string>
+	<key>group.create.nameRequired</key>
+	<string>Enter a group name.</string>
+	<key>group.create.nameTooLong</key>
+	<string>Use at most 64 characters.</string>
+	<key>group.create.size</key>
+	<string>Up to 1,000 members</string>
+	<key>group.create.submit</key>
+	<string>Create</string>
+	<key>group.create.title</key>
+	<string>New group</string>
+	<key>group.info.approvalOff</key>
+	<string>Anyone with the link can join</string>
+	<key>group.info.approvalOn</key>
+	<string>New members need approval</string>
+	<key>group.info.invitesEntry</key>
+	<string>Invite links</string>
+	<key>group.info.leave</key>
+	<string>Leave group</string>
+	<key>group.info.membersEntry</key>
+	<string>Members</string>
+	<key>group.info.push</key>
+	<string>Notifications</string>
+	<key>group.info.refresh</key>
+	<string>Refresh</string>
+	<key>group.info.title</key>
+	<string>Group info</string>
+	<key>group.invite.copied</key>
+	<string>Link copied</string>
+	<key>group.invite.copy</key>
+	<string>Copy link</string>
+	<key>group.invite.create</key>
+	<string>`{group_id, max_uses, ttl_s}` → `{invite_id, link, max_uses, uses_left, expires_at}`</string>
+	<key>group.invite.duration</key>
+	<string>Valid for</string>
+	<key>group.invite.expired</key>
+	<string>Expired</string>
+	<key>group.invite.expires</key>
+	<string>Expires %1$@</string>
+	<key>group.invite.list</key>
+	<string>Invite links</string>
+	<key>group.invite.new</key>
+	<string>New link</string>
+	<key>group.invite.qr</key>
+	<string>QR code</string>
+	<key>group.invite.revoke</key>
+	<string>Revoke</string>
+	<key>group.invite.revokeConfirm.body</key>
+	<string>People who haven't joined yet can no longer use it.</string>
+	<key>group.invite.revokeConfirm.title</key>
+	<string>Revoke this link?</string>
+	<key>group.invite.revoked</key>
+	<string>Revoked</string>
+	<key>group.invite.secretNote</key>
+	<string>Anyone with this link can ask to join. Share it only with people you trust.</string>
+	<key>group.invite.share</key>
+	<string>Share</string>
+	<key>group.invite.title</key>
+	<string>Invite link</string>
+	<key>group.invite.uses</key>
+	<string>Uses</string>
+	<key>group.invite.usesLeft</key>
+	<string>%1$lld of %2$lld uses left</string>
+	<key>group.join.field</key>
+	<string>Invite link</string>
+	<key>group.join.joined</key>
+	<string>You joined %1$@.</string>
+	<key>group.join.joinedUnnamed</key>
+	<string>You joined the group.</string>
+	<key>group.join.joining</key>
+	<string>Joining…</string>
+	<key>group.join.open</key>
+	<string>Open group</string>
+	<key>group.join.paste</key>
+	<string>Paste</string>
+	<key>group.join.pending.admin</key>
+	<string>Request sent. An admin needs to approve it by %1$@.</string>
+	<key>group.join.pending.online</key>
+	<string>Waiting for a member to come online. This can take until %1$@.</string>
+	<key>group.join.pending.row</key>
+	<string>Waiting to join a group</string>
+	<key>group.join.refused.alreadyMember</key>
+	<string>You're already in this group.</string>
+	<key>group.join.refused.generic</key>
+	<string>This invite can't be used.</string>
+	<key>group.join.refused.groupFull</key>
+	<string>This group is full.</string>
+	<key>group.join.refused.inviteExpired</key>
+	<string>This invite expired on %1$@.</string>
+	<key>group.join.refused.inviteInvalid</key>
+	<string>This invite can't be used. It may have expired, been used up or been revoked.</string>
+	<key>group.join.refused.linkInvalid</key>
+	<string>This link isn't a valid group invite.</string>
+	<key>group.join.refused.queueFull</key>
+	<string>Too many people are waiting to join. Try again later.</string>
+	<key>group.join.refused.rateLimited</key>
+	<string>Too many attempts. Try again in %1$@.</string>
+	<key>group.join.refused.requestExpired</key>
+	<string>Your request wasn't accepted in time. Ask for a new invite.</string>
+	<key>group.join.submit</key>
+	<string>Join</string>
+	<key>group.join.title</key>
+	<string>Join a group</string>
+	<key>group.leave</key>
+	<string>`{group_id}` → `{state: committed, log_seq}`</string>
+	<key>group.leave.body</key>
+	<string>You'll stop getting messages from this group. You need a new invite to join again.</string>
+	<key>group.leave.confirm</key>
+	<string>Leave</string>
+	<key>group.leave.done</key>
+	<string>You left this group.</string>
+	<key>group.leave.owner</key>
+	<string>The owner can't leave the group.</string>
+	<key>group.leave.title</key>
+	<string>Leave this group?</string>
+	<key>group.list.create</key>
+	<string>New group</string>
+	<key>group.list.empty</key>
+	<string>No groups yet</string>
+	<key>group.list.error</key>
+	<string>Couldn't load groups.</string>
+	<key>group.list.join</key>
+	<string>Join with a link</string>
+	<key>group.list.lastPostAttachment</key>
+	<string>Attachment</string>
+	<key>group.list.loading</key>
+	<string>Loading groups…</string>
+	<key>group.list.offline</key>
+	<string>You're offline. Groups update when you reconnect.</string>
+	<key>group.list.retry</key>
+	<string>Try again</string>
+	<key>group.list.title</key>
+	<string>Groups</string>
+	<key>group.members.loadingAll</key>
+	<string>Loading all members… %1$lld of %2$lld</string>
+	<key>group.members.noResults</key>
+	<string>No members found</string>
+	<key>group.members.pageError</key>
+	<string>Couldn't load more members.</string>
+	<key>group.members.search</key>
+	<string>Search members</string>
+	<key>group.members.section.admins</key>
+	<string>Admins</string>
+	<key>group.members.section.members</key>
+	<string>Members</string>
+	<key>group.members.section.owner</key>
+	<string>Owner</string>
+	<key>group.members.title</key>
+	<string>Members</string>
+	<key>group.message.delete</key>
+	<string>`{group_id, post_id}` → `{state: committed, log_seq}` (assumed, Q10)</string>
+	<key>group.notice.hostIp.body</key>
+	<string>The group's server (%1$@) can see your network address. Messages stay end-to-end encrypted.</string>
+	<key>group.notice.hostIp.ok</key>
+	<string>OK</string>
+	<key>group.notice.hostIp.title</key>
+	<string>About this group's server</string>
+	<key>group.push.all</key>
+	<string>All messages</string>
+	<key>group.push.mentionsReplies</key>
+	<string>Mentions and replies</string>
+	<key>group.push.none</key>
+	<string>None</string>
+	<key>group.read</key>
+	<string>`{group_id?}` → `{}` (assumed, Q17)</string>
+	<key>group.warning.hostIpVisible</key>
+	<string>The group's server (%1$@) can see your network address.</string>
+</dict>
+</plist>
