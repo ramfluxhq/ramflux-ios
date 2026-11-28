@@ -53,8 +53,9 @@ public struct UnavailableMlsGroupRepository: MlsGroupRepository {
 /// typed unavailable outcome and nothing is sent to the SDK. Only `events` is live: it filters the hub's `group.event`
 /// frames.
 public struct NativeMlsGroupRepository: MlsGroupRepository {
-    private let updates: NativeUpdateSource
-    public init(updates: NativeUpdateSource) { self.updates = updates }
+    private let updates: NativeUpdateSource?
+    /// `updates` is nil in the gallery's unavailable fixture (F2-11): there is no hub, so `events` ends at once.
+    public init(updates: NativeUpdateSource? = nil) { self.updates = updates }
     public func list(account: String, cursor: String?, limit: Int) async -> Result<MlsGroupPage, MlsGroupError> {
         // W: SDKOperation.groupList after the pin, body {cursor?, limit}; parse with MlsGroupParsing.list.
         .failure(.unavailable)
@@ -117,7 +118,7 @@ public struct NativeMlsGroupRepository: MlsGroupRepository {
     }
     public func events(account: String) -> AsyncStream<MlsGroupEvent> {
         let (stream, continuation) = AsyncStream<MlsGroupEvent>.makeStream(bufferingPolicy: .bufferingNewest(64))
-        let updates = updates
+        guard let updates else { continuation.finish(); return stream }
         let pump = Task {
             let hub = await updates.observe(account: account, eventFrames: true)
             if let events = hub.events {

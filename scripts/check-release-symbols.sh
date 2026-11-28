@@ -13,7 +13,7 @@ app=${1:-}
 [ -d "$app" ] || { echo "usage: check-release-symbols.sh path/to/Ramflux.app [--expect-present]" >&2; exit 2; }
 binary=$app/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")
 # Debug simulator builds keep the code in <name>.debug.dylib next to the stub executable.
-patterns='DebugWakeInjector MlsGallery FixtureContactIdentityRepository'
+patterns='DebugWakeInjector MlsGallery FixtureContactIdentityRepository FixtureMlsGroupRepository MlsGroupFixtures'
 found=0
 present=""
 for candidate in "$binary" "$app"/*.debug.dylib; do
