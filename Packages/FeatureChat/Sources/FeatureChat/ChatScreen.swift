@@ -102,7 +102,7 @@ public struct ChatScreen: View {
             }
             // While the details sheet is open it presents the review itself, so the two sheets never compete.
             .sheet(isPresented: Binding(get: { state.identity.showsSheet && state.details == nil }, set: { if !$0 { onAction(.identityLater) } })) {
-                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
+                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept(anchor: $0)) }, onLater: { onAction(.identityLater) })
             }
     }
     private var actionMessage: MessageRecord? { state.actionTarget.flatMap { id in state.messages.first { $0.id == id } } }

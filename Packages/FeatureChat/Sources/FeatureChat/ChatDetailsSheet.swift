@@ -62,7 +62,7 @@ struct ChatDetailsSheet: View {
             Button(FeatureChatStrings.text("chat.details.close", locale: locale)) { onAction(.closeDetails) }
         }.padding(theme.gap) } }
         .sheet(isPresented: Binding(get: { identity.showsSheet }, set: { if !$0 { onAction(.identityLater) } })) {
-            IdentityChangeSheet(panel: identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
+            IdentityChangeSheet(panel: identity, onAccept: { onAction(.identityAccept(anchor: $0)) }, onLater: { onAction(.identityLater) })
         }
     }
 }

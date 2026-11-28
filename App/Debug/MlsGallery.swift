@@ -8,7 +8,7 @@ import FeatureContacts
 import FeatureConversations
 import RFDesign
 
-/// Debug-only MLS gallery (MLS-GUI M1): every direct-chat identity fixture F1-1 to F1-10 opens the real chat, chat
+/// Debug-only MLS gallery (MLS-GUI M1): every direct-chat identity fixture F1-1 to F1-11 opens the real chat, chat
 /// details, contact profile and conversation list on fixture repositories (AppData/Gallery). A scoped exception to
 /// docs/bridge.md like the card gallery: compiled only with `RAMFLUX_MLS_GALLERY` (Debug), reached by the launch
 /// argument `-RamfluxMlsGallery 1` or Settings > About, and removed once the pin batch is verified on the real SDK.

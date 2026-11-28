@@ -11,9 +11,10 @@ public struct IdentityChangeSheet: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     public let panel: IdentityPanel
-    public let onAccept: () -> Void
+    /// Called with the new anchor this sheet shows, so the accept names what the user saw.
+    public let onAccept: (String) -> Void
     public let onLater: () -> Void
-    public init(panel: IdentityPanel, onAccept: @escaping () -> Void, onLater: @escaping () -> Void) { self.panel = panel; self.onAccept = onAccept; self.onLater = onLater }
+    public init(panel: IdentityPanel, onAccept: @escaping (String) -> Void, onLater: @escaping () -> Void) { self.panel = panel; self.onAccept = onAccept; self.onLater = onLater }
     public var body: some View {
         RFPage { ScrollView { VStack(alignment: .leading, spacing: theme.gap) {
             HStack(spacing: theme.gap) {
@@ -24,7 +25,7 @@ public struct IdentityChangeSheet: View {
             Text(FeatureChatStrings.sentence("identity.sheet.body", [.untrusted(panel.presentedName)], locale: locale)).rfFont(.body)
             if panel.isWaiting { KitTipBar(FeatureChatStrings.text("identity.sheet.waiting", locale: locale), icon: "loader", loading: true, tag: "identity-waiting") }
             if let message = message { Text(message).rfFont(.caption).foregroundStyle(theme.danger).accessibilityIdentifier("identity-accept-error") }
-            KitButton(FeatureChatStrings.text("identity.sheet.accept", locale: locale), action: onAccept, kind: .primary, enabled: acceptEnabled, loading: panel.phase == .accepting, tag: "identity-accept")
+            KitButton(FeatureChatStrings.text("identity.sheet.accept", locale: locale), action: { if let anchor = panel.change?.newAnchor { onAccept(anchor) } }, kind: .primary, enabled: acceptEnabled, loading: panel.phase == .accepting, tag: "identity-accept")
             KitButton(FeatureChatStrings.text("identity.sheet.later", locale: locale), action: onLater, kind: .secondary, enabled: panel.phase != .accepting, tag: "identity-later")
         }.padding(theme.gap) } }
     }

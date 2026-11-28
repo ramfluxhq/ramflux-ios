@@ -93,7 +93,7 @@ import FeatureChat
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
         case .identityReview: review?.review.review()
         case .identityLater: review?.review.later()
-        case .identityAccept: review?.review.accept()
+        case .identityAccept(let anchor): review?.review.accept(anchor: anchor)
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
             invalidateLookup(); stopIdentity()

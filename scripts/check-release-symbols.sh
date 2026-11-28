@@ -13,14 +13,24 @@ app=${1:-}
 [ -d "$app" ] || { echo "usage: check-release-symbols.sh path/to/Ramflux.app [--expect-present]" >&2; exit 2; }
 binary=$app/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")
 # Debug simulator builds keep the code in <name>.debug.dylib next to the stub executable.
+patterns='DebugWakeInjector MlsGallery FixtureContactIdentityRepository'
 found=0
+present=""
 for candidate in "$binary" "$app"/*.debug.dylib; do
   [ -f "$candidate" ] || continue
-  if strings -a "$candidate" | grep -q -e 'DebugWakeInjector' -e 'MlsGallery' -e 'FixtureContactIdentityRepository'; then found=1; fi
+  text=$(strings -a "$candidate")
+  for pattern in $patterns; do
+    if printf '%s\n' "$text" | grep -q -e "$pattern"; then found=1; present="$present $pattern"; fi
+  done
 done
 if [ "${2:-}" = "--expect-present" ]; then
-  [ "$found" = 1 ] && { echo "check-release-symbols: debug wake injector and MLS gallery present (expected in a Debug build)"; exit 0; }
-  echo "check-release-symbols: debug wake injector or MLS gallery not found in a build that should have it" >&2; exit 1
+  # Every pattern must be present, not any one of them.
+  missing=""
+  for pattern in $patterns; do
+    case " $present " in *" $pattern "*) ;; *) missing="$missing $pattern" ;; esac
+  done
+  [ -z "$missing" ] && { echo "check-release-symbols: debug wake injector and MLS gallery present (expected in a Debug build)"; exit 0; }
+  echo "check-release-symbols: not found in a build that should have them:$missing" >&2; exit 1
 fi
 if [ "$found" = 1 ]; then echo "check-release-symbols: debug wake injector or MLS gallery found in $app" >&2; exit 1; fi
 echo "check-release-symbols: no debug wake injector or MLS gallery in $app"
