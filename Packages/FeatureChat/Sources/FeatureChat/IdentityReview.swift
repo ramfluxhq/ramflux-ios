@@ -135,6 +135,12 @@ public struct IdentityPanel: Equatable, Sendable {
             append(ServiceLine(id: "accepted:" + displayed.newAnchor, kind: .identityAccepted, name: panel.presentedName))
             reread()
         case .alreadyHandled:
+            // A newer change that arrived while the request ran must be reviewed, not reported as handled.
+            if let change = panel.change, change.newAnchor != displayed.newAnchor {
+                panel.phase = .changedAgain
+                reread()
+                return
+            }
             panel.phase = .alreadyHandled
             reread()
             let current = epoch
@@ -147,7 +153,8 @@ public struct IdentityPanel: Equatable, Sendable {
             panel.phase = .changedAgain
             reread()
         case .failed:
-            panel.phase = .failed
+            // A newer change that arrived while the request ran is shown as "changed again", so a retry tap is a new decision.
+            if let change = panel.change, change.newAnchor != displayed.newAnchor { panel.phase = .changedAgain } else { panel.phase = .failed }
         }
     }
     private func received(_ change: IdentityChange) {
