@@ -263,6 +263,8 @@ import RamfluxCore
     private func dispatch(_ attempt: PendingSettingsMutation, reconciling: Bool = false) {
         guard !state.busy, reconciling || !state.unknownMutation else { return }
         readID &+= 1; read?.cancel(); state.loading = false; state.busy = true; let current = epoch
+        // The name for the removal toast is read before the call: the account is gone afterwards.
+        let removedName = (state.account ?? AccountRecord(id: account ?? "", displayName: "", isLocked: false)).title()
         mutation = Task { [weak self, repository, account] in
             let result = await repository.mutate(account: account, change: attempt.change, operationID: attempt.operationID)
             let pending = await repository.pending(account: account)
@@ -271,7 +273,8 @@ import RamfluxCore
             switch result {
             case .success:
                 self.state.pendingRevoke = nil; self.state.confirmingRemoval = false
-                if [.lock, .signOut, .removeLocal].contains(attempt.change) { self.emit(.locked) } else { self.refresh() }
+                if attempt.change == .removeLocal { self.emit(.removed(removedName)) }
+                else if [.lock, .signOut].contains(attempt.change) { self.emit(.locked) } else { self.refresh() }
             case .failure(let failure): self.state.failure = failure; self.state.unknownMutation = pending != nil || failure == .outcomeUnknown || failure == .offline
             }
         }

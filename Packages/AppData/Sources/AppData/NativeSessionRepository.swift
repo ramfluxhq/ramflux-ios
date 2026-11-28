@@ -236,7 +236,7 @@ public actor NativeSessionRepository: SessionRepository {
             let active = body["active_account_id"]?.string
             let accounts = try values.map { value in
                 guard let id = value["id"]?.string, !id.isEmpty, id.utf8.count <= 256, let locked = value["locked"]?.bool else { throw AppFailure.invalidData }
-                let name = value["display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? id
+                let name = value["display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? ""
                 return AccountRecord(id: id, displayName: name, isLocked: locked && id != active)
             }
             guard Set(accounts.map(\.id)).count == accounts.count else { throw AppFailure.invalidData }

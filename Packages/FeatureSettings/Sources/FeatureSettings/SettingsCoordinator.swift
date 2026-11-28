@@ -5,8 +5,9 @@ import AppData
     public let viewModel: SettingsViewModel
     public let backup: BackupViewModel
     public let pairing: PairingViewModel
-    public init(repository: any SettingsRepository, backup: any BackupRepository, pairing: any PairingRepository = UnavailablePairingRepository(), nodes: any NodeRepository, preferences: any PreferencesRepository, account: String?, route: AppRoute = .settings, onEvent: @escaping (SettingsEvent) -> Void) {
-        viewModel = SettingsViewModel(repository: repository, nodes: nodes, preferences: preferences, account: account, state: SettingsState(route: route), emit: onEvent)
+    public init(repository: any SettingsRepository, backup: any BackupRepository, pairing: any PairingRepository = UnavailablePairingRepository(), nodes: any NodeRepository, preferences: any PreferencesRepository, account: String?, accountRecord: AccountRecord? = nil, route: AppRoute = .settings, onEvent: @escaping (SettingsEvent) -> Void) {
+        var initial = SettingsState(route: route); initial.account = accountRecord
+        viewModel = SettingsViewModel(repository: repository, nodes: nodes, preferences: preferences, account: account, state: initial, emit: onEvent)
         self.backup = BackupViewModel(repository: backup, account: account, emit: onEvent)
         self.pairing = PairingViewModel(repository: pairing, account: account)
     }

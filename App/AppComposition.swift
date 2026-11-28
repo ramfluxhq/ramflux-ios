@@ -3,6 +3,7 @@
 import UIKit
 import SwiftUI
 import RFDesign
+import RFLocalization
 import AppData
 import FeatureAppShell
 import FeatureOnboarding
@@ -42,37 +43,58 @@ import Push
         self?.shell.path = []
         if account != nil { self?.shell.send(.retry) }
     }
-    /// The locked state of a pushed screen: the known accounts with their unlock action (see LockedScreen).
-    func lockedScreen(message: String) -> some View {
-        LockedScreen(accounts: shell.viewModel.state.session.accounts.filter(\.isLocked), message: message,
-                     onUnlock: { [weak self] id in self?.shell.send(.unlockAccount(id)) }, onAccounts: { [weak self] in self?.shell.send(.openAccounts) })
+    /// The locked state of a pushed screen: the lock page of the first locked account, or, when the device lists none, the way to the picker.
+    func lockedScreen(message: String) -> AnyView {
+        if let account = shell.viewModel.state.session.accounts.first(where: \.isLocked) { return lockPage(for: account, pushed: true) }
+        return AnyView(LockedScreen(message: message, onAccounts: { [weak self] in self?.shell.send(.openAccounts) }))
     }
-    @ObservationIgnored private var currentUnlock: (String, OnboardingCoordinator)?
+    /// The lock page of a locked account (not the app lock): the code field, the states and Unlock, or the recovery inside it.
+    /// `pushed` pages (opened from the picker) carry a back control; the root one, which replaces the tabs, does not.
+    func lockPage(for account: AccountRecord, pushed: Bool) -> AnyView {
+        if let recovery = lockRecovery(for: account.id) { return AnyView(OnboardingHost(coordinator: recovery)) }
+        let several = shell.viewModel.state.session.accounts.count > 1
+        return AnyView(AccountLockPage(model: appLock(account: account.id), onBack: pushed ? { [weak self] in self?.shell.closeUnlock() } : nil,
+                                       onSwitchAccount: several ? { [weak self] in self?.shell.send(.openAccounts) } : nil))
+    }
     /// The app lock's code field for the active account. Success re-activates the shell only: the navigation
     /// path and any sheet stay as they were, so the same conversation is back underneath.
     @ObservationIgnored private var appLockScreen: (String, AppLockModel)?
     func appLock(account: String) -> AppLockModel {
-        if let appLockScreen, appLockScreen.0 == account { return appLockScreen.1 }
-        let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account,
-                                 onUnlocked: { [weak self] in self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) },
+        // The one account this page is bound to, by id, as `account.list` names it (only its own name and initial are drawn).
+        let record = shell.viewModel.state.session.accounts.first { $0.id == account }
+        if let appLockScreen, appLockScreen.0 == account {
+            if let record, appLockScreen.1.account != record { appLockScreen.1.account = record }
+            return appLockScreen.1
+        }
+        let model = AppLockModel(repository: repositories.onboarding, settings: repositories.settings, account: account, record: record,
+                                 onUnlocked: { [weak self] in
+                                    // A lock page opened from the picker is a pushed route: it leaves with the unlock. The app lock never moves the navigation.
+                                    if self?.shell.path.contains(.unlockAccount(account)) == true { self?.shell.closeUnlock() }
+                                    self?.shell.send(.retry) }, onRestore: { [weak self] in self?.restoreFromLock(account: account) },
                                  onRemoved: { [weak self] in self?.lockedAccountRemoved(account) })
         appLockScreen = (account, model); return model
     }
-    /// Shown after the locked account was removed from this device; clears itself.
-    private(set) var removedNotice = false
+    /// Shown at the top after an account was removed from this device ("<name> was removed from this device."); clears itself.
+    private(set) var removedNotice: String?
     @ObservationIgnored private var removedNoticeTask: Task<Void, Never>?
     /// The SDK erased the locked account (`account.remove_local`). Drop what the client holds for it, forget the cover's
     /// state and go where the app goes when an account disappears: the shell reads the accounts again and shows the
     /// account picker when others exist, onboarding otherwise.
     private func lockedAccountRemoved(_ account: String) {
+        // The name is read before anything else changes: the session no longer lists the account once it is read again.
+        let record = appLockScreen?.1.account ?? shell.viewModel.state.session.accounts.first { $0.id == account }
+        let name = (record ?? AccountRecord(id: account, displayName: "", isLocked: true)).title()
+        showRemovedNotice(name)
         clearLockRecovery()
         appLockScreen = nil
-        if currentUnlock?.0 == account { currentUnlock = nil }
         accountLocked()
         shell.path = []
         shell.send(.retry)
-        // The shell has no screen of its own for "no account": once the session is re-read, land on the account picker when
-        // other accounts remain, on onboarding otherwise, instead of leaving the old tab on screen.
+        landAfterRemoval()
+    }
+    /// The shell has no screen of its own for "no account": once the session is re-read, land on the account picker when
+    /// other accounts remain, on onboarding otherwise, instead of leaving the old tab on screen.
+    private func landAfterRemoval() {
         Task { [weak self] in
             await self?.shell.viewModel.settle()
             guard let self, !self.shell.viewModel.state.privacyShield, self.shell.viewModel.state.session.phase == .ready,
@@ -80,12 +102,20 @@ import Push
             self.shell.send(.selectTab(.messages))
             if self.shell.viewModel.state.session.accounts.isEmpty { self.shell.send(.open(.onboarding)) } else { self.shell.send(.openAccounts) }
         }
-        removedNotice = true
+    }
+    /// An account was removed from the Settings page: the same landing and toast as a removal from the lock page.
+    private func accountRemovedFromSettings(_ name: String) {
+        showRemovedNotice(name)
+        accountLocked(); shell.path = []; shell.send(.retry)
+        landAfterRemoval()
+    }
+    private func showRemovedNotice(_ name: String) {
+        removedNotice = RFSentence.compose(RamfluxAppStrings.text("app.removed.notice"), [.untrusted(name)], locale: .current)
         removedNoticeTask?.cancel()
         removedNoticeTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(6))
             guard !Task.isCancelled else { return }
-            self?.removedNotice = false
+            self?.removedNotice = nil
         }
     }
     /// The recovery flow the lock cover shows in place of the lock form after Restore on an exhausted lock, keyed by the
@@ -101,7 +131,7 @@ import Push
         guard lockRecovery == nil else { return }
         // A refusal that moves the lock screen closes the recovery; the cover reads the app-lock state again and shows the
         // lock form with the countdown or the exhausted page. A success keeps the cover until the state says unlocked.
-        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account),
+        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .recoverLockedAccount(account, name: appLockScreen?.1.account?.displayName ?? shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? ""),
             lockRecoveryEnded: { [weak self] failure in
                 self?.lockRecovery = nil
                 if let model = self?.appLockScreen, model.0 == account { model.1.recoveryEnded(failure) }
@@ -116,26 +146,6 @@ import Push
         lockRecovery?.coordinator.send(.disappeared)
         lockRecovery = nil
         appLockScreen?.1.conceal()
-    }
-    /// The code-only unlock of a locked account the SDK lists on this phone; see docs/app-shell.md.
-    func unlock(account: String) -> OnboardingCoordinator {
-        if let currentUnlock, currentUnlock.0 == account { return currentUnlock.1 }
-        let name = shell.viewModel.state.session.accounts.first { $0.id == account }?.displayName ?? account
-        let coordinator = OnboardingCoordinator(repository: repositories.onboarding, nodes: repositories.nodes, initialState: .unlockKnown(account: account, name: name),
-            forget: { [weak self] id in self?.forgetKnownAccount(id) }) { [weak self] unlocked in
-            self?.currentUnlock = nil
-            self?.shell.closeUnlock()
-            if unlocked != nil { self?.shell.send(.retry) }
-        }
-        currentUnlock = (account, coordinator); return coordinator
-    }
-    /// Removes an account the SDK refused to unlock from this phone (`account.remove_local`, confirmed on the unlock step).
-    private func forgetKnownAccount(_ id: String) {
-        currentUnlock = nil
-        Task { [weak self, settings = repositories.settings] in
-            _ = await settings.mutate(account: id, change: .removeLocal, operationID: UUID().uuidString)
-            self?.shell.path = []; self?.shell.send(.retry)
-        }
     }
     @ObservationIgnored private var inbox: (String, String, ConversationsCoordinator)?
     func conversations(account: String) -> ConversationsCoordinator {
@@ -250,13 +260,14 @@ import Push
         if let page = settingsPages[route] { return page }
         let owner = account ?? settingsAccount
         let coordinator = SettingsCoordinator(repository: repositories.settings, backup: repositories.backup, pairing: repositories.pairing, nodes: repositories.nodes,
-            preferences: repositories.preferences, account: owner, route: route) { [weak self] event in
+            preferences: repositories.preferences, account: owner, accountRecord: shell.viewModel.state.session.accounts.first { $0.id == owner }, route: route) { [weak self] event in
             switch event {
             case .navigate(let route): self?.shell.send(.open(route))
             case .locked: self?.accountLocked(); self?.shell.path = []; self?.shell.send(.retry)
             case .appearanceChanged(let mode): self?.appearance = mode
             case .appLockChanged(let enabled): Task { [session = self?.repositories.session] in await session?.appLockConfigured(enabled: enabled) }
             case .restored: self?.shell.path = []; self?.shell.send(.retry)
+            case .removed(let name): self?.accountRemovedFromSettings(name)
             case .openSystemSettings: if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
         }

@@ -33,7 +33,7 @@
 	<key>settings.more.hub.contacts.preview</key>
 	<string>现有关系与安全号码</string>
 	<key>settings.more.hub.settings.preview</key>
-	<string>账号、服务和本机偏好</string>
+	<string>账户、服务和本机偏好</string>
 	<key>settings.more.hub.tasks.preview</key>
 	<string>查看任务与待处理事项</string>
 	<key>settings.title</key>
@@ -45,17 +45,25 @@
 	<key>shell.accounts.locked</key>
 	<string>已锁定</string>
 	<key>shell.accounts.preview</key>
-	<string>切换本机账号</string>
+	<string>切换本机账户</string>
+	<key>shell.accounts.switch</key>
+	<string>切换账户</string>
 	<key>shell.accounts.title</key>
 	<string>账户</string>
 	<key>shell.appLock.code</key>
 	<string>账户码</string>
+	<key>shell.appLock.dismiss</key>
+	<string>关闭</string>
 	<key>shell.appLock.exhausted.body</key>
 	<string>此账户已在本设备上锁定。请用恢复短语和账户码恢复，或将其从本设备移除。</string>
 	<key>shell.appLock.exhausted.title</key>
 	<string>错误的账户码次数过多</string>
+	<key>shell.appLock.helper</key>
+	<string>6 位数字。仅在本设备上校验，不会发送到节点。</string>
 	<key>shell.appLock.instructions</key>
-	<string>输入账户码以继续。</string>
+	<string>输入此账户的账户码。</string>
+	<key>shell.appLock.locked</key>
+	<string>已锁定</string>
 	<key>shell.appLock.phraseAccepted</key>
 	<string>恢复短语已确认。请在 %@ 后输入账户码。</string>
 	<key>shell.appLock.remove</key>
@@ -70,18 +78,18 @@
 	<string>要从本设备移除此账户吗？</string>
 	<key>shell.appLock.restore</key>
 	<string>用恢复短语恢复</string>
+	<key>shell.appLock.unlock</key>
+	<string>解锁</string>
 	<key>shell.appLock.wait</key>
-	<string>错误的账户码次数过多。请在 %@ 后再试。</string>
+	<string>尝试次数过多。请在 %@ 后重试。</string>
+	<key>shell.appLock.wrongCode</key>
+	<string>账户码不正确。</string>
+	<key>shell.conversation.title</key>
+	<string>聊天</string>
 	<key>shell.loading.accountServices</key>
 	<string>正在打开账户服务</string>
 	<key>shell.locked.accessibility</key>
 	<string>Ramflux 已锁定</string>
-	<key>shell.locked.message</key>
-	<string>输入六位账户密码解锁后，即可查看会话、联系人和群组。</string>
-	<key>shell.locked.title</key>
-	<string>账户已锁定</string>
-	<key>shell.locked.unlock</key>
-	<string>解锁 %@</string>
 	<key>shell.more.calls</key>
 	<string>通话</string>
 	<key>shell.more.calls.preview</key>
@@ -93,7 +101,7 @@
 	<key>shell.nav.add</key>
 	<string>添加快捷入口</string>
 	<key>shell.nav.core</key>
-	<string>消息、群组、Agent 可调整顺序，不能移除。</string>
+	<string>聊天、群组、智能体可调整顺序，不能移除。</string>
 	<key>shell.nav.done</key>
 	<string>完成</string>
 	<key>shell.nav.down</key>

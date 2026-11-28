@@ -353,7 +353,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账号、服务和本机偏好"
+            "value": "账户、服务和本机偏好"
           }
         }
       }
@@ -387,7 +387,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "切换本机账号"
+            "value": "切换本机账户"
           }
         }
       }
@@ -511,18 +511,18 @@
       }
     },
     "shell.nav.core": {
-      "comment": "Note on the edit-navigation screen that the three core tabs cannot be removed.",
+      "comment": "Note in the navigation editor.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Messages, Groups and Agents can be reordered but not removed."
+            "value": "Chats, Groups and Agents can be reordered but not removed."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "消息、群组、Agent 可调整顺序，不能移除。"
+            "value": "聊天、群组、智能体可调整顺序，不能移除。"
           }
         }
       }
@@ -663,57 +663,6 @@
         }
       }
     },
-    "shell.locked.title": {
-      "comment": "Title of the locked state shown on a tab or screen while no account is unlocked.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your account is locked"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "账户已锁定"
-          }
-        }
-      }
-    },
-    "shell.locked.message": {
-      "comment": "Body of the locked state shown on a tab or screen while no account is unlocked.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unlock it with your six-digit account code to see your conversations, contacts and groups."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "输入六位账户密码解锁后，即可查看会话、联系人和群组。"
-          }
-        }
-      }
-    },
-    "shell.locked.unlock": {
-      "comment": "Button that opens the unlock screen for an account on this phone. %@ is the account's display name.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unlock %@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "解锁 %@"
-          }
-        }
-      }
-    },
     "shell.accounts.locked": {
       "comment": "Trailing caption of an account row in the account switcher: the account is on this phone but locked.",
       "localizations": {
@@ -817,18 +766,18 @@
       }
     },
     "shell.appLock.instructions": {
-      "comment": "Shown on the app lock screen above the account code field.",
+      "comment": "Shown on the lock page under the account name.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter your account code to continue."
+            "value": "Enter the account code for this account."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "输入账户码以继续。"
+            "value": "输入此账户的账户码。"
           }
         }
       }
@@ -851,19 +800,19 @@
       }
     },
     "shell.appLock.wait": {
-      "comment": "Shown on the app lock screen while the account-code checks are throttled. %@ is the remaining wait as minutes and seconds, for example 0:30.",
+      "comment": "Status line while the account code is refused for a wait. %@ is the remaining time (m:ss).",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Too many wrong account codes. Try again in %@."
+            "value": "Too many tries. Try again in %@."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "错误的账户码次数过多。请在 %@ 后再试。"
+            "value": "尝试次数过多。请在 %@ 后重试。"
           }
         }
       }
@@ -1029,6 +978,125 @@
         }
       },
       "extractionState": "manual"
+    },
+    "shell.appLock.locked": {
+      "comment": "Status line under the account name on the lock page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已锁定"
+          }
+        }
+      }
+    },
+    "shell.appLock.unlock": {
+      "comment": "Primary button on the lock page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁"
+          }
+        }
+      }
+    },
+    "shell.appLock.wrongCode": {
+      "comment": "Notice above the title of the exhausted page after a recovery with a wrong account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That account code is not right."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "账户码不正确。"
+          }
+        }
+      }
+    },
+    "shell.appLock.dismiss": {
+      "comment": "Closes the notice on the exhausted page.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "shell.appLock.helper": {
+      "comment": "Helper line under the account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 digits. Checked on this device only; never sent to your node."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 位数字。仅在本设备上校验，不会发送到节点。"
+          }
+        }
+      }
+    },
+    "shell.accounts.switch": {
+      "comment": "Quiet action on the lock page that opens the account picker.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换账户"
+          }
+        }
+      }
+    },
+    "shell.conversation.title": {
+      "comment": "Title of a chat screen.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "聊天"
+          }
+        }
+      }
     }
   }
 }

@@ -10,11 +10,18 @@ public struct AppShellScreen: View {
     @Environment(\.rfTheme) private var theme
     public let state: AppShellState
     private let featureContent: AnyView?
+    private let lockPage: ((AccountRecord) -> AnyView)?
     public let onAction: (AppShellAction) -> Void
-    public init(state: AppShellState, onAction: @escaping (AppShellAction) -> Void, featureContent: AnyView? = nil) {
+    public init(state: AppShellState, onAction: @escaping (AppShellAction) -> Void, featureContent: AnyView? = nil, lockPage: ((AccountRecord) -> AnyView)? = nil) {
         self.state = state
         self.onAction = onAction
         self.featureContent = featureContent
+        self.lockPage = lockPage
+    }
+    /// The account whose lock page replaces the tabs: no account is open and the SDK lists a locked one.
+    private var lockedAccount: AccountRecord? {
+        guard state.session.phase == .ready, state.session.activeAccountID == nil else { return nil }
+        return state.session.accounts.first(where: \.isLocked)
     }
 
     public var body: some View {
@@ -23,6 +30,8 @@ public struct AppShellScreen: View {
                 Text(FeatureAppShellStrings.text("common.appName", locale: locale))
                     .rfFont(.page)
                     .accessibilityLabel(FeatureAppShellStrings.text("shell.locked.accessibility", locale: locale))
+            } else if let account = lockedAccount, let lockPage {
+                lockPage(account)
             } else {
                 VStack(spacing: 0) {
                     if let featureContent {
@@ -48,9 +57,7 @@ public struct AppShellScreen: View {
                 VStack(alignment: .leading, spacing: KitMetrics.rowGap) {
                     sessionStatus
                     if state.session.activeAccountID == nil, state.session.phase == .ready {
-                        LockedAccountsBlock(accounts: state.session.accounts.filter(\.isLocked), onUnlock: { onAction(.unlockAccount($0)) })
-                        KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: { onAction(.openAccounts) },
-                                  kind: state.session.accounts.contains(where: \.isLocked) ? .secondary : .primary, tag: "shell-accounts")
+                        KitButton(FeatureAppShellStrings.text("shell.accounts.title", locale: locale), action: { onAction(.openAccounts) }, kind: .primary, tag: "shell-accounts")
                     }
                     if let failure = state.failure { failureView(failure) }
                 }
@@ -84,7 +91,7 @@ public struct AppShellScreen: View {
         case .ready:
             if let account = state.session.activeAccountID {
                 LabeledContent(FeatureAppShellStrings.text("shell.session.account", locale: locale)) {
-                    Text(untrusted: state.session.accounts.first { $0.id == account }?.displayName ?? account)
+                    Text(untrusted: (state.session.accounts.first { $0.id == account } ?? AccountRecord(id: account, displayName: "", isLocked: false)).title(locale: locale))
                 }
             } else if state.session.accounts.contains(where: \.isLocked) {
                 EmptyView()

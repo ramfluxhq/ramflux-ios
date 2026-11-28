@@ -42,13 +42,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open this account before reading a conversation."
+            "value": "Open this account before reading a chat."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请先打开此账户，再查看会话。"
+            "value": "请先打开此账户，再查看聊天。"
           }
         }
       }
@@ -105,18 +105,18 @@
       }
     },
     "app.removed.notice": {
-      "comment": "Notice shown after a locked account was removed from this device.",
+      "comment": "Toast after an account was removed. %@ is the account name.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account removed from this device."
+            "value": "%@ was removed from this device."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "已从本设备移除此账户。"
+            "value": "已从本设备移除 %@。"
           }
         }
       },

@@ -8,4 +8,6 @@ public enum SettingsEvent: Equatable, Sendable { case navigate(AppRoute), locked
     case openSystemSettings
     /// The app lock of the account was configured (`enabled`); the session follows it at once.
     case appLockChanged(Bool)
+    /// The account was removed from this device; the name was read before the call, for the toast.
+    case removed(String)
 }

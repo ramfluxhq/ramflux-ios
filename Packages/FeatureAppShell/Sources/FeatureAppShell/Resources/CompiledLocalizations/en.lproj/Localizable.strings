@@ -46,16 +46,24 @@
 	<string>Locked</string>
 	<key>shell.accounts.preview</key>
 	<string>Switch the account on this phone</string>
+	<key>shell.accounts.switch</key>
+	<string>Switch account</string>
 	<key>shell.accounts.title</key>
 	<string>Accounts</string>
 	<key>shell.appLock.code</key>
 	<string>Account code</string>
+	<key>shell.appLock.dismiss</key>
+	<string>Dismiss</string>
 	<key>shell.appLock.exhausted.body</key>
 	<string>This account is locked on this device. Recover it with its recovery phrase and account code, or remove it from this device.</string>
 	<key>shell.appLock.exhausted.title</key>
 	<string>Too many wrong account codes</string>
+	<key>shell.appLock.helper</key>
+	<string>6 digits. Checked on this device only; never sent to your node.</string>
 	<key>shell.appLock.instructions</key>
-	<string>Enter your account code to continue.</string>
+	<string>Enter the account code for this account.</string>
+	<key>shell.appLock.locked</key>
+	<string>Locked</string>
 	<key>shell.appLock.phraseAccepted</key>
 	<string>Recovery phrase accepted. You can enter your account code in %@.</string>
 	<key>shell.appLock.remove</key>
@@ -70,18 +78,18 @@
 	<string>Remove this account from this device?</string>
 	<key>shell.appLock.restore</key>
 	<string>Recover with recovery phrase</string>
+	<key>shell.appLock.unlock</key>
+	<string>Unlock</string>
 	<key>shell.appLock.wait</key>
-	<string>Too many wrong account codes. Try again in %@.</string>
+	<string>Too many tries. Try again in %@.</string>
+	<key>shell.appLock.wrongCode</key>
+	<string>That account code is not right.</string>
+	<key>shell.conversation.title</key>
+	<string>Chat</string>
 	<key>shell.loading.accountServices</key>
 	<string>Opening account services</string>
 	<key>shell.locked.accessibility</key>
 	<string>Ramflux is locked</string>
-	<key>shell.locked.message</key>
-	<string>Unlock it with your six-digit account code to see your conversations, contacts and groups.</string>
-	<key>shell.locked.title</key>
-	<string>Your account is locked</string>
-	<key>shell.locked.unlock</key>
-	<string>Unlock %@</string>
 	<key>shell.more.calls</key>
 	<string>Calls</string>
 	<key>shell.more.calls.preview</key>
@@ -93,7 +101,7 @@
 	<key>shell.nav.add</key>
 	<string>Add shortcut</string>
 	<key>shell.nav.core</key>
-	<string>Messages, Groups and Agents can be reordered but not removed.</string>
+	<string>Chats, Groups and Agents can be reordered but not removed.</string>
 	<key>shell.nav.done</key>
 	<string>Done</string>
 	<key>shell.nav.down</key>

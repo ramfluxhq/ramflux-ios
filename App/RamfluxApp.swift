@@ -39,32 +39,34 @@ import RFDesign
                     ))
                 }
                 return nil
-            }) { route in
+            }, lockPage: { account in composition.lockPage(for: account, pushed: false) }) { route in
                 switch route {
                 case .systemPermissions: return AnyView(PermissionsHost(coordinator: composition.permissions))
                 case .delivery: return AnyView(DeliveryHost(coordinator: composition.delivery))
                 case .tasks, .permissions:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(TasksHost(coordinator: composition.tasks(account: account, permissions: route == .permissions))) }
-                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage")) }
                 case .calls(let conversation):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(CallsHost(coordinator: composition.calls(account: account, conversation: conversation))) }
-                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage")) }
                 case .groupConversation(let id, let group, let title):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id, group: group, title: title))) }
-                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage")) }
                 case .conversation(let id):
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(ChatHost(coordinator: composition.chat(account: account, conversation: id))) }
-                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage")) }
                 case .mediaStorage:
                     if let account = coordinator.viewModel.state.session.activeAccountID { return AnyView(MediaStorageHost(repository: composition.repositories.chat, account: account)) }
-                    else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))) }
+                    else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage")) }
                 case .contacts, .strangers, .contact, .safetyNumber:
                     if let account = coordinator.viewModel.state.session.activeAccountID {
                         let mode: ContactsMode = switch route { case .strangers: .strangers; case .contact(let id): .profile(id); case .safetyNumber(let id): .safety(id); default: .contacts }
                         return AnyView(ContactsHost(coordinator: composition.contacts(account: account, mode: mode)))
-                    } else { return AnyView(composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.contactsMessage"))) }
+                    } else { return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.contactsMessage")) }
                 case .onboarding, .recoverAccount, .linkDevice: return AnyView(OnboardingHost(coordinator: composition.onboarding))
-                case .unlockAccount(let account): return AnyView(OnboardingHost(coordinator: composition.unlock(account: account)))
+                case .unlockAccount(let account):
+                    if let record = coordinator.viewModel.state.session.accounts.first(where: { $0.id == account }) { return composition.lockPage(for: record, pushed: true) }
+                    return composition.lockedScreen(message: RamfluxAppStrings.text("app.locked.conversationMessage"))
                 case .notices: return AnyView(NoticesScreen())
                 case .shellNavigation:
                     return AnyView(NavigationEditorScreen(
@@ -81,13 +83,15 @@ import RFDesign
                 .overlay { InAppBannerOverlay(banner: composition.banner, captured: captured, locked: coordinator.viewModel.state.privacyShield,
                                               onOpen: { composition.openBanner($0) }, onDismiss: { composition.dismissBanner($0) }) }
             }
-                .overlay(alignment: .bottom) {
-                    // Shown once after a locked account was removed from this device.
-                    if composition.removedNotice {
-                        Text(RamfluxAppStrings.text("app.removed.notice"))
+                .overlay(alignment: .top) {
+                    // Shown once after an account was removed from this device, in the top safe area so it never covers a button below.
+                    if let notice = composition.removedNotice {
+                        Text(notice)
                             .padding(KitMetrics.gutter)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
-                            .padding(KitMetrics.gutter)
+                            .padding(.horizontal, KitMetrics.gutter)
+                            .padding(.top, KitMetrics.headerGap)
                             .accessibilityIdentifier("app-removed-notice")
                             .transition(.opacity)
                     }

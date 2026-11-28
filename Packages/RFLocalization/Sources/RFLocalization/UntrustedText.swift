@@ -179,6 +179,15 @@ public enum RFIdentifier {
         RFBidi.isolateLeftToRight(normalizedDigits(raw))
     }
 
+    /// The short line that tells two accounts of one name apart: the first eight characters after the type prefix,
+    /// grouped `xxxx xxxx` (`account-8Lsz68Er...` shows `8Lsz 68Er`). Shown through `KitIdentifierText`.
+    public static func shortAccountID(_ raw: String) -> String {
+        let body = raw.split(separator: "-", maxSplits: 1).count == 2 ? String(raw.split(separator: "-", maxSplits: 1)[1]) : raw
+        let head = Array(body.prefix(8))
+        let grouped = head.count > 4 ? String(head[0..<4]) + " " + String(head[4...]) : String(head)
+        return grouped
+    }
+
     public static func normalizedDigits(_ raw: String) -> String {
         var scalars = String.UnicodeScalarView()
         for scalar in raw.unicodeScalars {

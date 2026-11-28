@@ -24,7 +24,7 @@ struct ShellHubTests {
         #expect(FeatureAppShellStrings.text("shell.nav.title", locale: Locale(identifier: "en")) == "Edit mobile navigation")
         #expect(FeatureAppShellStrings.text("shell.nav.title", locale: Locale(identifier: "zh-CN")) == "编辑移动导航")
         #expect(FeatureAppShellStrings.text("shell.more.navigation", locale: Locale(identifier: "zh-CN")) == "编辑导航")
-        #expect(AppTab.agents.title(locale: Locale(identifier: "zh-CN")) == "Agents")
+        #expect(AppTab.agents.title(locale: Locale(identifier: "zh-CN")) == "智能体")
     }
 
     @Test func shortcutsMatchTheAndroidEditorRules() {

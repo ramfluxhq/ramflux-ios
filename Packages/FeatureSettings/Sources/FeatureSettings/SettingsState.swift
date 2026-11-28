@@ -35,5 +35,7 @@ public struct SettingsState: Equatable, Sendable {
     public var appLockTurningOff = false
     /// An account is open for this page (the view model was given one). Not the snapshot: a snapshot is empty until it is read.
     public var accountOpen = false
+    /// The open account as `account.list` names it: its display name and short id appear on the removal confirmation.
+    public var account: AccountRecord?
     public init(route: AppRoute = .settings) { self.route = route }
 }

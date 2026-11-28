@@ -18,16 +18,18 @@ public struct AccountPickerScreen: View {
                 if state.session.accounts.isEmpty {
                     RFUnavailableView(title: FeatureAppShellStrings.text("shell.accounts.empty.title", locale: locale), message: FeatureAppShellStrings.text("shell.accounts.empty.message", locale: locale))
                 } else {
-                    List(state.session.accounts) { account in
+                    // Name, short id line (two accounts can share a name) and, for a locked account, "Locked" as a trailing label.
+                    // Tapping a locked row opens that account's lock page.
+                    List(Array(state.session.accounts.enumerated()), id: \.element.id) { index, account in
                         Button { onAction(account.isLocked ? .unlockAccount(account.id) : .selectAccount(account.id)) } label: {
                             HStack {
-                                Text(untrusted: account.displayName)
+                                KitAccountRow(name: account.title(locale: locale), initial: account.initial(locale: locale), shortID: account.shortID)
                                 Spacer(minLength: theme.gap)
                                 if account.isLocked { Text(FeatureAppShellStrings.text("shell.accounts.locked", locale: locale)).foregroundStyle(theme.secondary) }
                             }
                         }
                         .disabled(state.busy)
-                        .accessibilityIdentifier("account-" + account.id)
+                        .accessibilityIdentifier("account-row-\(index)")
                     }.scrollContentBackground(.hidden)
                 }
             }.padding(theme.gap)
