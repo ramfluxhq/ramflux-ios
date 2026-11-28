@@ -192,6 +192,14 @@
 	<string>Refresh</string>
 	<key>common.action.reply</key>
 	<string>Reply</string>
+	<key>group.catchup.rejoining</key>
+	<string>Rejoining the group. A member's device or an agent needs to be online.</string>
+	<key>group.catchup.running</key>
+	<string>Catching up on messages… %1$lld of %2$lld</string>
+	<key>group.catchup.runningIndeterminate</key>
+	<string>Catching up on messages…</string>
+	<key>group.catchup.skip</key>
+	<string>Skip</string>
 	<key>group.delete.action</key>
 	<string>Delete for everyone</string>
 	<key>group.delete.confirm</key>
@@ -214,6 +222,8 @@
 	<string>You can only delete your own messages.</string>
 	<key>group.error.notMember</key>
 	<string>You're not a member of this group.</string>
+	<key>group.error.notOwner</key>
+	<string>Only the owner can do this.</string>
 	<key>group.error.ownerProtected</key>
 	<string>This can't be done to the group owner.</string>
 	<key>group.error.paced</key>
@@ -234,6 +244,10 @@
 	<string>This invite doesn't exist.</string>
 	<key>group.error.voidNotHead</key>
 	<string>Only the latest change can be undone.</string>
+	<key>group.hint.agent.invite</key>
+	<string>Get invite link</string>
+	<key>group.hint.agent.mobile</key>
+	<string>You can add an agent from your desktop to keep the group open for joins.</string>
 	<key>group.leave.done</key>
 	<string>You left this group.</string>
 	<key>group.member.unnamed</key>
@@ -246,6 +260,18 @@
 	<string>Mention a member</string>
 	<key>group.message.attachment</key>
 	<string>Attachment</string>
+	<key>group.privacyDelay.eta</key>
+	<string>Messages you send now go out around %@.</string>
+	<key>group.privacyDelay.info</key>
+	<string>Messages are sent with a short random delay for privacy.</string>
+	<key>group.quota.commit</key>
+	<string>%1$lld of %2$lld group changes left today on this device</string>
+	<key>group.quota.post</key>
+	<string>%1$lld of %2$lld messages left today</string>
+	<key>group.quota.postFirstDay</key>
+	<string>First day: %1$lld of %2$lld messages left</string>
+	<key>group.quota.resets</key>
+	<string>Resets %@</string>
 	<key>group.send.delayed</key>
 	<string>Sends around %1$@ for privacy</string>
 	<key>group.send.failed</key>
@@ -266,6 +292,18 @@
 	<string>Retry</string>
 	<key>group.send.sending</key>
 	<string>Sending…</string>
+	<key>group.skip.body</key>
+	<string>Messages in the skipped range can never be read on this device.</string>
+	<key>group.skip.bodyMore</key>
+	<string>Messages you already read stay. Your other devices keep what they have.</string>
+	<key>group.skip.cancel</key>
+	<string>Keep catching up</string>
+	<key>group.skip.confirm</key>
+	<string>Skip</string>
+	<key>group.skip.skipping</key>
+	<string>Skipping…</string>
+	<key>group.skip.title</key>
+	<string>Skip catching up?</string>
 	<key>group.state.banned</key>
 	<string>You were banned from this group.</string>
 	<key>group.state.removed</key>
@@ -300,6 +338,48 @@
 	<string>Group updated</string>
 	<key>group.timeline.void</key>
 	<string>Change undone</string>
+	<key>group.timeline.voidBy</key>
+	<string>%@ undid a change</string>
+	<key>group.void.action</key>
+	<string>Undo this change</string>
+	<key>group.void.body</key>
+	<string>The group goes back to how it was before this change. Members whose devices already applied it must rejoin the group. This happens by itself but can take a while.</string>
+	<key>group.void.confirm</key>
+	<string>Undo</string>
+	<key>group.void.title</key>
+	<string>Undo this change?</string>
+	<key>group.void.undoing</key>
+	<string>Undoing…</string>
+	<key>group.void.undone</key>
+	<string>Undone</string>
+	<key>group.warning.admissionNeedsOnline</key>
+	<string>New members can join only while a member's device or an agent is online.</string>
+	<key>group.warning.forkAlarm</key>
+	<string>This group's history has split. Messages may not reach everyone. Tell an admin.</string>
+	<key>group.warning.generic</key>
+	<string>This group reported a problem.</string>
+	<key>group.warning.headCommitRejected</key>
+	<string>Members' devices refused the latest group change. The group can't change again until it's undone.</string>
+	<key>group.warning.headCommitRejected.action</key>
+	<string>Undo the change</string>
+	<key>group.warning.hide</key>
+	<string>Hide</string>
+	<key>group.warning.hostUnusual</key>
+	<string>The group's server is behaving unusually. Messages may be delayed.</string>
+	<key>group.warning.rejoinNeeded.applyFailed</key>
+	<string>This device couldn't apply a group change. It is rejoining the group.</string>
+	<key>group.warning.rejoinNeeded.gateRejected</key>
+	<string>A change from this device was refused. It is rejoining the group.</string>
+	<key>group.warning.rejoinNeeded.generic</key>
+	<string>This device needs to rejoin the group to read new messages.</string>
+	<key>group.warning.rejoinNeeded.pruned</key>
+	<string>This device was away too long and is rejoining the group. Messages from that time can't be read here.</string>
+	<key>group.warning.rejoinNeeded.stateLost</key>
+	<string>This device lost its keys for this group. Open the group on your other device, or ask a member to send a new invite.</string>
+	<key>group.warning.rejoinNeeded.welcomeExpired</key>
+	<string>This device's invitation to the group expired. It is rejoining the group.</string>
+	<key>group.warning.undecryptable.show</key>
+	<string>Show</string>
 	<key>identity.accept.again</key>
 	<string>The identity changed again. Review it again.</string>
 	<key>identity.accept.already</key>

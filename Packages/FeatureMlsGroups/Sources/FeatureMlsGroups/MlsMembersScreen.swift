@@ -11,6 +11,7 @@ public struct MlsMembersScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     @Bindable var model: MlsGroupModel
+    @State private var confirmation: MlsAdminConfirmation?
     public init(model: MlsGroupModel) { self.model = model }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
@@ -19,6 +20,14 @@ public struct MlsMembersScreen: View {
             if model.members.loadingAll && !model.search.isEmpty {
                 Text(FeatureMlsGroupsStrings.format("group.members.loadingAll", model.members.rows.count, model.info?.members ?? model.members.rows.count, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).padding(.horizontal, theme.gap).accessibilityIdentifier("mls-members-progress")
             }
+            VStack(alignment: .leading, spacing: theme.gap / 2) {
+                if let notice = model.admin.notice {
+                    HStack { Text(MlsChatText.error(notice.error, locale: locale)).rfFont(.caption).foregroundStyle(theme.danger).accessibilityIdentifier("mls-member-error")
+                        Button(FeatureMlsGroupsStrings.text("group.common.close", locale: locale)) { model.clearNotice() }.rfFont(.caption) }
+                }
+                if let until = model.admin.pacedUntil { Text(MlsChatText.error(.paced(retryAt: until), locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-member-paced") }
+                else if model.admin.busy != nil, model.isAdmin { Text(FeatureMlsGroupsStrings.text("group.member.action.busy", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-member-busy") }
+            }.padding(.horizontal, theme.gap).frame(maxWidth: .infinity, alignment: .leading)
             ScrollView { LazyVStack(alignment: .leading, spacing: theme.gap) {
                 ForEach(sections, id: \.0) { section in
                     Text(FeatureMlsGroupsStrings.text(section.0, locale: locale)).rfFont(.caption, weight: .semibold).foregroundStyle(theme.secondary).padding(.top, theme.gap)
@@ -39,12 +48,15 @@ public struct MlsMembersScreen: View {
         .task { model.start(); model.openMembers() }
         .onDisappear { model.stop() }
         .onChange(of: model.search) { _, _ in model.searchChanged() }
+        .mlsAdminConfirm($confirmation) { model.perform($0) }
     }
     private var sections: [(String, [MlsMemberRow])] {
         let rows = model.filteredMembers
         let parts: [(String, [MlsMemberRow])] = [("group.members.section.owner", rows.filter { $0.role == .owner }), ("group.members.section.admins", rows.filter { $0.role == .admin }), ("group.members.section.members", rows.filter { $0.role != .owner && $0.role != .admin })]
         return parts.filter { !$0.1.isEmpty }
     }
+    /// The rows in the order they show (owner, admins, members): the menu id is the position in it.
+    private var shownOrder: [MlsMemberRow] { sections.flatMap(\.1) }
     private func row(_ member: MlsMemberRow) -> some View {
         HStack(spacing: theme.gap) {
             KitAvatar(String(MlsChatText.displayName(MlsAuthor(anchor: member.anchor, display: member.display, isMe: member.isMe), locale: locale).prefix(1)), size: 36, kind: member.aiFlag ? .agent : .person)
@@ -57,6 +69,8 @@ public struct MlsMembersScreen: View {
                 }
                 Text(FeatureMlsGroupsStrings.format("group.members.devices", member.devices, locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary)
             }
-        }.frame(maxWidth: .infinity, alignment: .leading).accessibilityElement(children: .combine)
+            Spacer(minLength: 0)
+            if let index = shownOrder.firstIndex(where: { $0.anchor == member.anchor }) { MlsMemberMenu(member: member, index: index, model: model) { confirmation = $0 } }
+        }.frame(maxWidth: .infinity, alignment: .leading).accessibilityElement(children: .contain)
     }
 }

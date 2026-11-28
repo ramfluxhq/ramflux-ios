@@ -25,6 +25,9 @@ public struct MlsGroupsScreen: View {
                                 ProgressView().controlSize(.small)
                                 Text(FeatureMlsGroupsStrings.text("group.join.pending.row", locale: locale)).rfFont(.body)
                             }.accessibilityIdentifier("mls-join-pending-row")
+                            if model.list.pendingJoins.contains(where: { $0.reason == .awaitingMemberOnline }) {
+                                Text(FeatureMlsGroupsStrings.text("group.join.pending.onlineNote", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-join-pending-online-note")
+                            }
                         }
                         content
                         if model.list.loadingMore { ProgressView().frame(maxWidth: .infinity) }

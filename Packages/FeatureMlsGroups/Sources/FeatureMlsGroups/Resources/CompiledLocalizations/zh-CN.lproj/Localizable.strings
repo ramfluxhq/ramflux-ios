@@ -26,6 +26,8 @@
 	<string>创建</string>
 	<key>group.create.title</key>
 	<string>新建群组</string>
+	<key>group.info.admission</key>
+	<string>入群</string>
 	<key>group.info.approvalOff</key>
 	<string>任何持有链接的人都可以加入</string>
 	<key>group.info.approvalOn</key>
@@ -40,8 +42,14 @@
 	<string>通知</string>
 	<key>group.info.refresh</key>
 	<string>刷新</string>
+	<key>group.info.requestsEntry</key>
+	<string>加入申请</string>
+	<key>group.info.settingsEntry</key>
+	<string>群组设置</string>
 	<key>group.info.title</key>
 	<string>群组信息</string>
+	<key>group.info.warnings</key>
+	<string>提醒</string>
 	<key>group.invite.copied</key>
 	<string>链接已复制</string>
 	<key>group.invite.copy</key>
@@ -92,6 +100,8 @@
 	<string>申请已发送。需要管理员在 %1$@ 前批准。</string>
 	<key>group.join.pending.online</key>
 	<string>正在等待成员上线，最晚可能要到 %1$@。</string>
+	<key>group.join.pending.onlineNote</key>
+	<string>此群组只在某位成员的设备或智能体在线时接纳新成员。</string>
 	<key>group.join.pending.row</key>
 	<string>正在等待加入群组</string>
 	<key>group.join.refused.alreadyMember</key>
@@ -146,6 +156,48 @@
 	<string>重试</string>
 	<key>group.list.title</key>
 	<string>群组</string>
+	<key>group.member.action.ban</key>
+	<string>从群组封禁</string>
+	<key>group.member.action.busy</key>
+	<string>另一项更改正在进行中，请在完成后再试。</string>
+	<key>group.member.action.makeAdmin</key>
+	<string>设为管理员</string>
+	<key>group.member.action.makeMember</key>
+	<string>设为普通成员</string>
+	<key>group.member.action.remove</key>
+	<string>移出群组</string>
+	<key>group.member.action.updating</key>
+	<string>正在更新…</string>
+	<key>group.member.adminConfirm.body</key>
+	<string>管理员可以批准申请、移出和封禁成员、修改群组设置，以及撤销最近一次更改。</string>
+	<key>group.member.adminConfirm.confirm</key>
+	<string>设为管理员</string>
+	<key>group.member.adminConfirm.title</key>
+	<string>将 %1$@ 设为 %2$@ 的管理员？</string>
+	<key>group.member.agentNote</key>
+	<string>此成员是智能体。</string>
+	<key>group.member.banConfirm.body</key>
+	<string>对方将被移出，并且即使持有邀请也无法再次加入。</string>
+	<key>group.member.banConfirm.confirm</key>
+	<string>封禁</string>
+	<key>group.member.banConfirm.title</key>
+	<string>从 %2$@ 封禁 %1$@？</string>
+	<key>group.member.demoteConfirm.body</key>
+	<string>对方将失去此群组的管理员权限。</string>
+	<key>group.member.demoteConfirm.confirm</key>
+	<string>设为普通成员</string>
+	<key>group.member.demoteConfirm.title</key>
+	<string>将 %1$@ 设为 %2$@ 的普通成员？</string>
+	<key>group.member.menu</key>
+	<string>成员操作</string>
+	<key>group.member.removeConfirm.body</key>
+	<string>对方只能通过新的邀请重新加入。</string>
+	<key>group.member.removeConfirm.confirm</key>
+	<string>移出</string>
+	<key>group.member.removeConfirm.title</key>
+	<string>将 %1$@ 移出 %2$@？</string>
+	<key>group.member.this</key>
+	<string>此成员</string>
 	<key>group.members.loadingAll</key>
 	<string>正在加载全部成员… %1$lld / %2$lld</string>
 	<key>group.members.noResults</key>
@@ -172,12 +224,78 @@
 	<string>关于此群组的服务器</string>
 	<key>group.push.all</key>
 	<string>所有消息</string>
+	<key>group.push.failed</key>
+	<string>无法更改通知设置。请重试。</string>
+	<key>group.push.help</key>
+	<string>此设置仅对此设备生效。</string>
 	<key>group.push.mentionsReplies</key>
 	<string>提及和回复</string>
 	<key>group.push.none</key>
 	<string>无</string>
+	<key>group.push.saving</key>
+	<string>正在保存…</string>
+	<key>group.push.title</key>
+	<string>此设备上的通知</string>
 	<key>group.read</key>
 	<string>Pulls from the host now. Called when a group opens, when the app returns to the foreground with a group open, on pull to refresh (phones) and on "Refresh" (desktop). At most once every 5 s per group; extra calls inside that window are dropped. The results arrive as events.</string>
+	<key>group.requests.adding</key>
+	<string>正在加入群组…</string>
+	<key>group.requests.approvalOff</key>
+	<string>审批已关闭。持有链接的人无需申请即可加入。</string>
+	<key>group.requests.approve</key>
+	<string>批准</string>
+	<key>group.requests.approveConfirm.body</key>
+	<string>对方将能阅读新消息并查看成员列表。</string>
+	<key>group.requests.approveConfirm.confirm</key>
+	<string>批准</string>
+	<key>group.requests.approveConfirm.title</key>
+	<string>允许 %1$@ 加入 %2$@？</string>
+	<key>group.requests.approving</key>
+	<string>正在批准…</string>
+	<key>group.requests.decline</key>
+	<string>拒绝</string>
+	<key>group.requests.declineConfirm.body</key>
+	<string>对方不会收到通知。此申请将对你隐藏，并于 %@ 过期。</string>
+	<key>group.requests.declineConfirm.confirm</key>
+	<string>拒绝</string>
+	<key>group.requests.declineConfirm.title</key>
+	<string>拒绝 %@ 的申请？</string>
+	<key>group.requests.declining</key>
+	<string>正在拒绝…</string>
+	<key>group.requests.empty</key>
+	<string>没有待处理的申请</string>
+	<key>group.requests.entryMore</key>
+	<string>超过 %lld 个加入申请</string>
+	<key>group.requests.expired</key>
+	<string>已过期</string>
+	<key>group.requests.expires</key>
+	<string>%@ 过期</string>
+	<key>group.requests.loadError</key>
+	<string>无法加载申请。</string>
+	<key>group.requests.pageError</key>
+	<string>无法加载更多申请。</string>
+	<key>group.requests.requested</key>
+	<string>%@ 申请</string>
+	<key>group.requests.retry</key>
+	<string>重试</string>
+	<key>group.requests.title</key>
+	<string>加入申请</string>
+	<key>group.settings.approval</key>
+	<string>新成员需要审批</string>
+	<key>group.settings.approvalOffConfirm.body</key>
+	<string>任何持有邀请链接的人都将无需管理员批准即可加入。只有在某位成员的设备或智能体在线时，加入才能完成。</string>
+	<key>group.settings.approvalOffConfirm.confirm</key>
+	<string>关闭</string>
+	<key>group.settings.approvalOffConfirm.title</key>
+	<string>关闭审批？</string>
+	<key>group.settings.name</key>
+	<string>群组名称</string>
+	<key>group.settings.save</key>
+	<string>保存</string>
+	<key>group.settings.saving</key>
+	<string>正在保存…</string>
+	<key>group.settings.title</key>
+	<string>群组设置</string>
 	<key>group.warning.hostIpVisible</key>
 	<string>群组服务器（%1$@）可以看到你的网络地址。</string>
 </dict>

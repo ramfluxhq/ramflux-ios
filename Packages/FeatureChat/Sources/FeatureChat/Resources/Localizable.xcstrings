@@ -3168,6 +3168,791 @@
           }
         }
       }
+    },
+    "group.error.notOwner": {
+      "comment": "MLS groups (group chat and group info). English: \"Only the owner can do this.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the owner can do this."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有群主可以执行此操作。"
+          }
+        }
+      }
+    },
+    "group.catchup.running": {
+      "comment": "MLS groups (group chat and group info). English: \"Catching up on messages… %1$lld of %2$lld\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catching up on messages… %1$lld of %2$lld"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步消息… %1$lld / %2$lld"
+          }
+        }
+      }
+    },
+    "group.catchup.runningIndeterminate": {
+      "comment": "MLS groups (group chat and group info). English: \"Catching up on messages…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catching up on messages…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在同步消息…"
+          }
+        }
+      }
+    },
+    "group.catchup.skip": {
+      "comment": "MLS groups (group chat and group info). English: \"Skip\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        }
+      }
+    },
+    "group.catchup.rejoining": {
+      "comment": "MLS groups (group chat and group info). English: \"Rejoining the group. A member's device or an agent needs to be online.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoining the group. A member's device or an agent needs to be online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在重新加入群组。需要某位成员的设备或智能体在线。"
+          }
+        }
+      }
+    },
+    "group.skip.title": {
+      "comment": "MLS groups (group chat and group info). English: \"Skip catching up?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip catching up?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过同步？"
+          }
+        }
+      }
+    },
+    "group.skip.body": {
+      "comment": "MLS groups (skip dialog). English: \"Messages in the skipped range can never be read on this device.\" Fixed text agreed with the protocol team. Do not soften it; it must say the messages can never be read on this device.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages in the skipped range can never be read on this device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "被跳过范围内的消息永远无法在此设备上阅读。"
+          }
+        }
+      }
+    },
+    "group.skip.bodyMore": {
+      "comment": "MLS groups (group chat and group info). English: \"Messages you already read stay. Your other devices keep what they have.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages you already read stay. Your other devices keep what they have."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已读过的消息会保留。你的其他设备上的内容不受影响。"
+          }
+        }
+      }
+    },
+    "group.skip.confirm": {
+      "comment": "MLS groups (group chat and group info). English: \"Skip\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        }
+      }
+    },
+    "group.skip.cancel": {
+      "comment": "MLS groups (group chat and group info). English: \"Keep catching up\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep catching up"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续同步"
+          }
+        }
+      }
+    },
+    "group.skip.skipping": {
+      "comment": "MLS groups (group chat and group info). English: \"Skipping…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipping…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在跳过…"
+          }
+        }
+      }
+    },
+    "group.void.action": {
+      "comment": "MLS groups (group chat and group info). English: \"Undo this change\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo this change"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销此更改"
+          }
+        }
+      }
+    },
+    "group.void.title": {
+      "comment": "MLS groups (group chat and group info). English: \"Undo this change?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo this change?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销此更改？"
+          }
+        }
+      }
+    },
+    "group.void.body": {
+      "comment": "MLS groups (group chat and group info). English: \"The group goes back to how it was before this change. Members whose devices already applied it must rejoin the group. This happens by itself but can take a while.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group goes back to how it was before this change. Members whose devices already applied it must rejoin the group. This happens by itself but can take a while."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组将恢复到此更改之前的状态。已应用此更改的成员设备需要重新加入群组。这会自动进行，但可能需要一些时间。"
+          }
+        }
+      }
+    },
+    "group.void.confirm": {
+      "comment": "MLS groups (group chat and group info). English: \"Undo\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销"
+          }
+        }
+      }
+    },
+    "group.void.undoing": {
+      "comment": "MLS groups (group chat and group info). English: \"Undoing…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undoing…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在撤销…"
+          }
+        }
+      }
+    },
+    "group.void.undone": {
+      "comment": "MLS groups (group chat and group info). English: \"Undone\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undone"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已撤销"
+          }
+        }
+      }
+    },
+    "group.timeline.voidBy": {
+      "comment": "MLS groups (group chat and group info). English: \"%@ undid a change\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ undid a change"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 撤销了一项更改"
+          }
+        }
+      }
+    },
+    "group.warning.forkAlarm": {
+      "comment": "MLS groups (group chat and group info). English: \"This group's history has split. Messages may not reach everyone. Tell an admin.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group's history has split. Messages may not reach everyone. Tell an admin."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组的历史记录出现了分叉。消息可能无法送达所有人。请告知管理员。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.pruned": {
+      "comment": "MLS groups (group chat and group info). English: \"This device was away too long and is rejoining the group. Messages from that time can't be read here.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device was away too long and is rejoining the group. Messages from that time can't be read here."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备离开太久，正在重新加入群组。这段时间的消息无法在此设备上阅读。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.gateRejected": {
+      "comment": "MLS groups (group chat and group info). English: \"A change from this device was refused. It is rejoining the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A change from this device was refused. It is rejoining the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备的一项更改被拒绝，正在重新加入群组。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.applyFailed": {
+      "comment": "MLS groups (group chat and group info). English: \"This device couldn't apply a group change. It is rejoining the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device couldn't apply a group change. It is rejoining the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备无法应用一项群组更改，正在重新加入群组。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.welcomeExpired": {
+      "comment": "MLS groups (group chat and group info). English: \"This device's invitation to the group expired. It is rejoining the group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device's invitation to the group expired. It is rejoining the group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备的入群邀请已过期，正在重新加入群组。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.stateLost": {
+      "comment": "MLS groups (group chat and group info). English: \"This device lost its keys for this group. Open the group on your other device, or ask a member to send a new invite.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device lost its keys for this group. Open the group on your other device, or ask a member to send a new invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备丢失了此群组的密钥。请在你的另一台设备上打开此群组，或请群成员重新发送邀请。"
+          }
+        }
+      }
+    },
+    "group.warning.rejoinNeeded.generic": {
+      "comment": "MLS groups (group chat and group info). English: \"This device needs to rejoin the group to read new messages.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device needs to rejoin the group to read new messages."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备需要重新加入群组才能阅读新消息。"
+          }
+        }
+      }
+    },
+    "group.warning.undecryptable": {
+      "comment": "MLS groups (group chat and group info). English: \"%lld message can't be read on this device. / %lld messages can't be read on this device.\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld message can't be read on this device."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messages can't be read on this device."
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 条消息无法在此设备上阅读。"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.warning.undecryptable.show": {
+      "comment": "MLS groups (group chat and group info). English: \"Show\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看"
+          }
+        }
+      }
+    },
+    "group.timeline.undecryptable": {
+      "comment": "MLS groups (group chat and group info). English: \"%lld message can't be read on this device / %lld messages can't be read on this device\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld message can't be read on this device"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld messages can't be read on this device"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 条消息无法在此设备上阅读"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.warning.admissionNeedsOnline": {
+      "comment": "MLS groups (group chat and group info). English: \"New members can join only while a member's device or an agent is online.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New members can join only while a member's device or an agent is online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有在某位成员的设备或智能体在线时，新成员才能加入。"
+          }
+        }
+      }
+    },
+    "group.warning.hostUnusual": {
+      "comment": "MLS groups (group chat and group info). English: \"The group's server is behaving unusually. Messages may be delayed.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group's server is behaving unusually. Messages may be delayed."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组服务器行为异常。消息可能会延迟。"
+          }
+        }
+      }
+    },
+    "group.warning.headCommitRejected": {
+      "comment": "MLS groups (group chat and group info). English: \"Members' devices refused the latest group change. The group can't change again until it's undone.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members' devices refused the latest group change. The group can't change again until it's undone."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员设备拒绝了最近一次群组更改。撤销之前，群组无法再进行更改。"
+          }
+        }
+      }
+    },
+    "group.warning.headCommitRejected.action": {
+      "comment": "MLS groups (group chat and group info). English: \"Undo the change\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo the change"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销该更改"
+          }
+        }
+      }
+    },
+    "group.warning.generic": {
+      "comment": "MLS groups (group chat and group info). English: \"This group reported a problem.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group reported a problem."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组报告了一个问题。"
+          }
+        }
+      }
+    },
+    "group.warning.hide": {
+      "comment": "MLS groups (group chat and group info). English: \"Hide\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏"
+          }
+        }
+      }
+    },
+    "group.warning.more": {
+      "comment": "MLS groups (group chat and group info). English: \"%lld more alert / %lld more alerts\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more alert"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more alerts"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "另有 %lld 条提醒"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.hint.agent.mobile": {
+      "comment": "MLS groups (group chat and group info). English: \"You can add an agent from your desktop to keep the group open for joins.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can add an agent from your desktop to keep the group open for joins."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你可以在桌面端添加智能体，让群组随时可以加入。"
+          }
+        }
+      }
+    },
+    "group.hint.agent.invite": {
+      "comment": "MLS groups (group chat and group info). English: \"Get invite link\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get invite link"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取邀请链接"
+          }
+        }
+      }
+    },
+    "group.quota.post": {
+      "comment": "MLS groups (group chat and group info). English: \"%1$lld of %2$lld messages left today\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld messages left today"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今天还可发送 %1$lld 条消息，共 %2$lld 条"
+          }
+        }
+      }
+    },
+    "group.quota.postFirstDay": {
+      "comment": "MLS groups (group chat and group info). English: \"First day: %1$lld of %2$lld messages left\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First day: %1$lld of %2$lld messages left"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "第一天：还可发送 %1$lld 条消息，共 %2$lld 条"
+          }
+        }
+      }
+    },
+    "group.quota.commit": {
+      "comment": "MLS groups (group chat and group info). English: \"%1$lld of %2$lld group changes left today on this device\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld group changes left today on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备今天还可进行 %1$lld 次群组更改，共 %2$lld 次"
+          }
+        }
+      }
+    },
+    "group.quota.resets": {
+      "comment": "MLS groups (group chat and group info). English: \"Resets %@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resets %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 重置"
+          }
+        }
+      }
+    },
+    "group.privacyDelay.info": {
+      "comment": "MLS groups (group chat and group info). English: \"Messages are sent with a short random delay for privacy.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages are sent with a short random delay for privacy."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为保护隐私，消息会随机延迟片刻后发出。"
+          }
+        }
+      }
+    },
+    "group.privacyDelay.eta": {
+      "comment": "MLS groups (group chat and group info). English: \"Messages you send now go out around %@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages you send now go out around %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你现在发送的消息将在 %@ 左右发出。"
+          }
+        }
+      }
     }
   }
 }

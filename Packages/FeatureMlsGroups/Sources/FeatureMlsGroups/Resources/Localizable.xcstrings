@@ -1794,6 +1794,1044 @@
           }
         }
       }
+    },
+    "group.requests.title": {
+      "comment": "MLS groups (admin screens). English: \"Join requests\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join requests"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入申请"
+          }
+        }
+      }
+    },
+    "group.requests.entry": {
+      "comment": "MLS groups (admin screens). English: \"%lld join request / %lld join requests\"",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld join request"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld join requests"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 个加入申请"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "group.requests.entryMore": {
+      "comment": "MLS groups (admin screens). English: \"More than %lld join requests\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More than %lld join requests"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "超过 %lld 个加入申请"
+          }
+        }
+      }
+    },
+    "group.requests.empty": {
+      "comment": "MLS groups (admin screens). English: \"No pending requests\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No pending requests"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有待处理的申请"
+          }
+        }
+      }
+    },
+    "group.requests.requested": {
+      "comment": "MLS groups (admin screens). English: \"Asked %@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asked %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 申请"
+          }
+        }
+      }
+    },
+    "group.requests.expires": {
+      "comment": "MLS groups (admin screens). English: \"Expires %@\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 过期"
+          }
+        }
+      }
+    },
+    "group.requests.expired": {
+      "comment": "MLS groups (admin screens). English: \"Expired\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expired"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已过期"
+          }
+        }
+      }
+    },
+    "group.requests.approve": {
+      "comment": "MLS groups (admin screens). English: \"Approve\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准"
+          }
+        }
+      }
+    },
+    "group.requests.decline": {
+      "comment": "MLS groups (admin screens). English: \"Decline\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        }
+      }
+    },
+    "group.requests.approving": {
+      "comment": "MLS groups (admin screens). English: \"Approving…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approving…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在批准…"
+          }
+        }
+      }
+    },
+    "group.requests.adding": {
+      "comment": "MLS groups (admin screens). English: \"Adding to the group…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adding to the group…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加入群组…"
+          }
+        }
+      }
+    },
+    "group.requests.declining": {
+      "comment": "MLS groups (admin screens). English: \"Declining…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Declining…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在拒绝…"
+          }
+        }
+      }
+    },
+    "group.requests.approveConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Let %1$@ join %2$@?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let %1$@ join %2$@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许 %1$@ 加入 %2$@？"
+          }
+        }
+      }
+    },
+    "group.requests.approveConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"They'll be able to read new messages and see the member list.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They'll be able to read new messages and see the member list."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方将能阅读新消息并查看成员列表。"
+          }
+        }
+      }
+    },
+    "group.requests.approveConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Approve\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approve"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "批准"
+          }
+        }
+      }
+    },
+    "group.requests.declineConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Decline %@'s request?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline %@'s request?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝 %@ 的申请？"
+          }
+        }
+      }
+    },
+    "group.requests.declineConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"They won't be notified. The request is hidden for you and expires %@.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They won't be notified. The request is hidden for you and expires %@."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方不会收到通知。此申请将对你隐藏，并于 %@ 过期。"
+          }
+        }
+      }
+    },
+    "group.requests.declineConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Decline\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拒绝"
+          }
+        }
+      }
+    },
+    "group.requests.loadError": {
+      "comment": "MLS groups (admin screens). English: \"Couldn't load requests.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load requests."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载申请。"
+          }
+        }
+      }
+    },
+    "group.requests.pageError": {
+      "comment": "MLS groups (admin screens). English: \"Couldn't load more requests.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load more requests."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载更多申请。"
+          }
+        }
+      }
+    },
+    "group.requests.retry": {
+      "comment": "MLS groups (admin screens). English: \"Try again\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        }
+      }
+    },
+    "group.requests.approvalOff": {
+      "comment": "MLS groups (admin screens). English: \"Approval is off. People with a link join without a request.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approval is off. People with a link join without a request."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "审批已关闭。持有链接的人无需申请即可加入。"
+          }
+        }
+      }
+    },
+    "group.member.action.makeAdmin": {
+      "comment": "MLS groups (admin screens). English: \"Make admin\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make admin"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设为管理员"
+          }
+        }
+      }
+    },
+    "group.member.action.makeMember": {
+      "comment": "MLS groups (admin screens). English: \"Make regular member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make regular member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设为普通成员"
+          }
+        }
+      }
+    },
+    "group.member.action.remove": {
+      "comment": "MLS groups (admin screens). English: \"Remove from group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移出群组"
+          }
+        }
+      }
+    },
+    "group.member.action.ban": {
+      "comment": "MLS groups (admin screens). English: \"Ban from group\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban from group"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从群组封禁"
+          }
+        }
+      }
+    },
+    "group.member.action.updating": {
+      "comment": "MLS groups (admin screens). English: \"Updating…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在更新…"
+          }
+        }
+      }
+    },
+    "group.member.action.busy": {
+      "comment": "MLS groups (admin screens). English: \"Another change is in progress. Try again when it's done.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another change is in progress. Try again when it's done."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "另一项更改正在进行中，请在完成后再试。"
+          }
+        }
+      }
+    },
+    "group.member.this": {
+      "comment": "MLS groups (admin screens). English: \"this member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "this member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此成员"
+          }
+        }
+      }
+    },
+    "group.member.agentNote": {
+      "comment": "MLS groups (admin screens). English: \"This member is an agent.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This member is an agent."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此成员是智能体。"
+          }
+        }
+      }
+    },
+    "group.member.adminConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Make %1$@ an admin of %2$@?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make %1$@ an admin of %2$@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 %1$@ 设为 %2$@ 的管理员？"
+          }
+        }
+      }
+    },
+    "group.member.adminConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"Admins can approve requests, remove and ban members, change group settings and undo the latest change.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admins can approve requests, remove and ban members, change group settings and undo the latest change."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理员可以批准申请、移出和封禁成员、修改群组设置，以及撤销最近一次更改。"
+          }
+        }
+      }
+    },
+    "group.member.adminConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Make admin\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make admin"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设为管理员"
+          }
+        }
+      }
+    },
+    "group.member.demoteConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Make %1$@ a regular member of %2$@?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make %1$@ a regular member of %2$@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 %1$@ 设为 %2$@ 的普通成员？"
+          }
+        }
+      }
+    },
+    "group.member.demoteConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"They'll lose their admin rights in this group.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They'll lose their admin rights in this group."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方将失去此群组的管理员权限。"
+          }
+        }
+      }
+    },
+    "group.member.demoteConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Make member\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make member"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设为普通成员"
+          }
+        }
+      }
+    },
+    "group.member.removeConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Remove %1$@ from %2$@?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %1$@ from %2$@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将 %1$@ 移出 %2$@？"
+          }
+        }
+      }
+    },
+    "group.member.removeConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"They can come back only with a new invite.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They can come back only with a new invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方只能通过新的邀请重新加入。"
+          }
+        }
+      }
+    },
+    "group.member.removeConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Remove\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移出"
+          }
+        }
+      }
+    },
+    "group.member.banConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Ban %1$@ from %2$@?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban %1$@ from %2$@?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从 %2$@ 封禁 %1$@？"
+          }
+        }
+      }
+    },
+    "group.member.banConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"They're removed and can't join again, even with an invite.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They're removed and can't join again, even with an invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对方将被移出，并且即使持有邀请也无法再次加入。"
+          }
+        }
+      }
+    },
+    "group.member.banConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Ban\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "封禁"
+          }
+        }
+      }
+    },
+    "group.settings.title": {
+      "comment": "MLS groups (admin screens). English: \"Group settings\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group settings"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组设置"
+          }
+        }
+      }
+    },
+    "group.settings.name": {
+      "comment": "MLS groups (admin screens). English: \"Group name\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group name"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组名称"
+          }
+        }
+      }
+    },
+    "group.settings.save": {
+      "comment": "MLS groups (admin screens). English: \"Save\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保存"
+          }
+        }
+      }
+    },
+    "group.settings.saving": {
+      "comment": "MLS groups (admin screens). English: \"Saving…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在保存…"
+          }
+        }
+      }
+    },
+    "group.settings.approval": {
+      "comment": "MLS groups (admin screens). English: \"New members need approval\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New members need approval"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新成员需要审批"
+          }
+        }
+      }
+    },
+    "group.settings.approvalOffConfirm.title": {
+      "comment": "MLS groups (admin screens). English: \"Turn off approval?\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off approval?"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭审批？"
+          }
+        }
+      }
+    },
+    "group.settings.approvalOffConfirm.body": {
+      "comment": "MLS groups (admin screens). English: \"Anyone with an invite link will join without an admin's approval. A join completes only while a member's device or an agent is online.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anyone with an invite link will join without an admin's approval. A join completes only while a member's device or an agent is online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任何持有邀请链接的人都将无需管理员批准即可加入。只有在某位成员的设备或智能体在线时，加入才能完成。"
+          }
+        }
+      }
+    },
+    "group.settings.approvalOffConfirm.confirm": {
+      "comment": "MLS groups (admin screens). English: \"Turn off\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        }
+      }
+    },
+    "group.push.title": {
+      "comment": "MLS groups (admin screens). English: \"Notifications on this device\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设备上的通知"
+          }
+        }
+      }
+    },
+    "group.push.help": {
+      "comment": "MLS groups (admin screens). English: \"This applies only to this device.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This applies only to this device."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此设置仅对此设备生效。"
+          }
+        }
+      }
+    },
+    "group.push.saving": {
+      "comment": "MLS groups (admin screens). English: \"Saving…\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在保存…"
+          }
+        }
+      }
+    },
+    "group.push.failed": {
+      "comment": "MLS groups (admin screens). English: \"Couldn't change notifications. Try again.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't change notifications. Try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法更改通知设置。请重试。"
+          }
+        }
+      }
+    },
+    "group.join.pending.onlineNote": {
+      "comment": "MLS groups (admin screens). English: \"This group admits new members only while a member's device or an agent is online.\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This group admits new members only while a member's device or an agent is online."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此群组只在某位成员的设备或智能体在线时接纳新成员。"
+          }
+        }
+      }
+    },
+    "group.info.requestsEntry": {
+      "comment": "MLS groups (admin screens). English: \"Join requests\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join requests"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入申请"
+          }
+        }
+      }
+    },
+    "group.info.settingsEntry": {
+      "comment": "MLS groups (admin screens). English: \"Group settings\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group settings"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "群组设置"
+          }
+        }
+      }
+    },
+    "group.info.warnings": {
+      "comment": "MLS groups (admin screens). English: \"Alerts\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerts"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒"
+          }
+        }
+      }
+    },
+    "group.info.admission": {
+      "comment": "MLS groups (admin screens). English: \"Admission\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admission"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "入群"
+          }
+        }
+      }
+    },
+    "group.member.menu": {
+      "comment": "MLS groups (members). Accessibility label of the button that opens the actions of one member. English: \"Member actions\"",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Member actions"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成员操作"
+          }
+        }
+      }
     }
   }
 }

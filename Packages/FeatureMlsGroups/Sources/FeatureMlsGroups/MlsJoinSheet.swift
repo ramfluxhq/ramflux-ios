@@ -28,6 +28,9 @@ public struct MlsJoinSheet: View {
                 VStack(alignment: .leading, spacing: theme.gap) {
                     Text(MlsGroupsText.outcome(outcome, groupName: model.joinedName, locale: locale)).rfFont(.body)
                         .foregroundStyle(isFailure(outcome) ? theme.danger : theme.text)
+                    if case .pending(_, .awaitingMemberOnline, _) = outcome {
+                        Text(FeatureMlsGroupsStrings.text("group.join.pending.onlineNote", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).accessibilityIdentifier("mls-join-online-note")
+                    }
                     if let group = openable(outcome) {
                         KitButton(FeatureMlsGroupsStrings.text("group.join.open", locale: locale), action: { link = ""; model.openJoined(group) }, kind: .secondary, tag: "mls-join-open-group")
                     }

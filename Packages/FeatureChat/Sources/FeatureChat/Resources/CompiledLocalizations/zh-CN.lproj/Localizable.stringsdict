@@ -100,6 +100,48 @@
 			<string>%1$@ 和其他 %2$lld 人退出了群组</string>
 		</dict>
 	</dict>
+	<key>group.timeline.undecryptable</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>%lld 条消息无法在此设备上阅读</string>
+		</dict>
+	</dict>
+	<key>group.warning.more</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>另有 %lld 条提醒</string>
+		</dict>
+	</dict>
+	<key>group.warning.undecryptable</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>other</key>
+			<string>%lld 条消息无法在此设备上阅读。</string>
+		</dict>
+	</dict>
 	<key>security.devices</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

@@ -29,8 +29,10 @@ public struct MlsGroupsHost: View {
                 .navigationDestination(for: MlsRoute.self) { route in
                     switch route {
                     case .chat(let group): MlsGroupChatHost(model: model.chat(group))
-                    case .info(let group): MlsGroupInfoScreen(model: model.detail(group), onMembers: { model.path.append(.members(group)) }, onInvites: { model.sheet = .invite(group: group, fromCreate: false) })
+                    case .info(let group): MlsGroupInfoScreen(model: model.detail(group), onMembers: { model.path.append(.members(group)) }, onInvites: { model.sheet = .invite(group: group, fromCreate: false) }, onRequests: { model.path.append(.requests(group)) }, onSettings: { model.path.append(.settings(group)) })
                     case .members(let group): MlsMembersScreen(model: model.detail(group))
+                    case .requests(let group): MlsRequestsScreen(model: model.detail(group))
+                    case .settings(let group): MlsSettingsScreen(model: model.detail(group))
                     }
                 }
         }

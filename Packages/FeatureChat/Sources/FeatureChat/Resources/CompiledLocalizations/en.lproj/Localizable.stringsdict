@@ -114,6 +114,54 @@
 			<string>%1$@ and %2$lld others left</string>
 		</dict>
 	</dict>
+	<key>group.timeline.undecryptable</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld message can't be read on this device</string>
+			<key>other</key>
+			<string>%lld messages can't be read on this device</string>
+		</dict>
+	</dict>
+	<key>group.warning.more</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld more alert</string>
+			<key>other</key>
+			<string>%lld more alerts</string>
+		</dict>
+	</dict>
+	<key>group.warning.undecryptable</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld message can't be read on this device.</string>
+			<key>other</key>
+			<string>%lld messages can't be read on this device.</string>
+		</dict>
+	</dict>
 	<key>security.devices</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

@@ -20,7 +20,7 @@ public enum MlsSheet: Identifiable, Equatable, Sendable {
         }
     }
 }
-public enum MlsRoute: Hashable, Sendable { case chat(String), info(String), members(String) }
+public enum MlsRoute: Hashable, Sendable { case chat(String), info(String), members(String), requests(String), settings(String) }
 
 /// The MLS groups module for one account: the list, the join sheet and the navigation. All state of a call lives in the
 /// `MlsGroupSession`; this reads its snapshots and sends intents (S4).

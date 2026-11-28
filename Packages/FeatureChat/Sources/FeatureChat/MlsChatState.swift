@@ -59,6 +59,7 @@ public enum MlsChatText {
         switch error {
         case .notMember: FeatureChatStrings.text("group.error.notMember", locale: locale)
         case .notAdmin: FeatureChatStrings.text("group.error.notAdmin", locale: locale)
+        case .notOwner: FeatureChatStrings.text("group.error.notOwner", locale: locale)
         case .ownerProtected: FeatureChatStrings.text("group.error.ownerProtected", locale: locale)
         case .tierUnavailable: FeatureChatStrings.text("group.error.tierUnavailable", locale: locale)
         case .groupFull: FeatureChatStrings.text("group.error.groupFull", locale: locale)
@@ -116,7 +117,8 @@ public enum MlsChatText {
         case .name(let by, let value): FeatureChatStrings.format("group.timeline.name", n(by), RFBidi.isolate(String(value.text.prefix(64))), locale: locale)
         case .approvalOn(let by): FeatureChatStrings.format("group.timeline.approvalOn", n(by), locale: locale)
         case .approvalOff(let by): FeatureChatStrings.format("group.timeline.approvalOff", n(by), locale: locale)
-        case .void: FeatureChatStrings.text("group.timeline.void", locale: locale)
+        case .void(let by): by.map { FeatureChatStrings.format("group.timeline.voidBy", name($0, locale: locale), locale: locale) } ?? FeatureChatStrings.text("group.timeline.void", locale: locale)
+        case .undecryptable(let count): FeatureChatStrings.format("group.timeline.undecryptable", count, locale: locale)
         case .updated: FeatureChatStrings.text("group.timeline.updated", locale: locale)
         }
     }
@@ -125,6 +127,55 @@ public enum MlsChatText {
         if names.count == 1 { return FeatureChatStrings.format(one, name(first, locale: locale), locale: locale) }
         return FeatureChatStrings.format(other, name(first, locale: locale), names.count - 1, locale: locale)
     }
+    // MARK: M3 texts (warnings, catch-up, quota, privacy delay, hints). One place, so a banner and its info row say the same.
+
+    /// The banner or info row text of a warning code (common 4.6). `host_ip_visible` is the M2 info row and has no text here.
+    public static func warning(_ code: MlsWarningCode, locale: Locale) -> String {
+        switch code {
+        case .forkAlarm: FeatureChatStrings.text("group.warning.forkAlarm", locale: locale)
+        case .rejoinNeeded(let reason): rejoin(reason, locale: locale)
+        case .undecryptable(let count, _): FeatureChatStrings.format("group.warning.undecryptable", count, locale: locale)
+        case .admissionNeedsOnline: FeatureChatStrings.text("group.warning.admissionNeedsOnline", locale: locale)
+        case .hostUnusual: FeatureChatStrings.text("group.warning.hostUnusual", locale: locale)
+        case .headCommitRejected: FeatureChatStrings.text("group.warning.headCommitRejected", locale: locale)
+        case .hostIpVisible, .unknown: FeatureChatStrings.text("group.warning.generic", locale: locale)
+        }
+    }
+    /// The rejoin text follows the reason; no reason is the plain "rejoining" line.
+    public static func rejoin(_ reason: MlsRejoinReason?, locale: Locale) -> String {
+        switch reason {
+        case nil: FeatureChatStrings.text("group.catchup.rejoining", locale: locale)
+        case .pruned?: FeatureChatStrings.text("group.warning.rejoinNeeded.pruned", locale: locale)
+        case .gateRejected?: FeatureChatStrings.text("group.warning.rejoinNeeded.gateRejected", locale: locale)
+        case .applyFailed?: FeatureChatStrings.text("group.warning.rejoinNeeded.applyFailed", locale: locale)
+        case .welcomeExpired?: FeatureChatStrings.text("group.warning.rejoinNeeded.welcomeExpired", locale: locale)
+        case .stateLost?: FeatureChatStrings.text("group.warning.rejoinNeeded.stateLost", locale: locale)
+        case .unknown?: FeatureChatStrings.text("group.warning.rejoinNeeded.generic", locale: locale)
+        }
+    }
+    public static func catchUp(_ view: MlsCatchUpView, locale: Locale) -> String {
+        switch view {
+        case .rejoining(let reason): rejoin(reason, locale: locale)
+        case .running(let done, let total, _, _): total > 0 ? FeatureChatStrings.format("group.catchup.running", done, total, locale: locale) : FeatureChatStrings.text("group.catchup.runningIndeterminate", locale: locale)
+        }
+    }
+    public static func hintInvite(locale: Locale) -> String { FeatureChatStrings.text("group.hint.agent.invite", locale: locale) }
+    /// Phones get no "Open agents" action: only this text (they do not create agents).
+    public static func hintMobile(locale: Locale) -> String { FeatureChatStrings.text("group.hint.agent.mobile", locale: locale) }
+    public static func postQuota(_ quota: MlsQuota, locale: Locale) -> String {
+        if quota.remaining <= 0, let reset = quota.resetsAt { return FeatureChatStrings.format("group.quota.resets", dateTime(reset, locale: locale), locale: locale) }
+        return FeatureChatStrings.format(quota.firstDay ? "group.quota.postFirstDay" : "group.quota.post", quota.remaining, quota.limit, locale: locale)
+    }
+    public static func commitQuota(_ quota: MlsQuota, locale: Locale) -> String {
+        if quota.remaining <= 0, let reset = quota.resetsAt { return FeatureChatStrings.format("group.quota.resets", dateTime(reset, locale: locale), locale: locale) }
+        return FeatureChatStrings.format("group.quota.commit", quota.remaining, quota.limit, locale: locale)
+    }
+    public static func privacyInfo(locale: Locale) -> String { FeatureChatStrings.text("group.privacyDelay.info", locale: locale) }
+    /// "Messages you send now go out around <time>": the time of day, in the platform format.
+    public static func privacyEta(_ sendAfter: Int64, locale: Locale) -> String {
+        FeatureChatStrings.format("group.privacyDelay.eta", time(sendAfter, locale: locale), locale: locale)
+    }
+
     public static func banner(_ reason: MlsReadOnly, locale: Locale) -> String {
         switch reason {
         case .left: FeatureChatStrings.text("group.leave.done", locale: locale)

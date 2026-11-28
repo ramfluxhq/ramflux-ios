@@ -11,6 +11,8 @@ import AppData
     public private(set) var invites = MlsInviteSnapshot()
     public private(set) var members = MlsMembersSnapshot()
     public private(set) var readOnly: MlsReadOnly?
+    /// M3: the admin owner's view of this group (requests, the busy slot, push, warnings).
+    public private(set) var admin = MlsAdminSnapshot()
     public private(set) var leaving = false
     public private(set) var leaveError: MlsGroupError?
     public var search = ""
@@ -27,7 +29,8 @@ import AppData
             await self?.reload()
             for await _ in changes { await self?.reload() }
         }
-        Task { [session, groupID] in _ = await session.refreshInfo(groupID) }
+        // The requests list loads once when group info opens for an admin of an approval group (a read, never an action).
+        Task { [session, groupID] in _ = await session.refreshInfo(groupID); await session.prepareRequests(groupID) }
     }
     public func stop() { observer?.cancel(); observer = nil }
     private func reload() async {
@@ -35,6 +38,7 @@ import AppData
         invites = await session.inviteSnapshot(groupID)
         members = await session.membersSnapshot(groupID)
         readOnly = await session.isReadOnly(groupID)
+        admin = await session.adminSnapshot(groupID)
     }
 
     // Info
@@ -72,4 +76,44 @@ import AppData
         guard !query.isEmpty else { return members.rows }
         return members.rows.filter { ($0.display ?? "").localizedCaseInsensitiveContains(query) }
     }
+}
+
+// MARK: M3 admin intents (every call is one tap through a confirmation, the name Save, the approval switch or the push picker)
+extension MlsGroupModel {
+    public var myRole: MlsRole { info?.myRole ?? .member }
+    public var isAdmin: Bool { myRole == .owner || myRole == .admin }
+    /// The requests entry exists for the owner and admins of an approval group that is not read-only.
+    public var showsRequests: Bool { isAdmin && info?.approval == true && readOnly == nil }
+    public var showsSettings: Bool { isAdmin && readOnly == nil }
+    /// Every commit entry is off while one is in flight or paced; the reason is shown, never retried.
+    public func entriesBlocked(now: Date = Date()) -> Bool { admin.busy != nil || (admin.pacedUntil.map { $0 > Int64(now.timeIntervalSince1970 * 1000) } ?? false) }
+
+    public func openRequests() { Task { [session, groupID] in await session.openRequests(groupID) } }
+    public func retryRequests() { Task { [session, groupID] in await session.retryRequests(groupID) } }
+    /// Pages in when the row is within 20 rows of the end.
+    public func requestRowAppeared(index: Int) {
+        guard index >= admin.requests.rows.count - 20, admin.requests.more, admin.requests.phase == .loaded else { return }
+        Task { [session, groupID] in await session.loadMoreRequests(groupID) }
+    }
+    public func clearNotice() { Task { [session, groupID] in await session.clearAdminNotice(groupID) } }
+
+    /// The confirmation's primary button: the one place a confirmed admin action reaches the session.
+    public func perform(_ confirmation: MlsAdminConfirmation) {
+        Task { [session, groupID] in
+            switch confirmation.kind {
+            case .approve(let id): await session.approve(groupID, requestID: id)
+            case .decline(let id): await session.decline(groupID, requestID: id)
+            case .makeAdmin(let anchor): await session.setRole(groupID, anchor: anchor, role: .admin)
+            case .makeMember(let anchor): await session.setRole(groupID, anchor: anchor, role: .member)
+            case .remove(let anchor): await session.removeMember(groupID, anchor: anchor)
+            case .ban(let anchor): await session.banMember(groupID, anchor: anchor)
+            case .approvalOff: await session.setApproval(groupID, on: false)
+            }
+        }
+    }
+    /// The name form's Save: its own confirmation (one call with `{name}` only).
+    public func saveName(_ name: String) { Task { [session, groupID] in await session.setName(groupID, name: name) } }
+    /// The approval switch turned on needs no confirmation (turning it off goes through `perform`).
+    public func turnApprovalOn() { Task { [session, groupID] in await session.setApproval(groupID, on: true) } }
+    public func choosePush(_ push: MlsPush) { Task { [session, groupID] in await session.setPush(groupID, push) } }
 }

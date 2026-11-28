@@ -192,6 +192,14 @@
 	<string>刷新</string>
 	<key>common.action.reply</key>
 	<string>回复</string>
+	<key>group.catchup.rejoining</key>
+	<string>正在重新加入群组。需要某位成员的设备或智能体在线。</string>
+	<key>group.catchup.running</key>
+	<string>正在同步消息… %1$lld / %2$lld</string>
+	<key>group.catchup.runningIndeterminate</key>
+	<string>正在同步消息…</string>
+	<key>group.catchup.skip</key>
+	<string>跳过</string>
 	<key>group.delete.action</key>
 	<string>为所有人删除</string>
 	<key>group.delete.confirm</key>
@@ -214,6 +222,8 @@
 	<string>你只能删除自己的消息。</string>
 	<key>group.error.notMember</key>
 	<string>你不是此群组的成员。</string>
+	<key>group.error.notOwner</key>
+	<string>只有群主可以执行此操作。</string>
 	<key>group.error.ownerProtected</key>
 	<string>无法对群主执行此操作。</string>
 	<key>group.error.paced</key>
@@ -234,6 +244,10 @@
 	<string>此邀请不存在。</string>
 	<key>group.error.voidNotHead</key>
 	<string>只能撤销最近一次更改。</string>
+	<key>group.hint.agent.invite</key>
+	<string>获取邀请链接</string>
+	<key>group.hint.agent.mobile</key>
+	<string>你可以在桌面端添加智能体，让群组随时可以加入。</string>
 	<key>group.leave.done</key>
 	<string>你已退出此群组。</string>
 	<key>group.member.unnamed</key>
@@ -246,6 +260,18 @@
 	<string>提及成员</string>
 	<key>group.message.attachment</key>
 	<string>附件</string>
+	<key>group.privacyDelay.eta</key>
+	<string>你现在发送的消息将在 %@ 左右发出。</string>
+	<key>group.privacyDelay.info</key>
+	<string>为保护隐私，消息会随机延迟片刻后发出。</string>
+	<key>group.quota.commit</key>
+	<string>此设备今天还可进行 %1$lld 次群组更改，共 %2$lld 次</string>
+	<key>group.quota.post</key>
+	<string>今天还可发送 %1$lld 条消息，共 %2$lld 条</string>
+	<key>group.quota.postFirstDay</key>
+	<string>第一天：还可发送 %1$lld 条消息，共 %2$lld 条</string>
+	<key>group.quota.resets</key>
+	<string>%@ 重置</string>
 	<key>group.send.delayed</key>
 	<string>为保护隐私，将在 %1$@ 左右发出</string>
 	<key>group.send.failed</key>
@@ -266,6 +292,18 @@
 	<string>重试</string>
 	<key>group.send.sending</key>
 	<string>正在发送…</string>
+	<key>group.skip.body</key>
+	<string>被跳过范围内的消息永远无法在此设备上阅读。</string>
+	<key>group.skip.bodyMore</key>
+	<string>你已读过的消息会保留。你的其他设备上的内容不受影响。</string>
+	<key>group.skip.cancel</key>
+	<string>继续同步</string>
+	<key>group.skip.confirm</key>
+	<string>跳过</string>
+	<key>group.skip.skipping</key>
+	<string>正在跳过…</string>
+	<key>group.skip.title</key>
+	<string>跳过同步？</string>
 	<key>group.state.banned</key>
 	<string>你已被此群组封禁。</string>
 	<key>group.state.removed</key>
@@ -300,6 +338,48 @@
 	<string>群组已更新</string>
 	<key>group.timeline.void</key>
 	<string>更改已撤销</string>
+	<key>group.timeline.voidBy</key>
+	<string>%@ 撤销了一项更改</string>
+	<key>group.void.action</key>
+	<string>撤销此更改</string>
+	<key>group.void.body</key>
+	<string>群组将恢复到此更改之前的状态。已应用此更改的成员设备需要重新加入群组。这会自动进行，但可能需要一些时间。</string>
+	<key>group.void.confirm</key>
+	<string>撤销</string>
+	<key>group.void.title</key>
+	<string>撤销此更改？</string>
+	<key>group.void.undoing</key>
+	<string>正在撤销…</string>
+	<key>group.void.undone</key>
+	<string>已撤销</string>
+	<key>group.warning.admissionNeedsOnline</key>
+	<string>只有在某位成员的设备或智能体在线时，新成员才能加入。</string>
+	<key>group.warning.forkAlarm</key>
+	<string>此群组的历史记录出现了分叉。消息可能无法送达所有人。请告知管理员。</string>
+	<key>group.warning.generic</key>
+	<string>此群组报告了一个问题。</string>
+	<key>group.warning.headCommitRejected</key>
+	<string>成员设备拒绝了最近一次群组更改。撤销之前，群组无法再进行更改。</string>
+	<key>group.warning.headCommitRejected.action</key>
+	<string>撤销该更改</string>
+	<key>group.warning.hide</key>
+	<string>隐藏</string>
+	<key>group.warning.hostUnusual</key>
+	<string>群组服务器行为异常。消息可能会延迟。</string>
+	<key>group.warning.rejoinNeeded.applyFailed</key>
+	<string>此设备无法应用一项群组更改，正在重新加入群组。</string>
+	<key>group.warning.rejoinNeeded.gateRejected</key>
+	<string>此设备的一项更改被拒绝，正在重新加入群组。</string>
+	<key>group.warning.rejoinNeeded.generic</key>
+	<string>此设备需要重新加入群组才能阅读新消息。</string>
+	<key>group.warning.rejoinNeeded.pruned</key>
+	<string>此设备离开太久，正在重新加入群组。这段时间的消息无法在此设备上阅读。</string>
+	<key>group.warning.rejoinNeeded.stateLost</key>
+	<string>此设备丢失了此群组的密钥。请在你的另一台设备上打开此群组，或请群成员重新发送邀请。</string>
+	<key>group.warning.rejoinNeeded.welcomeExpired</key>
+	<string>此设备的入群邀请已过期，正在重新加入群组。</string>
+	<key>group.warning.undecryptable.show</key>
+	<string>查看</string>
 	<key>identity.accept.again</key>
 	<string>身份再次更改。请重新查看。</string>
 	<key>identity.accept.already</key>
