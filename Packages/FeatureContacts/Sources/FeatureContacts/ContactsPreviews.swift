@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Span Brain
 import SwiftUI
 import AppData
+import FeatureChat
 import RFDesign
 public enum ContactsPreviews {
     public static var states: [ContactsState] {
@@ -15,7 +16,13 @@ public enum ContactsPreviews {
         var profile = ContactsState(mode: .profile("alex"))
         empty.loading = false
         profile.selected = ContactRecord(id: "alex", displayName: "Alex", subtitle: "alex", rootCommitment: "preview-root", linkID: "preview-link")
-        return [empty, loading, offline, populated, strangers, detail, sent, profile, ContactsState(mode: .add)]
+        profile.identity.state = .tofu
+        var verified = profile; verified.identity.state = .verified
+        var changed = profile; changed.identity.state = .changed
+        changed.identity.change = IdentityChange(contact: "alex", username: "alex", previousAnchor: "preview-a1", newAnchor: "preview-a2")
+        var review = changed; review.identity.sheetOpen = true
+        var waiting = profile; waiting.identity.state = .changed
+        return [empty, loading, offline, populated, strangers, detail, sent, profile, verified, changed, review, waiting, ContactsState(mode: .add)]
     }
 }
 #Preview("Contacts") { ContactsScreen(state: ContactsPreviews.states[3], onAction: { _ in }) }

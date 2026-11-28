@@ -6,6 +6,7 @@ import AppData
 @Observable @MainActor public final class ConversationsViewModel {
     public private(set) var state: ConversationsState
     private let repository: any ConversationsRepository
+    private let identity: any ContactIdentityRepository
     private let account: String
     private let accountTitle: String
     private let emit: (ConversationsEvent) -> Void
@@ -20,8 +21,9 @@ import AppData
     @ObservationIgnored private var generation: UInt64 = 0
     @ObservationIgnored private var window = ConversationsWindow()
     @ObservationIgnored private var locale = Locale.current
-    public init(repository: any ConversationsRepository, account: String, accountTitle: String = "", state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) {
+    public init(repository: any ConversationsRepository, identity: any ContactIdentityRepository = UnavailableContactIdentityRepository(), account: String, accountTitle: String = "", state: ConversationsState = ConversationsState(), emit: @escaping (ConversationsEvent) -> Void) {
         self.repository = repository
+        self.identity = identity
         self.account = account
         self.accountTitle = accountTitle
         var initial = state
@@ -77,7 +79,7 @@ import AppData
         generation &+= 1; let epoch = generation
         work?.cancel(); state.loading = true; state.loadingMore = false; state.failure = nil
         let query = state.query, pages = min(max(window.pages, 1), ConversationsWindow.refreshPages), locale = locale
-        work = Task { [weak self, repository, account] in
+        work = Task { [weak self, repository, identity, account] in
             if search {
                 let result = await repository.search(account: account, query: query)
                 guard !Task.isCancelled, let self, self.generation == epoch else { return }
@@ -88,7 +90,9 @@ import AppData
             async let requests = repository.pendingRequests(account: account)
             let loaded = await Task.detached { await ConversationsWindow.load(repository, account: account, pages: pages, locale: locale, now: Date()) }.value
             let pending = await requests
+            let changed = await Set(identity.pendingChanges(account: account).map(\.contact))
             guard !Task.isCancelled, let self, self.generation == epoch else { return }
+            self.state.changedPeers = changed
             if case .success(let next) = loaded { EventDiagnostics.note("inbox reload rows=\(next.rows.count)") } else { EventDiagnostics.note("inbox reload failed") }
             self.state.loading = false
             if case .success(let count) = pending { self.state.strangersUnread = count }

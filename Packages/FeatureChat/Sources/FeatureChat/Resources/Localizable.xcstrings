@@ -1753,6 +1753,398 @@
           }
         }
       }
+    },
+    "identity.changed.banner": {
+      "comment": "Banner above a direct chat while the contact's identity changed and is not accepted. %@ is the contact's display name. A Review button follows it; the banner cannot be dismissed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@'s identity changed. Review it before you continue."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 的身份已更改。请先查看再继续。"
+          }
+        }
+      }
+    },
+    "identity.changed.review": {
+      "comment": "Button that opens the review of a changed contact identity (banner, composer prompt, encryption section).",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看"
+          }
+        }
+      }
+    },
+    "identity.sheet.title": {
+      "comment": "Title of the sheet where a changed contact identity is reviewed. %@ is the contact's display name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New identity for %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 的新身份"
+          }
+        }
+      }
+    },
+    "identity.sheet.body": {
+      "comment": "Explanation in the sheet where a changed contact identity is reviewed. %@ is the contact's display name. It must not sound like an automatic or harmless change.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ now uses a new identity. This happens when they reinstall, restore or move to a new device, but it can also mean someone else is trying to take over the account. Accept it only if you expected this or have confirmed it with them another way."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 现在使用新的身份。重装、恢复或换用新设备时会出现这种情况，但也可能是有人试图接管该账户。只有在你预料到这一变化，或已通过其他方式与对方确认后才接受。"
+          }
+        }
+      }
+    },
+    "identity.sheet.accept": {
+      "comment": "Primary button of the identity review sheet. Tapping it is the only way a changed identity is accepted.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accept new identity"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "接受新身份"
+          }
+        }
+      }
+    },
+    "identity.sheet.later": {
+      "comment": "Secondary button of the identity review sheet; it closes the sheet and leaves the identity changed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂不"
+          }
+        }
+      }
+    },
+    "identity.sheet.waiting": {
+      "comment": "Shown while the identity is known to have changed but the new identity details have not arrived yet; Review and Accept are disabled.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the new identity…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在等待新身份…"
+          }
+        }
+      }
+    },
+    "identity.accept.already": {
+      "comment": "Inline message in the identity review sheet when the change was already handled elsewhere.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This change was already handled."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "此更改已处理。"
+          }
+        }
+      }
+    },
+    "identity.accept.again": {
+      "comment": "Inline message in the identity review sheet when the contact's identity changed again while the sheet was open; the user must review and accept again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The identity changed again. Review it again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身份再次更改。请重新查看。"
+          }
+        }
+      }
+    },
+    "identity.accept.failed": {
+      "comment": "Inline message in the identity review sheet when accepting the new identity failed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't accept the new identity. Try again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法接受新身份。请重试。"
+          }
+        }
+      }
+    },
+    "identity.send.blocked": {
+      "comment": "Prompt above the composer when a message was not sent because the contact's changed identity is not accepted. %@ is the contact's display name. A Review button follows it.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message not sent. %@'s identity changed. Review it before sending."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息未发送。%@ 的身份已更改，请先查看再发送。"
+          }
+        }
+      }
+    },
+    "identity.state.verified": {
+      "comment": "Identity row of the encryption section when the SDK reports the contact's identity as verified.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verified"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已验证"
+          }
+        }
+      }
+    },
+    "identity.state.tofu": {
+      "comment": "Neutral line of the encryption section when the contact's identity was first seen on this device and has not changed.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity seen first on this device"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次在此设备上见到此身份"
+          }
+        }
+      }
+    },
+    "identity.state.changed": {
+      "comment": "Warning row of the encryption section when the contact's identity changed and is not accepted.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity changed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身份已更改"
+          }
+        }
+      }
+    },
+    "identity.timeline.changed": {
+      "comment": "Centred line in a chat timeline when the contact's identity changed. %@ is the contact's display name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@'s identity changed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 的身份已更改"
+          }
+        }
+      }
+    },
+    "identity.timeline.accepted": {
+      "comment": "Centred line in a chat timeline after the user accepted the contact's new identity. %@ is the contact's display name.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You accepted %@'s new identity"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已接受 %@ 的新身份"
+          }
+        }
+      }
+    },
+    "security.section.title": {
+      "comment": "Heading of the encryption section in conversation details and in the contact profile.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加密"
+          }
+        }
+      }
+    },
+    "security.state.ok": {
+      "comment": "State line of the encryption section when the conversation is end-to-end encrypted.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end encrypted"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "端到端加密"
+          }
+        }
+      }
+    },
+    "security.state.pending": {
+      "comment": "State line of the encryption section while encryption is being set up; sending still works and queues.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting up encryption…"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在建立加密…"
+          }
+        }
+      }
+    },
+    "security.state.re_established": {
+      "comment": "State line of the encryption section after the encryption was set up again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption was re-established"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加密已重新建立"
+          }
+        }
+      }
+    },
+    "security.devices": {
+      "comment": "Number of the contact's devices in the encryption section. %lld is the count.",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld device"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld devices"
+                }
+              }
+            }
+          }
+        },
+        "zh-CN": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 台设备"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "security.warning.fork_recovered": {
+      "comment": "Centred line in a chat timeline when the encryption was re-established after a split; some messages may be missing.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption was re-established. Some messages may not have arrived."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加密已重新建立。部分消息可能未送达。"
+          }
+        }
+      }
     }
   }
 }

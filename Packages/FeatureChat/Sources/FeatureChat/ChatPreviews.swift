@@ -24,7 +24,23 @@ public enum ChatPreviews {
         var failed = direct[3]
         failed.outbox = [OutboxEntry(operationID: "f1", text: "I have read it and will add comments later.", created: 1_767_258_000, state: .failed(.typedRefusal("peer_upgrade_required")))]
         var actions = direct[3]; actions.actionTarget = "two"
-        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted, mixedDirection, queued, failed, actions, media]
+        // Direct-chat identity: changed (banner and service line), a send blocked by it, the review sheet, waiting for the
+        // new identity, the encryption section of the details, and an agent contact.
+        let change = IdentityChange(contact: "preview-alex", username: "alex", previousAnchor: "preview-a1", newAnchor: "preview-a2")
+        var changed = direct[3]; changed.identity.name = "Alex"; changed.identity.state = .changed; changed.identity.change = change
+        changed.identity.serviceLines = [ServiceLine(id: "changed:preview-a2", kind: .identityChanged, name: "Alex")]
+        var blocked = changed
+        blocked.outbox = [OutboxEntry(operationID: "b1", text: "Let us meet at noon.", created: 1_767_258_000, state: .failed(.identityChangePending("preview-alex")))]
+        var review = changed; review.identity.sheetOpen = true
+        var agent = review; agent.peerIsAgent = true
+        agent.identity.change = IdentityChange(contact: "preview-scout", username: "scout", previousAnchor: "preview-s1", newAnchor: "preview-s2", aiFlag: true)
+        var waiting = direct[3]; waiting.identity.name = "Alex"; waiting.identity.state = .changed
+        var encryption = direct[3]; encryption.identity.name = "Alex"; encryption.identity.state = .tofu
+        encryption.identity.security = ConversationSecurity(state: .ok, epoch: 3, peerDevices: 2)
+        encryption.details = ChatDetailsState(loading: false, details: ChatDetails(muted: false, peerPrincipal: "preview-alex", peerName: "Alex"))
+        var fork = direct[3]; fork.identity.name = "Alex"; fork.identity.state = .verified
+        fork.identity.serviceLines = [ServiceLine(id: "fork:4", kind: .forkRecovered, name: "Alex"), ServiceLine(id: "accepted:preview-a2", kind: .identityAccepted, name: "Alex")]
+        return direct + [group, reply, edit, localDelete, everyoneDelete, refused, reacted, mixedDirection, queued, failed, actions, media, changed, blocked, review, agent, waiting, encryption, fork]
     }()
 
     /// Media states: a photo to download with its size, one downloading, a stranger's hidden

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Span Brain
 import AppData
+import FeatureChat
 public struct ContactsState: Equatable, Sendable {
     public var mode: ContactsMode
     public var pendingMutation: PendingContactMutation?
@@ -20,6 +21,8 @@ public struct ContactsState: Equatable, Sendable {
     public var loadingMore = false
     public var busy = false
     public var failure: AppFailure?
+    /// The profile contact's identity: the encryption section and the review sheet.
+    public var identity = IdentityPanel()
     /// This account's contact card (my-card mode).
     public var ownCard: ContactCardExport?
     public var pending: PendingContactDecision?

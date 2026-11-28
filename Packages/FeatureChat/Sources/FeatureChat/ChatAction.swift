@@ -13,6 +13,8 @@ public enum ChatAction: Equatable, Sendable, CustomStringConvertible {
     case beginReply(String), beginEdit(String), beginReact(String), reactionMode(Bool), chooseReaction(String), removeReaction(String), cancelReaction
     case requestDelete(String, MessageDeleteScope), cancelDelete, confirmDelete
     case detailsRequested, closeDetails, setMuted(Bool)
+    /// Identity review of the direct peer: open the sheet, close it ("Not now"), and the explicit accept.
+    case identityReview, identityLater, identityAccept
     case mediaTapped(String), revealMedia(String), cancelMedia(String), closePreview, saveToPhotos(String)
     case attachRequested, closeAttach, cameraRequested, attachPicked([PickedMedia])
     case removeDraftItem(Int), draftCaptionChanged(String), sendMediaDraft, cancelMediaDraft, openAlbum(String), closeAlbum

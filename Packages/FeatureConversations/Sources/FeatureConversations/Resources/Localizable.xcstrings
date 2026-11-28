@@ -377,6 +377,23 @@
           }
         }
       }
+    },
+    "identity.state.changed": {
+      "comment": "Warning row of the encryption section when the contact's identity changed and is not accepted.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity changed"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "身份已更改"
+          }
+        }
+      }
     }
   }
 }

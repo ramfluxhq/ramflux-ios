@@ -12,6 +12,7 @@ import FeatureCards
     let groupID: String?
     let repository: any ChatRepository
     let cards: any CardsRepository
+    let identityRepository: any ContactIdentityRepository
     let emit: (ChatEvent) -> Void
     let now: @Sendable () -> Date
     /// Media steps: per-attachment imports, the trust lookup and the send pipeline.
@@ -20,6 +21,9 @@ import FeatureCards
     @ObservationIgnored var pendingSave: URL?
     @ObservationIgnored let network: @Sendable () -> MediaPolicy.Network
     @ObservationIgnored private var window: TimelineWindow
+    /// The direct peer's contact key and its identity review; nil in a group or while the peer is unknown.
+    @ObservationIgnored private var peerContact: String?
+    @ObservationIgnored private var review: IdentityReview?
     @ObservationIgnored private var load: Task<Void, Never>?
     @ObservationIgnored private var older: Task<Void, Never>?
     @ObservationIgnored private var mutation: Task<Void, Never>?
@@ -50,18 +54,18 @@ import FeatureCards
     @ObservationIgnored private var lastMarked: MessageOrder?
     @ObservationIgnored private var marking = false
     @ObservationIgnored private var typingSentAt: Date?
-    public init(repository: any ChatRepository, cards: any CardsRepository = UnavailableCardsRepository(), account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, peerIsAgent: Bool = false, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
+    public init(repository: any ChatRepository, cards: any CardsRepository = UnavailableCardsRepository(), identity: any ContactIdentityRepository = UnavailableContactIdentityRepository(), peerContact: String? = nil, account: String, conversation: String, isGroup: Bool = false, groupID: String? = nil, title: String? = nil, peerIsAgent: Bool = false, state: ChatState = ChatState(), windowCapacity: Int = 600, now: @escaping @Sendable () -> Date = Date.init, network: (@Sendable () -> MediaPolicy.Network)? = nil, emit: @escaping (ChatEvent) -> Void) {
         // A group's conversation id and group_id are equal only for groups this app created; the
         // host passes the real group_id, and the conversation id stands in only when it has none.
         self.groupID = isGroup ? (groupID ?? conversation) : nil
-        self.repository = repository; self.cards = cards; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
+        self.repository = repository; self.cards = cards; self.identityRepository = identity; self.peerContact = isGroup ? nil : peerContact; self.account = account; self.conversation = conversation; self.now = now; self.network = network ?? { ChatNetwork.shared.current }
         var initial = state; initial.conversationID = conversation; initial.isGroup = isGroup; initial.displayTitle = title ?? conversation; initial.peerIsAgent = peerIsAgent
         self.state = initial; self.emit = emit; window = TimelineWindow(capacity: windowCapacity)
     }
     public func send(_ action: ChatAction) {
         switch action {
         case .callRequested: if state.isGroup { state.failure = repository.unavailable(.calls) } else { emit(.navigate(.calls(conversation))) }
-        case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards(); loadAgentAuthors()
+        case .appeared: restoreDraft(); reload(); observe(); followTyping(); loadCards(); loadAgentAuthors(); startIdentity()
         case .refresh: reload(); observe()
         case .loadOlder: loadOlder()
         case .jumpToLatest: reload()
@@ -112,6 +116,9 @@ import FeatureCards
         case .detailsRequested: openDetails()
         case .closeDetails: detailsTask?.cancel(); state.details = nil
         case .setMuted(let muted): setMuted(muted)
+        case .identityReview: review?.review()
+        case .identityLater: review?.later()
+        case .identityAccept: review?.accept()
         case .disappeared, .conceal:
             if !state.draft.isEmpty || action == .conceal { saveDraft(state.draft) }
             if typingSentAt != nil { typing(active: false) }
@@ -124,6 +131,7 @@ import FeatureCards
             // Concealed UI keeps no message text; the draft stays in the repository's memory store.
             stopMedia(conceal: action == .conceal); stopTyping(); stopCards()
             if action == .conceal { state.draft = "" }
+            stopIdentity()
         }
     }
     private func visible(_ id: String) -> Bool {
@@ -454,6 +462,20 @@ import FeatureCards
         })
     }
 
+    // MARK: Identity
+
+    /// Follows the direct peer's identity and encryption state while the chat is shown.
+    private func startIdentity() {
+        guard !state.isGroup, let contact = peerContact else { return }
+        if review == nil {
+            review = IdentityReview(repository: identityRepository, account: account, contact: contact, name: state.displayTitle, conversation: conversation) { [weak self] panel in self?.state.identity = panel }
+        }
+        review?.start()
+    }
+    private func stopIdentity() {
+        review?.stop(); review = nil; state.identity = IdentityPanel()
+    }
+
     // MARK: Details
 
     private func openDetails() {
@@ -465,7 +487,10 @@ import FeatureCards
             let storage = await repository.mediaUsage(account: account, conversation: conversation)
             guard !Task.isCancelled, let self, self.state.details != nil else { return }
             switch result {
-            case .success(let details): self.state.details = ChatDetailsState(loading: false, details: details)
+            case .success(let details):
+                self.state.details = ChatDetailsState(loading: false, details: details)
+                // A chat opened without a directory row learns its peer here.
+                if self.peerContact == nil, !self.state.isGroup, let principal = details.peerPrincipal { self.peerContact = principal; self.startIdentity() }
             case .failure(let error): self.state.details = ChatDetailsState(loading: false, failure: error)
             }
             self.state.details?.storage = storage
@@ -504,6 +529,7 @@ import FeatureCards
     }
 
     public func settle() async {
+        await review?.settle()
         await mutation?.value; await outboxTask?.value; await detailsTask?.value
         while true { let current = readID; await load?.value; await older?.value; if current == readID { break } }
         for task in sideTasks { await task.value }

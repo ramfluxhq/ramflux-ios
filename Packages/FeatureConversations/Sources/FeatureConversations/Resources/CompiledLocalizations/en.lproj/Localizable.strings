@@ -38,5 +38,7 @@
 	<string>Search messages</string>
 	<key>conversations.time.yesterday</key>
 	<string>Yesterday</string>
+	<key>identity.state.changed</key>
+	<string>Identity changed</string>
 </dict>
 </plist>

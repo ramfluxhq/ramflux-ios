@@ -192,5 +192,47 @@
 	<string>Refresh</string>
 	<key>common.action.reply</key>
 	<string>Reply</string>
+	<key>identity.accept.again</key>
+	<string>The identity changed again. Review it again.</string>
+	<key>identity.accept.already</key>
+	<string>This change was already handled.</string>
+	<key>identity.accept.failed</key>
+	<string>Couldn't accept the new identity. Try again.</string>
+	<key>identity.changed.banner</key>
+	<string>%@'s identity changed. Review it before you continue.</string>
+	<key>identity.changed.review</key>
+	<string>Review</string>
+	<key>identity.send.blocked</key>
+	<string>Message not sent. %@'s identity changed. Review it before sending.</string>
+	<key>identity.sheet.accept</key>
+	<string>Accept new identity</string>
+	<key>identity.sheet.body</key>
+	<string>%@ now uses a new identity. This happens when they reinstall, restore or move to a new device, but it can also mean someone else is trying to take over the account. Accept it only if you expected this or have confirmed it with them another way.</string>
+	<key>identity.sheet.later</key>
+	<string>Not now</string>
+	<key>identity.sheet.title</key>
+	<string>New identity for %@</string>
+	<key>identity.sheet.waiting</key>
+	<string>Waiting for the new identity…</string>
+	<key>identity.state.changed</key>
+	<string>Identity changed</string>
+	<key>identity.state.tofu</key>
+	<string>Identity seen first on this device</string>
+	<key>identity.state.verified</key>
+	<string>Verified</string>
+	<key>identity.timeline.accepted</key>
+	<string>You accepted %@'s new identity</string>
+	<key>identity.timeline.changed</key>
+	<string>%@'s identity changed</string>
+	<key>security.section.title</key>
+	<string>Encryption</string>
+	<key>security.state.ok</key>
+	<string>End-to-end encrypted</string>
+	<key>security.state.pending</key>
+	<string>Setting up encryption…</string>
+	<key>security.state.re_established</key>
+	<string>Encryption was re-established</string>
+	<key>security.warning.fork_recovered</key>
+	<string>Encryption was re-established. Some messages may not have arrived.</string>
 </dict>
 </plist>

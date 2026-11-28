@@ -38,5 +38,7 @@
 	<string>搜索消息</string>
 	<key>conversations.time.yesterday</key>
 	<string>昨天</string>
+	<key>identity.state.changed</key>
+	<string>身份已更改</string>
 </dict>
 </plist>

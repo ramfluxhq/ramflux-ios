@@ -192,5 +192,47 @@
 	<string>刷新</string>
 	<key>common.action.reply</key>
 	<string>回复</string>
+	<key>identity.accept.again</key>
+	<string>身份再次更改。请重新查看。</string>
+	<key>identity.accept.already</key>
+	<string>此更改已处理。</string>
+	<key>identity.accept.failed</key>
+	<string>无法接受新身份。请重试。</string>
+	<key>identity.changed.banner</key>
+	<string>%@ 的身份已更改。请先查看再继续。</string>
+	<key>identity.changed.review</key>
+	<string>查看</string>
+	<key>identity.send.blocked</key>
+	<string>消息未发送。%@ 的身份已更改，请先查看再发送。</string>
+	<key>identity.sheet.accept</key>
+	<string>接受新身份</string>
+	<key>identity.sheet.body</key>
+	<string>%@ 现在使用新的身份。重装、恢复或换用新设备时会出现这种情况，但也可能是有人试图接管该账户。只有在你预料到这一变化，或已通过其他方式与对方确认后才接受。</string>
+	<key>identity.sheet.later</key>
+	<string>暂不</string>
+	<key>identity.sheet.title</key>
+	<string>%@ 的新身份</string>
+	<key>identity.sheet.waiting</key>
+	<string>正在等待新身份…</string>
+	<key>identity.state.changed</key>
+	<string>身份已更改</string>
+	<key>identity.state.tofu</key>
+	<string>首次在此设备上见到此身份</string>
+	<key>identity.state.verified</key>
+	<string>已验证</string>
+	<key>identity.timeline.accepted</key>
+	<string>你已接受 %@ 的新身份</string>
+	<key>identity.timeline.changed</key>
+	<string>%@ 的身份已更改</string>
+	<key>security.section.title</key>
+	<string>加密</string>
+	<key>security.state.ok</key>
+	<string>端到端加密</string>
+	<key>security.state.pending</key>
+	<string>正在建立加密…</string>
+	<key>security.state.re_established</key>
+	<string>加密已重新建立</string>
+	<key>security.warning.fork_recovered</key>
+	<string>加密已重新建立。部分消息可能未送达。</string>
 </dict>
 </plist>

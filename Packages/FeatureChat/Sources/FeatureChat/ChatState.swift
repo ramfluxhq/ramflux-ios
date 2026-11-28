@@ -94,6 +94,8 @@ public struct ChatState: Equatable, Sendable {
     public var reactionRemove = false
     public var held: HeldMutation?
     public var details: ChatDetailsState?
+    /// The direct peer's identity: banner, review sheet, encryption section and service lines. Empty in a group.
+    public var identity = IdentityPanel()
     /// Transfer state per attachment id, only for attachments in the window.
     public var media: [String: MediaTransferState] = [:]
     /// Untrusted senders' thumbnails the user chose to show.
@@ -114,5 +116,13 @@ public struct ChatState: Equatable, Sendable {
     public var shareFile: URL?
     /// The result of the last "save to Photos"; nil when nothing to report.
     public var photoSaved: Bool?
+    /// The SDK refused a send because the peer's changed identity is not accepted: a failed outbox row or the last failure.
+    /// Nothing is sent again by itself; the user reviews the change and sends by hand.
+    public var sendBlock: SendBlock? {
+        for entry in outbox { if case .failed(let failure) = entry.state, let block = SendBlock(failure: failure) { return block } }
+        return failure.flatMap(SendBlock.init(failure:))
+    }
+    /// The composer prompt shows while a block is on record and the identity is not known to be settled.
+    public var showsSendBlockPrompt: Bool { sendBlock != nil && (identity.state == nil || identity.isChanged) }
     public init(messages: [MessageRecord] = [], loading: Bool = false, failure: AppFailure? = nil) { self.messages = messages; self.loading = loading; self.failure = failure }
 }

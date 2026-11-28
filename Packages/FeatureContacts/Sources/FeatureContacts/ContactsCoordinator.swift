@@ -3,8 +3,8 @@
 import AppData
 @MainActor public final class ContactsCoordinator {
     public let viewModel: ContactsViewModel
-    public init(repository: any ContactsRepository, account: String, mode: ContactsMode = .contacts, navigate: @escaping (AppRoute) -> Void) {
-        viewModel = ContactsViewModel(repository: repository, account: account, state: ContactsState(mode: mode)) { event in if case .navigate(let route) = event { navigate(route) } }
+    public init(repository: any ContactsRepository, identity: any ContactIdentityRepository = UnavailableContactIdentityRepository(), account: String, mode: ContactsMode = .contacts, navigate: @escaping (AppRoute) -> Void) {
+        viewModel = ContactsViewModel(repository: repository, identity: identity, account: account, state: ContactsState(mode: mode)) { event in if case .navigate(let route) = event { navigate(route) } }
     }
     public func send(_ action: ContactsAction) { viewModel.send(action) }
 }

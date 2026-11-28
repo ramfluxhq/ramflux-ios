@@ -3,9 +3,11 @@
 import Foundation
 import Observation
 import AppData
+import FeatureChat
 @Observable @MainActor public final class ContactsViewModel {
     public private(set) var state: ContactsState
     private let repository: any ContactsRepository
+    private let identityRepository: any ContactIdentityRepository
     private let entryMode: ContactsMode
     private let account: String
     private let emit: (ContactsEvent) -> Void
@@ -23,7 +25,9 @@ import AppData
     @ObservationIgnored private var liveWaiters: [CheckedContinuation<Void, Never>] = []
     @ObservationIgnored private var contactWindow = RowWindow<ContactRecord>()
     @ObservationIgnored private var requestWindow = RowWindow<ContactRequestRecord>()
-    public init(repository: any ContactsRepository, account: String, state: ContactsState = ContactsState(), emit: @escaping (ContactsEvent) -> Void) { self.repository = repository; self.entryMode = state.mode; self.account = account; self.state = state; self.emit = emit }
+    /// The identity review of the profile contact (the one place a changed identity is accepted from this screen).
+    @ObservationIgnored private var review: (contact: String, review: IdentityReview)?
+    public init(repository: any ContactsRepository, identity: any ContactIdentityRepository = UnavailableContactIdentityRepository(), account: String, state: ContactsState = ContactsState(), emit: @escaping (ContactsEvent) -> Void) { self.repository = repository; self.identityRepository = identity; self.entryMode = state.mode; self.account = account; self.state = state; self.emit = emit }
     public func send(_ action: ContactsAction) {
         switch action {
         case .appeared: state.mode = entryMode; refresh(); observe()
@@ -87,9 +91,12 @@ import AppData
             guard !state.busy, !state.unknownMutation, let pending = state.pendingChange else { return }
             mutate { [repository, account] in await repository.change(account: account, contact: pending.contact, change: pending.change, operationID: UUID().uuidString) }
         case .unavailable(let capability): state.failure = repository.unavailable(capability)
+        case .identityReview: review?.review.review()
+        case .identityLater: review?.review.later()
+        case .identityAccept: review?.review.accept()
         case .disappeared:
             epoch &+= 1; readID &+= 1; watchID &+= 1; read?.cancel(); mutation?.cancel(); observer?.cancel(); observer = nil; pendingRefresh = false
-            invalidateLookup()
+            invalidateLookup(); stopIdentity()
             markLive(); live = false
             let unknown = state.busy || state.unknownMutation; let mode = state.mode
             contactWindow = RowWindow(); requestWindow = RowWindow()
@@ -182,7 +189,9 @@ import AppData
             case .contacts: self.applyWindow()
             case .strangers, .sent: self.applyWindow()
             case .request: if failure == nil { self.state.selectedRequest = request }
-            case .profile: if failure == nil { self.state.selected = selected }
+            case .profile:
+                if failure == nil { self.state.selected = selected }
+                if failure == nil, let selected { self.startIdentity(for: selected) } else { self.stopIdentity() }
             case .add: break
             case .myCard: self.state.ownCard = card
             }
@@ -224,6 +233,16 @@ import AppData
             state.requests = requestWindow.rows; state.canLoadMore = requestWindow.canLoadAfter; state.canLoadBefore = requestWindow.canLoadBefore
         }
     }
+    /// Follows the profile contact's identity; one review per contact while the profile is shown.
+    private func startIdentity(for contact: ContactRecord) {
+        if let current = review, current.contact == contact.id { return }
+        stopIdentity()
+        let created = IdentityReview(repository: identityRepository, account: account, contact: contact.id, name: contact.displayName) { [weak self] panel in self?.state.identity = panel }
+        review = (contact.id, created); created.start()
+    }
+    private func stopIdentity() {
+        review?.review.stop(); review = nil; state.identity = IdentityPanel()
+    }
     private func stopReading() {
         readID &+= 1; read?.cancel(); state.loading = false; state.loadingMore = false
     }
@@ -241,6 +260,7 @@ import AppData
     }
     private func markLive() { live = true; let waiters = liveWaiters; liveWaiters = []; waiters.forEach { $0.resume() } }
     public func settle() async {
+        await review?.review.settle()
         if observer != nil && !live { await withCheckedContinuation { liveWaiters.append($0) } }
         await mutation?.value; while true { let current = readID; await read?.value; if current == readID { return } } }
     deinit { read?.cancel(); mutation?.cancel(); observer?.cancel() }

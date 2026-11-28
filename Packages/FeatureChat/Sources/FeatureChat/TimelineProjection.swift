@@ -17,6 +17,8 @@ enum TimelineItem: Equatable, Sendable {
     case message(MessageRecord, MessageMedia)
     /// A send the SDK has not admitted yet (queued, sending or failed).
     case outbox(OutboxEntry)
+    /// An identity or encryption line made on this device; never a message row.
+    case service(ServiceLine)
 
     var id: String {
         switch self {
@@ -25,6 +27,7 @@ enum TimelineItem: Equatable, Sendable {
         case .unread: "unread"
         case .message(let record, _): "message:" + record.id
         case .outbox(let entry): "outbox:" + entry.operationID
+        case .service(let line): "service:" + line.id
         }
     }
 }
@@ -50,9 +53,9 @@ enum TimelineProjection {
     /// Chronological rows with a day chip where the calendar day changes, the unread divider
     /// above `unreadAnchorID`, and unadmitted sends after the last message. Messages without a
     /// valid timestamp start no new day. Linear in the window size; the window is bounded.
-    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = []) -> [TimelineItem] {
+    static func items(_ messages: [MessageRecord], outbox: [OutboxEntry] = [], calendar: Calendar, unreadAnchorID: String?, loadingOlder: Bool = false, media: [String: MediaTransferState] = [:], revealed: Set<String> = [], cards: [String: CardMessageState] = [:], agentAuthors: Set<String> = [], service: [ServiceLine] = []) -> [TimelineItem] {
         var items: [TimelineItem] = []
-        items.reserveCapacity(messages.count + outbox.count + 8)
+        items.reserveCapacity(messages.count + outbox.count + service.count + 8)
         if loadingOlder { items.append(.history) }
         var currentDay: Date?
         for message in chronological(messages) {
@@ -70,6 +73,8 @@ enum TimelineProjection {
             slice.authorIsAgent = message.isOwn == false && message.authorAnchor.map(agentAuthors.contains) == true
             items.append(.message(message, slice))
         }
+        // Identity lines follow the messages in the order they happened; they carry no timestamp of a message.
+        for line in service { items.append(.service(line)) }
         for entry in outbox { items.append(.outbox(entry)) }
         return items
     }

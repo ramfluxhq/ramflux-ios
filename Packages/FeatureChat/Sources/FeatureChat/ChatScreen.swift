@@ -19,6 +19,9 @@ public struct ChatScreen: View {
             KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, aiMarker: state.peerIsAgent, tag: state.conversationID) {
                 KitAvatar(String(state.displayTitle.prefix(1)), size: 36, kind: state.isGroup ? .channel : .person, tag: state.conversationID + "-avatar")
             }
+            if !state.isGroup && state.identity.isChanged {
+                IdentityBanner(panel: state.identity, text: FeatureChatStrings.sentence("identity.changed.banner", [.untrusted(state.identity.presentedName.isEmpty ? state.displayTitle : state.identity.presentedName)], locale: locale), tag: "identity-banner", onReview: { onAction(.identityReview) })
+            }
             if state.offline {
                 KitTipBar(FeatureChatStrings.text("chat.offline.banner", locale: locale), icon: "wifi-off").padding(.horizontal, KitMetrics.gutter).padding(.top, theme.gap)
             }
@@ -27,9 +30,9 @@ public struct ChatScreen: View {
             if state.messages.isEmpty && state.outbox.isEmpty && !state.loading { RFUnavailableView(title: FeatureChatStrings.text("chat.empty.title", locale: locale), message: FeatureChatStrings.text("chat.empty.message", locale: locale)) }
             ZStack(alignment: .bottom) {
                 #if os(iOS)
-                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, onAction: onAction)
+                ChatTimeline(messages: state.messages, outbox: state.outbox, isGroup: state.isGroup, unreadAnchorID: state.unreadAnchorID, olderAvailable: state.olderAvailable, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines, onAction: onAction)
                 #else
-                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
+                ScrollView { LazyVStack { ForEach(TimelineProjection.items(state.messages, outbox: state.outbox, calendar: .current, unreadAnchorID: state.unreadAnchorID, loadingOlder: state.loadingOlder, media: state.media, revealed: state.revealed, cards: state.cards, agentAuthors: state.agentAuthors, service: state.identity.serviceLines), id: \.id) { TimelineRow(item: $0, isGroup: state.isGroup, onAction: onAction) } } }
                 #endif
                 if state.detached {
                     Button(FeatureChatStrings.text("chat.timeline.jumpToLatest", locale: locale)) { onAction(.jumpToLatest) }
@@ -39,6 +42,9 @@ public struct ChatScreen: View {
             if state.peerTyping { Text(FeatureChatStrings.text("chat.typing", locale: locale)).rfFont(.caption).foregroundStyle(theme.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, KitMetrics.gutter) }
             if state.staging { ProgressView(FeatureChatStrings.text("chat.media.preparing", locale: locale)).rfFont(.caption).padding(.horizontal, KitMetrics.gutter) }
             if state.held != nil && !state.sending { Button(FeatureChatStrings.text("chat.send.retry", locale: locale)) { onAction(.retrySameSend) } }
+            if state.showsSendBlockPrompt {
+                IdentityBanner(panel: state.identity, text: FeatureChatStrings.sentence("identity.send.blocked", [.untrusted(state.identity.presentedName.isEmpty ? state.displayTitle : state.identity.presentedName)], locale: locale), tag: "identity-composer-prompt", onReview: { onAction(.identityReview) })
+            }
             KitComposer(
                 value: draft,
                 placeholder: FeatureChatStrings.text("chat.composer.placeholder", locale: locale),
@@ -92,7 +98,11 @@ public struct ChatScreen: View {
             }
             .modifier(ChatMediaSheets(state: state, onAction: onAction))
             .sheet(isPresented: Binding(get: { state.details != nil }, set: { if !$0 { onAction(.closeDetails) } })) {
-                if let details = state.details { ChatDetailsSheet(state: details, title: state.displayTitle, conversationID: state.conversationID, isGroup: state.isGroup, onAction: onAction) }
+                if let details = state.details { ChatDetailsSheet(state: details, title: state.displayTitle, conversationID: state.conversationID, isGroup: state.isGroup, identity: state.identity, onAction: onAction) }
+            }
+            // While the details sheet is open it presents the review itself, so the two sheets never compete.
+            .sheet(isPresented: Binding(get: { state.identity.showsSheet && state.details == nil }, set: { if !$0 { onAction(.identityLater) } })) {
+                IdentityChangeSheet(panel: state.identity, onAccept: { onAction(.identityAccept) }, onLater: { onAction(.identityLater) })
             }
     }
     private var actionMessage: MessageRecord? { state.actionTarget.flatMap { id in state.messages.first { $0.id == id } } }
