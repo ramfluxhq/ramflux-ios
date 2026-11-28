@@ -2,23 +2,6 @@
   "sourceLanguage": "en",
   "version": "1.0",
   "strings": {
-    "kit.secret.confirmOnce": {
-      "comment": "Button under a protected secret field: submits it in a single attempt.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm once"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认（仅一次）"
-          }
-        }
-      }
-    },
     "kit.load.readingRecords": {
       "comment": "Explanation while local records are read from storage.",
       "localizations": {
@@ -423,6 +406,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "AI 智能体"
+          }
+        }
+      }
+    },
+    "kit.secret.show": {
+      "comment": "Shows the text of one recovery word field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示"
+          }
+        }
+      }
+    },
+    "kit.secret.hide": {
+      "comment": "Masks the text of one recovery word field again.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏"
           }
         }
       }

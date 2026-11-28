@@ -18,7 +18,7 @@ public enum OnboardingStage: String, CaseIterable, Identifiable, Sendable {
         case .identity: FeatureOnboardingStrings.text("onboarding.stage.identity", locale: locale); case .verificationFailed: FeatureOnboardingStrings.text("onboarding.stage.verificationFailed", locale: locale); case .saveFailed: FeatureOnboardingStrings.text("onboarding.stage.saveFailed", locale: locale)
         case .configuration: FeatureOnboardingStrings.text("onboarding.stage.configuration", locale: locale); case .saving: FeatureOnboardingStrings.text("onboarding.stage.saving", locale: locale); case .saved: FeatureOnboardingStrings.text("onboarding.stage.saved", locale: locale)
         case .create: FeatureOnboardingStrings.text("onboarding.create.title", locale: locale); case .savePhrase: FeatureOnboardingStrings.text("onboarding.stage.savePhrase", locale: locale); case .confirmPhrase: FeatureOnboardingStrings.text("onboarding.stage.confirmPhrase", locale: locale)
-        case .localUnlock: FeatureOnboardingStrings.text("onboarding.stage.localUnlock", locale: locale); case .complete: FeatureOnboardingStrings.text("onboarding.stage.complete", locale: locale); case .link: FeatureOnboardingStrings.text("onboarding.link.title", locale: locale); case .recover: FeatureOnboardingStrings.text("onboarding.stage.recover", locale: locale)
+        case .localUnlock: FeatureOnboardingStrings.text("onboarding.create.title", locale: locale); case .complete: FeatureOnboardingStrings.text("onboarding.stage.complete", locale: locale); case .link: FeatureOnboardingStrings.text("onboarding.link.title", locale: locale); case .recover: FeatureOnboardingStrings.text("onboarding.stage.recover", locale: locale)
         }
     }
 }

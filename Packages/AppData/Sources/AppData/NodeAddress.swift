@@ -22,3 +22,7 @@ public struct NodeAddress: Sendable, Equatable {
         entered = trimmed; origin = asciiURL.absoluteString; changed = trimmed != origin
     }
 }
+public extension NodeAddress {
+    /// Whether the origin is an https one (a first-connection pin is offered for those only).
+    static func isHTTPS(_ origin: String) -> Bool { URLComponents(string: origin)?.scheme?.lowercased() == "https" }
+}

@@ -44,8 +44,10 @@
 	<string>已发送</string>
 	<key>kit.search</key>
 	<string>搜索</string>
-	<key>kit.secret.confirmOnce</key>
-	<string>确认（仅一次）</string>
+	<key>kit.secret.hide</key>
+	<string>隐藏</string>
+	<key>kit.secret.show</key>
+	<string>显示</string>
 	<key>kit.send</key>
 	<string>发送</string>
 	<key>theme.dark</key>

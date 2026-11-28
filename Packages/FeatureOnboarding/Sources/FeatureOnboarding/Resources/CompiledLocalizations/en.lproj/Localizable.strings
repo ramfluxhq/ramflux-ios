@@ -8,20 +8,24 @@
 	<string>Unable to connect</string>
 	<key>common.secureInput.hostRequired</key>
 	<string>Complete secure input in the iOS app.</string>
-	<key>node.confirmFingerprint.summary</key>
-	<string>Confirm fingerprint and pin node · %1$@ · %2$@</string>
-	<key>node.confirmOperator</key>
-	<string>Confirm operator key and save node</string>
+	<key>node.details</key>
+	<string>Details</string>
 	<key>node.editOperatorKey</key>
-	<string>Edit operator key</string>
-	<key>node.fingerprintInstructions</key>
-	<string>The independent operator key matches. Check this node fingerprint, then explicitly confirm the pin.</string>
+	<string>Enter operator key</string>
+	<key>node.fingerprint</key>
+	<string>Key fingerprint</string>
 	<key>node.operatorInstructions</key>
-	<string>Enter the node public key obtained independently from the operator. The discovered key is never offered for copying.</string>
+	<string>If your node operator gave you the node's public key, enter it here.</string>
 	<key>node.operatorKey</key>
-	<string>Operator public key</string>
-	<key>node.reviewFingerprint</key>
-	<string>Review fingerprint</string>
+	<string>Operator key</string>
+	<key>node.status.confirmed</key>
+	<string>Key confirmed by your invite.</string>
+	<key>node.status.first</key>
+	<string>First connection. Ramflux will warn you if this node's key ever changes.</string>
+	<key>node.trust</key>
+	<string>Trust this node</string>
+	<key>node.trust.summary</key>
+	<string>Trust this node · %@</string>
 	<key>onboarding.a01.changeNode.detail</key>
 	<string>Does not change the account's node or authorisation</string>
 	<key>onboarding.a01.header</key>
@@ -69,29 +73,31 @@
 	<key>onboarding.a07.unlock</key>
 	<string>Unlock with account code</string>
 	<key>onboarding.accountCode.existing</key>
-	<string>Account code (6 digits)</string>
-	<key>onboarding.accountCode.local</key>
-	<string>The account code is checked on this phone only. It is never sent to the node or to your other devices.</string>
+	<string>Account code</string>
+	<key>onboarding.accountCode.helper</key>
+	<string>6 digits. Checked on this device only; never sent to your node.</string>
+	<key>onboarding.accountCode.mismatch</key>
+	<string>The codes do not match.</string>
 	<key>onboarding.accountCode.new</key>
-	<string>New account code (6 digits)</string>
+	<string>Account code</string>
 	<key>onboarding.accountCode.repeat</key>
 	<string>Repeat account code</string>
 	<key>onboarding.address.check</key>
-	<string>Check address</string>
+	<string>Continue</string>
 	<key>onboarding.address.connect</key>
-	<string>Connect to this origin</string>
+	<string>Continue</string>
 	<key>onboarding.address.entered</key>
 	<string>Entered</string>
+	<key>onboarding.address.example</key>
+	<string>For example node.example.org</string>
 	<key>onboarding.address.field</key>
 	<string>Node address</string>
 	<key>onboarding.address.instructions</key>
-	<string>Enter the HTTPS address your node operator gave you. Only its origin is used.</string>
+	<string>Enter the address your node operator gave you.</string>
 	<key>onboarding.address.normalized</key>
 	<string>Connect to</string>
-	<key>onboarding.address.originOnly</key>
-	<string>Only the HTTPS origin will be used. Paths and invitations are not sent.</string>
 	<key>onboarding.address.placeholder</key>
-	<string>https://node.example</string>
+	<string>node.example.org</string>
 	<key>onboarding.brand.letter</key>
 	<string>R</string>
 	<key>onboarding.busy</key>
@@ -106,10 +112,16 @@
 	<string>Local account is ready. Network connection has not been confirmed.</string>
 	<key>onboarding.confirmPhrase.instructions</key>
 	<string>Next, enter the words at these positions in order:</string>
+	<key>onboarding.confirmWords.singleTry</key>
+	<string>You have one try. If a word does not match, this setup ends and you have to start again.</string>
 	<key>onboarding.connection.editAddress</key>
 	<string>Edit node address</string>
 	<key>onboarding.connection.preserved</key>
 	<string>Your last confirmed connection is preserved.</string>
+	<key>onboarding.continue</key>
+	<string>Continue</string>
+	<key>onboarding.create.submit</key>
+	<string>Create account</string>
 	<key>onboarding.create.title</key>
 	<string>Create an account</string>
 	<key>onboarding.link.title</key>
@@ -118,8 +130,6 @@
 	<string>Linking this phone to an account on another device is not available yet: joining needs the new device to hand its new account code to the account securely, which this version of the app cannot do. You can create an account, recover with your recovery phrase or restore a backup. If this phone is your primary device, you can link other devices from Settings › Devices.</string>
 	<key>onboarding.localUnlock.accountID</key>
 	<string>Local account ID</string>
-	<key>onboarding.localUnlock.instructions</key>
-	<string>Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt.</string>
 	<key>onboarding.n01.create</key>
 	<string>Create the account</string>
 	<key>onboarding.n01.header</key>
@@ -138,12 +148,14 @@
 	<string>The recovery phrase is created on this phone and shown only once. Have pen and paper ready.</string>
 	<key>onboarding.node.choose</key>
 	<string>Choose a node</string>
+	<key>onboarding.node.httpsRequired</key>
+	<string>Use an https address.</string>
 	<key>onboarding.node.noneConfirmed</key>
 	<string>No confirmed node is available. Add and confirm a node before preparing your account.</string>
 	<key>onboarding.node.other</key>
 	<string>Other node</string>
 	<key>onboarding.node.saved.message</key>
-	<string>The account service saved this node's identity.</string>
+	<string>This node is saved on this device.</string>
 	<key>onboarding.node.useAsDefault</key>
 	<string>Use as default node</string>
 	<key>onboarding.phrase.accessibility</key>
@@ -155,15 +167,19 @@
 	<key>onboarding.phrase.hostRequired</key>
 	<string>Open this secure phrase display in the iOS app.</string>
 	<key>onboarding.phrase.keepPrivate</key>
-	<string>Keep these words private and save them offline. They cannot be shown again in this ceremony.</string>
+	<string>Keep these words private and save them offline. They cannot be shown again in this setup.</string>
 	<key>onboarding.phrase.showOnce</key>
 	<string>Show recovery phrase once</string>
 	<key>onboarding.recover.accountID</key>
 	<string>Existing local account ID</string>
+	<key>onboarding.recover.action</key>
+	<string>Recover</string>
 	<key>onboarding.recover.fingerprint</key>
 	<string>Check the account fingerprint</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>I checked this account fingerprint</string>
+	<key>onboarding.recover.locked</key>
+	<string>Locked</string>
 	<key>onboarding.recover.newInstall</key>
 	<string>On a new install, restore the account from a backup archive first.</string>
 	<key>onboarding.recover.phrase</key>
@@ -201,7 +217,7 @@
 	<key>onboarding.stage.customNode</key>
 	<string>Custom node</string>
 	<key>onboarding.stage.identity</key>
-	<string>Check the node identity</string>
+	<string>Trust this node?</string>
 	<key>onboarding.stage.localUnlock</key>
 	<string>Set account code</string>
 	<key>onboarding.stage.offline</key>
@@ -222,8 +238,10 @@
 	<string>Node verification failed</string>
 	<key>onboarding.stage.verifying</key>
 	<string>Verifying the node</string>
+	<key>onboarding.unlock.action</key>
+	<string>Unlock</string>
 	<key>onboarding.welcome.headline.first</key>
-	<string>Keep conversations</string>
+	<string>Keep chats</string>
 	<key>onboarding.welcome.headline.second</key>
 	<string>and collaboration connected</string>
 	<key>onboarding.welcome.primaryDevice</key>
@@ -233,7 +251,7 @@
 	<key>onboarding.welcome.restoreBackup</key>
 	<string>Restore from a backup</string>
 	<key>onboarding.welcome.title</key>
-	<string>Keep conversations and collaboration connected</string>
+	<string>Keep chats and collaboration connected</string>
 	<key>onboarding.welcome.unlockSaved</key>
 	<string>Unlock existing account</string>
 	<key>recovery.word.position</key>

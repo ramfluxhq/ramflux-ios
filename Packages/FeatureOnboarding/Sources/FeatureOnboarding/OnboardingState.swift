@@ -9,6 +9,8 @@ public struct OnboardingState: Equatable, Sendable {
     public var recoveryAccount = ""
     public var normalized: NodeAddress?
     public var nodes: [NodeRecord] = []
+    /// The node list has been read at least once; until then no "no node" card is drawn.
+    public var nodesLoaded = false
     public var selectedNodeID: String?
     public var expectedNodeKey = ""
     public var candidate: NodeRecord?
@@ -45,9 +47,9 @@ public struct OnboardingState: Equatable, Sendable {
         return state
     }
     /// The recovery step for the locked account `account`, bound to that account only.
-    public static func recoverLockedAccount(_ account: String) -> OnboardingState {
+    public static func recoverLockedAccount(_ account: String, name: String = "") -> OnboardingState {
         var state = OnboardingState(stage: .recover)
-        state.recoveryAccount = account; state.recoversLockedAccount = true
+        state.recoveryAccount = account; state.recoversLockedAccount = true; state.knownAccountName = name
         return state
     }
 }

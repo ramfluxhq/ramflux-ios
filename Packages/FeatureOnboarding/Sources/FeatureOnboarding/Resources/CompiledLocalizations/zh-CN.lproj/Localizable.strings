@@ -8,20 +8,24 @@
 	<string>无法连接</string>
 	<key>common.secureInput.hostRequired</key>
 	<string>请在 iOS 应用中完成安全输入。</string>
-	<key>node.confirmFingerprint.summary</key>
-	<string>确认指纹并固定节点 · %1$@ · %2$@</string>
-	<key>node.confirmOperator</key>
-	<string>确认运营方公钥并保存节点</string>
+	<key>node.details</key>
+	<string>详细信息</string>
 	<key>node.editOperatorKey</key>
-	<string>修改运营者公钥</string>
-	<key>node.fingerprintInstructions</key>
-	<string>独立获取的运营者公钥已匹配。请核对此节点指纹，然后明确确认固定。</string>
+	<string>输入运营者密钥</string>
+	<key>node.fingerprint</key>
+	<string>密钥指纹</string>
 	<key>node.operatorInstructions</key>
-	<string>请输入通过独立渠道从运营者获取的节点公钥。此处不会提供发现的公钥供复制。</string>
+	<string>如果节点运营方提供了节点公钥，请在此输入。</string>
 	<key>node.operatorKey</key>
-	<string>运营方公钥</string>
-	<key>node.reviewFingerprint</key>
-	<string>核对指纹</string>
+	<string>运营者密钥</string>
+	<key>node.status.confirmed</key>
+	<string>密钥已由邀请确认。</string>
+	<key>node.status.first</key>
+	<string>首次连接。如果此节点的密钥发生变化，Ramflux 会提醒你。</string>
+	<key>node.trust</key>
+	<string>信任此节点</string>
+	<key>node.trust.summary</key>
+	<string>信任此节点 · %@</string>
 	<key>onboarding.a01.changeNode.detail</key>
 	<string>不会改变账户所属节点或授权</string>
 	<key>onboarding.a01.header</key>
@@ -69,29 +73,31 @@
 	<key>onboarding.a07.unlock</key>
 	<string>用账户码解锁</string>
 	<key>onboarding.accountCode.existing</key>
-	<string>账户码（6 位数字）</string>
-	<key>onboarding.accountCode.local</key>
-	<string>账户码只在本机校验，不会发送到节点或你的其他设备。</string>
+	<string>账户码</string>
+	<key>onboarding.accountCode.helper</key>
+	<string>6 位数字。仅在本设备上校验，不会发送到节点。</string>
+	<key>onboarding.accountCode.mismatch</key>
+	<string>两次输入的账户码不一致。</string>
 	<key>onboarding.accountCode.new</key>
-	<string>新账户码（6 位数字）</string>
+	<string>账户码</string>
 	<key>onboarding.accountCode.repeat</key>
 	<string>再次输入账户码</string>
 	<key>onboarding.address.check</key>
-	<string>检查地址</string>
+	<string>继续</string>
 	<key>onboarding.address.connect</key>
-	<string>连接到此源地址</string>
+	<string>继续</string>
 	<key>onboarding.address.entered</key>
 	<string>输入的地址</string>
+	<key>onboarding.address.example</key>
+	<string>例如 node.example.org</string>
 	<key>onboarding.address.field</key>
 	<string>节点地址</string>
 	<key>onboarding.address.instructions</key>
-	<string>输入节点运营方提供的 HTTPS 地址。只会使用其源地址。</string>
+	<string>输入节点运营方提供的地址。</string>
 	<key>onboarding.address.normalized</key>
 	<string>连接到</string>
-	<key>onboarding.address.originOnly</key>
-	<string>只使用 HTTPS 源地址，不发送路径或邀请信息。</string>
 	<key>onboarding.address.placeholder</key>
-	<string>https://node.example</string>
+	<string>node.example.org</string>
 	<key>onboarding.brand.letter</key>
 	<string>R</string>
 	<key>onboarding.busy</key>
@@ -105,11 +111,17 @@
 	<key>onboarding.complete.notConnected</key>
 	<string>本地账户已就绪。网络连接尚未确认。</string>
 	<key>onboarding.confirmPhrase.instructions</key>
-	<string>接下来，请按顺序输入以下位置的助记词：</string>
+	<string>接下来，请按顺序输入恢复短语中以下位置的词：</string>
+	<key>onboarding.confirmWords.singleTry</key>
+	<string>只有一次机会。如有词语不匹配，本次设置将结束，需要重新开始。</string>
 	<key>onboarding.connection.editAddress</key>
 	<string>编辑节点地址</string>
 	<key>onboarding.connection.preserved</key>
 	<string>上次已确认的连接已保留。</string>
+	<key>onboarding.continue</key>
+	<string>继续</string>
+	<key>onboarding.create.submit</key>
+	<string>创建账户</string>
 	<key>onboarding.create.title</key>
 	<string>创建账户</string>
 	<key>onboarding.link.title</key>
@@ -118,16 +130,14 @@
 	<string>暂不支持将这部手机关联到其他设备上的账户：加入时需要新设备安全地提交新的账户码，此版本的应用还无法做到。你可以创建账户、用恢复短语恢复或从备份恢复。如果这部手机是主设备，可以在“设置 › 设备”中关联其他设备。</string>
 	<key>onboarding.localUnlock.accountID</key>
 	<string>本地账户 ID</string>
-	<key>onboarding.localUnlock.instructions</key>
-	<string>设置一个 6 位数字账户码并再次输入，然后填写所要求的三个恢复词。确认只有一次机会。</string>
 	<key>onboarding.n01.create</key>
-	<string>创建账号</string>
+	<string>创建账户</string>
 	<key>onboarding.n01.header</key>
-	<string>创建账号</string>
+	<string>创建账户</string>
 	<key>onboarding.n01.name</key>
 	<string>显示名称</string>
 	<key>onboarding.n01.name.note</key>
-	<string>此名称用于新账号，之后可以修改。</string>
+	<string>此名称用于新账户，之后可以修改。</string>
 	<key>onboarding.n01.node</key>
 	<string>节点</string>
 	<key>onboarding.n01.node.official</key>
@@ -138,42 +148,48 @@
 	<string>恢复短语在这部手机上生成，并且只显示一次。请先准备好纸和笔。</string>
 	<key>onboarding.node.choose</key>
 	<string>选择节点</string>
+	<key>onboarding.node.httpsRequired</key>
+	<string>请使用 https 地址。</string>
 	<key>onboarding.node.noneConfirmed</key>
 	<string>没有可用的已确认节点。请先添加并确认节点，再准备账户。</string>
 	<key>onboarding.node.other</key>
 	<string>其他节点</string>
 	<key>onboarding.node.saved.message</key>
-	<string>账户服务已保存此节点的身份。</string>
+	<string>此节点已保存在本设备上。</string>
 	<key>onboarding.node.useAsDefault</key>
 	<string>设为默认节点</string>
 	<key>onboarding.phrase.accessibility</key>
-	<string>私密恢复助记词显示区域</string>
+	<string>私密恢复短语显示区域</string>
 	<key>onboarding.phrase.erased</key>
-	<string>完整助记词已隐藏，显示缓冲区已擦除。</string>
+	<string>完整恢复短语已隐藏，显示缓冲区已擦除。</string>
 	<key>onboarding.phrase.hideAndContinue</key>
 	<string>我已保存，隐藏并继续</string>
 	<key>onboarding.phrase.hostRequired</key>
-	<string>请在 iOS 应用中打开安全助记词显示界面。</string>
+	<string>请在 iOS 应用中打开安全恢复短语显示界面。</string>
 	<key>onboarding.phrase.keepPrivate</key>
-	<string>请妥善保密并离线保存这些助记词。在本次设置中，助记词只显示一次。</string>
+	<string>请妥善保密并离线保存这些词。在本次设置中，它们只显示一次。</string>
 	<key>onboarding.phrase.showOnce</key>
-	<string>显示恢复助记词（仅一次）</string>
+	<string>显示恢复短语（仅一次）</string>
 	<key>onboarding.recover.accountID</key>
 	<string>现有本地账户 ID</string>
+	<key>onboarding.recover.action</key>
+	<string>恢复</string>
 	<key>onboarding.recover.fingerprint</key>
 	<string>核对账户指纹</string>
 	<key>onboarding.recover.fingerprintChecked</key>
 	<string>我已核对此账户指纹</string>
+	<key>onboarding.recover.locked</key>
+	<string>已锁定</string>
 	<key>onboarding.recover.newInstall</key>
-	<string>如果是新安装，请先从备份归档恢复账号。</string>
+	<string>如果是新安装，请先从备份归档恢复账户。</string>
 	<key>onboarding.recover.phrase</key>
-	<string>恢复助记词</string>
+	<string>恢复短语</string>
 	<key>onboarding.recover.readFingerprint</key>
 	<string>读取账户指纹</string>
 	<key>onboarding.recover.scope</key>
 	<string>恢复操作将继续使用此手机上已存储的账户。</string>
 	<key>onboarding.recover.warning</key>
-	<string>请通过可信渠道确认此账户指纹。恢复操作会撤销所有其他设备。仅在由你主动发起的恢复操作中输入助记词。</string>
+	<string>请通过可信渠道确认此账户指纹。恢复操作会撤销所有其他设备。仅在由你主动发起的恢复操作中输入恢复短语。</string>
 	<key>onboarding.s01.starting</key>
 	<string>正在启动</string>
 	<key>onboarding.s02.changeNode</key>
@@ -197,11 +213,11 @@
 	<key>onboarding.stage.configuration</key>
 	<string>检查连接</string>
 	<key>onboarding.stage.confirmPhrase</key>
-	<string>确认恢复助记词</string>
+	<string>确认你的恢复短语</string>
 	<key>onboarding.stage.customNode</key>
 	<string>自定义节点</string>
 	<key>onboarding.stage.identity</key>
-	<string>核对节点身份</string>
+	<string>要信任此节点吗？</string>
 	<key>onboarding.stage.localUnlock</key>
 	<string>设置账户码</string>
 	<key>onboarding.stage.offline</key>
@@ -213,7 +229,7 @@
 	<key>onboarding.stage.saveFailed</key>
 	<string>无法保存此节点</string>
 	<key>onboarding.stage.savePhrase</key>
-	<string>保存恢复助记词</string>
+	<string>保存恢复短语</string>
 	<key>onboarding.stage.saved</key>
 	<string>节点已保存</string>
 	<key>onboarding.stage.saving</key>
@@ -222,8 +238,10 @@
 	<string>节点验证失败</string>
 	<key>onboarding.stage.verifying</key>
 	<string>正在验证节点</string>
+	<key>onboarding.unlock.action</key>
+	<string>解锁</string>
 	<key>onboarding.welcome.headline.first</key>
-	<string>让会话与协作</string>
+	<string>让聊天与协作</string>
 	<key>onboarding.welcome.headline.second</key>
 	<string>保持连接</string>
 	<key>onboarding.welcome.primaryDevice</key>
@@ -233,7 +251,7 @@
 	<key>onboarding.welcome.restoreBackup</key>
 	<string>从备份恢复</string>
 	<key>onboarding.welcome.title</key>
-	<string>让会话与协作保持连接</string>
+	<string>让聊天与协作保持连接</string>
 	<key>onboarding.welcome.unlockSaved</key>
 	<string>解锁现有账户</string>
 	<key>recovery.word.position</key>

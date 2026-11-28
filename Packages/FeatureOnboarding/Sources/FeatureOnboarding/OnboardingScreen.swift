@@ -13,6 +13,8 @@ public struct OnboardingScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     @Environment(\.dynamicTypeSize) private var typeSize
+    @State private var detailsOpen = false
+    @State private var operatorKeyOpen = false
     public let securePresentation: AnyView?
     public let state: OnboardingState
     public let onAction: (OnboardingAction) -> Void
@@ -102,7 +104,7 @@ public struct OnboardingScreen: View {
                 VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                     Text(copy("onboarding.n01.node.selected")).rfFont(.size(theme.size_mobile_body))
                     if let node = selectedNode { Text(untrusted: node.origin).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary).lineLimit(2) }
-                    else { Text(copy("onboarding.node.noneConfirmed")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary) }
+                    else { noNodeLine }
                 }
                 .padding(.horizontal, KitMetrics.gutter).padding(.vertical, KitMetrics.headerGap)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -136,12 +138,10 @@ public struct OnboardingScreen: View {
             infoLine(copy("onboarding.a02.localOnly"), info: { onAction(.unlockInfo(true)) }, tag: "a02-info")
             VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
                 #if os(iOS)
-                SecureOnboardingForm(fields: unlockFields, accountCode: .existing, enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
-                    .frame(minHeight: theme.composer_min * 3)
+                SecureOnboardingForm(steps: unlockSteps, accountCode: .existing, enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
                 #else
                 Text(copy("common.secureInput.hostRequired"))
                 #endif
-                Text(copy("onboarding.accountCode.local")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
             }
             .padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading)
             .background(theme.surface, in: RoundedRectangle(cornerRadius: theme.radius_card))
@@ -243,6 +243,8 @@ public struct OnboardingScreen: View {
                 .padding(.horizontal, KitMetrics.gutter).padding(.top, contentTop).padding(.bottom, KitMetrics.gutter)
                 .frame(maxWidth: theme.column_max, alignment: .leading).frame(maxWidth: .infinity)
             }
+            // The form scrolls with the keyboard: the helper line and the button stay reachable.
+            .scrollDismissesKeyboard(.interactively)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             if !typeSize.isAccessibilitySize { footer().padding(.horizontal, KitMetrics.gutter).padding(.bottom, footerBottom).frame(maxWidth: theme.column_max) }
         }
@@ -292,7 +294,7 @@ public struct OnboardingScreen: View {
                     else { Text(untrusted: node.origin).rfFont(.size(theme.size_mobile_body), weight: .semibold).lineLimit(2) }
                     Text(copy(node.isDefault ? "onboarding.s02.official.detail" : "onboarding.n01.node.selected")).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
                 } else {
-                    Text(copy("onboarding.node.noneConfirmed")).rfFont(.size(theme.size_secondary)).foregroundStyle(theme.secondary)
+                    noNodeLine
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -304,6 +306,11 @@ public struct OnboardingScreen: View {
         .overlay { RoundedRectangle(cornerRadius: theme.radius_card).strokeBorder(theme.text, lineWidth: KitMetrics.stroke) }
         .accessibilityElement(children: .combine)
         .accessibilityIdentifier("s02-node")
+    }
+    /// Nothing is said about a missing node until the list has been read; then a confirmed node is asked for.
+    @ViewBuilder private var noNodeLine: some View {
+        if state.nodesLoaded { Text(copy("onboarding.node.noneConfirmed")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary) }
+        else { ProgressView().controlSize(.small) }
     }
     private var selectedNode: NodeRecord? { state.nodes.first { $0.id == state.selectedNodeID } }
     @ViewBuilder private var nodeCard: some View {
@@ -341,7 +348,7 @@ public struct OnboardingScreen: View {
             EmptyView()
         case .address, .defaultNode:
             Text(copy("onboarding.address.instructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
-            KitTextField(value: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }), label: copy("onboarding.address.field"), placeholder: copy("onboarding.address.placeholder"), enabled: !state.busy, tag: "onboarding-address")
+            KitTextField(value: Binding(get: { state.address }, set: { onAction(.addressChanged($0)) }), label: copy("onboarding.address.field"), note: copy("onboarding.address.example"), enabled: !state.busy, tag: "onboarding-address")
                 .rfAddressInput()
         case .normalizedAddress, .checkingAddress:
             if let normalized = state.normalized {
@@ -349,21 +356,9 @@ public struct OnboardingScreen: View {
                     LabeledContent(copy("onboarding.address.entered"), value: normalized.entered).padding(KitMetrics.gutter).kitHairlineDivider(theme.line)
                     LabeledContent(copy("onboarding.address.normalized"), value: normalized.origin).textSelection(.enabled).padding(KitMetrics.gutter)
                 }
-                if normalized.changed { KitTipBar(copy("onboarding.address.originOnly"), icon: "info", tag: "onboarding-origin-only") }
             }
         case .identity:
-            if let candidate = state.candidate {
-                card { Text(untrusted: candidate.origin).textSelection(.enabled).padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading) }
-                if let fingerprint = state.visibleNodeFingerprint {
-                    Text(copy("node.fingerprintInstructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
-                    KitIdentifierText(fingerprint, tag: "onboarding-node-fingerprint").textSelection(.enabled)
-                    RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.confirmFingerprint.summary", [.untrusted(candidate.origin), .identifier(fingerprint)], locale: locale), enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.saveNode) }, cancel: { onAction(.expectedNodeKeyChanged("")) }).id(fingerprint)
-                } else {
-                    Text(copy("node.operatorInstructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
-                    KitTextField(value: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }), label: copy("node.operatorKey"), enabled: !state.busy, tag: "onboarding-operator-key")
-                        .rfAddressInput()
-                }
-            }
+            if let candidate = state.candidate { identity(candidate) }
         case .saved:
             KitTipBar(copy("onboarding.node.saved.message"), icon: "circle-check", tag: "onboarding-node-saved")
         case .savePhrase:
@@ -381,16 +376,14 @@ public struct OnboardingScreen: View {
             Text(copy("onboarding.confirmPhrase.instructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
             card {
                 ForEach(state.positions, id: \.self) { position in
-                    KitRow(FeatureOnboardingStrings.format("recovery.word.position", position.formatted(.number.locale(locale)), locale: locale), icon: "list-checks", trailing: .none, enabled: false, tag: "onboarding-word-\(position)")
+                    KitRow(FeatureOnboardingStrings.format("recovery.word.position", position.formatted(.number.locale(locale)), locale: locale), trailing: .none, enabled: false, tag: "onboarding-word-\(position)")
                 }
             }
             KitTipBar(copy("onboarding.phrase.erased"), icon: "eye", tag: "onboarding-phrase-erased")
         case .localUnlock:
-            Text(copy("onboarding.localUnlock.instructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
             #if os(iOS)
-            SecureOnboardingForm(fields: unlockFields, accountCode: .new, enabled: !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
-                .frame(minHeight: theme.composer_min * 7)
-            Text(copy("onboarding.accountCode.local")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+            SecureOnboardingForm(steps: unlockSteps, accountCode: state.unlockingSavedAccount ? .existing : .new, enabled: !state.busy && !state.confirmationConsumed,
+                                 mismatchMessage: copy("onboarding.accountCode.mismatch")) { onAction(.submit($0)) }
             if state.failure == .accountCode(.attemptsExhausted) || state.failure == .accountCode(.deviceUnlockUnavailable) {
                 KitButton(copy("onboarding.stage.recover"), action: { onAction(.recover) }, kind: .secondary, enabled: !state.busy, tag: "onboarding-recover")
             }
@@ -398,23 +391,20 @@ public struct OnboardingScreen: View {
             Text(copy("common.secureInput.hostRequired"))
             #endif
         case .recover:
+            if state.recoversLockedAccount { lockedAccountRow }
             if let metadata = state.metadata, let anchor = metadata.anchor {
                 card { KitIdentifierText(anchor, tag: "onboarding-recover-fingerprint").textSelection(.enabled).padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading) }
                 KitSecurityWarning(copy("onboarding.recover.fingerprint"), body: copy("onboarding.recover.warning"), tone: .danger, tag: "onboarding-recover-warning")
                 Toggle(copy("onboarding.recover.fingerprintChecked"), isOn: Binding(get: { state.anchorChecked }, set: { onAction(.checkAnchor($0)) }))
                 #if os(iOS)
-                SecureOnboardingForm(fields: [RFSecureEntryField(id: "phrase", label: copy("onboarding.recover.phrase")), RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.existing"), kind: .accountCode)], accountCode: .existing, enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }.frame(minHeight: theme.composer_min * 4)
+                SecureOnboardingForm(fields: [RFSecureEntryField(id: "phrase", label: copy("onboarding.recover.phrase")), RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.existing"), kind: .accountCode)],
+                                     submitLabel: copy("onboarding.recover.action"), helper: copy("onboarding.accountCode.helper"), accountCode: .existing, enabled: state.anchorChecked && !state.busy && !state.confirmationConsumed) { onAction(.submit($0)) }
                 #endif
             } else {
                 Text(copy("onboarding.recover.scope")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
                 if state.recoversLockedAccount {
-                    // Inside the lock cover the account is the locked one: shown, not editable, and no other entry.
-                    VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
-                        Text(copy("onboarding.recover.accountID")).rfFont(.size(theme.size_meta)).foregroundStyle(theme.secondary)
-                        KitIdentifierText(state.recoveryAccount, color: theme.secondary, tag: "onboarding-recover-locked-account")
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityElement(children: .combine)
+                    // Inside the lock cover the account is the locked one (named in the row above): not editable, and no other entry.
+                    EmptyView()
                 } else {
                     KitTextField(value: Binding(get: { state.recoveryAccount }, set: { onAction(.recoveryAccountChanged($0)) }), label: copy("onboarding.recover.accountID"), enabled: !state.busy, tag: "onboarding-recover-account")
                     card {
@@ -427,7 +417,6 @@ public struct OnboardingScreen: View {
                 card {
                     VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
                         Text(untrusted: account.displayName).rfFont(.page, weight: .semibold)
-                        KitIdentifierText(account.id, color: theme.secondary)
                         Text(copy(account.networking == .live ? "onboarding.complete.connected" : state.watchingNetwork ? "onboarding.complete.connecting" : "onboarding.complete.notConnected"))
                             .rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
                             .accessibilityIdentifier("onboarding-complete-network")
@@ -449,8 +438,10 @@ public struct OnboardingScreen: View {
         case .address, .defaultNode: primary(copy("onboarding.address.check"), .checkAddress)
         case .normalizedAddress, .checkingAddress: if state.normalized != nil { primary(copy("onboarding.address.connect"), .inspectOrigin) }
         case .identity:
-            if state.visibleNodeFingerprint != nil { secondary(copy("node.editOperatorKey"), .expectedNodeKeyChanged("")) }
-            else if state.candidate != nil { primary(copy("node.reviewFingerprint"), .reviewNodeKey) }
+            if let candidate = state.candidate {
+                RFHostConfirmationActions(summary: FeatureOnboardingStrings.sentence("node.trust.summary", [.untrusted(candidate.origin)], locale: locale), confirmLabel: copy("node.trust"),
+                                          enabled: !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.trustNode) }, cancel: { onAction(.customNode) }).id(candidate.id)
+            }
         case .saved:
             VStack(spacing: KitMetrics.headerGap) { primary(copy("onboarding.create.title"), .create); secondary(copy("onboarding.node.useAsDefault"), .setDefault) }
         case .savePhrase:
@@ -463,15 +454,63 @@ public struct OnboardingScreen: View {
         }
     }
     #if os(iOS)
-    private var unlockFields: [RFSecureEntryField] {
-        if state.unlockingSavedAccount { return [RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.existing"), kind: .accountCode)] }
+    /// The account-code form. Unlocking a saved account asks for its code only. Creating one is two steps: the code and its
+    /// repeat, then the recovery words asked for. Every field is labelled; the words are masked with a Show toggle each.
+    private var unlockSteps: [RFSecureEntryStep] {
+        if state.unlockingSavedAccount {
+            return [RFSecureEntryStep(fields: [RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.existing"), kind: .accountCode)],
+                                      helper: copy("onboarding.accountCode.helper"), actionLabel: copy("onboarding.unlock.action"))]
+        }
         let words = state.positions.enumerated().map { RFSecureEntryField(id: "word\($0.offset + 1)", label: FeatureOnboardingStrings.format("recovery.word.position", $0.element.formatted(.number.locale(locale)), locale: locale)) }
-        return words + [RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.new"), kind: .accountCode),
-                        RFSecureEntryField(id: "passphraseRepeat", label: copy("onboarding.accountCode.repeat"), kind: .accountCode)]
+        return [
+            RFSecureEntryStep(title: copy("onboarding.stage.localUnlock"),
+                              fields: [RFSecureEntryField(id: "passphrase", label: copy("onboarding.accountCode.new"), kind: .accountCode),
+                                       RFSecureEntryField(id: "passphraseRepeat", label: copy("onboarding.accountCode.repeat"), kind: .accountCode, repeats: "passphrase")],
+                              helper: copy("onboarding.accountCode.helper"), actionLabel: copy("onboarding.continue")),
+            RFSecureEntryStep(title: copy("onboarding.stage.confirmPhrase"), fields: words, notice: copy("onboarding.confirmWords.singleTry"), actionLabel: copy("onboarding.create.submit")),
+        ]
     }
     #endif
+    /// The locked account the recovery inside the lock cover is about: initial, name and "Locked".
+    private var lockedAccountRow: some View {
+        let record = AccountRecord(id: state.recoveryAccount, displayName: state.knownAccountName ?? "", isLocked: true)
+        return KitAccountRow(name: record.title(locale: locale), initial: record.initial(locale: locale), status: copy("onboarding.recover.locked"), tag: "onboarding-recover-locked-account")
+    }
+    /// The node trust step: name and address, one neutral status line, and the technical details behind a disclosure.
+    @ViewBuilder private func identity(_ candidate: NodeRecord) -> some View {
+        let host = URLComponents(string: candidate.origin)?.host ?? candidate.origin
+        card {
+            VStack(alignment: .leading, spacing: KitMetrics.labelGap) {
+                Text(untrusted: candidate.isDefault ? copy("onboarding.s02.official") : host).rfFont(.page, weight: .semibold).lineLimit(2)
+                Text(untrusted: candidate.origin).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary).lineLimit(1).textSelection(.enabled)
+            }
+            .padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            .accessibilityIdentifier("onboarding-node-summary")
+        }
+        Text(copy(state.canReviewFingerprint ? "node.status.confirmed" : "node.status.first")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+            .accessibilityIdentifier("onboarding-node-status")
+        KitButton(copy("node.details"), action: { detailsOpen.toggle() }, kind: .text, size: .compact, tag: "onboarding-node-details")
+        if detailsOpen {
+            card {
+                VStack(alignment: .leading, spacing: KitMetrics.headerGap) {
+                    if let fingerprint = candidate.fingerprint {
+                        Text(copy("node.fingerprint")).rfFont(.size(theme.size_meta)).foregroundStyle(theme.secondary)
+                        KitIdentifierText(fingerprint, tag: "onboarding-node-fingerprint").textSelection(.enabled)
+                    }
+                    KitButton(copy("node.editOperatorKey"), action: { operatorKeyOpen.toggle() }, kind: .text, size: .compact, tag: "onboarding-operator-key-action")
+                    if operatorKeyOpen {
+                        Text(copy("node.operatorInstructions")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary)
+                        KitTextField(value: Binding(get: { state.expectedNodeKey }, set: { onAction(.expectedNodeKeyChanged($0)) }), label: copy("node.operatorKey"), enabled: !state.busy, tag: "onboarding-operator-key")
+                            .rfAddressInput()
+                    }
+                }
+                .padding(KitMetrics.gutter).frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+    }
     @ViewBuilder private var nodeChoices: some View {
-        if state.nodes.isEmpty { Text(copy("onboarding.node.noneConfirmed")).rfFont(.size(theme.size_body)).foregroundStyle(theme.secondary) }
+        if state.nodes.isEmpty { noNodeLine }
         card {
             ForEach(state.nodes) { node in
                 KitRow(RFUntrustedText.clean(node.origin), action: { onAction(.nodeSelected(node.id)) }, icon: "server", trailing: state.selectedNodeID == node.id ? .check : .none,

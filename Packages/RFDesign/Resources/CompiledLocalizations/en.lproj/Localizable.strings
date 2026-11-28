@@ -44,8 +44,10 @@
 	<string>Sent</string>
 	<key>kit.search</key>
 	<string>Search</string>
-	<key>kit.secret.confirmOnce</key>
-	<string>Confirm once</string>
+	<key>kit.secret.hide</key>
+	<string>Hide</string>
+	<key>kit.secret.show</key>
+	<string>Show</string>
 	<key>kit.send</key>
 	<string>Send</string>
 	<key>theme.dark</key>

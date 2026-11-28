@@ -7,6 +7,12 @@ public protocol NodeRepository: Sendable {
     func inspect(_ origin: String) async -> RepositoryResult<NodeRecord>
     func save(_ node: NodeRecord, expectedPublicKey: String, operationID: String) async -> RepositoryResult<Void>
     func setDefault(_ node: NodeRecord, operationID: String) async -> RepositoryResult<Void>
+    /// Trusts the node the user just reviewed on a first connection, pinning the key this connection showed (`pin_source`
+    /// `tofu`); the SDK warns if the key ever changes. An operator key entered by the user takes `save` instead.
+    func trust(_ node: NodeRecord, operationID: String) async -> RepositoryResult<Void>
+}
+public extension NodeRepository {
+    func trust(_ node: NodeRecord, operationID: String) async -> RepositoryResult<Void> { .failure(.sdkUnavailable) }
 }
 public struct NativeNodeRepository: NodeRepository {
     private let gateway: ProxyGateway
@@ -44,6 +50,17 @@ public struct NativeNodeRepository: NodeRepository {
         // Pinned SDK bus/dispatch/node.rs node.confirm compares this key with pending.record
         // via NodeRegistry::confirm; another discovery replacing pending cannot silently repin.
         do { _ = try await gateway.call(.nodeConfirm, body: .object(["node_id": .string(node.id), "expected_public_key": .string(expectedPublicKey), "pin_source": .string("operator")]), operationID: operationID); return .success(()) }
+        catch { return .failure(AppFailure.map(error)) }
+    }
+    public func trust(_ node: NodeRecord, operationID: String) async -> RepositoryResult<Void> {
+        guard let key = node.publicKey, node.fingerprint != nil, NodeAddress.isHTTPS(node.origin) else { return .failure(.nodeKeyMismatch) }
+        // Fresh signed discovery right before pinning, as `save` does: the pinned key is the one just shown.
+        switch await inspect(node.origin, refresh: true) {
+        case .failure(let failure): return .failure(failure)
+        case .success(let current):
+            guard current.id == node.id, current.origin == node.origin, current.publicKey == key, current.fingerprint == node.fingerprint else { return .failure(.nodeKeyMismatch) }
+        }
+        do { _ = try await gateway.call(.nodeConfirm, body: .object(["node_id": .string(node.id), "expected_public_key": .string(key), "pin_source": .string("tofu")]), operationID: operationID); return .success(()) }
         catch { return .failure(AppFailure.map(error)) }
     }
     public func setDefault(_ node: NodeRecord, operationID: String) async -> RepositoryResult<Void> {

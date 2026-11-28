@@ -14,7 +14,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "创建账号"
+            "value": "创建账户"
           }
         }
       }
@@ -31,7 +31,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "创建账号"
+            "value": "创建账户"
           }
         }
       }
@@ -63,7 +63,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此名称用于新账号，之后可以修改。"
+            "value": "此名称用于新账户，之后可以修改。"
           }
         }
       }
@@ -164,7 +164,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "私密恢复助记词显示区域"
+            "value": "私密恢复短语显示区域"
           }
         }
       }
@@ -199,23 +199,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "上次已确认的连接已保留。"
-          }
-        }
-      }
-    },
-    "onboarding.localUnlock.instructions": {
-      "comment": "Instructions on the step where the user sets the account code and confirms three recovery words.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose a six-digit account code and repeat it, then enter the three requested recovery words. Confirmation is a single attempt."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "设置一个 6 位数字账户码并再次输入，然后填写所要求的三个恢复词。确认只有一次机会。"
           }
         }
       }
@@ -266,7 +249,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请通过可信渠道确认此账户指纹。恢复操作会撤销所有其他设备。仅在由你主动发起的恢复操作中输入助记词。"
+            "value": "请通过可信渠道确认此账户指纹。恢复操作会撤销所有其他设备。仅在由你主动发起的恢复操作中输入恢复短语。"
           }
         }
       }
@@ -289,35 +272,35 @@
       }
     },
     "onboarding.address.connect": {
-      "comment": "Button that accepts the cleaned-up address and connects to it.",
+      "comment": "Button that connects to the checked node address.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect to this origin"
+            "value": "Continue"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接到此源地址"
+            "value": "继续"
           }
         }
       }
     },
     "onboarding.phrase.keepPrivate": {
-      "comment": "Instruction to keep the recovery words private and offline; they will not be shown again.",
+      "comment": "Warning above the recovery phrase.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep these words private and save them offline. They cannot be shown again in this ceremony."
+            "value": "Keep these words private and save them offline. They cannot be shown again in this setup."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请妥善保密并离线保存这些助记词。在本次设置中，助记词只显示一次。"
+            "value": "请妥善保密并离线保存这些词。在本次设置中，它们只显示一次。"
           }
         }
       }
@@ -391,35 +374,35 @@
       }
     },
     "onboarding.address.check": {
-      "comment": "Button that checks the entered node address.",
+      "comment": "Button that checks the node address and moves on.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check address"
+            "value": "Continue"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "检查地址"
+            "value": "继续"
           }
         }
       }
     },
     "onboarding.node.saved.message": {
-      "comment": "Confirmation that the node's identity was saved.",
+      "comment": "Shown after a node was trusted and saved.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The account service saved this node's identity."
+            "value": "This node is saved on this device."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户服务已保存此节点的身份。"
+            "value": "此节点已保存在本设备上。"
           }
         }
       }
@@ -459,7 +442,7 @@
       }
     },
     "onboarding.recover.phrase": {
-      "comment": "Field label for the recovery phrase.",
+      "comment": "Label of the recovery phrase field.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -470,7 +453,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "恢复助记词"
+            "value": "恢复短语"
           }
         }
       }
@@ -595,18 +578,18 @@
       }
     },
     "onboarding.stage.identity": {
-      "comment": "Title of the step that shows the node's identity for checking.",
+      "comment": "Title of the node trust step.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Check the node identity"
+            "value": "Trust this node?"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "核对节点身份"
+            "value": "要信任此节点吗？"
           }
         }
       }
@@ -765,7 +748,7 @@
       }
     },
     "onboarding.confirmPhrase.instructions": {
-      "comment": "Instruction before the list of recovery word positions to enter, in order.",
+      "comment": "Lists the recovery words that will be asked for.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -776,7 +759,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "接下来，请按顺序输入以下位置的助记词："
+            "value": "接下来，请按顺序输入恢复短语中以下位置的词："
           }
         }
       }
@@ -833,7 +816,7 @@
       }
     },
     "onboarding.stage.confirmPhrase": {
-      "comment": "Title of the step that asks for some recovery words to confirm they were saved.",
+      "comment": "Title of the second step of account creation, and of the step that lists the requested words.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -844,7 +827,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "确认恢复助记词"
+            "value": "确认你的恢复短语"
           }
         }
       }
@@ -872,13 +855,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep conversations and collaboration connected"
+            "value": "Keep chats and collaboration connected"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "让会话与协作保持连接"
+            "value": "让聊天与协作保持连接"
           }
         }
       }
@@ -997,7 +980,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在 iOS 应用中打开安全助记词显示界面。"
+            "value": "请在 iOS 应用中打开安全恢复短语显示界面。"
           }
         }
       }
@@ -1014,7 +997,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "保存恢复助记词"
+            "value": "保存恢复短语"
           }
         }
       }
@@ -1031,7 +1014,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "完整助记词已隐藏，显示缓冲区已擦除。"
+            "value": "完整恢复短语已隐藏，显示缓冲区已擦除。"
           }
         }
       }
@@ -1049,23 +1032,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "正在恢复连接"
-          }
-        }
-      }
-    },
-    "onboarding.address.originOnly": {
-      "comment": "Note that only the scheme, host and port of the address are used; paths and invitations are dropped. Keep \"HTTPS\" as written.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only the HTTPS origin will be used. Paths and invitations are not sent."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "只使用 HTTPS 源地址，不发送路径或邀请信息。"
           }
         }
       }
@@ -1116,7 +1082,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示恢复助记词（仅一次）"
+            "value": "显示恢复短语（仅一次）"
           }
         }
       }
@@ -1143,137 +1109,71 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter the node public key obtained independently from the operator. The discovered key is never offered for copying."
+            "value": "If your node operator gave you the node's public key, enter it here."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "请输入通过独立渠道从运营者获取的节点公钥。此处不会提供发现的公钥供复制。"
+            "value": "如果节点运营方提供了节点公钥，请在此输入。"
           }
         }
-      }
+      },
+      "comment": "Helper above the operator key field."
     },
     "node.operatorKey": {
-      "comment": "Field label for the node public key given by the node operator.",
+      "comment": "Label of the operator key field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Operator public key"
+            "value": "Operator key"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "运营方公钥"
-          }
-        }
-      }
-    },
-    "node.confirmOperator": {
-      "comment": "Button that confirms the operator key and saves the node.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm operator key and save node"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认运营方公钥并保存节点"
-          }
-        }
-      }
-    },
-    "node.reviewFingerprint": {
-      "comment": "Title of the step that shows the node fingerprint for checking.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Review fingerprint"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "核对指纹"
-          }
-        }
-      }
-    },
-    "node.fingerprintInstructions": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The independent operator key matches. Check this node fingerprint, then explicitly confirm the pin."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "独立获取的运营者公钥已匹配。请核对此节点指纹，然后明确确认固定。"
+            "value": "运营者密钥"
           }
         }
       }
     },
     "node.editOperatorKey": {
-      "comment": "Button that goes back to edit the operator key.",
+      "comment": "Text action in the node details that opens the operator key field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edit operator key"
+            "value": "Enter operator key"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "修改运营者公钥"
-          }
-        }
-      }
-    },
-    "node.confirmFingerprint.summary": {
-      "comment": "Summary on the confirmation that pins a node (server). %1$@ is the node address, %2$@ is its fingerprint.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm fingerprint and pin node · %1$@ · %2$@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确认指纹并固定节点 · %1$@ · %2$@"
+            "value": "输入运营者密钥"
           }
         }
       }
     },
     "onboarding.accountCode.new": {
-      "comment": "Placeholder of the secure field where the user chooses a new six-digit account code.",
+      "comment": "Label of the new account code field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New account code (6 digits)"
+            "value": "Account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "新账户码（6 位数字）"
+            "value": "账户码"
           }
         }
       }
     },
     "onboarding.accountCode.repeat": {
-      "comment": "Placeholder of the secure field where the user types the new six-digit account code again.",
+      "comment": "Label of the repeated account code field.",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1290,35 +1190,18 @@
       }
     },
     "onboarding.accountCode.existing": {
-      "comment": "Placeholder of the secure field where the user enters the six-digit account code of an existing account.",
+      "comment": "Label of the account code field when unlocking or recovering.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Account code (6 digits)"
+            "value": "Account code"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "账户码（6 位数字）"
-          }
-        }
-      }
-    },
-    "onboarding.accountCode.local": {
-      "comment": "Explains that the six-digit account code is checked on this phone only.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The account code is checked on this phone only. It is never sent to the node or to your other devices."
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "账户码只在本机校验，不会发送到节点或你的其他设备。"
+            "value": "账户码"
           }
         }
       }
@@ -1352,7 +1235,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "如果是新安装，请先从备份归档恢复账号。"
+            "value": "如果是新安装，请先从备份归档恢复账户。"
           }
         }
       }
@@ -1817,18 +1700,18 @@
       }
     },
     "onboarding.address.instructions": {
-      "comment": "Explains the node address field.",
+      "comment": "Helper above the node address field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter the HTTPS address your node operator gave you. Only its origin is used."
+            "value": "Enter the address your node operator gave you."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "输入节点运营方提供的 HTTPS 地址。只会使用其源地址。"
+            "value": "输入节点运营方提供的地址。"
           }
         }
       }
@@ -1839,13 +1722,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://node.example"
+            "value": "node.example.org"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "https://node.example"
+            "value": "node.example.org"
           }
         }
       }
@@ -1873,13 +1756,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keep conversations"
+            "value": "Keep chats"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "让会话与协作"
+            "value": "让聊天与协作"
           }
         }
       }
@@ -1999,6 +1882,278 @@
           "stringUnit": {
             "state": "translated",
             "value": "保留账户"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.helper": {
+      "comment": "Helper line under an account code field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 digits. Checked on this device only; never sent to your node."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6 位数字。仅在本设备上校验，不会发送到节点。"
+          }
+        }
+      }
+    },
+    "onboarding.accountCode.mismatch": {
+      "comment": "Shown under the repeated account code when it differs from the first.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The codes do not match."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "两次输入的账户码不一致。"
+          }
+        }
+      }
+    },
+    "onboarding.continue": {
+      "comment": "Button that moves to the next step of a form.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        }
+      }
+    },
+    "onboarding.create.submit": {
+      "comment": "Button that finishes account creation after the recovery words are entered.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create account"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "创建账户"
+          }
+        }
+      }
+    },
+    "onboarding.unlock.action": {
+      "comment": "Button that unlocks an account with its account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁"
+          }
+        }
+      }
+    },
+    "onboarding.recover.action": {
+      "comment": "Button that recovers an account with its recovery phrase and account code.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recover"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复"
+          }
+        }
+      }
+    },
+    "onboarding.recover.locked": {
+      "comment": "Status line under the locked account's name during recovery.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已锁定"
+          }
+        }
+      }
+    },
+    "onboarding.confirmWords.singleTry": {
+      "comment": "Rule shown above the Create account button: the confirmation can be tried once.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have one try. If a word does not match, this setup ends and you have to start again."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只有一次机会。如有词语不匹配，本次设置将结束，需要重新开始。"
+          }
+        }
+      }
+    },
+    "onboarding.address.example": {
+      "comment": "Helper under the node address field.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example node.example.org"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如 node.example.org"
+          }
+        }
+      }
+    },
+    "node.details": {
+      "comment": "Opens the technical details of a node.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "详细信息"
+          }
+        }
+      }
+    },
+    "node.fingerprint": {
+      "comment": "Label of the node key fingerprint in the details.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key fingerprint"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥指纹"
+          }
+        }
+      }
+    },
+    "node.trust": {
+      "comment": "Primary button of the node trust step.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust this node"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信任此节点"
+          }
+        }
+      }
+    },
+    "node.trust.summary": {
+      "comment": "Spoken summary of the Trust this node action. %@ is the node address.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust this node · %@"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "信任此节点 · %@"
+          }
+        }
+      }
+    },
+    "node.status.first": {
+      "comment": "Neutral status line of the node trust step.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First connection. Ramflux will warn you if this node's key ever changes."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "首次连接。如果此节点的密钥发生变化，Ramflux 会提醒你。"
+          }
+        }
+      }
+    },
+    "node.status.confirmed": {
+      "comment": "Status line of the node trust step when the operator key matched.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key confirmed by your invite."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "密钥已由邀请确认。"
+          }
+        }
+      }
+    },
+    "onboarding.node.httpsRequired": {
+      "comment": "Shown when a node without a secure address would be trusted without an operator key.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use an https address."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请使用 https 地址。"
           }
         }
       }

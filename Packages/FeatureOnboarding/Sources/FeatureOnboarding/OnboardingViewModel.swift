@@ -65,7 +65,20 @@ import AppData
             guard !state.expectedNodeKey.isEmpty, state.expectedNodeKey == candidate.publicKey else { state.failure = .nodeKeyMismatch; return }
             let expectedKey = state.expectedNodeKey
             state.stage = .saving
-            run { [nodes] in .saved(await nodes.save(candidate, expectedPublicKey: expectedKey, operationID: UUID().uuidString)) }
+            run { [nodes] in .saved(await nodes.save(candidate, expectedPublicKey: expectedKey, operationID: UUID().uuidString), "operator") }
+        case .trustNode:
+            // One tap trusts the node just shown. An operator key the user entered must match the key shown and pins as
+            // `operator`; without one the first connection is pinned as `tofu`, https only (a plain http node needs the operator key).
+            guard let candidate = state.candidate, let key = candidate.publicKey, candidate.fingerprint != nil else { state.failure = .nodeKeyMismatch; return }
+            if !state.expectedNodeKey.isEmpty {
+                guard state.expectedNodeKey == key else { state.failure = .nodeKeyMismatch; return }
+                state.reviewedNode = candidate; state.stage = .saving
+                run { [nodes] in .saved(await nodes.save(candidate, expectedPublicKey: key, operationID: UUID().uuidString), "operator") }
+            } else {
+                guard NodeAddress.isHTTPS(candidate.origin) else { state.failure = .unavailableResource("onboarding.node.httpsRequired"); return }
+                state.stage = .saving
+                run { [nodes] in .saved(await nodes.trust(candidate, operationID: UUID().uuidString), "tofu") }
+            }
         case .setDefault:
             guard let candidate = state.candidate else { return }
             run { [nodes] in .defaultSet(await nodes.setDefault(candidate, operationID: UUID().uuidString)) }
@@ -108,7 +121,7 @@ import AppData
         }
     }
     private enum Completion: Sendable {
-        case nodes(RepositoryResult<[NodeRecord]>), node(RepositoryResult<NodeRecord>), saved(RepositoryResult<Void>), defaultSet(RepositoryResult<Void>)
+        case nodes(RepositoryResult<[NodeRecord]>), node(RepositoryResult<NodeRecord>), saved(RepositoryResult<Void>, String), defaultSet(RepositoryResult<Void>)
         case began(RepositoryResult<CeremonyMetadata>), display(RepositoryResult<RecoveryDisplay>), challenge(RepositoryResult<[Int]>)
         case recovery(RepositoryResult<CeremonyMetadata>), confirmed(RepositoryResult<AccountRecord>)
     }
@@ -125,13 +138,16 @@ import AppData
     private func apply(_ completion: Completion) {
         if case .confirmed(.failure(.outcomeUnknown)) = completion { unresolvedConfirmation = true }
         switch completion {
-        case .nodes(.success(let nodes)): state.nodes = nodes; state.selectedNodeID = nodes.first(where: { $0.isDefault && $0.canCreateAccount })?.id
+        case .nodes(.success(let nodes)):
+            state.nodes = nodes; state.nodesLoaded = true; state.selectedNodeID = nodes.first(where: { $0.isDefault && $0.canCreateAccount })?.id
+            // No node at all (a first run, or a removal that took the last one): the welcome asks for the node address, not an error card.
+            if nodes.isEmpty, state.stage == .connection { state.stage = .address }
         case .node(.success(let node)): state.reviewedNode = nil; state.expectedNodeKey = ""; state.candidate = node; state.stage = .identity
-        case .saved(.success):
+        case .saved(.success, let pinSource):
             if let candidate = state.candidate {
                 let confirmed = NodeRecord(id: candidate.id, origin: candidate.origin, fingerprint: candidate.fingerprint,
                     publicKey: candidate.publicKey, isDefault: candidate.isDefault, enabled: candidate.enabled,
-                    isConfirmed: true, pinSource: "operator")
+                    isConfirmed: true, pinSource: pinSource)
                 state.candidate = confirmed; state.nodes.removeAll { $0.id == confirmed.id }; state.nodes.append(confirmed)
                 state.selectedNodeID = confirmed.id
             }
@@ -148,7 +164,7 @@ import AppData
             if account.networking != .live { watchNetwork(account) }
         case .confirmed(.failure(let error)) where state.stage == .recover && error != .outcomeUnknown:
             recoveryRefused(error)
-        case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error)), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
+        case .nodes(.failure(let error)), .node(.failure(let error)), .saved(.failure(let error), _), .defaultSet(.failure(let error)), .began(.failure(let error)), .display(.failure(let error)), .challenge(.failure(let error)), .recovery(.failure(let error)), .confirmed(.failure(let error)):
             state.failure = (error == .failed || error == .invalidData) ? .onboardingProtocol : error
             if state.stage == .verifying { state.stage = .connectionFailed }
             if state.stage == .saving { state.stage = .saveFailed }
