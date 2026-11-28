@@ -12,6 +12,9 @@ public struct SettingsScreen: View {
     @Environment(\.locale) private var locale
     @Environment(\.rfTheme) private var theme
     @Environment(\.dismiss) private var dismiss
+    #if RAMFLUX_MLS_GALLERY
+    @Environment(\.mlsGalleryDestination) private var mlsGalleryDestination
+    #endif
     public let state: SettingsState
     public let onAction: (SettingsAction) -> Void
     public init(state: SettingsState, onAction: @escaping (SettingsAction) -> Void) { self.state = state; self.onAction = onAction }
@@ -142,6 +145,9 @@ public struct SettingsScreen: View {
             Button(FeatureSettingsStrings.text("settings.about.exportDiagnostics", locale: locale)) { onAction(.unavailable(.diagnosticExport)) }
 #if RAMFLUX_CARD_GALLERY
             NavigationLink("Card gallery") { CardFixtureGalleryView() }.accessibilityIdentifier("about-card-gallery")
+#endif
+#if RAMFLUX_MLS_GALLERY
+            if let destination = mlsGalleryDestination { NavigationLink("MLS gallery") { destination() }.accessibilityIdentifier("about-mls-gallery") }
 #endif
         default:
             group(copy("settings.section.accountDevices"), [

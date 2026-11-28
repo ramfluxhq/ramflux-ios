@@ -111,7 +111,7 @@ targets:
     settings:
       configs:
         Debug:
-          SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) RAMFLUX_CARD_GALLERY
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) RAMFLUX_CARD_GALLERY RAMFLUX_MLS_GALLERY
           "CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]": YES
           "CODE_SIGN_IDENTITY[sdk=iphonesimulator*]": "-"
           "CODE_SIGNING_ALLOWED[sdk=iphoneos*]": YES

@@ -27,6 +27,15 @@ import RFDesign
     private var coverWanted: Bool { coordinator.viewModel.state.privacyShield || coordinator.viewModel.state.appLocked }
     var body: some Scene {
         WindowGroup {
+            #if RAMFLUX_MLS_GALLERY
+            // Debug only: `-RamfluxMlsGallery 1` shows the MLS gallery as the root, so a source-only simulator build reaches it.
+            if MlsGalleryLaunch.enabled { MlsGalleryRoot(appearance: appearance) } else { appRoot.environment(\.mlsGalleryDestination, { AnyView(MlsGalleryView()) }) }
+            #else
+            appRoot
+            #endif
+        }
+    }
+    @ViewBuilder private var appRoot: some View {
             RFThemeScope(selection: appearance.rawValue) { AppShellHost(coordinator: coordinator, tabContent: { tab, account in
                 if tab == .messages, let account { return AnyView(VStack(spacing: 0) { NotificationPermissionBanner(state: composition.permissions.viewModel.state, onAction: composition.permissions.send); ConversationsHost(coordinator: composition.conversations(account: account)) }) }
                 if tab == .groups, let account { return AnyView(GroupsHost(coordinator: composition.groups(account: account))) }
@@ -117,7 +126,6 @@ import RFDesign
                     @unknown default: composition.notifier.setActive(false); composition.permissions.send(.sceneInactive); coordinator.send(.sceneInactive)
                     }
                 }
-        }
     }
 }
 
