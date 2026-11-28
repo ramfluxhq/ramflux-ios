@@ -16,14 +16,16 @@ public struct RFHostConfirmationActions: View {
     public let cancelEnabled: Bool
     /// A destructive confirmation keeps the danger style and starts with focus on Cancel; every other one is a primary action.
     public let destructive: Bool
+    /// An action that grants authority (device pairing, agent tool approval) keeps the primary style but, like a destructive one, starts with focus and VoiceOver on Cancel.
+    public let grantsAuthority: Bool
     public let confirm: () -> Void
     public let cancel: () -> Void
-    public init(summary: String, confirmLabel: String? = nil, cancelLabel: String? = nil, enabled: Bool, cancelEnabled: Bool = true, destructive: Bool = false, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
-        self.confirmLabel = confirmLabel; self.cancelLabel = cancelLabel; self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.destructive = destructive; self.confirm = confirm; self.cancel = cancel
+    public init(summary: String, confirmLabel: String? = nil, cancelLabel: String? = nil, enabled: Bool, cancelEnabled: Bool = true, destructive: Bool = false, grantsAuthority: Bool = false, confirm: @escaping () -> Void, cancel: @escaping () -> Void) {
+        self.confirmLabel = confirmLabel; self.cancelLabel = cancelLabel; self.summary = summary; self.enabled = enabled; self.cancelEnabled = cancelEnabled; self.destructive = destructive; self.grantsAuthority = grantsAuthority; self.confirm = confirm; self.cancel = cancel
     }
     public var body: some View {
         #if os(iOS)
-        RFNativeConfirmationActions(summary: summary, confirmLabel: confirmLabel, cancelLabel: cancelLabel, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, destructive: destructive, confirm: confirm, cancel: cancel)
+        RFNativeConfirmationActions(summary: summary, confirmLabel: confirmLabel, cancelLabel: cancelLabel, enabled: enabled && phase == .active, cancelEnabled: cancelEnabled, destructive: destructive, grantsAuthority: grantsAuthority, confirm: confirm, cancel: cancel)
         #else
         VStack(spacing: theme.gap) {
             RFHostConfirmButton(summary: summary, confirmLabel: confirmLabel, enabled: enabled && phase == .active, destructive: destructive, confirm: confirm)

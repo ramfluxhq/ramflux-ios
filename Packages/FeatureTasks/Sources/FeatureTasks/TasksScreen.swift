@@ -24,7 +24,7 @@ public struct TasksScreen: View {
                 Text(copy(confirmation.approve ? "approval.approve.title" : "approval.deny.title")).rfFont(.page)
                 TaskPermissionDetails(row: .approval(confirmation.approval))
                 RFHostConfirmationActions(summary: FeatureTasksStrings.sentence(confirmation.approve ? "tasks.approval.approve.summary" : "tasks.approval.deny.summary", [.untrusted(confirmation.approval.tool), .untrusted(confirmation.approval.server)], locale: locale),
-                    enabled: state.fresh && !state.busy, cancelEnabled: !state.busy, confirm: { onAction(.confirmApproval(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
+                    enabled: state.fresh && !state.busy, cancelEnabled: !state.busy, grantsAuthority: true, confirm: { onAction(.confirmApproval(confirmation.id)) }, cancel: { onAction(.cancelConfirmation) }).id(confirmation.id)
             }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
         }
         .sheet(item: Binding(get: { state.confirmation }, set: { if $0 == nil { onAction(.cancelConfirmation) } })) { confirmation in

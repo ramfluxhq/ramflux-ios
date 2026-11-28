@@ -10,7 +10,9 @@ import UIKit
     private var needsInitialFocus = false
     /// A destructive confirmation starts with focus on Cancel; any other one starts on its primary action.
     var destructive = true
-    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [destructive ? cancelButton : confirmButton] }
+    /// Focus starts on Cancel for a destructive confirmation and for one that grants authority.
+    var focusesCancel = true
+    override var preferredFocusEnvironments: [any UIFocusEnvironment] { [focusesCancel ? cancelButton : confirmButton] }
     override init(frame: CGRect) {
         super.init(frame: frame)
         stack.axis = .vertical; stack.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +37,7 @@ import UIKit
     }
     override func layoutSubviews() {
         super.layoutSubviews()
-        let target: UIButton = destructive ? cancelButton : confirmButton
+        let target: UIButton = focusesCancel ? cancelButton : confirmButton
         guard needsInitialFocus, let window, window.windowScene?.activationState == .foregroundActive,
               !bounds.isEmpty, target.isEnabled else { return }
         // First-responder transfer is effective even when another branch owns keyboard input.

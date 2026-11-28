@@ -31,7 +31,7 @@ public struct PairingScreen: View {
                     Text(copy("pairing.approve.confirm.title")).rfFont(.page)
                     facts(progress)
                     RFHostConfirmationActions(summary: FeatureSettingsStrings.sentence("pairing.approve.confirm.summary", [.untrusted(progress.peerName ?? ""), .identifier(progress.peerDeviceID ?? "")], locale: locale),
-                                              confirmLabel: copy("pairing.approve.confirm.action"), enabled: !state.busy, cancelEnabled: !state.busy,
+                                              confirmLabel: copy("pairing.approve.confirm.action"), enabled: !state.busy, cancelEnabled: !state.busy, grantsAuthority: true,
                                               confirm: { onAction(.confirmApprove) }, cancel: { onAction(.cancelApprove) }).id(progress.proposalHash ?? "")
                 }.padding(theme.gap) } }.interactiveDismissDisabled(state.busy)
             }

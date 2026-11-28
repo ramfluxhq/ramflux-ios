@@ -12,11 +12,12 @@ struct RFNativeConfirmationActions: UIViewRepresentable {
     let enabled: Bool
     let cancelEnabled: Bool
     let destructive: Bool
+    let grantsAuthority: Bool
     let confirm: () -> Void
     let cancel: () -> Void
     func makeUIView(context: Context) -> RFConfirmationActionsControl { RFConfirmationActionsControl() }
     func updateUIView(_ view: RFConfirmationActionsControl, context: Context) {
-        view.cancelAction = cancel; view.destructive = destructive
+        view.cancelAction = cancel; view.destructive = destructive; view.focusesCancel = destructive || grantsAuthority
         view.cancelButton.setTitle(cancelLabel ?? RFDesignStrings.text("confirmation.cancel", locale: locale), for: .normal)
         view.cancelButton.isEnabled = cancelEnabled
         view.cancelButton.titleLabel?.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: UIFont(name: theme.font, size: theme.size_body) ?? .preferredFont(forTextStyle: .body))
