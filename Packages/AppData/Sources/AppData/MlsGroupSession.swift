@@ -70,16 +70,16 @@ public enum MlsLinkCheck {
 /// writes until `admit()`; a call that returns after a clear is dropped (lesson R4-F2). Nothing here retries a call by itself.
 public actor MlsGroupSession {
     public let account: String
-    private let repository: any MlsGroupRepository
-    private let now: @Sendable () -> Date
-    private let makeID: @Sendable () -> String
-    private var admitted = true
-    private var epoch = 0
+    let repository: any MlsGroupRepository
+    let now: @Sendable () -> Date
+    let makeID: @Sendable () -> String
+    var admitted = true
+    var epoch = 0
     private var observers: [UUID: AsyncStream<Void>.Continuation] = [:]
     private var eventTask: Task<Void, Never>?
 
     // List
-    private var groups: [String: MlsGroupInfo] = [:]
+    var groups: [String: MlsGroupInfo] = [:]
     private var eventNewer: Set<String> = []
     private var listCursor: String?
     private var listPhase: MlsListSnapshot.Phase = .loading
@@ -95,15 +95,15 @@ public actor MlsGroupSession {
     // Create
     private var creating = false
     // Per group
-    private var timelines: [String: MlsTimelineStore] = [:]
+    var timelines: [String: MlsTimelineStore] = [:]
     private var recent: [String] = []
     private var invites: [String: MlsInviteSnapshot] = [:]
-    private var members: [String: MlsMembersSnapshot] = [:]
-    private var memberCursor: [String: String] = [:]
-    private var aiAnchors: [String: Set<String>] = [:]
-    private var myAnchor: String?
+    var members: [String: MlsMembersSnapshot] = [:]
+    var memberCursor: [String: String] = [:]
+    var aiAnchors: [String: Set<String>] = [:]
+    var myAnchor: String?
     private var lastRefresh: [String: Date] = [:]
-    private var lastInfoRead: [String: Date] = [:]
+    var lastInfoRead: [String: Date] = [:]
     private var infoQueued: Set<String> = []
     private var markedRead: [String: Int64] = [:]
     /// Send records of a group whose timeline was evicted (S4): not-sent bubbles and sends still in flight survive until
@@ -112,6 +112,8 @@ public actor MlsGroupSession {
     private var evictedSend: [String: EvictedSend] = [:]
     private var wakeTask: Task<Void, Never>?
     private var wakeAt: Int64?
+    /// The M3 admin owner state (common 3.1 to 3.7): the slot, requests, push, skip, catch-up and warning records of the account.
+    var admin = MlsAdminState()
     static let recentGroups = 3
     static let refreshWindow: TimeInterval = 5
 
@@ -129,7 +131,7 @@ public actor MlsGroupSession {
         return stream
     }
     private func removeObserver(_ id: UUID) { observers[id] = nil }
-    private func changed() { for continuation in observers.values { continuation.yield(()) }; scheduleWake() }
+    func changed() { for continuation in observers.values { continuation.yield(()) }; scheduleWake() }
     /// One timer at the earliest future time a snapshot changes by the clock alone (a rate-limit reset or a pending join
     /// that expires). It only publishes a change so the screen re-reads its snapshot; it never sends anything.
     private func scheduleWake() {
@@ -137,6 +139,7 @@ public actor MlsGroupSession {
         let current = nowMillis
         var times: [Int64] = timelines.values.compactMap(\.composerOffUntil) + evictedSend.values.compactMap(\.composerOffUntil)
         times += pendingJoins.values.map(\.expiresAt)
+        times += admin.wakeTimes()
         let next = times.filter { $0 > current }.min()
         guard next != wakeAt else { return }
         wakeTask?.cancel(); wakeTask = nil; wakeAt = next
@@ -172,14 +175,15 @@ public actor MlsGroupSession {
         joinAttempt = 0; joinInFlight = nil; joinOutcome = nil; requestAttempts = [:]; creating = false
         timelines = [:]; recent = []; invites = [:]; members = [:]; memberCursor = [:]; aiAnchors = [:]; myAnchor = nil
         lastRefresh = [:]; lastInfoRead = [:]; infoQueued = []; markedRead = [:]; evictedSend = [:]
+        admin = MlsAdminState()
         wakeTask?.cancel(); wakeTask = nil; wakeAt = nil
         changed()
     }
     /// The account is unlocked again: writes are accepted and the event consumer restarts.
     public func admit() { guard !admitted else { return }; admitted = true; start(); changed() }
 
-    private func live(_ token: Int) -> Bool { admitted && token == epoch }
-    private var nowMillis: Int64 { Int64(now().timeIntervalSince1970 * 1000) }
+    func live(_ token: Int) -> Bool { admitted && token == epoch }
+    var nowMillis: Int64 { Int64(now().timeIntervalSince1970 * 1000) }
 
     // MARK: Snapshots
     public func listSnapshot() -> MlsListSnapshot {
@@ -207,7 +211,7 @@ public actor MlsGroupSession {
         guard let store = timelines[group] else { return MlsTimelineSnapshot(groupID: group) }
         var snapshot = MlsTimelineSnapshot(groupID: group)
         let ai = aiAnchors[group] ?? [], me = myAnchor
-        let context = MlsTimelineProjection.Context(isMe: { $0.isMe || (me != nil && $0.anchor == me) }, isAI: { $0.aiFlag || ai.contains($0.anchor) })
+        let context = adminTimelineContext(group, isMe: { $0.isMe || (me != nil && $0.anchor == me) }, isAI: { $0.aiFlag || ai.contains($0.anchor) })
         snapshot.entries = MlsTimelineProjection.entries(store, mine: { post in post.author.map { $0.isMe || (me != nil && $0.anchor == me) } ?? false }, context: context)
         snapshot.phase = store.phase; snapshot.olderAvailable = store.olderMore; snapshot.loadingOlder = store.loadingOlder; snapshot.detached = store.detached
         snapshot.readOnly = store.readOnly; snapshot.composerOffUntil = store.composerOffUntil.flatMap { $0 > nowMillis ? $0 : nil }
@@ -219,12 +223,12 @@ public actor MlsGroupSession {
     public func clearActionError(_ group: String) { timelines[group]?.actionError = nil; changed() }
 
     // MARK: Absorbing SDK rows (S8)
-    private func absorb(_ author: MlsAuthor?, group: String) {
+    func absorb(_ author: MlsAuthor?, group: String) {
         guard let author, !author.anchor.isEmpty else { return }
         if author.aiFlag { aiAnchors[group, default: []].insert(author.anchor) }
         if author.isMe { myAnchor = author.anchor }
     }
-    private func absorb(_ post: MlsPost, group: String) {
+    func absorb(_ post: MlsPost, group: String) {
         absorb(post.author, group: group)
         switch post.body {
         case .membership(let changes, let by):
@@ -284,20 +288,24 @@ public actor MlsGroupSession {
     @discardableResult public func refreshInfo(_ group: String) async -> MlsGroupError? {
         guard admitted else { return .unavailable }
         let token = epoch
+        let mark = adminMark(group)
         let result = await repository.info(account: account, groupID: group)
         guard live(token) else { return nil }
         lastInfoRead[group] = now()
         switch result {
         case .success(let info):
-            groups[group] = info.with(lastActivityAt: max(info.lastActivityAt, groups[group]?.lastActivityAt ?? 0))
+            // A name or switch an event confirmed after this read was issued is newer than the read: keep the event's value.
+            let kept = mark.settingsEvents != (admin.settingsEvents[group] ?? 0) ? groups[group] : nil
+            groups[group] = info.with(lastActivityAt: max(info.lastActivityAt, groups[group]?.lastActivityAt ?? 0), name: kept?.name, approval: kept?.approval)
+            adminApplyInfo(info, group: group, mark: mark)
             changed(); return nil
         case .failure(let error):
-            if error == .notMember, timelines[group] != nil, timelines[group]?.readOnly == nil { timelines[group]?.readOnly = .left; changed() }
+            if error == .notMember, timelines[group] != nil, timelines[group]?.readOnly == nil { timelines[group]?.readOnly = .left; adminDropGroup(group); changed() }
             return error
         }
     }
     /// Info reads caused by events are coalesced to at most one per second per group.
-    private func scheduleInfo(_ group: String) {
+    func scheduleInfo(_ group: String) {
         if let last = lastInfoRead[group], now().timeIntervalSince(last) < 1 {
             guard infoQueued.insert(group).inserted else { return }
             let token = epoch
@@ -465,7 +473,7 @@ public actor MlsGroupSession {
         }
         members[group]?.loadingAll = false; changed()
     }
-    private func loadMemberPage(_ group: String, first: Bool) async {
+    func loadMemberPage(_ group: String, first: Bool) async {
         let token = epoch
         var snapshot = members[group] ?? MlsMembersSnapshot()
         guard snapshot.phase != .loading else { return }
@@ -487,7 +495,9 @@ public actor MlsGroupSession {
             memberCursor[group] = page.cursor
         case .failure(let error): next.phase = .pageError(error)
         }
-        members[group] = next; changed()
+        members[group] = next
+        adminMembersLoaded(group)
+        changed()
     }
 
     // MARK: Timeline (common 3.3)
@@ -650,6 +660,8 @@ public actor MlsGroupSession {
                 else { apply(receipt.state, to: &store, at: index) }
             }
         }
+        // The quota is a local count: read it again after the own send reply (coalesced, common 2.8).
+        scheduleInfo(group)
         changed()
     }
     /// Moves a pending post to the state of a reply or a `post_state` event.
@@ -703,6 +715,7 @@ public actor MlsGroupSession {
         if case .success = result {
             if timelines[group] == nil { var store = MlsTimelineStore(); store.groupID = group; timelines[group] = store }
             timelines[group]?.readOnly = .left
+            adminDropGroup(group)
             _ = await refreshInfo(group)
         }
         changed()
@@ -713,12 +726,15 @@ public actor MlsGroupSession {
     func handle(_ event: MlsGroupEvent) async {
         guard admitted else { return }
         switch event {
-        case .post(let group, let seq, let at, let post): applyPost(post, group: group, seq: seq, at: at)
+        case .post(let group, let seq, let at, let post):
+            applyPost(post, group: group, seq: seq, at: at)
+            if post.kind == .void { adminVoidApplied(post, group: group) }
         case .membership(let group, let seq, let at, let post):
             applyPost(post, group: group, seq: seq, at: at)
+            adminMembershipApplied(post, group: group)
             applyOwnMembership(post, group: group)
             scheduleInfo(group)
-        case .settings(let group, let seq, let at, let post): applyPost(post, group: group, seq: seq, at: at); scheduleInfo(group)
+        case .settings(let group, let seq, let at, let post): applyPost(post, group: group, seq: seq, at: at); adminSettingsApplied(post, group: group); scheduleInfo(group)
         case .postState(let group, let postID, let state, let logSeq): applyPostState(group: group, postID: postID, state: state, logSeq: logSeq)
         case .postDeleted(let group, let postID, let postLogSeq, _):
             guard var store = timelines[group] else { break }
@@ -729,7 +745,9 @@ public actor MlsGroupSession {
         case .joinResult(let join): applyJoinEvent(join)
         case .read(let group, let readSeq, let unread, let mentions):
             if let info = groups[group] { groups[group] = info.with(unread: unread, unreadMentions: mentions, readLogSeq: readSeq) }
-        case .pendingJoin, .catchUp, .warning: break   // M3: handled by the admin owner
+        case .pendingJoin(let group, _, let request): adminPendingJoin(group: group, request: request)
+        case .catchUp(let group, let seq, let state): adminCatchUp(group: group, seq: seq, state: state)
+        case .warning(let group, _, let warning): adminWarning(group: group, warning: warning)
         case .ignored: break
         }
         changed()
@@ -768,9 +786,10 @@ public actor MlsGroupSession {
             }
         }
     }
-    private func setReadOnly(_ group: String, _ reason: MlsReadOnly) {
+    func setReadOnly(_ group: String, _ reason: MlsReadOnly) {
         if timelines[group] == nil { var store = MlsTimelineStore(); store.groupID = group; timelines[group] = store }
         timelines[group]?.readOnly = reason
+        adminDropGroup(group)
     }
     private func applyPostState(group: String, postID: String, state: MlsPostState, logSeq: Int64?) {
         let mapped: MlsSendState = switch state {

@@ -21,11 +21,23 @@ public struct MlsServiceLine: Equatable, Sendable, Identifiable {
         case removed(by: MlsActorName?, target: MlsActorName), banned(by: MlsActorName?, target: MlsActorName)
         case roleAdmin(by: MlsActorName?, target: MlsActorName), roleMember(by: MlsActorName?, target: MlsActorName)
         case name(by: MlsActorName?, MlsGroupName), approvalOn(by: MlsActorName?), approvalOff(by: MlsActorName?)
-        case void, updated
+        /// A void row: who undid the change (M3).
+        case void(by: MlsActorName?)
+        /// `undecryptable{count, from_log_seq}`: one placeholder at `from_log_seq` (common 3.7).
+        case undecryptable(count: Int)
+        case updated
     }
     public let id: String
     public let kind: Kind
-    public init(id: String, kind: Kind) { self.id = id; self.kind = kind }
+    /// The `log_seq` of the commit row this line belongs to (membership, settings and void rows), nil for the others.
+    public let logSeq: Int64?
+    /// This is the head commit and the viewer may undo it (common 2.6).
+    public let voidable: Bool
+    /// A later void row undid this commit: it shows the "Undone" mark.
+    public let voided: Bool
+    /// The void of this commit is running or waiting for its row.
+    public let undoing: Bool
+    public init(id: String, kind: Kind, logSeq: Int64? = nil, voidable: Bool = false, voided: Bool = false, undoing: Bool = false) { self.id = id; self.kind = kind; self.logSeq = logSeq; self.voidable = voidable; self.voided = voided; self.undoing = undoing }
 }
 
 /// A group name inside a service line (untrusted text).
@@ -182,7 +194,17 @@ struct MlsTimelineStore {
 enum MlsTimelineProjection {
     static let maxCollapsed = 500
 
-    struct Context { let isMe: (MlsAuthor) -> Bool; let isAI: (MlsAuthor) -> Bool }
+    struct Context {
+        let isMe: (MlsAuthor) -> Bool
+        let isAI: (MlsAuthor) -> Bool
+        /// The commit row the viewer may undo (common 2.6), or nil.
+        var voidable: Int64?
+        /// The commit whose void is running or waiting.
+        var undoing: Int64?
+        /// The `undecryptable` warning: one placeholder before the first row at or after `from`.
+        var undecryptable: (count: Int, from: Int64?)?
+        init(isMe: @escaping (MlsAuthor) -> Bool, isAI: @escaping (MlsAuthor) -> Bool, voidable: Int64? = nil, undoing: Int64? = nil, undecryptable: (count: Int, from: Int64?)? = nil) { self.isMe = isMe; self.isAI = isAI; self.voidable = voidable; self.undoing = undoing; self.undecryptable = undecryptable }
+    }
 
     static func name(_ author: MlsAuthor, _ context: Context) -> MlsActorName {
         MlsActorName(display: author.display, isMe: context.isMe(author), aiFlag: context.isAI(author))
@@ -192,8 +214,17 @@ enum MlsTimelineProjection {
     static func entries(_ store: MlsTimelineStore, mine: (MlsPost) -> Bool, context: Context) -> [MlsTimelineEntry] {
         var out: [MlsTimelineEntry] = []
         if store.loaded, !store.olderMore, !store.posts.isEmpty { out.append(.floor) }
+        var voided: Set<Int64> = []
+        for case let post in store.posts.values { if case .void(let target?, _) = post.body { voided.insert(target) } }
+        var placeholder = context.undecryptable
+        func mark(_ line: MlsServiceLine, _ seq: Int64) -> MlsServiceLine {
+            MlsServiceLine(id: line.id, kind: line.kind, logSeq: seq, voidable: seq == context.voidable, voided: voided.contains(seq), undoing: seq == context.undoing)
+        }
         for seq in store.posts.keys.sorted() {
             guard let post = store.posts[seq] else { continue }
+            if let pending = placeholder, pending.from.map({ seq >= $0 }) ?? false {
+                out.append(.service(MlsServiceLine(id: "undecryptable", kind: .undecryptable(count: pending.count)))); placeholder = nil
+            }
             switch post.kind {
             case .text, .attachment, .card:
                 let deleted = post.state == .deleted || store.tombstoned.contains(post.postID)
@@ -201,19 +232,23 @@ enum MlsTimelineProjection {
                 out.append(.post(MlsPostRow(post: post, isMine: own, isDeleted: deleted, canDelete: own && !deleted && post.logSeq != nil, deleting: store.deleting.contains(post.postID) && !deleted, authorIsAgent: post.author.map(context.isAI) ?? false)))
             case .membership:
                 guard case .membership(let changes, let by) = post.body else { continue }
-                for line in membershipLines(changes, by: by, id: seq, context: context) { append(line, to: &out) }
+                for line in membershipLines(changes, by: by, id: seq, context: context) { append(mark(line, seq), to: &out, keepApart: seq == context.voidable || voided.contains(seq)) }
             case .settings:
-                guard case .settings(let name, let approval, let by) = post.body else { out.append(.service(MlsServiceLine(id: String(seq), kind: .updated))); continue }
+                guard case .settings(let name, let approval, let by) = post.body else { out.append(.service(mark(MlsServiceLine(id: String(seq), kind: .updated), seq))); continue }
                 let actor = by.map { self.name($0, context) }
                 var lines: [MlsServiceLine.Kind] = []
                 if let name { lines.append(.name(by: actor, MlsGroupName(name))) }
                 if let approval { lines.append(approval ? .approvalOn(by: actor) : .approvalOff(by: actor)) }
                 if lines.isEmpty { lines = [.updated] }
-                for (index, kind) in lines.enumerated() { out.append(.service(MlsServiceLine(id: "\(seq).\(index)", kind: kind))) }
-            case .void: out.append(.service(MlsServiceLine(id: String(seq), kind: .void)))
+                for (index, kind) in lines.enumerated() { out.append(.service(mark(MlsServiceLine(id: "\(seq).\(index)", kind: kind), seq))) }
+            case .void:
+                var by: MlsActorName?
+                if case .void(_, let author) = post.body { by = author.map { self.name($0, context) } }
+                out.append(.service(MlsServiceLine(id: String(seq), kind: .void(by: by), logSeq: seq)))
             case .unknown: out.append(.service(MlsServiceLine(id: String(seq), kind: .updated)))
             }
         }
+        if let pending = placeholder { out.append(.service(MlsServiceLine(id: "undecryptable", kind: .undecryptable(count: pending.count)))) }
         for pending in store.pending { out.append(.pending(pending)) }
         return out
     }
@@ -246,11 +281,12 @@ enum MlsTimelineProjection {
     }
 
     /// Appends a service line; a joined (or left) line directly after another one of the same kind merges into it.
-    private static func append(_ line: MlsServiceLine, to out: inout [MlsTimelineEntry]) {
-        if case .service(let previous)? = out.last {
+    /// `keepApart`: the row is the head commit or an undone one, so its line keeps its own undo entry or mark.
+    private static func append(_ line: MlsServiceLine, to out: inout [MlsTimelineEntry], keepApart: Bool = false) {
+        if !keepApart, case .service(let previous)? = out.last, previous.voidable == false, previous.voided == false {
             switch (previous.kind, line.kind) {
-            case (.joined(let a), .joined(let b)): out[out.count - 1] = .service(MlsServiceLine(id: previous.id, kind: .joined(Array((a + b).prefix(maxCollapsed))))); return
-            case (.left(let a), .left(let b)): out[out.count - 1] = .service(MlsServiceLine(id: previous.id, kind: .left(Array((a + b).prefix(maxCollapsed))))); return
+            case (.joined(let a), .joined(let b)): out[out.count - 1] = .service(MlsServiceLine(id: previous.id, kind: .joined(Array((a + b).prefix(maxCollapsed))), logSeq: line.logSeq)); return
+            case (.left(let a), .left(let b)): out[out.count - 1] = .service(MlsServiceLine(id: previous.id, kind: .left(Array((a + b).prefix(maxCollapsed))), logSeq: line.logSeq)); return
             default: break
             }
         }
