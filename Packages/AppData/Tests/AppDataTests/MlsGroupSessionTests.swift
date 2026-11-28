@@ -53,6 +53,18 @@ private final class FakeMls: MlsGroupRepository, @unchecked Sendable {
     func deleteMessage(account: String, groupID: String, postID: String) async -> Result<MlsDeleteOutcome, MlsGroupError> { note("delete"); return .success(.deleted(logSeq: 99)) }
     func leave(account: String, groupID: String) async -> Result<MlsCommit, MlsGroupError> { note("leave"); return .success(MlsCommit(logSeq: 1)) }
     func events(account: String) -> AsyncStream<MlsGroupEvent> { AsyncStream { $0.finish() } }
+    // M3 methods: scripted by MlsGroupAdminTests through `FakeMls`.
+    public func requests(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsRequestsPage, MlsGroupError> { .failure(.unavailable) }
+    public func approve(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func decline(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setRole(account: String, groupID: String, anchor: String, role: MlsRole) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func removeMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func banMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setSettings(account: String, groupID: String, name: String?, approval: Bool?) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setPush(account: String, groupID: String, push: MlsPush) async -> Result<MlsPush, MlsGroupError> { .failure(.unavailable) }
+    public func skipCatchUp(account: String, groupID: String) async -> Result<MlsCatchUpResult, MlsGroupError> { .failure(.unavailable) }
+    public func void(account: String, groupID: String, logSeq: Int64) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+
 }
 
 private func author(_ anchor: String, ai: Bool = false, me: Bool = false) -> MlsAuthor { MlsAuthor(anchor: anchor, display: anchor.uppercased(), aiFlag: ai, isMe: me) }

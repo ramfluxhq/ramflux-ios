@@ -49,11 +49,66 @@ public enum MlsPrivacyDelay: Equatable, Sendable {
     case waiting(sendAfter: Int64)
 }
 
+/// Why a device must rejoin (`rejoin_needed.params.reason`, r3 item 10).
+public enum MlsRejoinReason: Equatable, Sendable, Hashable {
+    case pruned, gateRejected, applyFailed, welcomeExpired, stateLost, unknown(String)
+    public init(raw: String?) {
+        switch raw {
+        case "pruned": self = .pruned; case "gate_rejected": self = .gateRejected; case "apply_failed": self = .applyFailed
+        case "welcome_expired": self = .welcomeExpired; case "state_lost": self = .stateLost
+        default: self = .unknown(String((raw ?? "").prefix(64)))
+        }
+    }
+}
+
+public enum MlsHostUnusualKind: Equatable, Sendable, Hashable {
+    case lateRoll, lateReply, unknown(String)
+    public init(raw: String?) {
+        switch raw { case "late_roll": self = .lateRoll; case "late_reply": self = .lateReply; default: self = .unknown(String((raw ?? "").prefix(64))) }
+    }
+}
+
+/// A warning code with its params (common 2.7). `unknown` keeps the raw code for the generic row only.
+public enum MlsWarningCode: Equatable, Sendable, Hashable {
+    case forkAlarm(headN: Int?)
+    case rejoinNeeded(MlsRejoinReason)
+    case undecryptable(count: Int, fromLogSeq: Int64?)
+    case admissionNeedsOnline
+    case hostUnusual(MlsHostUnusualKind)
+    case headCommitRejected(logSeq: Int64?)
+    case hostIpVisible(hostNode: String?)
+    case unknown(String)
+    /// The set key: one warning per code name.
+    public var key: String {
+        switch self {
+        case .forkAlarm: "fork_alarm"
+        case .rejoinNeeded: "rejoin_needed"
+        case .undecryptable: "undecryptable"
+        case .admissionNeedsOnline: "admission_needs_online"
+        case .hostUnusual: "host_unusual"
+        case .headCommitRejected: "head_commit_rejected"
+        case .hostIpVisible: "host_ip_visible"
+        case .unknown(let raw): "unknown:" + raw
+        }
+    }
+    /// The accessibility id suffix and the log name: a code only, never a param value.
+    public var name: String {
+        if case .unknown = self { return "unknown" }
+        return key
+    }
+}
+
 public struct MlsWarning: Equatable, Sendable {
-    public let code: String
+    public let code: MlsWarningCode
+    /// A `warning` event with `cleared: true`; a `group.info` row is never cleared.
+    public let cleared: Bool
+    public init(code: MlsWarningCode, cleared: Bool = false) { self.code = code; self.cleared = cleared }
+    /// The M2 shape: a raw code name and `params.host_node`.
+    public init(code: String, hostNode: String? = nil) {
+        self.init(code: code == "host_ip_visible" ? .hostIpVisible(hostNode: hostNode) : .unknown(code))
+    }
     /// `params.host_node` of `host_ip_visible`.
-    public let hostNode: String?
-    public init(code: String, hostNode: String? = nil) { self.code = code; self.hostNode = hostNode }
+    public var hostNode: String? { if case .hostIpVisible(let node) = code { node } else { nil } }
 }
 
 public struct MlsCatchUp: Equatable, Sendable {
@@ -94,7 +149,7 @@ public struct MlsGroupInfo: Equatable, Sendable, Identifiable {
         self.groupID = groupID; self.name = name; self.tier = tier; self.members = members; self.leaves = leaves; self.agents = agents; self.approval = approval; self.myRole = myRole; self.hostNode = hostNode; self.push = push; self.catchUp = catchUp; self.privacyDelay = privacyDelay; self.postQuota = postQuota; self.commitQuota = commitQuota; self.lastLogSeq = lastLogSeq; self.warnings = warnings; self.lastActivityAt = lastActivityAt
     }
     /// The `host_ip_visible` host: the warning's `host_node`, else `host_node` of the info.
-    public var visibleHost: String? { warnings.first { $0.code == "host_ip_visible" }?.hostNode ?? hostNode }
+    public var visibleHost: String? { warnings.first { if case .hostIpVisible = $0.code { true } else { false } }?.hostNode ?? hostNode }
 }
 
 /// `last_post` of a list row: a text-only snippet of at most 100 characters.
@@ -314,13 +369,16 @@ public enum MlsDeleteOutcome: Equatable, Sendable {
 /// repository before the pin; it is never retried.
 public enum MlsGroupError: Error, Equatable, Sendable {
     case notMember, notAdmin, ownerProtected, tierUnavailable, groupFull
+    /// `not_admin{required: owner}` (M3): the action is the owner's.
+    case notOwner
     case paced(retryAt: Int64?)
     case rateLimited
     case rejoinNeeded
     case tooLarge(maxBytes: Int?)
     case hostUnreachable
     case unknownInvite, requestNotFound, messageNotFound, notAuthor
-    case voidNotHead
+    /// `void_not_head{head_log_seq}` (M3).
+    case voidNotHead(headLogSeq: Int64?)
     case unavailable
     case offline
     case generic(String?)
@@ -347,6 +405,10 @@ public enum MlsGroupEvent: Equatable, Sendable {
     case membership(groupID: String, seq: Int64?, at: Int64?, post: MlsPost)
     case settings(groupID: String, seq: Int64?, at: Int64?, post: MlsPost)
     case joinResult(MlsJoinEvent)
+    /// M3: a request arrived for an approval group (admins only act on it).
+    case pendingJoin(groupID: String, seq: Int64?, request: MlsJoinRequest)
+    case catchUp(groupID: String, seq: Int64?, state: MlsCatchUp)
+    case warning(groupID: String, seq: Int64?, warning: MlsWarning)
     case ignored
 }
 
@@ -358,7 +420,67 @@ public enum MlsReadOnly: Equatable, Sendable { case left, removed, banned }
 
 extension MlsGroupInfo {
     /// A copy with the fields a local event or an own action moves.
-    func with(lastLogSeq: Int64? = nil, lastActivityAt: Int64? = nil, unread: Int? = nil, unreadMentions: Int? = nil, readLogSeq: Int64? = nil) -> MlsGroupInfo {
-        MlsGroupInfo(groupID: groupID, name: name, tier: tier, members: members, leaves: leaves, agents: agents, approval: approval, myRole: myRole, hostNode: hostNode, push: push, catchUp: catchUp, privacyDelay: privacyDelay, postQuota: postQuota, commitQuota: commitQuota, lastLogSeq: lastLogSeq ?? self.lastLogSeq, warnings: warnings, lastActivityAt: lastActivityAt ?? self.lastActivityAt, unread: unread ?? self.unread, unreadMentions: unreadMentions ?? self.unreadMentions, readLogSeq: readLogSeq ?? self.readLogSeq, lastPost: lastPost)
+    func with(lastLogSeq: Int64? = nil, lastActivityAt: Int64? = nil, unread: Int? = nil, unreadMentions: Int? = nil, readLogSeq: Int64? = nil, name: String? = nil, approval: Bool? = nil, push: MlsPush? = nil) -> MlsGroupInfo {
+        MlsGroupInfo(groupID: groupID, name: name ?? self.name, tier: tier, members: members, leaves: leaves, agents: agents, approval: approval ?? self.approval, myRole: myRole, hostNode: hostNode, push: push ?? self.push, catchUp: catchUp, privacyDelay: privacyDelay, postQuota: postQuota, commitQuota: commitQuota, lastLogSeq: lastLogSeq ?? self.lastLogSeq, warnings: warnings, lastActivityAt: lastActivityAt ?? self.lastActivityAt, unread: unread ?? self.unread, unreadMentions: unreadMentions ?? self.unreadMentions, readLogSeq: readLogSeq ?? self.readLogSeq, lastPost: lastPost)
     }
+}
+
+
+// MARK: M3 (admin and edge states)
+
+/// One join request of `group.requests.list` or a `pending_join` event. The request id and the anchor are never printed or logged (A13).
+public struct MlsJoinRequest: Equatable, Sendable, Identifiable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
+    public var id: String { requestID }
+    public let requestID: String
+    public let anchor: String
+    /// Nil for a non-contact: the screen shows "Member", never the anchor.
+    public let display: String?
+    public let aiFlag: Bool
+    public let requestedAt: Int64
+    public let expiresAt: Int64
+    public init(requestID: String, anchor: String, display: String? = nil, aiFlag: Bool = false, requestedAt: Int64 = 0, expiresAt: Int64 = 0) { self.requestID = requestID; self.anchor = anchor; self.display = display; self.aiFlag = aiFlag; self.requestedAt = requestedAt; self.expiresAt = expiresAt }
+    public var description: String { "MlsJoinRequest" }
+    public var debugDescription: String { description }
+    public var customMirror: Mirror { Mirror(self, children: ["aiFlag": aiFlag, "requestedAt": requestedAt, "expiresAt": expiresAt], displayStyle: .struct) }
+    public func isExpired(now: Int64) -> Bool { expiresAt > 0 && expiresAt <= now }
+}
+
+public struct MlsRequestsPage: Equatable, Sendable {
+    public let rows: [MlsJoinRequest]
+    public let cursor: String?
+    public init(rows: [MlsJoinRequest], cursor: String?) { self.rows = rows; self.cursor = cursor }
+}
+
+/// The commit-producing admin actions (common 3.1). Decline, push and skip are not in this list: they produce no commit.
+public enum MlsAdminKind: Equatable, Sendable { case approve, role, remove, ban, settings, void }
+
+public enum MlsSettingField: Equatable, Sendable { case name, approval }
+
+/// What an admin action is aimed at. Request ids and anchors are redacted in every debug output (A13).
+public enum MlsAdminTarget: Equatable, Sendable, CustomStringConvertible, CustomDebugStringConvertible, CustomReflectable {
+    case request(String), member(String), setting(MlsSettingField), logSeq(Int64)
+    public var description: String { "MlsAdminTarget" }
+    public var debugDescription: String { description }
+    public var customMirror: Mirror { Mirror(self, children: [], displayStyle: .enum) }
+}
+
+/// The reply of an admin write: `{state: committed, log_seq}` or, for a decline, `{state: declined}`.
+public enum MlsAdminOutcome: Equatable, Sendable {
+    case committed(logSeq: Int64?)
+    case declined
+}
+
+/// The reply of `group.catch_up{skip: true}`.
+public enum MlsCatchUpResult: Equatable, Sendable {
+    case rejoining
+    case running(done: Int, total: Int)
+    case idle
+}
+
+/// The newest value of a refusal the screens show once (a toast or a line), with the kind of action it came from.
+public struct MlsAdminNotice: Equatable, Sendable {
+    public let error: MlsGroupError
+    /// `request_not_found` on an approve or decline: the row is gone and a toast says so.
+    public let isToast: Bool
+    public init(error: MlsGroupError, isToast: Bool = false) { self.error = error; self.isToast = isToast }
 }

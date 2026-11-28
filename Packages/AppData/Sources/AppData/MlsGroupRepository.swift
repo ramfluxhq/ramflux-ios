@@ -23,6 +23,21 @@ public protocol MlsGroupRepository: Sendable {
     func markRead(account: String, groupID: String, logSeq: Int64) async -> Result<MlsReadState, MlsGroupError>
     func deleteMessage(account: String, groupID: String, postID: String) async -> Result<MlsDeleteOutcome, MlsGroupError>
     func leave(account: String, groupID: String) async -> Result<MlsCommit, MlsGroupError>
+    /// M3 (admin and edge states). Each call is one explicit, confirmed tap of the session; the session never retries one.
+    /// `group.requests.list{group_id, cursor?, limit}`.
+    func requests(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsRequestsPage, MlsGroupError>
+    func approve(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError>
+    func decline(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError>
+    func setRole(account: String, groupID: String, anchor: String, role: MlsRole) async -> Result<MlsAdminOutcome, MlsGroupError>
+    func removeMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError>
+    func banMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError>
+    /// Exactly one of `name` and `approval` is non-nil (common 2.4); push is never part of it.
+    func setSettings(account: String, groupID: String, name: String?, approval: Bool?) async -> Result<MlsAdminOutcome, MlsGroupError>
+    /// The per-device push mode (Q1): local to this device, no commit, no event.
+    func setPush(account: String, groupID: String, push: MlsPush) async -> Result<MlsPush, MlsGroupError>
+    /// `group.catch_up{skip: true}`: the only way a skip is ever sent.
+    func skipCatchUp(account: String, groupID: String) async -> Result<MlsCatchUpResult, MlsGroupError>
+    func void(account: String, groupID: String, logSeq: Int64) async -> Result<MlsAdminOutcome, MlsGroupError>
     /// `group.event` frames of the account, parsed. The stream finishes with the hub.
     func events(account: String) -> AsyncStream<MlsGroupEvent>
 }
@@ -45,6 +60,16 @@ public struct UnavailableMlsGroupRepository: MlsGroupRepository {
     public func markRead(account: String, groupID: String, logSeq: Int64) async -> Result<MlsReadState, MlsGroupError> { .failure(.unavailable) }
     public func deleteMessage(account: String, groupID: String, postID: String) async -> Result<MlsDeleteOutcome, MlsGroupError> { .failure(.unavailable) }
     public func leave(account: String, groupID: String) async -> Result<MlsCommit, MlsGroupError> { .failure(.unavailable) }
+    public func requests(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsRequestsPage, MlsGroupError> { .failure(.unavailable) }
+    public func approve(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func decline(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setRole(account: String, groupID: String, anchor: String, role: MlsRole) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func removeMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func banMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setSettings(account: String, groupID: String, name: String?, approval: Bool?) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setPush(account: String, groupID: String, push: MlsPush) async -> Result<MlsPush, MlsGroupError> { .failure(.unavailable) }
+    public func skipCatchUp(account: String, groupID: String) async -> Result<MlsCatchUpResult, MlsGroupError> { .failure(.unavailable) }
+    public func void(account: String, groupID: String, logSeq: Int64) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
     public func events(account: String) -> AsyncStream<MlsGroupEvent> { AsyncStream { $0.finish() } }
 }
 
@@ -114,6 +139,46 @@ public struct NativeMlsGroupRepository: MlsGroupRepository {
     }
     public func leave(account: String, groupID: String) async -> Result<MlsCommit, MlsGroupError> {
         // W: SDKOperation.groupLeave is the old shape at the pin; use the new one after it, body {group_id}; parse with MlsGroupParsing.commit.
+        .failure(.unavailable)
+    }
+    public func requests(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsRequestsPage, MlsGroupError> {
+        // W: SDKOperation.groupRequestsList after the pin, body {group_id, cursor?, limit}; parse with MlsGroupParsing.requests.
+        .failure(.unavailable)
+    }
+    public func approve(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupRequestsApprove after the pin, body {group_id, request_id}; parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func decline(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupRequestsDecline after the pin, body {group_id, request_id}; parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func setRole(account: String, groupID: String, anchor: String, role: MlsRole) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupRoleSet after the pin, body {group_id, anchor, role: admin | member}; parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func removeMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupMemberRemove after the pin, body {group_id, anchor}; parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func banMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupMemberBan after the pin, body {group_id, anchor}; parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func setSettings(account: String, groupID: String, name: String?, approval: Bool?) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupSettingsSet after the pin, body {group_id, name? | approval?} (one field, never push); parse with MlsGroupParsing.adminOutcome.
+        .failure(.unavailable)
+    }
+    public func setPush(account: String, groupID: String, push: MlsPush) async -> Result<MlsPush, MlsGroupError> {
+        // W: SDKOperation.groupPushSet after the pin (method name is Q1), body {group_id, push}; parse with MlsGroupParsing.pushResult.
+        .failure(.unavailable)
+    }
+    public func skipCatchUp(account: String, groupID: String) async -> Result<MlsCatchUpResult, MlsGroupError> {
+        // W: SDKOperation.groupCatchUp after the pin, body {group_id, skip: true}; parse with MlsGroupParsing.catchUpResult.
+        .failure(.unavailable)
+    }
+    public func void(account: String, groupID: String, logSeq: Int64) async -> Result<MlsAdminOutcome, MlsGroupError> {
+        // W: SDKOperation.groupVoid after the pin, body {group_id, log_seq}; parse with MlsGroupParsing.adminOutcome.
         .failure(.unavailable)
     }
     public func events(account: String) -> AsyncStream<MlsGroupEvent> {

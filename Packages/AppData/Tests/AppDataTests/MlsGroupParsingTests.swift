@@ -115,7 +115,7 @@ struct MlsGroupParsingTests {
         for skipped in ["pending_join", "catch_up", "warning", "void", "banana"] { #expect(MlsGroupParsing.event(json(#"{"seq":1,"group_id":"g","kind":"\#(skipped)"}"#)) == .ignored) }
     }
     @Test func everyErrorCodeMaps() {
-        let codes: [(String, MlsGroupError)] = [("not_member", .notMember), ("not_admin", .notAdmin), ("owner_protected", .ownerProtected), ("tier_unavailable", .tierUnavailable), ("group_full", .groupFull), ("paced", .paced(retryAt: nil)), ("rate_limited", .rateLimited), ("rejoin_needed", .rejoinNeeded), ("too_large", .tooLarge(maxBytes: nil)), ("host_unreachable", .hostUnreachable), ("unknown_invite", .unknownInvite), ("request_not_found", .requestNotFound), ("message_not_found", .messageNotFound), ("not_author", .notAuthor), ("void_not_head", .voidNotHead)]
+        let codes: [(String, MlsGroupError)] = [("not_member", .notMember), ("not_admin", .notAdmin), ("owner_protected", .ownerProtected), ("tier_unavailable", .tierUnavailable), ("group_full", .groupFull), ("paced", .paced(retryAt: nil)), ("rate_limited", .rateLimited), ("rejoin_needed", .rejoinNeeded), ("too_large", .tooLarge(maxBytes: nil)), ("host_unreachable", .hostUnreachable), ("unknown_invite", .unknownInvite), ("request_not_found", .requestNotFound), ("message_not_found", .messageNotFound), ("not_author", .notAuthor), ("void_not_head", .voidNotHead(headLogSeq: nil))]
         for (code, expected) in codes { #expect(MlsGroupParsing.error(code: code) == expected) }
         #expect(MlsGroupParsing.error(code: "paced", details: json(#"{"retry_at":5}"#)) == .paced(retryAt: 5))
         #expect(MlsGroupParsing.error(code: "too_large", details: json(#"{"max_bytes":65536}"#)) == .tooLarge(maxBytes: 65_536))
@@ -131,5 +131,77 @@ struct MlsGroupParsingTests {
         #expect(MlsLinkCheck.trimmed(String(repeating: "a", count: 512)) != nil)
         #expect(MlsLinkCheck.trimmed(String(repeating: "a", count: 513)) == nil)
         #expect(MlsLinkCheck.trimmed("caf\u{E9}") == nil)
+    }
+
+    // MARK: M3 shapes (common 2.2 to 2.7, assumptions Q1 to Q9)
+    @Test func requestsPageParsesRowsAndTheCursor() {
+        let page = MlsGroupParsing.requests(json(#"{"requests":[{"request_id":"rq-1","anchor":"a1","display":"Ana","ai_flag":false,"requested_at":10,"expires_at":20},{"request_id":"rq-2","anchor":"a2","display":null,"ai_flag":true,"requested_at":11,"expires_at":21},{"anchor":"no-id"}],"cursor":"r2"}"#))
+        #expect(page.rows.count == 2 && page.cursor == "r2")
+        #expect(page.rows[0].display == "Ana" && page.rows[1].display == nil && page.rows[1].aiFlag && page.rows[0].expiresAt == 20)
+        #expect(MlsGroupParsing.requests(json(#"{}"#)).rows.isEmpty)
+    }
+    @Test func requestTypesNeverPrintTheirIdentifiers() {
+        let row = MlsJoinRequest(requestID: "rq-secret", anchor: "anchor-secret", display: "Name")
+        for text in [String(describing: row), String(reflecting: row), { var out = ""; dump(row, to: &out); return out }(), String(describing: MlsAdminTarget.request("rq-secret")), { var out = ""; dump(MlsAdminTarget.member("anchor-secret"), to: &out); return out }()] {
+            #expect(!text.contains("rq-secret") && !text.contains("anchor-secret") && !text.contains("Name"))
+        }
+    }
+    @Test func adminOutcomesAndPushAndCatchUpResultsParse() {
+        #expect(MlsGroupParsing.adminOutcome(json(#"{"state":"committed","log_seq":301}"#)) == .committed(logSeq: 301))
+        #expect(MlsGroupParsing.adminOutcome(json(#"{"state":"declined"}"#)) == .declined)
+        #expect(MlsGroupParsing.adminOutcome(json(#"{"state":"banana"}"#)) == nil)
+        #expect(MlsGroupParsing.pushResult(json(#"{"push":"all"}"#)) == .all)
+        #expect(MlsGroupParsing.pushResult(json(#"{}"#)) == nil)
+        #expect(MlsGroupParsing.catchUpResult(json(#"{"state":"rejoining"}"#)) == .rejoining)
+        #expect(MlsGroupParsing.catchUpResult(json(#"{"state":"running","done":4,"total":9}"#)) == .running(done: 4, total: 9))
+        #expect(MlsGroupParsing.catchUpResult(json(#"{"state":"idle"}"#)) == .idle)
+        #expect(MlsGroupParsing.catchUpResult(json(#"{"state":"x"}"#)) == nil)
+    }
+    @Test func m3ErrorsCarryTheirDetails() {
+        #expect(MlsGroupParsing.error(code: "not_admin", details: json(#"{"required":"owner"}"#)) == .notOwner)
+        #expect(MlsGroupParsing.error(code: "not_admin", details: json(#"{"required":"admin"}"#)) == .notAdmin)
+        #expect(MlsGroupParsing.error(code: "not_admin") == .notAdmin)
+        #expect(MlsGroupParsing.error(code: "paced", details: json(#"{"retry_at":99}"#)) == .paced(retryAt: 99))
+        #expect(MlsGroupParsing.error(code: "void_not_head", details: json(#"{"head_log_seq":252}"#)) == .voidNotHead(headLogSeq: 252))
+        let frame = CoreFailure(code: 3, response: json(#"{"error":{"code":"not_admin","details":{"required":"owner"}}}"#))
+        #expect(MlsGroupParsing.error(frame) == .notOwner)
+    }
+    @Test func everyWarningCodeParsesWithItsParams() {
+        func code(_ text: String) -> MlsWarningCode? { MlsGroupParsing.warning(json(text))?.code }
+        #expect(code(#"{"code":"fork_alarm","params":{"head_n":2}}"#) == .forkAlarm(headN: 2))
+        for (raw, reason) in [("pruned", MlsRejoinReason.pruned), ("gate_rejected", .gateRejected), ("apply_failed", .applyFailed), ("welcome_expired", .welcomeExpired), ("state_lost", .stateLost), ("banana", .unknown("banana"))] {
+            #expect(code(#"{"code":"rejoin_needed","params":{"reason":"\#(raw)"}}"#) == .rejoinNeeded(reason))
+        }
+        #expect(code(#"{"code":"undecryptable","params":{"count":12,"from_log_seq":140}}"#) == .undecryptable(count: 12, fromLogSeq: 140))
+        #expect(code(#"{"code":"admission_needs_online"}"#) == .admissionNeedsOnline)
+        #expect(code(#"{"code":"host_unusual","params":{"kind":"late_roll"}}"#) == .hostUnusual(.lateRoll))
+        #expect(code(#"{"code":"host_unusual","params":{"kind":"late_reply"}}"#) == .hostUnusual(.lateReply))
+        #expect(code(#"{"code":"head_commit_rejected","params":{"log_seq":250}}"#) == .headCommitRejected(logSeq: 250))
+        #expect(code(#"{"code":"host_ip_visible","params":{"host_node":"node.example"}}"#) == .hostIpVisible(hostNode: "node.example"))
+        #expect(code(#"{"code":"weird"}"#) == .unknown("weird"))
+        #expect(MlsGroupParsing.warning(json(#"{"code":"fork_alarm","params":{"head_n":1},"cleared":true}"#))?.cleared == true)
+        #expect(MlsGroupParsing.warning(json(#"{"params":{}}"#)) == nil)
+    }
+    @Test func m3EventsParseWithTheBodyNesting() {
+        if case .pendingJoin(let group, let seq, let request) = MlsGroupParsing.event(json(#"{"seq":20,"group_id":"g","kind":"pending_join","body":{"request_id":"rq-9","anchor":"a9","display":"Fay","ai_flag":false,"requested_at":1,"expires_at":2}}"#)) { #expect(group == "g" && seq == 20 && request.requestID == "rq-9" && request.display == "Fay") } else { Issue.record("pending_join") }
+        if case .pendingJoin(_, _, let request) = MlsGroupParsing.event(json(#"{"seq":21,"group_id":"g","kind":"pending_join","request_id":"rq-flat","anchor":"a8"}"#)) { #expect(request.requestID == "rq-flat") } else { Issue.record("flat pending_join") }
+        #expect(MlsGroupParsing.event(json(#"{"seq":22,"group_id":"g","kind":"catch_up","body":{"state":"running","done":10,"total":120}}"#)) == .catchUp(groupID: "g", seq: 22, state: MlsCatchUp(state: .running, done: 10, total: 120)))
+        #expect(MlsGroupParsing.event(json(#"{"seq":23,"group_id":"g","kind":"catch_up","body":{"state":"idle"}}"#)) == .catchUp(groupID: "g", seq: 23, state: MlsCatchUp(state: .idle)))
+        #expect(MlsGroupParsing.event(json(#"{"seq":24,"group_id":"g","kind":"warning","body":{"code":"fork_alarm","params":{"head_n":2},"cleared":false}}"#)) == .warning(groupID: "g", seq: 24, warning: MlsWarning(code: .forkAlarm(headN: 2))))
+        #expect(MlsGroupParsing.event(json(#"{"seq":25,"group_id":"g","kind":"warning","body":{"code":"fork_alarm","cleared":true}}"#)) == .warning(groupID: "g", seq: 25, warning: MlsWarning(code: .forkAlarm(headN: nil), cleared: true)))
+    }
+    @Test func aVoidParsesToTheSameRowAsAKindVoidEventAndAsAPostVoid() {
+        let author = #"{"anchor":"a1","display":"Ana","ai_flag":false,"is_me":false}"#
+        let asKind = MlsGroupParsing.event(json(#"{"seq":30,"group_id":"g","kind":"void","log_seq":251,"body":{"voided_log_seq":250,"epoch":4,"by":\#(author)}}"#))
+        let asPost = MlsGroupParsing.event(json(#"{"seq":31,"group_id":"g","kind":"post","post":{"log_seq":251,"kind":"void","body":{"voided_log_seq":250,"epoch":4,"by":\#(author)}}}"#))
+        guard case .post(_, _, _, let first) = asKind, case .post(_, _, _, let second) = asPost else { Issue.record("void events"); return }
+        #expect(first == second)
+        #expect(first.kind == .void && first.logSeq == 251 && first.postID == "log:251")
+        if case .void(let voided, let by) = first.body { #expect(voided == 250 && by?.display == "Ana") } else { Issue.record("body") }
+    }
+    @Test func infoWarningsKeepTheirParams() {
+        let info = MlsGroupParsing.info(json(#"{"group_id":"g","name":"G","warnings":[{"code":"host_ip_visible","params":{"host_node":"node.example"}},{"code":"undecryptable","params":{"count":3,"from_log_seq":7}}]}"#))
+        #expect(info?.visibleHost == "node.example")
+        #expect(info?.warnings.map(\.code) == [.hostIpVisible(hostNode: "node.example"), .undecryptable(count: 3, fromLogSeq: 7)])
     }
 }

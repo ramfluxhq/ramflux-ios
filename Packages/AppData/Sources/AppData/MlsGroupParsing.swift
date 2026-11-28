@@ -62,14 +62,30 @@ public enum MlsGroupParsing {
         guard let id = text(body["group_id"], limit: 512) else { return nil }
         let catchState: MlsCatchUp.State = switch body["catch_up"]?["state"]?.string { case "running": .running; case "rejoining": .rejoining; default: .idle }
         let warnings: [MlsWarning] = array(body["warnings"]).prefix(16).compactMap { row in
-            guard let code = text(row["code"], limit: 128) else { return nil }
-            return MlsWarning(code: code, hostNode: clipped(row["params"]?["host_node"], limit: 256))
+            warning(row)
         }
         return MlsGroupInfo(groupID: id, name: String((body["name"]?.string ?? "").prefix(maxName)), tier: Int(clamping: int(body["tier"]) ?? 1000), members: count(body["members"]), leaves: count(body["leaves"]), agents: count(body["agents"]),
                             approval: body["approval"] != .bool(false), myRole: MlsRole(raw: body["my_role"]?.string), hostNode: clipped(body["host_node"], limit: 256), push: MlsPush(raw: body["push"]?.string),
                             catchUp: MlsCatchUp(state: catchState, done: count(body["catch_up"]?["done"]), total: count(body["catch_up"]?["total"])), privacyDelay: privacyDelay(body["privacy_delay"]),
                             postQuota: quota(body["quota"]?["post"]), commitQuota: quota(body["quota"]?["commit"]), lastLogSeq: int(body["last_log_seq"]) ?? 0, warnings: warnings, lastActivityAt: int(body["last_activity_at"]) ?? 0,
                             unread: count(body["unread"]), unreadMentions: count(body["unread_mentions"]), readLogSeq: int(body["read_log_seq"]) ?? 0, lastPost: lastPost(body["last_post"]))
+    }
+    /// One `{code, params, cleared?}` of `group.info.warnings` or the body of a `warning` event (common 2.7).
+    public static func warning(_ row: JSONValue?) -> MlsWarning? {
+        guard let code = text(row?["code"], limit: 128) else { return nil }
+        let params = row?["params"]
+        let parsed: MlsWarningCode
+        switch code {
+        case "fork_alarm": parsed = .forkAlarm(headN: int(params?["head_n"]).map { Int(clamping: $0) })
+        case "rejoin_needed": parsed = .rejoinNeeded(MlsRejoinReason(raw: params?["reason"]?.string))
+        case "undecryptable": parsed = .undecryptable(count: count(params?["count"]), fromLogSeq: int(params?["from_log_seq"]))
+        case "admission_needs_online": parsed = .admissionNeedsOnline
+        case "host_unusual": parsed = .hostUnusual(MlsHostUnusualKind(raw: params?["kind"]?.string))
+        case "head_commit_rejected": parsed = .headCommitRejected(logSeq: int(params?["log_seq"]))
+        case "host_ip_visible": parsed = .hostIpVisible(hostNode: clipped(params?["host_node"], limit: 256))
+        default: parsed = .unknown(String(code.prefix(64)))
+        }
+        return MlsWarning(code: parsed, cleared: row?["cleared"] == .bool(true))
     }
     static func lastPost(_ value: JSONValue?) -> MlsLastPost? {
         guard let value, object(value) != nil, let seq = int(value["log_seq"]) else { return nil }
@@ -240,6 +256,47 @@ public enum MlsGroupParsing {
         }
     }
 
+    // MARK: M3 results
+    /// A `group.requests.list` row, or the body of a `pending_join` event.
+    public static func joinRequest(_ row: JSONValue?) -> MlsJoinRequest? {
+        guard let row, object(row) != nil, let id = text(row["request_id"], limit: 512), let anchor = text(row["anchor"], limit: 2048) else { return nil }
+        return MlsJoinRequest(requestID: id, anchor: anchor, display: clipped(row["display"], limit: maxDisplay), aiFlag: row["ai_flag"] == .bool(true), requestedAt: int(row["requested_at"]) ?? 0, expiresAt: int(row["expires_at"]) ?? 0)
+    }
+    /// `{requests[], cursor?}` (Q2).
+    public static func requests(_ body: JSONValue) -> MlsRequestsPage {
+        MlsRequestsPage(rows: array(body["requests"]).compactMap(joinRequest), cursor: text(body["cursor"], limit: 512))
+    }
+    /// `{state: committed, log_seq}` or `{state: declined}` (Q3); nil for any other reply.
+    public static func adminOutcome(_ body: JSONValue) -> MlsAdminOutcome? {
+        switch body["state"]?.string {
+        case "committed": .committed(logSeq: int(body["log_seq"]))
+        case "declined": .declined
+        default: nil
+        }
+    }
+    /// `{push}` of the per-device push method (Q1).
+    public static func pushResult(_ body: JSONValue) -> MlsPush? {
+        guard let raw = body["push"]?.string else { return nil }
+        return MlsPush(raw: raw)
+    }
+    /// `{state: rejoining}` or `{state: running, done, total}` of `group.catch_up{skip: true}`.
+    public static func catchUpResult(_ body: JSONValue) -> MlsCatchUpResult? {
+        switch body["state"]?.string {
+        case "rejoining": .rejoining
+        case "running": .running(done: count(body["done"]), total: count(body["total"]))
+        case "idle": .idle
+        default: nil
+        }
+    }
+    static func catchUp(_ body: JSONValue?) -> MlsCatchUp? {
+        switch body?["state"]?.string {
+        case "idle": MlsCatchUp(state: .idle)
+        case "running": MlsCatchUp(state: .running, done: count(body?["done"]), total: count(body?["total"]))
+        case "rejoining": MlsCatchUp(state: .rejoining, done: count(body?["done"]), total: count(body?["total"]))
+        default: nil
+        }
+    }
+
     // MARK: group.event
     public static func event(_ body: JSONValue) -> MlsGroupEvent {
         guard let kind = body["kind"]?.string, let group = text(body["group_id"], limit: 512) else { return .ignored }
@@ -269,6 +326,19 @@ public enum MlsGroupParsing {
             guard let request = text(body["request_id"], limit: 512) else { return .ignored }
             let outcome: MlsJoinEvent.Outcome = body["state"]?.string == "joined" ? .joined : .refused(refusal(reason: body["reason"]?.string, params: body["params"]))
             return .joinResult(MlsJoinEvent(requestID: request, groupID: text(body["group_id"], limit: 512), outcome: outcome))
+        case "void":
+            // The same row as a `post{kind: void}`: the log row is keyed by `log_seq`, so the two deliveries deduplicate.
+            guard int(row["log_seq"]) != nil, let post = post(row, kind: .void) else { return .ignored }
+            return .post(groupID: group, seq: seq, at: at, post: post)
+        case "pending_join":
+            guard let request = joinRequest(object(body["body"]) ?? body) else { return .ignored }
+            return .pendingJoin(groupID: group, seq: seq, request: request)
+        case "catch_up":
+            guard let state = catchUp(object(body["body"]) ?? body) else { return .ignored }
+            return .catchUp(groupID: group, seq: seq, state: state)
+        case "warning":
+            guard let warning = warning(object(body["body"]) ?? body) else { return .ignored }
+            return .warning(groupID: group, seq: seq, warning: warning)
         default: return .ignored
         }
     }
@@ -283,7 +353,7 @@ public enum MlsGroupParsing {
     public static func error(code: String, details: JSONValue? = nil) -> MlsGroupError? {
         switch code {
         case "not_member": .notMember
-        case "not_admin": .notAdmin
+        case "not_admin": details?["required"]?.string == "owner" ? .notOwner : .notAdmin
         case "owner_protected": .ownerProtected
         case "tier_unavailable": .tierUnavailable
         case "group_full": .groupFull
@@ -296,7 +366,7 @@ public enum MlsGroupParsing {
         case "request_not_found": .requestNotFound
         case "message_not_found": .messageNotFound
         case "not_author": .notAuthor
-        case "void_not_head": .voidNotHead
+        case "void_not_head": .voidNotHead(headLogSeq: int(details?["head_log_seq"]))
         default: nil
         }
     }

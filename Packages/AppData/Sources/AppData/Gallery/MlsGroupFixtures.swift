@@ -289,6 +289,18 @@ public final class FixtureMlsGroupRepository: MlsGroupRepository {
         return .success(MlsCommit(logSeq: 500))
     }
 
+    // M3 methods: filled in by the gallery commit.
+    public func requests(account: String, groupID: String, cursor: String?, limit: Int) async -> Result<MlsRequestsPage, MlsGroupError> { .failure(.unavailable) }
+    public func approve(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func decline(account: String, groupID: String, requestID: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setRole(account: String, groupID: String, anchor: String, role: MlsRole) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func removeMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func banMember(account: String, groupID: String, anchor: String) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setSettings(account: String, groupID: String, name: String?, approval: Bool?) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+    public func setPush(account: String, groupID: String, push: MlsPush) async -> Result<MlsPush, MlsGroupError> { .failure(.unavailable) }
+    public func skipCatchUp(account: String, groupID: String) async -> Result<MlsCatchUpResult, MlsGroupError> { .failure(.unavailable) }
+    public func void(account: String, groupID: String, logSeq: Int64) async -> Result<MlsAdminOutcome, MlsGroupError> { .failure(.unavailable) }
+
     // MARK: Events
     public func events(account: String) -> AsyncStream<MlsGroupEvent> {
         let (stream, continuation) = AsyncStream<MlsGroupEvent>.makeStream(bufferingPolicy: .bufferingNewest(64))

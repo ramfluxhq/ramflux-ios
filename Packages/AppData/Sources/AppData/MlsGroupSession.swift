@@ -729,6 +729,7 @@ public actor MlsGroupSession {
         case .joinResult(let join): applyJoinEvent(join)
         case .read(let group, let readSeq, let unread, let mentions):
             if let info = groups[group] { groups[group] = info.with(unread: unread, unreadMentions: mentions, readLogSeq: readSeq) }
+        case .pendingJoin, .catchUp, .warning: break   // M3: handled by the admin owner
         case .ignored: break
         }
         changed()
