@@ -18,9 +18,11 @@ struct HostNoticeFlagTests {
         defaults.set(true, forKey: MlsGroupsCoordinator.noticeKey(account: "a1", group: "g1"))
         defaults.set(true, forKey: MlsGroupsCoordinator.noticeKey(account: "a1", group: "g2"))
         defaults.set(true, forKey: MlsGroupsCoordinator.noticeKey(account: "a2", group: "g1"))
+        defaults.set(true, forKey: MlsGroupsCoordinator.noticeKey(account: "a1.work", group: "g1"))
         MlsGroupsCoordinator.purgeNoticeFlags(account: "a1", defaults: defaults)
         #expect(!defaults.bool(forKey: MlsGroupsCoordinator.noticeKey(account: "a1", group: "g1")))
         #expect(!defaults.bool(forKey: MlsGroupsCoordinator.noticeKey(account: "a1", group: "g2")))
         #expect(defaults.bool(forKey: MlsGroupsCoordinator.noticeKey(account: "a2", group: "g1")))
+        #expect(defaults.bool(forKey: MlsGroupsCoordinator.noticeKey(account: "a1.work", group: "g1")))
     }
 }
