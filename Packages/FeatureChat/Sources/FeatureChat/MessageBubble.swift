@@ -59,7 +59,7 @@ public struct MessageBubble: View {
                 }
                 if showsTextBubble && media.card == nil {
                     KitBubble(text, kind: own ? .own : .incoming, time: clock, edited: message.edited ? FeatureChatStrings.text("chat.edited", locale: locale) : nil, sender: isGroup && !own ? message.sender : nil,
-                              read: message.delivery == .read, sentOnly: own && (message.delivery ?? .sent) == .sent && message.kind != .deleted, tag: message.id)
+                              read: message.delivery == .read, sentOnly: own && (message.delivery ?? .sent) == .sent && message.kind != .deleted, deleted: message.kind == .deleted, tag: message.id)
                 }
                 if message.kind != .deleted {
                     ForEach(message.attachments.filter { $0.kind == .file }) { attachment in
@@ -114,7 +114,7 @@ public struct MessageBubble: View {
     private var text: String {
         switch message.kind {
         case .text(let text): text
-        case .deleted: FeatureChatStrings.text("chat.message.deleted", locale: locale)
+        case .deleted: FeatureChatStrings.text(own ? "chat.message.deletedOwn" : "chat.message.deleted", locale: locale)
         case .callHistory: FeatureChatStrings.text("chat.message.callHistory", locale: locale)
         case .unsupported(let reason): reason
         }

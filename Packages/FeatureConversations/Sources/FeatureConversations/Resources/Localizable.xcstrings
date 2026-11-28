@@ -3,18 +3,18 @@
   "version": "1.0",
   "strings": {
     "common.tab.messages": {
-      "comment": "Name of the Messages tab and title of the conversation list.",
+      "comment": "Title of the chat list.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Messages"
+            "value": "Chats"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "消息"
+            "value": "聊天"
           }
         }
       }
@@ -25,30 +25,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No conversations yet"
+            "value": "No chats yet"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "还没有会话"
-          }
-        }
-      }
-    },
-    "common.action.refresh": {
-      "comment": "Button that reloads the current screen from the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刷新"
+            "value": "还没有聊天"
           }
         }
       }
@@ -59,13 +42,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add a contact to start a conversation. Once they accept, the conversation appears here."
+            "value": "Add a contact to start a chat. Once they accept, the chat appears here."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "添加联系人后就可以开始会话。对方接受后，会话会出现在这里。"
+            "value": "添加联系人后就可以开始聊天。对方接受后，聊天会出现在这里。"
           }
         }
       }
@@ -93,13 +76,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading conversations"
+            "value": "Loading chats"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在加载会话"
+            "value": "正在加载聊天"
           }
         }
       }
@@ -122,18 +105,18 @@
       }
     },
     "conversations.search.placeholder": {
-      "comment": "Placeholder of the search field above the conversation list.",
+      "comment": "Placeholder of the chat list search field.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search messages"
+            "value": "Search chats"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索消息"
+            "value": "搜索聊天"
           }
         }
       }
@@ -185,7 +168,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ · 当前账号"
+            "value": "%@ · 当前账户"
           }
         }
       }
@@ -248,13 +231,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New conversation"
+            "value": "New chat"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "新会话"
+            "value": "新聊天"
           }
         }
       }
@@ -282,13 +265,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Loading more conversations"
+            "value": "Loading more chats"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在加载更多会话"
+            "value": "正在加载更多聊天"
           }
         }
       }
@@ -299,13 +282,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sorted by recent activity among the conversations loaded so far."
+            "value": "Sorted by recent activity among the chats loaded so far."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "按最近活动排序（仅限已加载的会话）。"
+            "value": "按最近活动排序（仅限已加载的聊天）。"
           }
         }
       }
@@ -367,13 +350,30 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No other conversations yet"
+            "value": "No other chats yet"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "还没有其他会话"
+            "value": "还没有其他聊天"
+          }
+        }
+      }
+    },
+    "conversations.search.empty": {
+      "comment": "Shown when the search matches no chat.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No chats match."
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有匹配的聊天。"
           }
         }
       }

@@ -16,7 +16,7 @@ public struct ChatScreen: View {
     public init(state: ChatState, onAction: @escaping (ChatAction) -> Void) { self.state = state; self.onAction = onAction }
     public var body: some View {
         RFPage { VStack(spacing: 0) {
-            KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, aiMarker: state.peerIsAgent, tag: state.conversationID) {
+            KitChatHeader(state.displayTitle, subtitle: nil, onBack: { dismiss() }, onCall: state.isGroup ? nil : { onAction(.callRequested) }, onMore: { onAction(.detailsRequested) }, aiMarker: state.peerIsAgent, tag: state.conversationID) {
                 KitAvatar(String(state.displayTitle.prefix(1)), size: 36, kind: state.isGroup ? .channel : .person, tag: state.conversationID + "-avatar")
             }
             if state.offline {
@@ -56,7 +56,7 @@ public struct ChatScreen: View {
             #if os(iOS)
             .navigationBarBackButtonHidden(true)
             #endif
-            .toolbar { Button(FeatureChatStrings.text("common.action.refresh", locale: locale), systemImage: "arrow.clockwise") { onAction(.refresh) } }
+            .rfHidesNavigationBar()
             .sheet(isPresented: Binding(get: { state.pendingDelete != nil }, set: { if !$0 { onAction(.cancelDelete) } })) {
                 if let pending = state.pendingDelete {
                     let fact = pending.scope == .everyone ? "chat.delete.everyone.fact" : "chat.delete.mine.fact"
@@ -64,8 +64,7 @@ public struct ChatScreen: View {
                     RFPage { VStack(alignment: .leading, spacing: theme.gap) {
                         Text(FeatureChatStrings.text("chat.delete.mine.title", locale: locale)).rfFont(.page)
                         Text(FeatureChatStrings.text(fact, locale: locale))
-                        KitIdentifierText(pending.messageID)
-                        RFHostConfirmationActions(summary: RFSentence.compose(FeatureChatStrings.text("chat.delete.confirmSummary", locale: locale), [.localized(FeatureChatStrings.text(summary, locale: locale)), .identifier(pending.messageID)], locale: locale), enabled: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)
+                        RFHostConfirmationActions(summary: FeatureChatStrings.text(summary, locale: locale), enabled: true, destructive: true, confirm: { onAction(.confirmDelete) }, cancel: { onAction(.cancelDelete) }).id(pending.messageID + pending.scope.rawValue)
                     }.padding(theme.gap) }
                 }
             }
@@ -84,7 +83,7 @@ public struct ChatScreen: View {
             .sheet(isPresented: Binding(get: { state.textSelectionTarget != nil }, set: { if !$0 { onAction(.closeTextSelection) } })) {
                 if let id = state.textSelectionTarget, let message = state.messages.first(where: { $0.id == id }), case .text(let text) = message.kind {
                     VStack(spacing: 0) {
-                        KitPageHeader(FeatureChatStrings.text("chat.message.selectText", locale: locale), onBack: { onAction(.closeTextSelection) }, tag: "chat-select-text-header")
+                        KitPageHeader(FeatureChatStrings.text("chat.message.selectText", locale: locale), actionLabel: FeatureChatStrings.text("chat.message.selectText.done", locale: locale), onAction: { onAction(.closeTextSelection) }, tag: "chat-select-text-header")
                         ScrollView { KitMessageText(text).padding(KitMetrics.gutter).accessibilityIdentifier("chat-select-text") }
                     }
                     .background(theme.nav.ignoresSafeArea())

@@ -48,7 +48,7 @@ public struct NativeConversationsRepository: ConversationsRepository {
                     title = row["peer_display_name"]?.string.flatMap { $0.isEmpty || $0.utf8.count > 1024 ? nil : $0 } ?? peer.flatMap { known[$0]?.name }
                     if title == nil { title = peer.map(Self.shortIdentifier) ?? id; identifier = true }
                 }
-                return ConversationRecord(id: id, title: title ?? id, preview: "", lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]),
+                return ConversationRecord(id: id, title: title ?? id, preview: Self.previewText(row["preview"]), lastActivity: ProxyGateway.integer(row["last_activity"]), unreadCount: Self.count(row["unread_count"]),
                                           kind: group == nil ? "person" : "group", muted: row["muted"] == .bool(true), groupID: group, titleIsIdentifier: identifier,
                                           classification: peer.flatMap { known[$0]?.classification } ?? .unknown)
             }
@@ -76,6 +76,17 @@ public struct NativeConversationsRepository: ConversationsRepository {
         let me = row["self_principal_id"]?.string
         guard case .array(let participants)? = row["participants"] else { return nil }
         return participants.prefix(8).compactMap(\.string).first { !$0.isEmpty && $0 != me && $0.utf8.count <= 2048 }
+    }
+    /// The one-line preview the SDK carries on a directory row (`{kind, text?, at}`, null for an empty chat): the text for a
+    /// text message, a kind label for an attachment or an unsupported one, nothing for system rows and empty chats.
+    static func previewText(_ value: JSONValue?) -> String {
+        guard let value, value != .null else { return "" }
+        switch value["kind"]?.string {
+        case "text": return value["text"]?.string.map { $0.split(whereSeparator: \.isNewline).first.map(String.init) ?? "" } ?? ""
+        case "attachment": return AppDataStrings.text("conversations.preview.attachment")
+        case "unsupported": return AppDataStrings.text("chat.message.unsupported")
+        default: return ""
+        }
     }
     /// A short form of an identifier for a row with no known name: the first characters after any
     /// `principal-` style prefix, left-to-right isolated like every identifier.

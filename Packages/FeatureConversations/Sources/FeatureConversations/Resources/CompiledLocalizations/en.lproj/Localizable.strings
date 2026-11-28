@@ -2,12 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>common.action.refresh</key>
-	<string>Refresh</string>
 	<key>common.tab.contacts</key>
 	<string>Contacts</string>
 	<key>common.tab.messages</key>
-	<string>Messages</string>
+	<string>Chats</string>
 	<key>contacts.strangers.title</key>
 	<string>Strangers</string>
 	<key>conversations.account.subtitle</key>
@@ -15,27 +13,29 @@
 	<key>conversations.action.more</key>
 	<string>More</string>
 	<key>conversations.action.new</key>
-	<string>New conversation</string>
+	<string>New chat</string>
 	<key>conversations.empty.action</key>
 	<string>Add contact</string>
 	<key>conversations.empty.message</key>
-	<string>Add a contact to start a conversation. Once they accept, the conversation appears here.</string>
+	<string>Add a contact to start a chat. Once they accept, the chat appears here.</string>
 	<key>conversations.empty.title</key>
-	<string>No conversations yet</string>
+	<string>No chats yet</string>
 	<key>conversations.failure.retry</key>
 	<string>Retry</string>
 	<key>conversations.forward.empty</key>
-	<string>No other conversations yet</string>
+	<string>No other chats yet</string>
 	<key>conversations.forward.title</key>
 	<string>Forward to</string>
 	<key>conversations.loading</key>
-	<string>Loading conversations</string>
+	<string>Loading chats</string>
 	<key>conversations.loadingMore</key>
-	<string>Loading more conversations</string>
+	<string>Loading more chats</string>
 	<key>conversations.order.note</key>
-	<string>Sorted by recent activity among the conversations loaded so far.</string>
+	<string>Sorted by recent activity among the chats loaded so far.</string>
+	<key>conversations.search.empty</key>
+	<string>No chats match.</string>
 	<key>conversations.search.placeholder</key>
-	<string>Search messages</string>
+	<string>Search chats</string>
 	<key>conversations.time.yesterday</key>
 	<string>Yesterday</string>
 </dict>

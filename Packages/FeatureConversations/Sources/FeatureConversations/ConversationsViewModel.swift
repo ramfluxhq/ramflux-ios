@@ -41,7 +41,8 @@ import AppData
         case .loadBefore: if window.evictedAbove, state.canLoadBefore, !state.loading, !state.loadingMore { reload(search: false) }
         case .localeChanged(let value): guard value.identifier != locale.identifier else { return }; locale = value; if !state.rows.isEmpty { reload(search: false) }
         case .queryChanged(let query): state.query = String(query.prefix(1024))
-        case .search: reload(search: true)
+        // The field filters the loaded chats by title on the screen; nothing is asked of the account.
+        case .search: break
         case .open(let id):
             guard let row = state.rows.first(where: { $0.id == id }) else { return }
             emit(.navigate(row.route))

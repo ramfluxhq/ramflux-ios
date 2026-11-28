@@ -43,7 +43,6 @@ public struct ConversationsScreen: View {
         .confirmationDialog(FeatureConversationsStrings.text("conversations.action.more", locale: locale), isPresented: $showingMore) {
             Button(FeatureConversationsStrings.text("contacts.strangers.title", locale: locale)) { onAction(.strangers) }
             Button(FeatureConversationsStrings.text("common.tab.contacts", locale: locale)) { onAction(.contacts) }
-            Button(FeatureConversationsStrings.text("common.action.refresh", locale: locale)) { onAction(.refresh) }
         }
         .rfHidesNavigationBar()
         .privacySensitive()
@@ -65,7 +64,6 @@ public struct ConversationsScreen: View {
             .padding(.horizontal, theme.gap)
             .padding(.top, 20)
             .padding(.bottom, 12)
-            .onSubmit { onAction(.search) }
     }
     private var list: some View {
         ScrollView { LazyVStack(spacing: 0) {
@@ -83,7 +81,10 @@ public struct ConversationsScreen: View {
             ) {
                 KitAvatar("", size: 44, kind: .person, icon: "user-round", tag: "strangers-avatar")
             }
-            ForEach(state.rows) { row in
+            if shownRows.isEmpty && !state.query.isEmpty {
+                Text(FeatureConversationsStrings.text("conversations.search.empty", locale: locale)).foregroundStyle(theme.secondary).padding(theme.gap).accessibilityIdentifier("message-search-empty")
+            }
+            ForEach(shownRows) { row in
                 KitConversationRow(
                     row.title,
                     preview: row.preview,
@@ -109,6 +110,13 @@ public struct ConversationsScreen: View {
                 Text(FeatureConversationsStrings.text("conversations.order.note", locale: locale)).font(.footnote).foregroundStyle(theme.secondary).padding(theme.gap)
             }
         } }
+        .refreshable { onAction(.refresh) }
+    }
+    /// The loaded chats whose title contains the query, ignoring case, accents and width; all of them while the field is empty.
+    private var shownRows: [ConversationRecord] {
+        let query = state.query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return state.rows }
+        return state.rows.filter { $0.title.range(of: query, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive]) != nil }
     }
     private var accountSubtitle: String? {
         let name = state.accountTitle.trimmingCharacters(in: .whitespacesAndNewlines)

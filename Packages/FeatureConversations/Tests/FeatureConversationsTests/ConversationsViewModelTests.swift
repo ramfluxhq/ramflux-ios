@@ -25,13 +25,14 @@ private actor DirectoryFake: ConversationsRepository {
         model.send(.open("team-thread")); #expect(events.last == .navigate(.groupConversation("team-thread", group: "team", title: "Team")))
         model.send(.disappeared); #expect(model.state.rows.isEmpty)
     }
-    @Test func offlineRefreshPreservesConfirmedRowsAndSearchIsTypedUnavailable() async {
+    @Test func offlineRefreshPreservesConfirmedRowsAndSearchAsksNothingOfTheAccount() async {
         let repository = DirectoryFake(); let model = ConversationsViewModel(repository: repository, account: "a", emit: { _ in })
         model.send(.refresh); await model.settle()
         await repository.fail(); model.send(.refresh); await model.settle()
         #expect(model.state.failure == .offline); #expect(model.state.rows.count == 2)
         model.send(.queryChanged("text")); model.send(.search); await model.settle()
-        #expect(model.state.failure == .notAvailable("Search unavailable")); #expect(model.state.rows.count == 2)
+        // The search field filters the loaded chats on the screen: submitting it changes nothing in the model.
+        #expect(model.state.failure == .offline); #expect(model.state.rows.count == 2)
         model.send(.disappeared)
     }
     @Test func screenContentFollowsTheBoardStates() {

@@ -16,12 +16,10 @@
 	<string>Cancel</string>
 	<key>chat.composer.placeholder</key>
 	<string>Message</string>
-	<key>chat.delete.confirmSummary</key>
-	<string>%1$@ · %2$@</string>
 	<key>chat.delete.everyone</key>
 	<string>Delete for everyone</string>
 	<key>chat.delete.everyone.fact</key>
-	<string>This removes the message for everyone in the conversation.</string>
+	<string>This removes the message for everyone in the chat.</string>
 	<key>chat.delete.everyone.summary</key>
 	<string>Delete for everyone</string>
 	<key>chat.delete.mine.fact</key>
@@ -33,7 +31,7 @@
 	<key>chat.details.close</key>
 	<string>Done</string>
 	<key>chat.details.conversationID</key>
-	<string>Conversation ID</string>
+	<string>Chat ID</string>
 	<key>chat.details.groupMembers</key>
 	<string>Open the group to manage members and roles.</string>
 	<key>chat.details.members</key>
@@ -41,13 +39,13 @@
 	<key>chat.details.mute</key>
 	<string>Mute notifications</string>
 	<key>chat.details.muteUnknown</key>
-	<string>Mute state is not available for this conversation yet.</string>
+	<string>Mute state is not available for this chat yet.</string>
 	<key>chat.details.safety</key>
 	<string>Safety number</string>
 	<key>chat.details.safetyUnavailable</key>
 	<string>The safety number is available once this person is a contact and has written to you.</string>
 	<key>chat.details.title</key>
-	<string>Conversation details</string>
+	<string>Chat details</string>
 	<key>chat.details.you</key>
 	<string>You</string>
 	<key>chat.draft.caption</key>
@@ -61,7 +59,7 @@
 	<key>chat.edited</key>
 	<string>Edited</string>
 	<key>chat.empty.message</key>
-	<string>Messages in this conversation will appear here.</string>
+	<string>Messages in this chat will appear here.</string>
 	<key>chat.empty.title</key>
 	<string>No messages yet</string>
 	<key>chat.gallery.empty</key>
@@ -133,7 +131,9 @@
 	<key>chat.message.deleteMine</key>
 	<string>Delete from my devices</string>
 	<key>chat.message.deleted</key>
-	<string>Message deleted</string>
+	<string>This message was deleted</string>
+	<key>chat.message.deletedOwn</key>
+	<string>You deleted this message</string>
 	<key>chat.message.edit</key>
 	<string>Edit</string>
 	<key>chat.message.forward</key>
@@ -142,6 +142,8 @@
 	<string>React</string>
 	<key>chat.message.selectText</key>
 	<string>Select text</string>
+	<key>chat.message.selectText.done</key>
+	<string>Done</string>
 	<key>chat.offline.banner</key>
 	<string>Offline · messages will be sent when the connection returns</string>
 	<key>chat.outbox.details</key>
@@ -192,8 +194,6 @@
 	<string>Unread messages below</string>
 	<key>chat.typing</key>
 	<string>Typing…</string>
-	<key>common.action.refresh</key>
-	<string>Refresh</string>
 	<key>common.action.reply</key>
 	<string>Reply</string>
 </dict>

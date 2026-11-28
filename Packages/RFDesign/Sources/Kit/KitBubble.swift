@@ -17,6 +17,8 @@ public struct KitBubble: View {
     var sentOnly: Bool
     var failed: Bool
     var transient: Bool
+    /// A deleted message: the tombstone keeps the bubble's place and shape on the quiet surface, with italic secondary text, no ticks.
+    var deleted: Bool
     var fileName: String?
     var fileMeta: String?
     var fileIcon: String
@@ -37,6 +39,7 @@ public struct KitBubble: View {
         sentOnly: Bool = false,
         failed: Bool = false,
         transient: Bool = false,
+        deleted: Bool = false,
         fileName: String? = nil,
         fileMeta: String? = nil,
         fileIcon: String = "file-text",
@@ -54,6 +57,7 @@ public struct KitBubble: View {
         self.sentOnly = sentOnly
         self.failed = failed
         self.transient = transient
+        self.deleted = deleted
         self.fileName = fileName
         self.fileMeta = fileMeta
         self.fileIcon = fileIcon
@@ -63,9 +67,9 @@ public struct KitBubble: View {
 
     public var body: some View {
         let own = kind == .own
-        let fill = own ? theme.outgoing : theme.incoming
-        let ink = own ? theme.outgoing_text : theme.text
-        let meta = own ? theme.outgoing_meta : theme.incoming_meta
+        let fill = deleted ? Color.clear : (own ? theme.outgoing : theme.incoming)
+        let ink = deleted ? theme.secondary : (own ? theme.outgoing_text : theme.text)
+        let meta = deleted ? theme.secondary : (own ? theme.outgoing_meta : theme.incoming_meta)
         let shape = bubbleShape
         KitBubbleWidth(fixed: maxWidth, token: theme.mobile_bubble_max, fraction: KitMetrics.bubbleWidthFraction) {
             content(own: own, ink: ink, meta: meta)
@@ -74,7 +78,7 @@ public struct KitBubble: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(fill, in: shape)
-        .overlay { if failed { shape.strokeBorder(theme.danger, lineWidth: KitMetrics.controlStroke) } }
+        .overlay { if failed { shape.strokeBorder(theme.danger, lineWidth: KitMetrics.controlStroke) } else if deleted { shape.strokeBorder(theme.line, lineWidth: KitMetrics.hairline) } }
         .opacity(transient ? 0 : 1)
         .kitTag(tag)
     }
@@ -103,7 +107,7 @@ public struct KitBubble: View {
                     ? AnyLayout(VStackLayout(alignment: .trailing, spacing: KitMetrics.bubbleGap))
                     : AnyLayout(HStackLayout(alignment: .bottom, spacing: KitMetrics.headerGap))
                 layout {
-                    KitMessageText(bodyText, color: ink)
+                    if deleted { Text(verbatim: bodyText).italic().rfFont(.size(theme.size_mobile_body)).foregroundStyle(ink) } else { KitMessageText(bodyText, color: ink) }
                     metaCluster(own: own, ink: ink, meta: meta)
                 }
             }
@@ -121,7 +125,7 @@ public struct KitBubble: View {
             if pending { KitIcon(name: "clock-3", size: KitMetrics.metaIcon, tint: meta) }
             // One check: sent, no device has confirmed delivery yet. Two checks: delivered; two
             // checks in the text colour: read on at least one device.
-            if own && !pending && (read || !(time ?? "").isEmpty) {
+            if own && !deleted && !pending && (read || !(time ?? "").isEmpty) {
                 KitIcon(name: sentOnly && !read ? "check" : "check-check", size: KitMetrics.metaIcon, tint: read ? ink : meta)
             }
         }
@@ -134,7 +138,7 @@ public struct KitBubble: View {
     /// What the ticks or the clock say, for assistive technology (empty when nothing is drawn).
     private func receiptStatus(own: Bool) -> String {
         if pending { return RFDesignStrings.text("kit.receipt.pending") }
-        guard own, read || !(time ?? "").isEmpty else { return "" }
+        guard own, !deleted, read || !(time ?? "").isEmpty else { return "" }
         if read { return RFDesignStrings.text("kit.receipt.read") }
         return RFDesignStrings.text(sentOnly ? "kit.receipt.sent" : "kit.receipt.delivered")
     }

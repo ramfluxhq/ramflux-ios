@@ -2,40 +2,40 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>common.action.refresh</key>
-	<string>刷新</string>
 	<key>common.tab.contacts</key>
 	<string>联系人</string>
 	<key>common.tab.messages</key>
-	<string>消息</string>
+	<string>聊天</string>
 	<key>contacts.strangers.title</key>
 	<string>陌生人</string>
 	<key>conversations.account.subtitle</key>
-	<string>%@ · 当前账号</string>
+	<string>%@ · 当前账户</string>
 	<key>conversations.action.more</key>
 	<string>更多</string>
 	<key>conversations.action.new</key>
-	<string>新会话</string>
+	<string>新聊天</string>
 	<key>conversations.empty.action</key>
 	<string>添加联系人</string>
 	<key>conversations.empty.message</key>
-	<string>添加联系人后就可以开始会话。对方接受后，会话会出现在这里。</string>
+	<string>添加联系人后就可以开始聊天。对方接受后，聊天会出现在这里。</string>
 	<key>conversations.empty.title</key>
-	<string>还没有会话</string>
+	<string>还没有聊天</string>
 	<key>conversations.failure.retry</key>
 	<string>重试加载</string>
 	<key>conversations.forward.empty</key>
-	<string>还没有其他会话</string>
+	<string>还没有其他聊天</string>
 	<key>conversations.forward.title</key>
 	<string>转发到</string>
 	<key>conversations.loading</key>
-	<string>正在加载会话</string>
+	<string>正在加载聊天</string>
 	<key>conversations.loadingMore</key>
-	<string>正在加载更多会话</string>
+	<string>正在加载更多聊天</string>
 	<key>conversations.order.note</key>
-	<string>按最近活动排序（仅限已加载的会话）。</string>
+	<string>按最近活动排序（仅限已加载的聊天）。</string>
+	<key>conversations.search.empty</key>
+	<string>没有匹配的聊天。</string>
 	<key>conversations.search.placeholder</key>
-	<string>搜索消息</string>
+	<string>搜索聊天</string>
 	<key>conversations.time.yesterday</key>
 	<string>昨天</string>
 </dict>

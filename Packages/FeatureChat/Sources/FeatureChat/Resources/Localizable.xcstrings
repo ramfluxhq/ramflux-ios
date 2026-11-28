@@ -19,23 +19,6 @@
         }
       }
     },
-    "common.action.refresh": {
-      "comment": "Button that reloads the current screen from the account service.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "刷新"
-          }
-        }
-      }
-    },
     "chat.composer.placeholder": {
       "comment": "Placeholder in the empty message field.",
       "localizations": {
@@ -59,13 +42,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Messages in this conversation will appear here."
+            "value": "Messages in this chat will appear here."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此会话的消息将在这里显示。"
+            "value": "此聊天的消息将在这里显示。"
           }
         }
       }
@@ -105,18 +88,18 @@
       }
     },
     "chat.message.deleted": {
-      "comment": "Placeholder for a message that was deleted.",
+      "comment": "Tombstone text of a message deleted by the other person.",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Message deleted"
+            "value": "This message was deleted"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "消息已删除"
+            "value": "此消息已删除"
           }
         }
       }
@@ -279,13 +262,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This removes the message for everyone in the conversation."
+            "value": "This removes the message for everyone in the chat."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "这将为会话中的所有人移除该消息。"
+            "value": "这将为聊天中的所有人移除该消息。"
           }
         }
       }
@@ -454,23 +437,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "以下为未读消息"
-          }
-        }
-      }
-    },
-    "chat.delete.confirmSummary": {
-      "comment": "Delete confirmation summary. %1$@ is the action summary, %2$@ is the message id shown left to right.",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@ · %2$@"
-          }
-        },
-        "zh-CN": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@ · %2$@"
           }
         }
       }
@@ -685,13 +651,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation details"
+            "value": "Chat details"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话详情"
+            "value": "聊天详情"
           }
         }
       }
@@ -702,13 +668,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conversation ID"
+            "value": "Chat ID"
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "会话 ID"
+            "value": "聊天 ID"
           }
         }
       }
@@ -787,13 +753,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mute state is not available for this conversation yet."
+            "value": "Mute state is not available for this chat yet."
           }
         },
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "此会话暂时没有免打扰状态。"
+            "value": "此聊天暂时没有免打扰状态。"
           }
         }
       }
@@ -997,7 +963,7 @@
         "zh-CN": {
           "stringUnit": {
             "state": "translated",
-            "value": "在此设备上不可用"
+            "value": "在本设备上不可用"
           }
         }
       }
@@ -1784,6 +1750,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "取消下载"
+          }
+        }
+      }
+    },
+    "chat.message.deletedOwn": {
+      "comment": "Tombstone text of a message the user deleted.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You deleted this message"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你删除了此消息"
+          }
+        }
+      }
+    },
+    "chat.message.selectText.done": {
+      "comment": "Closes the select text sheet.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-CN": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }

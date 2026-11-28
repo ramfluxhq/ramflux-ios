@@ -16,12 +16,10 @@
 	<string>取消</string>
 	<key>chat.composer.placeholder</key>
 	<string>消息</string>
-	<key>chat.delete.confirmSummary</key>
-	<string>%1$@ · %2$@</string>
 	<key>chat.delete.everyone</key>
 	<string>为所有人删除</string>
 	<key>chat.delete.everyone.fact</key>
-	<string>这将为会话中的所有人移除该消息。</string>
+	<string>这将为聊天中的所有人移除该消息。</string>
 	<key>chat.delete.everyone.summary</key>
 	<string>为所有人删除</string>
 	<key>chat.delete.mine.fact</key>
@@ -33,7 +31,7 @@
 	<key>chat.details.close</key>
 	<string>完成</string>
 	<key>chat.details.conversationID</key>
-	<string>会话 ID</string>
+	<string>聊天 ID</string>
 	<key>chat.details.groupMembers</key>
 	<string>请在群组中管理成员和角色。</string>
 	<key>chat.details.members</key>
@@ -41,13 +39,13 @@
 	<key>chat.details.mute</key>
 	<string>消息免打扰</string>
 	<key>chat.details.muteUnknown</key>
-	<string>此会话暂时没有免打扰状态。</string>
+	<string>此聊天暂时没有免打扰状态。</string>
 	<key>chat.details.safety</key>
 	<string>安全码</string>
 	<key>chat.details.safetyUnavailable</key>
 	<string>对方成为联系人并给你发过消息后，才能查看安全码。</string>
 	<key>chat.details.title</key>
-	<string>会话详情</string>
+	<string>聊天详情</string>
 	<key>chat.details.you</key>
 	<string>你</string>
 	<key>chat.draft.caption</key>
@@ -61,7 +59,7 @@
 	<key>chat.edited</key>
 	<string>已编辑</string>
 	<key>chat.empty.message</key>
-	<string>此会话的消息将在这里显示。</string>
+	<string>此聊天的消息将在这里显示。</string>
 	<key>chat.empty.title</key>
 	<string>暂无消息</string>
 	<key>chat.gallery.empty</key>
@@ -91,7 +89,7 @@
 	<key>chat.media.failed</key>
 	<string>下载失败，点按重试</string>
 	<key>chat.media.notAvailable</key>
-	<string>在此设备上不可用</string>
+	<string>在本设备上不可用</string>
 	<key>chat.media.open</key>
 	<string>点按打开</string>
 	<key>chat.media.peerUpgrade</key>
@@ -133,7 +131,9 @@
 	<key>chat.message.deleteMine</key>
 	<string>从我的设备中删除</string>
 	<key>chat.message.deleted</key>
-	<string>消息已删除</string>
+	<string>此消息已删除</string>
+	<key>chat.message.deletedOwn</key>
+	<string>你删除了此消息</string>
 	<key>chat.message.edit</key>
 	<string>编辑</string>
 	<key>chat.message.forward</key>
@@ -142,6 +142,8 @@
 	<string>表情回应</string>
 	<key>chat.message.selectText</key>
 	<string>选择文本</string>
+	<key>chat.message.selectText.done</key>
+	<string>完成</string>
 	<key>chat.offline.banner</key>
 	<string>当前离线 · 消息将在恢复连接后发送</string>
 	<key>chat.outbox.details</key>
@@ -192,8 +194,6 @@
 	<string>以下为未读消息</string>
 	<key>chat.typing</key>
 	<string>正在输入…</string>
-	<key>common.action.refresh</key>
-	<string>刷新</string>
 	<key>common.action.reply</key>
 	<string>回复</string>
 </dict>
