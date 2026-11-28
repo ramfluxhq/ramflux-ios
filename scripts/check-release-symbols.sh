@@ -3,7 +3,8 @@
 # Copyright (c) 2026 Span Brain
 #
 # Fails when a Release app binary still contains the debug wake injector (App/Debug/DebugWakeInjector.swift,
-# compiled only with RAMFLUX_DEBUG_WAKE).
+# compiled only with RAMFLUX_DEBUG_WAKE) or the MLS gallery and its fixtures (App/Debug/MlsGallery.swift and
+# Packages/AppData/Sources/AppData/Gallery, compiled only with RAMFLUX_MLS_GALLERY).
 #   scripts/check-release-symbols.sh path/to/Ramflux.app [--expect-present]
 # With --expect-present the check is inverted: it passes only when the symbol is there (a Debug build), which
 # proves the check can see it.
@@ -15,11 +16,11 @@ binary=$app/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.
 found=0
 for candidate in "$binary" "$app"/*.debug.dylib; do
   [ -f "$candidate" ] || continue
-  if strings -a "$candidate" | grep -q 'DebugWakeInjector'; then found=1; fi
+  if strings -a "$candidate" | grep -q -e 'DebugWakeInjector' -e 'MlsGallery' -e 'FixtureContactIdentityRepository'; then found=1; fi
 done
 if [ "${2:-}" = "--expect-present" ]; then
-  [ "$found" = 1 ] && { echo "check-release-symbols: DebugWakeInjector present (expected in a Debug build)"; exit 0; }
-  echo "check-release-symbols: DebugWakeInjector not found in a build that should have it" >&2; exit 1
+  [ "$found" = 1 ] && { echo "check-release-symbols: debug wake injector and MLS gallery present (expected in a Debug build)"; exit 0; }
+  echo "check-release-symbols: debug wake injector or MLS gallery not found in a build that should have it" >&2; exit 1
 fi
-if [ "$found" = 1 ]; then echo "check-release-symbols: DebugWakeInjector found in $app" >&2; exit 1; fi
-echo "check-release-symbols: no DebugWakeInjector in $app"
+if [ "$found" = 1 ]; then echo "check-release-symbols: debug wake injector or MLS gallery found in $app" >&2; exit 1; fi
+echo "check-release-symbols: no debug wake injector or MLS gallery in $app"

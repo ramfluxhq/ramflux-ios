@@ -234,9 +234,14 @@ at most 300 rows over a `RowPageReader`. `contact.list` and `contact.requests.li
 in the SDK, so `SnapshotPager` reads each once per first page, keeps the matching rows in the data
 layer and pages them by offset; the filter runs there, off the main actor. A contact profile offers
 block, unblock and remove (`contact.block`, `contact.unblock`, `contact.remove` with scope `me`, each
-selected by `link_id`) behind host-drawn confirmation. Marking a safety number verified reads
-`contact.verification.status` and passes its `expected` snapshot to `contact.verify`, a
-compare-and-set, so a number that changed after the user compared it is not recorded as verified.
+selected by `link_id`) behind host-drawn confirmation. There is no safety number and no "mark
+verified": a contact's identity is the SDK's `identity_state` (`verified`, `tofu`, `changed`) from
+`contact.verification.status`. A changed identity (event `contact.identity_changed`) is accepted
+only by the explicit "Accept new identity" tap in the identity change sheet
+(`contact.trust.accept_change` with the sheet's `new_anchor`); nothing accepts it by itself and a
+send refused with `identity_change_pending` is never repeated. The new methods are not at the
+current pin (see `docs/bridge.md`), so `ContactIdentityRepository.security` and `accept` return the
+typed unsupported outcome and the screens are exercised by the Debug MLS gallery until the pin batch.
 The group list reads `group.list` through the same snapshot pager and window, filtered in the data
 layer. `group.members` returns the whole roster in one response, so the members screen renders a
 growing window of projected rows (50 more per scroll step) over the roster held by the detail; the
